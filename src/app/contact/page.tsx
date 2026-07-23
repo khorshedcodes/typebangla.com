@@ -2,6 +2,9 @@
 
 import React, { useState } from "react";
 import { Send } from "lucide-react";
+import { Button } from "../../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../components/ui/card";
+import { Input } from "../../components/ui/input";
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
@@ -14,53 +17,66 @@ export default function ContactPage() {
   };
 
   return (
-    <main className="app-container">
-      <div className="prose">
-        <h2>Contact Us</h2>
-        <p>Have feedback, questions, or suggestions? We&apos;d love to hear from you.</p>
+    <main className="container max-w-lg mx-auto px-4 sm:px-6 py-12 fade-in">
+      <Card className="border border-border bg-card shadow-sm">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl font-bold text-zinc-900">Contact Us</CardTitle>
+          <CardDescription className="text-xs">Have feedback, questions, or suggestions? We&apos;d love to hear from you.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {submitted && (
+            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-md text-xs text-emerald-800 font-semibold animate-in fade-in duration-200">
+              Thank you! Your message has been received.
+            </div>
+          )}
 
-        {submitted && (
-          <div style={{ padding: 14, background: "var(--accent-subtle)", border: "1px solid var(--accent)", borderRadius: "var(--radius-sm)", fontSize: "0.85rem", color: "var(--accent)", marginBottom: 24 }}>
-            Thank you! Your message has been received.
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <div>
-            <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)", marginBottom: 6 }}>Name</label>
-            <input
-              type="text" required value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              placeholder="Your name"
-              className="text-area-glow"
-              style={{ padding: "10px 14px" }}
-            />
-          </div>
-          <div>
-            <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)", marginBottom: 6 }}>Email</label>
-            <input
-              type="email" required value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              placeholder="your@email.com"
-              className="text-area-glow"
-              style={{ padding: "10px 14px" }}
-            />
-          </div>
-          <div>
-            <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)", marginBottom: 6 }}>Message</label>
-            <textarea
-              rows={4} required value={form.message}
-              onChange={(e) => setForm({ ...form, message: e.target.value })}
-              placeholder="Your message..."
-              className="text-area-glow"
-              style={{ resize: "none" }}
-            />
-          </div>
-          <button type="submit" className="btn-primary" style={{ alignSelf: "flex-start", padding: "12px 24px" }}>
-            <Send size={14} /> Send Message
-          </button>
-        </form>
-      </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-zinc-700 block">Name</label>
+              <Input
+                type="text" 
+                required 
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                placeholder="Your name"
+                className="h-9 border-zinc-200 text-xs"
+              />
+            </div>
+            
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-zinc-700 block">Email</label>
+              <Input
+                type="email" 
+                required 
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                placeholder="your@email.com"
+                className="h-9 border-zinc-200 text-xs"
+              />
+            </div>
+            
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-zinc-700 block">Message</label>
+              <textarea
+                rows={4} 
+                required 
+                value={form.message}
+                onChange={(e) => setForm({ ...form, message: e.target.value })}
+                placeholder="Your message..."
+                className="w-full text-xs p-3 border border-zinc-200 bg-background text-zinc-800 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 resize-none font-sans"
+              />
+            </div>
+            
+            <Button 
+              type="submit" 
+              className="w-full bg-zinc-950 text-white hover:bg-zinc-800 h-10 gap-1.5"
+            >
+              <Send size={13} />
+              <span>Send Message</span>
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </main>
   );
 }

@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import SlugClient from "@/app/bangla-slug-generator/SlugClient";
 
 export const metadata: Metadata = {
-  title: "Bangla URL Slug Generator | বাংলা ইউআরএল স্ল্যাগ জেনারেটর | TypeBangla",
+  title: "Bangla URL Slug Generator | বাংলা ইউআরএল স্ল্যাগ জেনারেটর | typebangla",
   description: "Generate clean, SEO-friendly URL slugs from Bangla text. Convert Bangla Unicode to clean hyphenated formats or phonetic English to prevent browser percent-encoding.",
   keywords: [
     "bangla slug generator",

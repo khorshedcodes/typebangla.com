@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/api/", "/_next/"],
     },
-    sitemap: "https://typemasterbangla.com/sitemap.xml", // Replace with your actual domain later
+    sitemap: "https://typebangla.com/sitemap.xml",
   };
 }

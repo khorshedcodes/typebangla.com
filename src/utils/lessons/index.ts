@@ -30,6 +30,9 @@ import { englishLessons } from "./english/english.lessons";
 import { avroLessons } from "./bangla/avro.lessons";
 import { unibijoyLessons } from "./bangla/unibijoy.lessons";
 import { jatiyaLessons } from "./bangla/jatiya.lessons";
+import { probhatLessons } from "./bangla/probhat.lessons";
+import { inscriptLessons } from "./bangla/inscript.lessons";
+import { unicodeLessons } from "./bangla/unicode.lessons";
 
 // ── Import types needed in helpers ───────────────────────────
 import type { Lesson, LessonCategory } from "./types";
@@ -41,6 +44,9 @@ export const ALL_LESSONS: Lesson[] = [
   ...avroLessons,
   ...unibijoyLessons,
   ...jatiyaLessons,
+  ...probhatLessons,
+  ...inscriptLessons,
+  ...unicodeLessons,
 ];
 
 // ── Lesson lookup ────────────────────────────────────────────
@@ -59,6 +65,9 @@ export function getLessonsByCategory(
   // Bangla — select the correct layout-specific array
   if (layout === "unibijoy") return unibijoyLessons;
   if (layout === "jatiya") return jatiyaLessons;
+  if (layout === "probhat") return probhatLessons;
+  if (layout === "inscript") return inscriptLessons;
+  if (layout === "unicode") return unicodeLessons;
   return avroLessons; // default / "avro" / "english" (fallback)
 }
 

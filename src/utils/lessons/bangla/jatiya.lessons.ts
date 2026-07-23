@@ -1,7 +1,7 @@
 /**
  * TypeMaster — Jatiya Bangla Lessons (45 lessons)
  *
- * Jatiya is the government-standard FIXED LAYOUT.
+ * Jatiya layout FIXED LAYOUT.
  * Each physical key maps to a specific Bangla character.
  *
  * Key Zones (physical QWERTY positions):
@@ -20,8 +20,8 @@ export const jatiyaLessons: Lesson[] = [
   // ══════════════════════════════════════════════════════════
   {
     id: "bn-jatiya-001",
-    title: "Home Row Left: ক স (g s)",
-    subtitle: "g=ক এবং s=স — বাম হাতের তর্জনী ও অনামিকা আঙুল",
+    title: "Home Row Left: ক স (j n)",
+    subtitle: "j=ক এবং n=স — বাম হাতের তর্জনী ও অনামিকা আঙুল",
     category: "bangla",
     level: "beginner",
     type: "drill",
@@ -33,8 +33,8 @@ export const jatiyaLessons: Lesson[] = [
   },
   {
     id: "bn-jatiya-002",
-    title: "Home Row Left: া ্ (f d)",
-    subtitle: "f=া (আ-কার) এবং d=্ (হসন্ত/লিঙ্ক কী) — তর্জনী ও মধ্যমা",
+    title: "Home Row Left: া ্ (h d)",
+    subtitle: "h=া (আ-কার) এবং d=্ (হসন্ত/লিঙ্ক কী) — তর্জনী ও মধ্যমা",
     category: "bangla",
     level: "beginner",
     type: "drill",
@@ -46,8 +46,8 @@ export const jatiyaLessons: Lesson[] = [
   },
   {
     id: "bn-jatiya-003",
-    title: "Home Row Right: ব ন (h j)",
-    subtitle: "h=ব এবং j=ন — ডান হাতের তর্জনী দুটো",
+    title: "Home Row Right: ব ন (f b)",
+    subtitle: "f=ব এবং b=ন — ডান হাতের তর্জনী দুটো",
     category: "bangla",
     level: "beginner",
     type: "drill",
@@ -59,8 +59,8 @@ export const jatiyaLessons: Lesson[] = [
   },
   {
     id: "bn-jatiya-004",
-    title: "Home Row Right: ত ম র (k l ;)",
-    subtitle: "k=ত, l=ম, ;=র — ডান হাতের মধ্যমা, অনামিকা ও কনিষ্ঠা",
+    title: "Home Row Right: ত ম র (k m v)",
+    subtitle: "k=ত, m=ম, v=র — ডান হাতের মধ্যমা, অনামিকা ও কনিষ্ঠা",
     category: "bangla",
     level: "beginner",
     type: "drill",
@@ -72,8 +72,8 @@ export const jatiyaLessons: Lesson[] = [
   },
   {
     id: "bn-jatiya-005",
-    title: "Home Row: অ (a) — Independent Vowel",
-    subtitle: "a=অ — স্বাধীন স্বরবর্ণ অ",
+    title: "Home Row: অ (h) — Independent Vowel",
+    subtitle: "Shift+Shift+h=অ — স্বাধীন স্বরবর্ণ অ",
     category: "bangla",
     level: "beginner",
     type: "drill",
@@ -119,8 +119,8 @@ export const jatiyaLessons: Lesson[] = [
   // ══════════════════════════════════════════════════════════
   {
     id: "bn-jatiya-008",
-    title: "Top Row Left Vowels: ৌ ূ ী ু ি (q w e r t)",
-    subtitle: "q=ৌ, w=ূ, e=ী, r=ু, t=ি — বাম হাতের উপরের সারির স্বর-কার",
+    title: "Top Row Left Vowels: ৌ ূ ী ু ি (x s d s d)",
+    subtitle: "Shift+Shift+x=ৌ, Shift+Shift+s=ূ, Shift+Shift+d=ী, s=ু, d=ি — বাম হাতের উপরের সারির স্বর-কার",
     category: "bangla",
     level: "beginner",
     type: "drill",
@@ -132,8 +132,8 @@ export const jatiyaLessons: Lesson[] = [
   },
   {
     id: "bn-jatiya-009",
-    title: "Top Row Right Consonants: ত চ দ জ ড (y u i o p)",
-    subtitle: "y=ত, u=চ, i=দ, o=জ, p=ড — ডান হাতের উপরের সারি",
+    title: "Top Row Right Consonants: ত চ দ জ ড (k y l u e)",
+    subtitle: "k=ত, y=চ, l=দ, u=জ, e=ড — ডান হাতের উপরের সারি",
     category: "bangla",
     level: "beginner",
     type: "drill",
@@ -201,8 +201,8 @@ export const jatiyaLessons: Lesson[] = [
   // ══════════════════════════════════════════════════════════
   {
     id: "bn-jatiya-014",
-    title: "Bottom Row Left: ্র ও ে (z x c)",
-    subtitle: "z=্র, x=ও, c=ে — বাম হাতের নীচের তিনটি কী",
+    title: "Bottom Row Left: ্র ও ে (c)",
+    subtitle: "d=্র, x=ও, c=ে — বাম হাতের নীচের তিনটি কী",
     category: "bangla",
     level: "beginner",
     type: "drill",
@@ -214,8 +214,8 @@ export const jatiyaLessons: Lesson[] = [
   },
   {
     id: "bn-jatiya-015",
-    title: "Bottom Row Right: প ল ষ হ য় (v b n m /)",
-    subtitle: "v=প, b=ল, n=ষ, m=হ, /=য় — ডান হাতের নীচের কী",
+    title: "Bottom Row Right: প ল ষ হ য় (r v n i)",
+    subtitle: "r=প, Shift+Shift+v=ল, Shift+Shift+n=ষ, i=হ, /=য় — ডান হাতের নীচের কী",
     category: "bangla",
     level: "beginner",
     type: "drill",
@@ -261,8 +261,8 @@ export const jatiyaLessons: Lesson[] = [
   // ══════════════════════════════════════════════════════════
   {
     id: "bn-jatiya-018",
-    title: "Shift Home Left: আ শ । (A S D)",
-    subtitle: "A=আ, S=শ, D=। — শিফট+বাম হোম রো",
+    title: "Shift Home Left: আ শ । (m g)",
+    subtitle: "A=আ, Shift+Shift+m=শ, Shift+Shift+g=। — শিফট+বাম হোম রো",
     category: "bangla",
     level: "intermediate",
     type: "drill",
@@ -274,8 +274,8 @@ export const jatiyaLessons: Lesson[] = [
   },
   {
     id: "bn-jatiya-019",
-    title: "Shift Home Right: ভ ণ থ ধ ড় (H J K L ;)",
-    subtitle: "H=ভ, J=ণ, K=থ, L=ধ, ;=ড় — শিফট+ডান হোম রো",
+    title: "Shift Home Right: ভ ণ থ ধ ড় (f b k l)",
+    subtitle: "Shift+Shift+f=ভ, Shift+Shift+b=ণ, Shift+Shift+k=থ, Shift+Shift+l=ধ, e=ড় — শিফট+ডান হোম রো",
     category: "bangla",
     level: "intermediate",
     type: "drill",
@@ -317,8 +317,8 @@ export const jatiyaLessons: Lesson[] = [
   },
   {
     id: "bn-jatiya-022",
-    title: "Shift Top Right: থ ছ ধ ঝ ঢ (Y U I O P)",
-    subtitle: "Y=থ, U=ছ, I=ধ, O=ঝ, P=ঢ — শিফট+ডান টপ রো",
+    title: "Shift Top Right: থ ছ ধ ঝ ঢ (k y l u e)",
+    subtitle: "Shift+Shift+k=থ, Shift+Shift+y=ছ, Shift+Shift+l=ধ, Shift+Shift+u=ঝ, Shift+Shift+e=ঢ — শিফট+ডান টপ রো",
     category: "bangla",
     level: "intermediate",
     type: "drill",
@@ -394,7 +394,7 @@ export const jatiyaLessons: Lesson[] = [
   // ══════════════════════════════════════════════════════════
   {
     id: "bn-jatiya-027",
-    title: "Simple Conjuncts: ক্ত ন্দ ন্ত ম্প (Link key: d)",
+    title: "Simple Conjuncts: ক্ত ন্দ ন্ত ম্প (d j k b l m r v n)",
     subtitle: "সহজ যুক্তবর্ণ — d = ্ (হসন্ত/লিঙ্ক কী)",
     category: "bangla",
     level: "intermediate",

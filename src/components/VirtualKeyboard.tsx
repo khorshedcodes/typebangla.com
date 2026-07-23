@@ -2,10 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import { useTypingStore, KeyboardLayout } from "../store/typingStore";
-import { JATIYA_MAP, UNI_BIJOY_MAP } from "../utils/layouts";
+import { JATIYA_MAP, UNI_BIJOY_MAP, PROBHAT_MAP, INSCRIPT_MAP, UNICODE_MAP } from "../utils/layouts";
+import { cn } from "../utils/cn";
+import HandPlacement, { FINGER_MAP } from "./HandPlacement";
 
 interface VirtualKeyboardProps {
-  nextChar: string;
+  nextChar?: string;
+  onKeyClick?: (code: string, char: string, isShift?: boolean) => void;
 }
 
 interface KeyboardKey {
@@ -13,9 +16,8 @@ interface KeyboardKey {
   label?: string;
   enNormal?: string;
   enShift?: string;
-  class?: string;
+  classWidth?: string;
 }
-
 
 const getEnglishKeyCode = (char: string): string => {
   if (/[a-z]/.test(char)) return `Key${char.toUpperCase()}`;
@@ -27,26 +29,30 @@ const getEnglishKeyCode = (char: string): string => {
   return symbolMap[char] || "";
 };
 
-// Determine which physical key code should be highlighted next
 const getHighlightKeys = (char: string, layout: KeyboardLayout): { codes: string[]; needsShift: boolean } => {
   if (!char) return { codes: [], needsShift: false };
 
-  // Spacebar check
   if (char === " ") {
     return { codes: ["Space"], needsShift: false };
   }
 
   if (layout === "english" || layout === "avro") {
-    // English typing lookup / Avro Latin drills
-    const code = getEnglishKeyCode(char.toLowerCase());
-    const needsShift = char !== char.toLowerCase() && /[A-Z]/.test(char);
+    const target = char.length > 1 && !/[a-zA-Z0-9]/.test(char) ? char[0] : char;
+    const code = getEnglishKeyCode(target.toLowerCase());
+    const needsShift = target !== target.toLowerCase() && /[A-Z]/.test(target);
     return { codes: code ? [code] : [], needsShift };
   }
 
-  const map = layout === "jatiya" ? JATIYA_MAP : layout === "unibijoy" ? UNI_BIJOY_MAP : null;
+  const map =
+    layout === "jatiya" ? JATIYA_MAP :
+    layout === "unibijoy" ? UNI_BIJOY_MAP :
+    layout === "probhat" ? PROBHAT_MAP :
+    layout === "inscript" ? INSCRIPT_MAP :
+    layout === "unicode" ? UNICODE_MAP :
+    null;
   if (!map) return { codes: [], needsShift: false };
 
-  // Search mapping tables for the key code that produces the character
+  // 1. Direct character match in layout table
   for (const [code, mappings] of Object.entries(map)) {
     if (mappings.normal === char) {
       return { codes: [code], needsShift: false };
@@ -54,22 +60,94 @@ const getHighlightKeys = (char: string, layout: KeyboardLayout): { codes: string
     if (mappings.shift === char) {
       return { codes: [code, "ShiftLeft", "ShiftRight"], needsShift: true };
     }
+    if (mappings.altgr === char) {
+      return { codes: [code], needsShift: false };
+    }
+    if (mappings.altgr_shift === char) {
+      return { codes: [code, "ShiftLeft", "ShiftRight"], needsShift: true };
+    }
   }
 
-  // Handles conjunct indicators: if char is hasanta/virama link '্'
-  if (char === "্") {
-    const hKey = layout === "jatiya" ? "KeyD" : "KeyG";
+  // 2. Hasanta (্ / \u09cd) check
+  if (char === "্" || char === "\u09cd") {
+    for (const [code, mappings] of Object.entries(map)) {
+      if (mappings.normal === "\u09cd" || mappings.shift === "\u09cd") {
+        const needsShift = mappings.shift === "\u09cd";
+        return { codes: needsShift ? [code, "ShiftLeft", "ShiftRight"] : [code], needsShift };
+      }
+    }
+    const hKey =
+      layout === "probhat" ? "Slash" :
+      layout === "inscript" ? "KeyD" :
+      "KeyG";
     return { codes: [hKey], needsShift: false };
+  }
+
+  // 3. Fallback for multi-char composite strings (e.g. conjunct ligatures like "ক্ষ")
+  if (char.length > 1) {
+    const firstChar = char[0];
+    for (const [code, mappings] of Object.entries(map)) {
+      if (mappings.normal === firstChar) {
+        return { codes: [code], needsShift: false };
+      }
+      if (mappings.shift === firstChar) {
+        return { codes: [code, "ShiftLeft", "ShiftRight"], needsShift: true };
+      }
+    }
   }
 
   return { codes: [], needsShift: false };
 };
 
-export default function VirtualKeyboard({ nextChar }: VirtualKeyboardProps) {
+const FINGER_KEY_ACCENT: Record<string, string> = {
+  "L-Pinky": "border-t-rose-500/80 hover:border-rose-500/60",
+  "L-Ring": "border-t-amber-500/80 hover:border-amber-500/60",
+  "L-Middle": "border-t-emerald-500/80 hover:border-emerald-500/60",
+  "L-Index": "border-t-sky-500/80 hover:border-sky-500/60",
+  "L-Thumb": "border-t-indigo-500/80 hover:border-indigo-500/60",
+  "R-Thumb": "border-t-indigo-500/80 hover:border-indigo-500/60",
+  "R-Index": "border-t-blue-500/80 hover:border-blue-500/60",
+  "R-Middle": "border-t-teal-500/80 hover:border-teal-500/60",
+  "R-Ring": "border-t-violet-500/80 hover:border-violet-500/60",
+  "R-Pinky": "border-t-pink-500/80 hover:border-pink-500/60",
+};
+
+export default function VirtualKeyboard({ nextChar = "", onKeyClick }: VirtualKeyboardProps) {
   const activeLayout = useTypingStore((state) => state.activeLayout);
+  const keyStats = useTypingStore((state) => state.keyStats) || {};
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
 
-  // Monitor physical keystrokes for active key lighting effects
+  const getKeyAccuracyColor = (key: KeyboardKey, normLeg: string, shftLeg: string) => {
+    const charsToCheck: string[] = [];
+    if (key.code === "Space") {
+      charsToCheck.push(" ");
+    } else {
+      if (activeLayout === "english" || activeLayout === "avro") {
+        if (key.enNormal) charsToCheck.push(key.enNormal.toLowerCase());
+        if (key.enShift) charsToCheck.push(key.enShift.toLowerCase());
+      } else {
+        if (normLeg) charsToCheck.push(normLeg.toLowerCase());
+        if (shftLeg) charsToCheck.push(shftLeg.toLowerCase());
+      }
+    }
+
+    let totalCorrect = 0;
+    let totalStrokes = 0;
+    charsToCheck.forEach(char => {
+      const stats = keyStats[char];
+      if (stats) {
+        totalCorrect += stats.correct;
+        totalStrokes += stats.total;
+      }
+    });
+
+    if (totalStrokes < 3) return null;
+    const accuracy = totalCorrect / totalStrokes;
+    const normalizedAcc = Math.max(0, Math.min(1, (accuracy - 0.5) / 0.5));
+    const hue = Math.round(normalizedAcc * 120);
+    return `hsla(${hue}, 0%, 50%, 0.15)`;
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       setPressedKeys((prev) => {
@@ -98,7 +176,6 @@ export default function VirtualKeyboard({ nextChar }: VirtualKeyboardProps) {
 
   const { codes: highlightCodes, needsShift: highlightShift } = getHighlightKeys(nextChar, activeLayout);
 
-  // Keyboard Rows definition
   const row1 = [
     { code: "Backquote", enNormal: "`", enShift: "~" },
     { code: "Digit1", enNormal: "1", enShift: "!" },
@@ -113,11 +190,11 @@ export default function VirtualKeyboard({ nextChar }: VirtualKeyboardProps) {
     { code: "Digit0", enNormal: "0", enShift: ")" },
     { code: "Minus", enNormal: "-", enShift: "_" },
     { code: "Equal", enNormal: "=", enShift: "+" },
-    { code: "Backspace", label: "Backspace", enNormal: "", enShift: "", class: "key-backspace" },
+    { code: "Backspace", label: "Backspace", classWidth: "w-[68px] sm:w-[78px] text-[10px]" },
   ];
 
   const row2 = [
-    { code: "Tab", label: "Tab", enNormal: "", enShift: "", class: "key-tab" },
+    { code: "Tab", label: "Tab", classWidth: "w-[54px] sm:w-[62px] text-[10px]" },
     { code: "KeyQ", enNormal: "q", enShift: "Q" },
     { code: "KeyW", enNormal: "w", enShift: "W" },
     { code: "KeyE", enNormal: "e", enShift: "E" },
@@ -134,7 +211,7 @@ export default function VirtualKeyboard({ nextChar }: VirtualKeyboardProps) {
   ];
 
   const row3 = [
-    { code: "CapsLock", label: "Caps Lock", enNormal: "", enShift: "", class: "key-capslock" },
+    { code: "CapsLock", label: "Caps", classWidth: "w-[60px] sm:w-[68px] text-[10px]" },
     { code: "KeyA", enNormal: "a", enShift: "A" },
     { code: "KeyS", enNormal: "s", enShift: "S" },
     { code: "KeyD", enNormal: "d", enShift: "D" },
@@ -146,11 +223,11 @@ export default function VirtualKeyboard({ nextChar }: VirtualKeyboardProps) {
     { code: "KeyL", enNormal: "l", enShift: "L" },
     { code: "Semicolon", enNormal: ";", enShift: ":" },
     { code: "Quote", enNormal: "'", enShift: '"' },
-    { code: "Enter", label: "Enter", enNormal: "", enShift: "", class: "key-enter" },
+    { code: "Enter", label: "Enter", classWidth: "w-[72px] sm:w-[82px] text-[10px]" },
   ];
 
   const row4 = [
-    { code: "ShiftLeft", label: "Shift", enNormal: "", enShift: "", class: "key-leftshift" },
+    { code: "ShiftLeft", label: "Shift", classWidth: "w-[80px] sm:w-[92px] text-[10px]" },
     { code: "KeyZ", enNormal: "z", enShift: "Z" },
     { code: "KeyX", enNormal: "x", enShift: "X" },
     { code: "KeyC", enNormal: "c", enShift: "C" },
@@ -161,70 +238,147 @@ export default function VirtualKeyboard({ nextChar }: VirtualKeyboardProps) {
     { code: "Comma", enNormal: ",", enShift: "<" },
     { code: "Period", enNormal: ".", enShift: ">" },
     { code: "Slash", enNormal: "/", enShift: "?" },
-    { code: "ShiftRight", label: "Shift", enNormal: "", enShift: "", class: "key-rightshift" },
+    { code: "ShiftRight", label: "Shift", classWidth: "w-[92px] sm:w-[104px] text-[10px]" },
   ];
 
   const row5 = [
-    { code: "ControlLeft", label: "Ctrl", class: "key-control" },
-    { code: "MetaLeft", label: "Win" },
-    { code: "AltLeft", label: "Alt", class: "key-alt" },
-    { code: "Space", label: "", class: "key-spacebar" },
-    { code: "AltRight", label: "Alt", class: "key-alt" },
-    { code: "ControlRight", label: "Ctrl", class: "key-control" },
+    { code: "ControlLeft", label: "Ctrl", classWidth: "w-[50px] sm:w-[56px] text-[10px]" },
+    { code: "MetaLeft", label: "Win", classWidth: "w-[44px] sm:w-[48px] text-[10px]" },
+    { code: "AltLeft", label: "Alt", classWidth: "w-[48px] sm:w-[52px] text-[10px]" },
+    { code: "Space", label: "Space", classWidth: "flex-1 max-w-[280px] sm:max-w-[320px] text-[10px]" },
+    { code: "AltRight", label: "Alt", classWidth: "w-[48px] sm:w-[52px] text-[10px]" },
+    { code: "ControlRight", label: "Ctrl", classWidth: "w-[50px] sm:w-[56px] text-[10px]" },
   ];
 
   const renderKey = (key: KeyboardKey) => {
     const isPressed = pressedKeys.has(key.code);
     const isHighlighted = highlightCodes.includes(key.code) || (highlightShift && key.code.startsWith("Shift"));
-    
-    // Resolve legends depending on active layout
+
     let normalLegend = key.label || key.enNormal;
     let shiftLegend = key.label ? "" : key.enShift;
-    
-    if (activeLayout === "unibijoy" && UNI_BIJOY_MAP[key.code]) {
-      normalLegend = UNI_BIJOY_MAP[key.code].normal;
-      shiftLegend = UNI_BIJOY_MAP[key.code].shift;
-    } else if (activeLayout === "jatiya" && JATIYA_MAP[key.code]) {
-      normalLegend = JATIYA_MAP[key.code].normal;
-      shiftLegend = JATIYA_MAP[key.code].shift;
-    } else if (activeLayout === "avro" && UNI_BIJOY_MAP[key.code]) {
-      // For Avro, we display the English keys but can show a small phonetic hint
-      normalLegend = key.enNormal;
-      shiftLegend = key.enShift;
+
+    const map =
+      activeLayout === "unibijoy" ? UNI_BIJOY_MAP :
+      activeLayout === "jatiya" ? JATIYA_MAP :
+      activeLayout === "probhat" ? PROBHAT_MAP :
+      activeLayout === "inscript" ? INSCRIPT_MAP :
+      activeLayout === "unicode" ? UNICODE_MAP :
+      null;
+
+    if (map && map[key.code]) {
+      normalLegend = map[key.code].normal;
+      shiftLegend = map[key.code].shift;
     }
+
+    const isSystemKey = !!key.label;
+    const isHomeRowBump = key.code === "KeyF" || key.code === "KeyJ";
+
+    const accuracyColor = !isSystemKey && !isHighlighted && !isPressed
+      ? getKeyAccuracyColor(key, normalLegend || "", shiftLegend || "")
+      : null;
+    const accuracyStyle = accuracyColor ? { backgroundColor: accuracyColor } : {};
+
+    const fingerId = FINGER_MAP[key.code];
+    const fingerAccentClass = !isSystemKey && fingerId ? FINGER_KEY_ACCENT[fingerId] : "";
 
     return (
       <div
-        key={key.code}
-        className={`key-cap ${key.class || ""} ${isPressed ? "depressed" : ""} ${isHighlighted ? "next-key-highlight" : ""}`}
+        onClick={() => {
+          if (onKeyClick) {
+            const charToPass = activeLayout !== "english" && activeLayout !== "avro"
+              ? (normalLegend || key.enNormal || "")
+              : (key.enNormal || "");
+            onKeyClick(key.code, charToPass, highlightShift || pressedKeys.has("ShiftLeft") || pressedKeys.has("ShiftRight"));
+          }
+        }}
+        style={accuracyStyle}
+        className={cn(
+          "h-11 sm:h-12 border border-border border-t-2 bg-card text-foreground rounded-lg flex items-center justify-center relative select-none cursor-pointer hover:border-primary/80 active:scale-95 font-sans text-xs transition-all duration-100 shadow-xs",
+          key.classWidth || "w-11 sm:w-12",
+          fingerAccentClass,
+          {
+            "bg-secondary border-border border-t-2 font-medium text-muted-foreground": isSystemKey,
+            "border-primary border-t-2 bg-primary text-primary-foreground ring-2 ring-primary/40 z-20 font-black shadow-md animate-pulse scale-[1.03]": isHighlighted,
+            "bg-secondary translate-y-[2px] shadow-none border-border": isPressed
+          }
+        )}
       >
-        {!key.label && (
+        {!isSystemKey && (
           <>
-            <span className="primary-label">{key.enNormal}</span>
-            {activeLayout !== "english" && (
-              <>
-                <span className="bangla-label">{normalLegend}</span>
-                {shiftLegend && <span className="bangla-shift-label">{shiftLegend}</span>}
-              </>
+            <span className={`absolute top-0.5 left-1 text-[8px] sm:text-[9px] font-mono ${
+              isHighlighted ? "text-primary-foreground/90 font-bold" : "text-muted-foreground"
+            }`}>
+              {key.enNormal}
+            </span>
+
+            {activeLayout !== "english" && activeLayout !== "avro" && (
+              <span className={`font-bangla text-xs sm:text-sm font-semibold pt-1 ${
+                isHighlighted ? "text-primary-foreground font-black text-sm sm:text-base" : "text-foreground"
+              }`}>
+                {normalLegend}
+              </span>
+            )}
+
+            {(activeLayout === "english" || activeLayout === "avro") && (
+              <span className={`font-mono text-xs sm:text-sm font-medium ${
+                isHighlighted ? "text-primary-foreground font-black text-sm sm:text-base" : "text-foreground"
+              }`}>
+                {key.enNormal}
+              </span>
+            )}
+
+            {activeLayout !== "english" && activeLayout !== "avro" && shiftLegend && (
+              <span className={`absolute top-0.5 right-1 text-[8px] sm:text-[9px] font-bangla ${
+                isHighlighted ? "text-primary-foreground/90 font-bold" : "text-muted-foreground"
+              }`}>
+                {shiftLegend}
+              </span>
+            )}
+
+            {/* Tactile Home Row Bumps for F and J keys */}
+            {isHomeRowBump && (
+              <span className={`w-3 h-0.5 rounded-full absolute bottom-1 left-1/2 -translate-x-1/2 ${
+                isHighlighted ? "bg-primary-foreground" : "bg-foreground/60"
+              }`} />
             )}
           </>
         )}
-        {key.label && <span>{key.label}</span>}
+
+        {isSystemKey && (
+          <span className={isHighlighted ? "text-primary-foreground font-black" : "text-muted-foreground"}>
+            {key.label}
+          </span>
+        )}
       </div>
     );
   };
 
   return (
-    <div className="keyboard-wrapper">
-      <div className="keyboard-row">{row1.map(renderKey)}</div>
-      <div className="keyboard-row">{row2.map(renderKey)}</div>
-      <div className="keyboard-row">{row3.map(renderKey)}</div>
-      <div className="keyboard-row">{row4.map(renderKey)}</div>
-      <div className="keyboard-row">{row5.map(renderKey)}</div>
-      
+    <div className="border border-border bg-card p-4 sm:p-5 rounded-2xl flex flex-col space-y-4 shadow-xs">
+      <div className="relative">
+        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-card to-transparent z-10 sm:hidden rounded-r-xl" />
+
+        <div className="overflow-x-auto pb-1">
+          <div className="flex flex-col space-y-1 sm:space-y-1.5 min-w-[620px]">
+            <div className="flex justify-center gap-1 sm:gap-1.5">{row1.map((k) => <React.Fragment key={k.code}>{renderKey(k)}</React.Fragment>)}</div>
+            <div className="flex justify-center gap-1 sm:gap-1.5">{row2.map((k) => <React.Fragment key={k.code}>{renderKey(k)}</React.Fragment>)}</div>
+            <div className="flex justify-center gap-1 sm:gap-1.5">{row3.map((k) => <React.Fragment key={k.code}>{renderKey(k)}</React.Fragment>)}</div>
+            <div className="flex justify-center gap-1 sm:gap-1.5">{row4.map((k) => <React.Fragment key={k.code}>{renderKey(k)}</React.Fragment>)}</div>
+            <div className="flex justify-center gap-1 sm:gap-1.5">{row5.map((k) => <React.Fragment key={k.code}>{renderKey(k)}</React.Fragment>)}</div>
+          </div>
+        </div>
+
+        <p className="sm:hidden text-center text-[10px] text-muted-foreground mt-1.5 select-none">
+          ← স্ক্রোল করুন →
+        </p>
+      </div>
+
+      {/* Interactive Dual-Hand Placement Component */}
+      <HandPlacement activeCodes={highlightCodes} activeShift={highlightShift} />
+
       {activeLayout === "avro" && (
-        <div className="bangla-help-tooltip" style={{ marginTop: "1rem", textAlign: "center" }}>
-          <strong>Avro Phonetic Mode:</strong> Type standard roman letters to phonetically transliterate into Bangla (e.g. <code>a</code> <code>m</code> <code>i</code> becomes <code>আমি</code>). Press <strong>Space</strong> to commit the word.
+        <div className="text-[10px] text-muted-foreground font-medium pt-2 text-center select-none bg-secondary py-1.5 border border-border rounded-lg max-w-lg mx-auto w-full">
+          <strong>Avro Phonetic Mode:</strong> রোমান লেটার টাইপ করুন (e.g. <code>a</code> <code>m</code> <code>i</code> → <code>আমি</code>). <strong>Space</strong> চাপুন শব্দ কনফার্ম করতে।
         </div>
       )}
     </div>

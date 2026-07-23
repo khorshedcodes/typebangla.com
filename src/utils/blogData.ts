@@ -11,6 +11,42 @@ export interface BlogPost {
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    slug: "fix-bangla-font-photoshop",
+    title: "Photoshop ও Illustrator-এ বাংলা লেখা ভেঙে গেলে ১০০% সমাধান",
+    excerpt: "Adobe Photoshop & Illustrator-এ বাংলা যুক্তবর্ণ ও অক্ষর ভেঙে যাওয়ার ১০০% নিখুঁত সমাধান। ওয়ার্ল্ড-রেডি কম্পোজার সেটিং এবং ইউনিকোড টু বিজয় কনভার্টার গাইড।",
+    category: "SEO & Dev",
+    date: "July 20, 2026",
+    readTime: "4 min read",
+    author: "TypeBangla Team",
+    content: `
+      <p>অ্যাডোবি ফটোশপ (Photoshop) বা ইলাস্ট্রেটরে (Illustrator) অভ্র বা ইউনিকোড বাংলা পেস্ট করলে যুক্তবর্ণ বিচ্ছিন্ন হয়ে যায় (যেমন: <strong>'বাংলা'</strong> হয়ে যায় <strong>'ব াং ল া'</strong>)? অথবা ফন্ট ভেঙে ইংরেজি কিম্ভূতকিমাকার লেখা আসে?</p>
+      
+      <p>এটি প্রফেশনাল গ্রাফিক ডিজাইনার এবং প্রিন্টিং প্রেস অপারেটরদের জন্য অত্যন্ত সাধারণ একটি সমস্যা। নিচের ৩টি সহজ ধাপে স্থায়ী সমাধান করুন:</p>
+
+      <hr />
+
+      <h3>ধাপ ১: ফটোশপ টাইপ ইঞ্জিন অপশন পরিবর্তন করুন</h3>
+      <p>অ্যাডোবি ফটোশপে ডিফল্ট টাইপিং ইঞ্জিন ল্যাটিন অক্ষরের জন্য সেট থাকে। বাংলা যুক্তবর্ণ সঠিকভাবে প্রদর্শন করতে নিচের সেটিংটি পরিবর্তন করুন:</p>
+      <ul>
+        <li>১. Photoshop ওপেন করে উপরের <strong>Edit</strong> মেনুতে যান।</li>
+        <li>২. <strong>Preferences</strong> → <strong>Type...</strong> নির্বাচন করুন।</li>
+        <li>৩. <strong>Choose Text Engine Options</strong> সেকশনে <strong>World-Ready Layout</strong> অথবা <strong>Middle Eastern and South Asian</strong> রেডিও বাটন সিলেক্ট করুন।</li>
+        <li>৪. <strong>OK</strong> এ ক্লিক করে Photoshop রিস্টার্ট (বন্ধ করে পুনরায় চালু) করুন।</li>
+      </ul>
+
+      <hr />
+
+      <h3>ধাপ ২: ইউনিকোড টেক্সট বিজয় এএনএসআই (SutonnyMJ)-এ কনভার্ট করুন</h3>
+      <p>যদি আপনি সুতন্বী এমজে (SutonnyMJ) ফন্ট ব্যবহার করে প্রেসের প্রফেশনাল ডিজাইন বা ইলাস্ট্রেটরে প্রিন্টিং পেপার তৈরি করতে চান, তবে অভ্র/ওয়েবের সাধারণ বাংলা সরাসরি পেস্ট না করে আমাদের অনলাইন কনভার্টার ব্যবহার করুন:</p>
+      <p>ইউনিকোড টেক্সট কপি করে আমাদের <a href="/unicode-to-bijoy-converter">Unicode to Bijoy Converter</a> টুলটিতে পেস্ট করুন এবং এক ক্লিকেই <strong>SutonnyMJ (Bijoy ANSI)</strong> ফরম্যাটে রূপান্তর করুন।</p>
+
+      <hr />
+
+      <h3>ধাপ ৩: ফটোশপে SutonnyMJ ফন্ট সিলেক্ট করুন</h3>
+      <p>কনভার্টার থেকে কপি করা টেক্সট ফটোশপ টেক্সট বক্সে পেস্ট করার পর তা দেখতে ইংরেজি অক্ষরের মতো লাগতে পারে। ফটোশপ ফন্ট ফ্যামিলি অপশনে গিয়ে <strong>SutonnyMJ</strong> সিলেক্ট করে দিলেই এটি নিখুঁত বাংলা যুক্তবর্ণে রূপান্তরিত হবে!</p>
+    `
+  },
+  {
     slug: "mastering-bangla-typing-layouts",
     title: "Mastering Bangla Typing: Avro vs. Bijoy vs. Jatiya Layouts",
     excerpt: "An in-depth comparison of the three major Bangla keyboard layouts to help you choose the best one for your typing speed.",

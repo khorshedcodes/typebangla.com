@@ -16,106 +16,216 @@ import {
 } from "../utils/lessons";
 import {
   BookOpen,
-  Award,
   Check,
   ChevronRight,
-  Star,
+  ChevronLeft,
+  ChevronDown,
+  ChevronUp,
   Target,
   RotateCcw,
   Lock,
   Zap,
   Trophy,
+  FileText,
+  Sparkles,
+  Layers,
+  Newspaper,
+  BookMarked
 } from "lucide-react";
+import { Button } from "./ui/button";
+import { Card, CardContent } from "./ui/card";
+import { Badge } from "./ui/badge";
 
-// ─── level color helpers ─────────────────────────────────────
-const LEVEL_COLORS: Record<LessonLevel, string> = {
-  beginner: "#10b981",
-  intermediate: "#f59e0b",
-  advanced: "#ef4444",
-  mastery: "#a855f7",
-};
+const BANGLA_LITERARY_PASSAGES = [
+  {
+    id: "bn-lit-1",
+    title: "সোনার তরী — রবীন্দ্রনাথ ঠাকুর",
+    text: "গগনে গরজে মেঘ, ঘন বরষা। কূলে একা বসে আছি, নাহি ভরসা। রাশি রাশি ভারা ভারা ধান কাটা হল সারা, ভরা নদী ক্ষুরধারা খরপরশা। কাটিতে কাটিতে ধান এল বরষা।",
+    subtitle: "Classic poem excerpt by Rabindranath Tagore"
+  },
+  {
+    id: "bn-lit-2",
+    title: "বিদ্রোহী — কাজী নজরুল ইসলাম",
+    text: "বল বীর— বল উন্নত মম শির! শির নেহারি’ আমারি, নত-শির ওই শিখর হিমাদ্রির! বল বীর— বল মহাবিশ্বের মহাকাশ ফাড়ি’, চন্দ্র সূর্য গ্রহ তারা আর্ট ফাড়ি’",
+    subtitle: "Classic poem excerpt by Kazi Nazrul Islam"
+  },
+  {
+    id: "bn-lit-3",
+    title: "বাংলার মুখ আমি দেখিয়াছি — জীবনানন্দ দাশ",
+    text: "বাংলার মুখ আমি দেখিয়াছি, তাই আমি পৃথিবীর রূপ খুঁজিতে যাই না আর; অন্ধকারে জেগে উঠে ডুমুরের গাছে চেয়ে দেখি ছাতাটির মতন পাতাটি তার",
+    subtitle: "Classic poem excerpt by Jibanananda Das"
+  }
+];
 
-const LEVEL_LABELS: Record<LessonLevel, string> = {
-  beginner: "শিক্ষার্থী",
-  intermediate: "মাধ্যমিক",
-  advanced: "উন্নত",
-  mastery: "দক্ষতা",
-};
+const BANGLA_CONTEMPORARY_PASSAGES = [
+  {
+    id: "bn-cont-1",
+    title: "ডিজিটাল প্রযুক্তি ও ফ্রিল্যান্সিং ক্যারিয়ার",
+    text: "বাংলাদেশে ফ্রিল্যান্সিং ও অনলাইন আউটসোর্সিং তরুণ প্রজন্মের কর্মসংস্থানের নতুন দিগন্ত উন্মোচন করেছে। প্রতিনিয়ত ওয়েব ডেভেলপমেন্ট, ডিজিটাল মার্কেটিং ও গ্রাফিক ডিজাইনে হাজার হাজার তরুণ নিজেদের আত্মকর্মসংস্থান গড়ে তুলছে।",
+    subtitle: "Tech & Economy article"
+  },
+  {
+    id: "bn-cont-2",
+    title: "স্মার্ট বাংলাদেশ ও ই-গভর্নেন্স",
+    text: "নাগরিক সেবা সহজীকরণে সরকারি দপ্তরসমূহে তথ্যপ্রযুক্তির সংযোজন প্রশাসনিক স্বচ্ছতা নিশ্চিত করছে। ঘরে বসে ই-সেবা গ্রহণের মাধ্যমে সময় ও অর্থ উভয়ের সাশ্রয় হচ্ছে।",
+    subtitle: "Government technology initiative"
+  }
+];
 
-// ─── helpers ────────────────────────────────────────────────
+const ENGLISH_LITERARY_PASSAGES = [
+  {
+    id: "en-lit-1",
+    title: "Stopping by Woods — Robert Frost",
+    text: "The woods are lovely, dark and deep, But I have promises to keep, And miles to go before I sleep, And miles to go before I sleep.",
+    subtitle: "Classic English poem excerpt"
+  }
+];
+
+const ENGLISH_CONTEMPORARY_PASSAGES = [
+  {
+    id: "en-cont-1",
+    title: "Tech Blog: Artificial Intelligence",
+    text: "Artificial intelligence is reshaping the tech landscape, enabling developers to build smarter applications and automate complex codebases.",
+    subtitle: "Technology article"
+  },
+  {
+    id: "en-cont-2",
+    title: "Software Documentation & Deployments",
+    text: "To deploy the project to production, run the build command and verify that all static assets are compiled correctly without build errors.",
+    subtitle: "Software documentation"
+  }
+];
+
 function isLessonUnlocked(
   lesson: Lesson,
   progress: Record<string, LessonProgress>,
   lessonList: Lesson[]
 ): boolean {
-  // First lesson always unlocked
   if (lesson.order <= 1) return true;
-  // A lesson is unlocked if the previous lesson was passed OR if any attempt exists
   const prev = lessonList.find((l) => l.order === lesson.order - 1);
   if (!prev) return true;
-  return !!progress[prev.id];
+  return !!progress[prev.id]?.passed;
 }
 
-// ─── Component ───────────────────────────────────────────────
-export default function LessonSelector() {
-  const { setTargetText, isCompleted, elapsedTime, typedText, targetText, resetTest, activeLayout } =
-    useTypingStore();
+interface LessonSelectorProps {
+  initialLessonId?: string;
+}
+
+export default function LessonSelector({ initialLessonId }: LessonSelectorProps = {}) {
+  const { 
+    setTargetText, 
+    isCompleted, 
+    elapsedTime, 
+    typedText, 
+    targetText, 
+    resetTest, 
+    activeLayout,
+    problematicPairs
+  } = useTypingStore();
 
   const [selectedCategory, setSelectedCategory] = useState<LessonCategory>("bangla");
+  const [mainMode, setMainMode] = useState<"curriculum" | "passages">("curriculum");
+  const [selectedLevelFilter, setSelectedLevelFilter] = useState<1 | 2 | 3>(1);
+  const [passageType, setPassageType] = useState<"literary" | "contemporary" | "weakKey">("literary");
+  
   const [activeLessonId, setActiveLessonId] = useState<string>("bn-avro-001");
+  const [activePassageId, setActivePassageId] = useState<string>("");
   const [progress, setProgress] = useState<Record<string, LessonProgress>>({});
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [isGridExpanded, setIsGridExpanded] = useState(false);
 
-  // ── Load lessons + progress from localStorage on mount & when layout/category changes ──
-  useEffect(() => {
-    const p = getAllProgress();
-    setProgress(p);
-
-    // Set default lesson based on category and layout
-    const currentLessons = getLessonsByCategory(selectedCategory, activeLayout);
-    const firstLesson = currentLessons[0];
-    if (firstLesson) {
-      setActiveLessonId(firstLesson.id);
-      setTargetText(
-        firstLesson.text,
-        firstLesson.focusKeys,
-        firstLesson.type,
-        firstLesson.inputLanguage,
-        firstLesson.outputPreview
-      );
+  const generateSynthesizedDrill = () => {
+    if (selectedCategory === "bangla") {
+      const weakLetters = problematicPairs.map(p => p.split("-")[0]).filter(Boolean);
+      if (weakLetters.length > 0) {
+        const repeats = weakLetters.slice(0, 3);
+        const segments = [];
+        for (let i = 0; i < 6; i++) {
+          const letter = repeats[Math.floor(Math.random() * repeats.length)];
+          segments.push(`${letter}া${letter} ${letter}ি${letter}্${letter} ${letter}ো${letter}`);
+        }
+        return `AI দুর্বল কিপ্যাড ড্রিল: ${segments.join(" ")} ক্ষতিকর ক্ষারক জ্ঞান কাঞ্চনজঙ্ঘা`;
+      }
+      return "AI যুক্তাক্ষর চ্যালেঞ্জ ড্রিল: পরীক্ষা পরীক্ষার্থী ক্ষতিকর ক্ষারক বিজ্ঞানীর জ্ঞান অর্জনের গৌরবে কাঞ্চনজঙ্ঘা শক্ত রক্তদান";
+    } else {
+      const weakKeys = problematicPairs.map(p => p.split("-")[0].toLowerCase()).filter(Boolean);
+      if (weakKeys.length > 0) {
+        const repeats = weakKeys.slice(0, 3);
+        const segments = [];
+        for (let i = 0; i < 6; i++) {
+          const k = repeats[Math.floor(Math.random() * repeats.length)];
+          segments.push(`${k}a${k} ${k}e${k} ${k}o${k}`);
+        }
+        return `AI Key Drill: ${segments.join(" ")} system architecture optimization deployment`;
+      }
+      return "AI Speed Drill: quick brown fox jumps over the lazy dog system architecture performance test";
     }
-  }, [setTargetText, selectedCategory, activeLayout]);
-
-  // ── Save progress when a test completes ──
-  useEffect(() => {
-    if (!isCompleted || !activeLessonId) return;
-
-    const wpm = Math.round((typedText.length / 5) / (elapsedTime / 60 || 1));
-    const correct = typedText.split("").filter((c, i) => c === targetText[i]).length;
-    const accuracy = Math.round((correct / (typedText.length || 1)) * 100);
-
-    // Find the active lesson to pass its targets for pass/fail evaluation
-    const allLessons = getLessonsByCategory(selectedCategory, activeLayout);
-    const activeLesson = allLessons.find((l) => l.id === activeLessonId);
-    const updated = saveLessonProgress(
-      activeLessonId,
-      Math.max(0, wpm),
-      Math.max(0, accuracy),
-      activeLesson
-    );
-    setProgress((prev) => ({ ...prev, [activeLessonId]: updated }));
-  }, [isCompleted]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const lessons = getLessonsByCategory(selectedCategory, activeLayout);
-  const completion = getCourseCompletion(selectedCategory, activeLayout);
-
-  const handleToggleCategory = (category: LessonCategory) => {
-    setSelectedCategory(category);
   };
 
+  useEffect(() => {
+    const isEng = activeLayout === "english";
+    setSelectedCategory(isEng ? "english" : "bangla");
+  }, [activeLayout]);
+
+  useEffect(() => {
+    const saved = getAllProgress();
+    setProgress(saved);
+
+    const lessons = getLessonsByCategory(selectedCategory, activeLayout);
+    if (lessons.length > 0) {
+      const target = initialLessonId ? lessons.find((l) => l.id === initialLessonId) : null;
+      const savedActiveId = typeof window !== "undefined" ? localStorage.getItem("last_active_lesson_id") : null;
+      const initial = target || lessons.find((l) => l.id === savedActiveId) || lessons[0];
+      setActiveLessonId(initial.id);
+      setTargetText(
+        initial.text,
+        initial.focusKeys,
+        initial.type,
+        initial.inputLanguage,
+        initial.outputPreview
+      );
+    }
+  }, [selectedCategory, activeLayout, initialLessonId]);
+
+  useEffect(() => {
+    if (!isCompleted || !elapsedTime || !typedText || mainMode !== "curriculum") return;
+
+    const allLessons = getLessonsByCategory(selectedCategory, activeLayout);
+    const lesson = allLessons.find((l) => l.id === activeLessonId);
+    if (!lesson) return;
+
+    const totalChars = typedText.length;
+    const elapsedMinutes = elapsedTime / 60;
+    const grossWpm = Math.round(totalChars / 5 / elapsedMinutes);
+
+    let correctChars = 0;
+    for (let i = 0; i < Math.min(typedText.length, targetText.length); i++) {
+      if (typedText[i] === targetText[i]) correctChars++;
+    }
+    const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 0;
+    const passed = grossWpm >= lesson.targetWpm && accuracy >= 85;
+
+    const updated = saveLessonProgress(lesson.id, grossWpm, accuracy, { targetWpm: lesson.targetWpm, targetAccuracy: 85 });
+    setProgress((prev) => ({ ...prev, [lesson.id]: updated }));
+  }, [isCompleted, elapsedTime, typedText, targetText, activeLessonId, selectedCategory, activeLayout, mainMode]);
+
+  const allLessons = getLessonsByCategory(selectedCategory, activeLayout);
+  
+  const currentLevelLessons = allLessons.filter((l) => {
+    if (selectedLevelFilter === 1) return l.level === "beginner";
+    if (selectedLevelFilter === 2) return l.level === "intermediate" || l.level === "advanced";
+    return l.level === "mastery";
+  });
+
+  const activeLessonIndex = currentLevelLessons.findIndex(l => l.id === activeLessonId);
+  const activeLessonObj = allLessons.find(l => l.id === activeLessonId) || currentLevelLessons[0] || allLessons[0];
+
+  const completion = getCourseCompletion(selectedCategory, activeLayout);
+
   const handleSelectLesson = (lesson: Lesson) => {
-    if (!isLessonUnlocked(lesson, progress, lessons)) return;
+    if (!isLessonUnlocked(lesson, progress, allLessons)) return;
     setActiveLessonId(lesson.id);
+    if (typeof window !== "undefined") localStorage.setItem("last_active_lesson_id", lesson.id);
     setTargetText(
       lesson.text,
       lesson.focusKeys,
@@ -123,7 +233,36 @@ export default function LessonSelector() {
       lesson.inputLanguage,
       lesson.outputPreview
     );
+    setIsGridExpanded(false);
     resetTest();
+  };
+
+  const handleSelectPassage = (id: string, text: string) => {
+    setActivePassageId(id);
+    const isEng = selectedCategory === "english";
+    setTargetText(
+      text,
+      "all",
+      "paragraph",
+      isEng ? "latin" : (activeLayout === "avro" ? "bangla" : "latin"),
+      ""
+    );
+    setIsGridExpanded(false);
+    resetTest();
+  };
+
+  const handlePrevLesson = () => {
+    if (activeLessonIndex > 0) {
+      const prev = currentLevelLessons[activeLessonIndex - 1];
+      if (prev) handleSelectLesson(prev);
+    }
+  };
+
+  const handleNextLesson = () => {
+    if (activeLessonIndex < currentLevelLessons.length - 1) {
+      const next = currentLevelLessons[activeLessonIndex + 1];
+      if (next && isLessonUnlocked(next, progress, allLessons)) handleSelectLesson(next);
+    }
   };
 
   const handleClearProgress = () => {
@@ -132,407 +271,300 @@ export default function LessonSelector() {
     setShowClearConfirm(false);
   };
 
-  const activeLesson = lessons.find((l) => l.id === activeLessonId);
-  const activeLessonProgress = activeLessonId ? progress[activeLessonId] : null;
-
   return (
-    <div className="glass-card flex flex-col gap-5" style={{ height: "fit-content" }}>
+    <div className="border border-border rounded-xl bg-card p-4 sm:p-5 shadow-xs space-y-4 fade-in">
+      
+      {/* 1. SLIM HEADER BAR */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        
+        {/* Mode Switcher Pills */}
+        <div className="inline-flex p-1 rounded-lg bg-secondary border border-border">
+          <button
+            onClick={() => setMainMode("curriculum")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+              mainMode === "curriculum" 
+                ? "bg-primary text-primary-foreground shadow-xs" 
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <BookOpen size={14} />
+            <span>Guided Curriculum</span>
+          </button>
 
-      {/* ── Header ── */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-        <div>
-          <h3 className="text-xl font-bold flex items-center gap-2" style={{ marginBottom: "0.15rem" }}>
-            <BookOpen size={20} className="text-emerald" />
-            <span>টাইপিং কোর্স</span>
-          </h3>
-          <p style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
-            বিশেষজ্ঞ হওয়ার পথ — ধাপে ধাপে
-          </p>
+          <button
+            onClick={() => setMainMode("passages")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+              mainMode === "passages" 
+                ? "bg-primary text-primary-foreground shadow-xs" 
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <BookMarked size={14} />
+            <span>Passages & Drills</span>
+          </button>
         </div>
-        <button
-          onClick={() => setShowClearConfirm(!showClearConfirm)}
-          title="Reset all progress"
-          style={{
-            background: "transparent",
-            border: "none",
-            cursor: "pointer",
-            color: "var(--text-muted)",
-            padding: "0.25rem",
-          }}
-        >
-          <RotateCcw size={14} />
-        </button>
+
+        {/* Right: Quick Controls & Progress Badge */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 bg-secondary border border-border px-2.5 py-1 rounded-md text-xs font-bold text-foreground">
+            <Trophy size={13} className="text-foreground" />
+            <span>{completion.percentage}% Done</span>
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsGridExpanded(!isGridExpanded)}
+            className="h-8 px-2.5 text-xs font-medium gap-1.5 border-border"
+          >
+            <span>{isGridExpanded ? "Hide Cards" : "Browse All"}</span>
+            {isGridExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowClearConfirm(!showClearConfirm)}
+            title="Reset course progress"
+            className="text-destructive hover:bg-destructive/10 h-8 w-8 p-0 border-border"
+          >
+            <RotateCcw size={13} />
+          </Button>
+        </div>
       </div>
+
+      {/* 2. COMPACT LESSON CONTROL BAR */}
+      {mainMode === "curriculum" && (
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-secondary p-3 rounded-lg border border-border">
+          
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-muted-foreground hidden sm:inline">Level:</span>
+            <select
+              value={selectedLevelFilter}
+              onChange={(e) => setSelectedLevelFilter(Number(e.target.value) as 1 | 2 | 3)}
+              className="bg-background text-foreground font-semibold border border-input rounded-md text-xs px-2.5 py-1.5 focus:outline-none cursor-pointer"
+            >
+              <option value={1}>Level 1: Basic Keys (স্বরবর্ণ ও ব্যঞ্জনবর্ণ)</option>
+              <option value={2}>Level 2: Vowel Signs (কার ও ফলা)</option>
+              <option value={3}>Level 3: Mastery (যুক্তাক্ষর দক্ষতা)</option>
+            </select>
+          </div>
+
+          <div className="flex-1 min-w-[200px]">
+            <select
+              value={activeLessonId}
+              onChange={(e) => {
+                const target = allLessons.find(l => l.id === e.target.value);
+                if (target) handleSelectLesson(target);
+              }}
+              className="w-full bg-background text-foreground font-bold border border-input rounded-md text-xs px-3 py-1.5 focus:outline-none cursor-pointer truncate"
+            >
+              {currentLevelLessons.map((l, idx) => (
+                <option key={l.id} value={l.id}>
+                  {idx + 1}. {l.title} (Target: {l.targetWpm} WPM)
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={activeLessonIndex <= 0}
+              onClick={handlePrevLesson}
+              className="h-8 px-2 text-xs gap-1 border-border"
+              title="Previous Lesson"
+            >
+              <ChevronLeft size={14} />
+              <span className="hidden sm:inline">Prev</span>
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={activeLessonIndex >= currentLevelLessons.length - 1}
+              onClick={handleNextLesson}
+              className="h-8 px-2 text-xs gap-1 border-border font-semibold"
+              title="Next Lesson"
+            >
+              <span className="hidden sm:inline">Next</span>
+              <ChevronRight size={14} />
+            </Button>
+          </div>
+        </div>
+      )}
 
       {showClearConfirm && (
-        <div
-          style={{
-            padding: "0.75rem",
-            backgroundColor: "rgba(239,68,68,0.1)",
-            border: "1px solid rgba(239,68,68,0.3)",
-            borderRadius: "var(--radius-sm)",
-            fontSize: "0.78rem",
-            color: "#f87171",
-          }}
-        >
-          সব অগ্রগতি মুছে ফেলবেন?{" "}
-          <button
-            onClick={handleClearProgress}
-            style={{
-              marginLeft: "0.5rem",
-              padding: "0.15rem 0.5rem",
-              background: "#ef4444",
-              color: "white",
-              border: "none",
-              borderRadius: "3px",
-              cursor: "pointer",
-              fontSize: "0.75rem",
-            }}
-          >
-            হ্যাঁ
-          </button>
-          <button
-            onClick={() => setShowClearConfirm(false)}
-            style={{
-              marginLeft: "0.25rem",
-              padding: "0.15rem 0.5rem",
-              background: "var(--bg-secondary)",
-              color: "var(--text-secondary)",
-              border: "1px solid var(--border-color)",
-              borderRadius: "3px",
-              cursor: "pointer",
-              fontSize: "0.75rem",
-            }}
-          >
-            না
-          </button>
-        </div>
-      )}
-
-      {/* ── Category Toggle ── */}
-      <div
-        style={{
-          display: "flex",
-          backgroundColor: "var(--bg-secondary)",
-          borderRadius: "var(--radius-sm)",
-          padding: "0.2rem",
-          border: "1px solid var(--border-color)",
-        }}
-      >
-        {(["bangla", "english"] as LessonCategory[]).map((cat) => {
-          const comp = getCourseCompletion(cat, activeLayout);
-          return (
-            <button
-              key={cat}
-              onClick={() => handleToggleCategory(cat)}
-              style={{
-                flex: 1,
-                padding: "0.5rem 0.25rem",
-                background:
-                  selectedCategory === cat ? "var(--primary-emerald)" : "transparent",
-                color: selectedCategory === cat ? "white" : "var(--text-secondary)",
-                border: "none",
-                borderRadius: "var(--radius-sm)",
-                cursor: "pointer",
-                fontWeight: "600",
-                fontSize: "0.82rem",
-                transition: "all 0.2s",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "0.1rem",
-              }}
-            >
-              <span>{cat === "bangla" ? "বাংলা কোর্স" : "English Course"}</span>
-              <span style={{ fontSize: "0.65rem", opacity: 0.8 }}>
-                {comp.passed}/{comp.total} পাস
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* ── Progress Bar ── */}
-      <div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            fontSize: "0.72rem",
-            color: "var(--text-muted)",
-            marginBottom: "0.3rem",
-          }}
-        >
-          <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-            <Trophy size={12} />
-            কোর্স অগ্রগতি
-          </span>
-          <span style={{ color: "var(--primary-emerald)", fontWeight: "700" }}>
-            {completion.percentage}%
-          </span>
-        </div>
-        <div
-          style={{
-            height: "5px",
-            backgroundColor: "var(--bg-secondary)",
-            borderRadius: "99px",
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              width: `${completion.percentage}%`,
-              height: "100%",
-              background:
-                "linear-gradient(90deg, var(--primary-emerald), #34d399)",
-              borderRadius: "99px",
-              transition: "width 0.4s ease",
-            }}
-          />
-        </div>
-      </div>
-
-      {/* ── Active Lesson Stats (if progress exists) ── */}
-      {activeLessonProgress && (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr 1fr",
-            gap: "0.5rem",
-          }}
-        >
-          {[
-            { label: "সেরা WPM", value: activeLessonProgress.bestWpm, icon: <Zap size={11} /> },
-            {
-              label: "সেরা নির্ভুলতা",
-              value: `${activeLessonProgress.bestAccuracy}%`,
-              icon: <Target size={11} />,
-            },
-            {
-              label: "মোট চেষ্টা",
-              value: activeLessonProgress.attempts,
-              icon: <RotateCcw size={11} />,
-            },
-          ].map((item) => (
-            <div
-              key={item.label}
-              style={{
-                padding: "0.4rem 0.5rem",
-                backgroundColor: "var(--bg-secondary)",
-                borderRadius: "var(--radius-sm)",
-                border: "1px solid var(--border-color)",
-                textAlign: "center",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "0.6rem",
-                  color: "var(--text-muted)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "0.2rem",
-                  marginBottom: "0.15rem",
-                }}
-              >
-                {item.icon}
-                {item.label}
-              </div>
-              <div
-                style={{
-                  fontSize: "0.9rem",
-                  fontWeight: "700",
-                  color: "var(--primary-emerald)",
-                }}
-              >
-                {item.value}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* ── Active Lesson Target ── */}
-      {activeLesson && (
-        <div
-          style={{
-            padding: "0.6rem 0.75rem",
-            backgroundColor: "hsla(164, 95%, 23%, 0.12)",
-            border: "1px solid hsla(164, 95%, 43%, 0.25)",
-            borderRadius: "var(--radius-sm)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "0.5rem",
-          }}
-        >
-          <div>
-            <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginBottom: "0.1rem" }}>
-              লক্ষ্যমাত্রা
-            </div>
-            <div style={{ fontSize: "0.82rem", fontWeight: "600", color: "var(--text-primary)" }}>
-              {activeLesson.targetWpm} WPM · {activeLesson.targetAccuracy}% নির্ভুলতা
-            </div>
+        <div className="p-3 bg-secondary border border-border rounded-md text-xs text-foreground flex items-center justify-between">
+          <span>Are you sure you want to reset all lesson progress badges?</span>
+          <div className="flex gap-2">
+            <Button size="sm" variant="ghost" onClick={() => setShowClearConfirm(false)} className="h-6 text-[10px]">Cancel</Button>
+            <Button size="sm" variant="destructive" onClick={handleClearProgress} className="h-6 text-[10px]">Reset All</Button>
           </div>
-          {activeLessonProgress?.passed ? (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.3rem",
-                color: "#10b981",
-                fontSize: "0.78rem",
-                fontWeight: "700",
-              }}
-            >
-              <Check size={14} />
-              পাস হয়েছে
+        </div>
+      )}
+
+      {/* 3. EXPANDABLE LESSON CARDS GRID */}
+      {isGridExpanded && mainMode === "curriculum" && (
+        <div className="space-y-4 pt-2 animate-in fade-in duration-200 border-t border-border">
+          <div className="flex items-center justify-between text-xs text-muted-foreground font-semibold">
+            <span>Select any card below to start practice:</span>
+            <span>{currentLevelLessons.length} lessons in this level</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-[320px] overflow-y-auto p-1">
+            {currentLevelLessons.map((lesson) => {
+              const isUnlocked = isLessonUnlocked(lesson, progress, allLessons);
+              const lessonProg = progress[lesson.id];
+              const isSelected = activeLessonId === lesson.id;
+
+              return (
+                <Card
+                  key={lesson.id}
+                  onClick={() => handleSelectLesson(lesson)}
+                  className={`border transition-all cursor-pointer select-none relative overflow-hidden ${
+                    isSelected
+                      ? "border-primary bg-secondary ring-1 ring-primary shadow-xs"
+                      : isUnlocked
+                      ? "border-border bg-card hover:border-foreground/50 shadow-xs"
+                      : "border-border bg-secondary/50 opacity-60 cursor-not-allowed"
+                  }`}
+                >
+                  <CardContent className="p-3.5 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-foreground line-clamp-1">
+                        {lesson.title}
+                      </span>
+                      {lessonProg?.passed ? (
+                        <Check size={14} className="text-foreground shrink-0" />
+                      ) : !isUnlocked ? (
+                        <Lock size={13} className="text-muted-foreground shrink-0" />
+                      ) : null}
+                    </div>
+
+                    <p className="text-[11px] text-muted-foreground line-clamp-1">
+                      {lesson.subtitle}
+                    </p>
+
+                    <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-1 border-t border-border">
+                      <span>Target: {lesson.targetWpm} WPM</span>
+                      {lessonProg && (
+                        <span className="font-semibold text-foreground">
+                          {lessonProg.bestWpm} WPM ({lessonProg.bestAccuracy}%)
+                        </span>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* MODE 2: PASSAGE & DRILL ARENA */}
+      {mainMode === "passages" && (
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
+            <div className="flex flex-wrap gap-2">
+              {[
+                { id: "literary", label: "📖 Literary Classics" },
+                { id: "contemporary", label: "📰 News & Technology" },
+                { id: "weakKey", label: "⚡ AI Weak-Key Drill" },
+              ].map((p) => {
+                const isActive = passageType === p.id;
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => {
+                      setPassageType(p.id as any);
+                      if (p.id === "weakKey") {
+                        handleSelectPassage("ai-weak-key", generateSynthesizedDrill());
+                      }
+                    }}
+                    className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all border ${
+                      isActive 
+                        ? "bg-primary text-primary-foreground border-primary shadow-xs" 
+                        : "bg-card border-border text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                );
+              })}
             </div>
-          ) : (
-            <Star size={16} style={{ color: "var(--accent-gold)", opacity: 0.6 }} />
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsGridExpanded(!isGridExpanded)}
+              className="h-8 text-xs font-medium gap-1 border-border"
+            >
+              <span>{isGridExpanded ? "Hide Passages" : "Browse Passages"}</span>
+              {isGridExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </Button>
+          </div>
+
+          {passageType === "weakKey" && (
+            <Card className="border border-border bg-secondary p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                  <Sparkles size={15} className="text-foreground" />
+                  <span>AI Targeted Keystroke Diagnostic Drill</span>
+                </span>
+                <Button 
+                  size="sm" 
+                  onClick={() => handleSelectPassage("ai-weak-key", generateSynthesizedDrill())}
+                  className="h-7 text-xs"
+                >
+                  Regenerate Drill
+                </Button>
+              </div>
+              <p className="text-xs text-foreground font-mono bg-background p-3 rounded-md border border-border leading-relaxed">
+                {generateSynthesizedDrill()}
+              </p>
+            </Card>
+          )}
+
+          {isGridExpanded && passageType !== "weakKey" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[320px] overflow-y-auto p-1 animate-in fade-in duration-200">
+              {(selectedCategory === "bangla" 
+                ? (passageType === "literary" ? BANGLA_LITERARY_PASSAGES : BANGLA_CONTEMPORARY_PASSAGES)
+                : (passageType === "literary" ? ENGLISH_LITERARY_PASSAGES : ENGLISH_CONTEMPORARY_PASSAGES)
+              ).map((p) => {
+                const isSelected = activePassageId === p.id;
+                return (
+                  <Card
+                    key={p.id}
+                    onClick={() => handleSelectPassage(p.id, p.text)}
+                    className={`border transition-all cursor-pointer p-3.5 space-y-2 ${
+                      isSelected
+                        ? "border-primary bg-secondary ring-1 ring-primary shadow-xs"
+                        : "border-border bg-card hover:border-foreground/50 shadow-xs"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-bold text-foreground">{p.title}</h4>
+                      <Badge variant="outline" className="text-[10px]">
+                        {p.text.length} Chars
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                      &quot;{p.text}&quot;
+                    </p>
+                    <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-1 border-t border-border">
+                      <span>{p.subtitle}</span>
+                      {isSelected && <span className="font-bold text-foreground">Active Passage</span>}
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
           )}
         </div>
       )}
 
-      {/* ── Lessons List ── */}
-      <div
-        className="flex flex-col gap-2"
-        style={{ maxHeight: "480px", overflowY: "auto", paddingRight: "0.2rem" }}
-      >
-        {lessons.map((lesson) => {
-          const isActive = lesson.id === activeLessonId;
-          const lessonProgress = progress[lesson.id];
-          const isPassed = lessonProgress?.passed === true;
-          const hasAttempt = !!lessonProgress;
-          const unlocked = isLessonUnlocked(lesson, progress, lessons);
-          const levelColor = LEVEL_COLORS[lesson.level];
-
-          return (
-            <div
-              key={lesson.id}
-              onClick={() => handleSelectLesson(lesson)}
-              title={unlocked ? lesson.subtitle : "আগের পাঠটি সম্পন্ন করুন"}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "0.7rem 0.85rem",
-                borderRadius: "var(--radius-sm)",
-                backgroundColor: isActive
-                  ? "hsla(164, 95%, 23%, 0.15)"
-                  : hasAttempt
-                  ? "hsla(164, 80%, 15%, 0.08)"
-                  : "var(--bg-secondary)",
-                border: isActive
-                  ? "1px solid var(--primary-emerald)"
-                  : `1px solid ${hasAttempt ? "hsla(164, 60%, 30%, 0.25)" : "var(--border-color)"}`,
-                cursor: unlocked ? "pointer" : "not-allowed",
-                transition: "all 0.18s",
-                opacity: unlocked ? 1 : 0.45,
-              }}
-            >
-              {/* Left: lesson number + info */}
-              <div style={{ display: "flex", alignItems: "center", gap: "0.65rem", flex: 1, minWidth: 0 }}>
-                {/* Number Badge */}
-                <div
-                  style={{
-                    width: "26px",
-                    height: "26px",
-                    borderRadius: "50%",
-                    backgroundColor: isPassed
-                      ? "var(--primary-emerald)"
-                      : isActive
-                      ? "hsla(164, 95%, 30%, 0.3)"
-                      : "var(--bg-tertiary)",
-                    border: `1px solid ${isPassed ? "var(--primary-emerald)" : "var(--border-color)"}`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                    fontSize: "0.65rem",
-                    fontWeight: "700",
-                    color: isPassed ? "white" : "var(--text-muted)",
-                  }}
-                >
-                  {isPassed ? <Check size={12} /> : unlocked ? lesson.order : <Lock size={10} />}
-                </div>
-
-                {/* Title + tags */}
-                <div style={{ minWidth: 0, flex: 1 }}>
-                  <div
-                    style={{
-                      fontSize: "0.85rem",
-                      fontWeight: "600",
-                      color: isActive ? "white" : "var(--text-primary)",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    {lesson.title}
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", marginTop: "0.15rem" }}>
-                    {/* Level chip */}
-                    <span
-                      style={{
-                        fontSize: "0.6rem",
-                        fontWeight: "700",
-                        letterSpacing: "0.4px",
-                        textTransform: "uppercase",
-                        color: levelColor,
-                        backgroundColor: `${levelColor}18`,
-                        padding: "0.05rem 0.3rem",
-                        borderRadius: "2px",
-                      }}
-                    >
-                      {LEVEL_LABELS[lesson.level]}
-                    </span>
-                    {/* Focus keys */}
-                    <span
-                      style={{
-                        fontSize: "0.6rem",
-                        color: "var(--text-muted)",
-                        maxWidth: "120px",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {lesson.focusKeys}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right: WPM badge or arrow */}
-              <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flexShrink: 0 }}>
-                {lessonProgress && (
-                  <div
-                    style={{
-                      fontSize: "0.65rem",
-                      fontWeight: "700",
-                      color: "var(--accent-gold)",
-                      backgroundColor: "rgba(251,191,36,0.08)",
-                      padding: "0.1rem 0.35rem",
-                      borderRadius: "3px",
-                      border: "1px solid rgba(251,191,36,0.2)",
-                    }}
-                  >
-                    {lessonProgress.bestWpm} wpm
-                  </div>
-                )}
-                {isActive ? (
-                  <ChevronRight size={14} style={{ color: "var(--primary-emerald)" }} />
-                ) : isPassed ? (
-                  <Award size={14} style={{ color: "var(--primary-emerald)" }} />
-                ) : (
-                  <ChevronRight size={14} style={{ color: "var(--text-muted)", opacity: 0.4 }} />
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
     </div>
   );
 }

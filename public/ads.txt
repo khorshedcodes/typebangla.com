@@ -1,3 +1,0 @@
-# Google AdSense authorized digital sellers file
-# Replace pub-0000000000000000 with your actual publisher ID once approved
-google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0

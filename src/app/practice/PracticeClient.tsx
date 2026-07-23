@@ -1,13 +1,19 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { useTypingStore, KeyboardLayout, SoundProfile, playTypewriterSound } from "../../store/typingStore";
 import TypingArea from "../../components/TypingArea";
 import VirtualKeyboard from "../../components/VirtualKeyboard";
 import LessonSelector from "../../components/LessonSelector";
 import ExamCenter from "../../components/ExamCenter";
 import StatsDashboard from "../../components/StatsDashboard";
-import { RotateCcw, Sparkles, Settings, X, Volume2, VolumeX } from "lucide-react";
+import TypeBanglaCoachPanel from "../../components/TypeBanglaCoachPanel";
+import { RotateCcw, Sparkles, Settings, X, Volume2, VolumeX, ArrowLeft, BookOpen, Gauge, BarChart3, Keyboard } from "lucide-react";
+import { Button } from "../../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../components/ui/card";
+import { Badge } from "../../components/ui/badge";
+import { cn } from "../../utils/cn";
 
 export default function PracticeClient() {
   const {
@@ -36,6 +42,7 @@ export default function PracticeClient() {
 
   const [activeSection, setActiveSection] = useState<"lessons" | "speedtest" | "dashboard">("lessons");
   const [showSettings, setShowSettings] = useState(false);
+  const [isArenaActive, setIsArenaActive] = useState(false);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -45,194 +52,326 @@ export default function PracticeClient() {
     return () => { if (interval) clearInterval(interval); };
   }, [isStarted, isCompleted, updateElapsedTime]);
 
+  // Listen for Enter key to start practice arena
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (!isArenaActive && e.code === "Enter" && !showSettings && !isCompleted) {
+        e.preventDefault();
+        resetTest();
+        setIsArenaActive(true);
+      }
+    };
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
+  }, [isArenaActive, showSettings, isCompleted, resetTest]);
+
   const finalWpm = Math.round((typedText.length / 5) / (elapsedTime / 60 || 1));
   const finalAccuracy = Math.round(((typedText.length - errorIndices.length) / (typedText.length || 1)) * 100);
   const nextChar = targetText[typedText.length] || "";
 
   return (
-    <main className="app-container">
-      {/* ── Top Control Bar ── */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
-        {/* Layout selector */}
-        <div className="layout-selector-bar">
-          {(["english", "unibijoy", "jatiya", "avro"] as KeyboardLayout[]).map((layout) => (
-            <button
-              key={layout}
-              onClick={() => setActiveLayout(layout)}
-              className={`layout-tab ${activeLayout === layout ? "active" : ""}`}
+    <main className="container max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8 fade-in">
+      {/* Top Control Bar */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          {isArenaActive ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                resetTest();
+                setIsArenaActive(false);
+              }}
+              className="gap-1.5 h-9 text-zinc-500 hover:text-zinc-900 cursor-pointer"
             >
-              {layout === "english" ? "English" : layout === "unibijoy" ? "UniBijoy" : layout === "jatiya" ? "Jatiya" : "Avro"}
-            </button>
-          ))}
+              <ArrowLeft size={14} />
+              <span>Back to Dashboard</span>
+            </Button>
+          ) : (
+            <Link href="/">
+              <Button variant="ghost" size="sm" className="gap-1.5 h-9 text-zinc-500 hover:text-zinc-900">
+                <ArrowLeft size={14} />
+                <span>Exit Practice</span>
+              </Button>
+            </Link>
+          )}
         </div>
 
-        <div style={{ display: "flex", gap: "8px" }}>
+        <div className="flex gap-2">
+          {!isArenaActive && (
+            <Link href="/layouts">
+              <Button variant="outline" size="sm" className="gap-1.5 h-9 text-zinc-650 dark:text-zinc-350 cursor-pointer">
+                <Keyboard size={14} />
+                <span className="hidden sm:inline">Explore Keyboards</span>
+              </Button>
+            </Link>
+          )}
+
           {/* Settings */}
-          <button onClick={() => setShowSettings(true)} className="btn-icon" title="Settings">
-            <Settings size={13} />
+          <Button variant="outline" size="sm" onClick={() => setShowSettings(true)} className="gap-1.5 h-9 cursor-pointer">
+            <Settings size={14} className="text-zinc-500" />
             <span>Settings</span>
-          </button>
+          </Button>
 
-          {/* Restart */}
-          <button onClick={resetTest} className="btn-icon">
-            <RotateCcw size={13} />
-            <span>Restart</span>
-          </button>
+          {/* Restart (only show inside Arena) */}
+          {isArenaActive && (
+            <Button variant="outline" size="sm" onClick={resetTest} className="gap-1.5 h-9 cursor-pointer">
+              <RotateCcw size={14} className="text-zinc-500" />
+              <span>Restart</span>
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* ── Live Stats HUD ── */}
-      <StatsDashboard minimal />
+      {!isArenaActive ? (
+        /* Setup / Curriculum Dashboard Mode */
+        <div className="space-y-8 animate-in fade-in duration-300">
+          {/* Active Lesson Dashboard Card */}
+          <Card className="border border-zinc-200/60 dark:border-zinc-800/60 rounded-2xl bg-gradient-to-br from-white to-zinc-50/30 dark:from-zinc-900 dark:to-zinc-950/30 p-6 shadow-sm max-w-3xl mx-auto w-full">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="space-y-3 flex-1 min-w-0">
+                <Badge variant="outline" className="bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-250/35 text-emerald-700 dark:text-emerald-400 font-bold text-[10px] tracking-wide uppercase px-2.5 py-0.5 rounded-full flex items-center gap-1 w-fit">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Active Configuration</span>
+                </Badge>
+                <h2 className="text-lg font-extrabold text-zinc-900 dark:text-zinc-100 tracking-tight truncate">
+                  {targetText.substring(0, 40)}...
+                </h2>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground font-medium">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold text-zinc-400">Layout:</span>
+                    <span className="font-bold text-zinc-850 dark:text-zinc-150 capitalize">{activeLayout}</span>
+                  </div>
+                  <span className="opacity-45">•</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold text-zinc-400">Language:</span>
+                    <span className="font-bold text-zinc-850 dark:text-zinc-150 capitalize">
+                      {targetText.match(/[a-zA-Z]/) ? "English" : "Bangla"}
+                    </span>
+                  </div>
+                </div>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed bg-zinc-50/60 dark:bg-zinc-850/40 p-3 border border-zinc-150/60 dark:border-zinc-800/50 rounded-xl font-mono">
+                  {targetText}
+                </p>
+              </div>
 
-      {/* ── Typing Area ── */}
-      <TypingArea />
+              <div className="flex-shrink-0 flex flex-col gap-2.5">
+                <Button
+                  onClick={() => {
+                    resetTest();
+                    setIsArenaActive(true);
+                  }}
+                  size="lg"
+                  className="bg-emerald-650 hover:bg-emerald-700 text-white font-extrabold text-xs tracking-wide shadow-md flex items-center justify-center gap-2 h-11 px-6 rounded-xl cursor-pointer"
+                >
+                  <Sparkles size={14} />
+                  <span>START TYPING ARENA</span>
+                </Button>
+                
+                <div className="text-[10px] text-zinc-400 font-semibold text-center select-none">
+                  Or press <kbd className="bg-zinc-100 border border-zinc-200 px-1.5 py-0.5 rounded text-zinc-655 font-bold">Enter</kbd> to launch
+                </div>
+              </div>
+            </div>
+          </Card>
 
-      {/* ── Virtual Keyboard ── */}
-      <VirtualKeyboard nextChar={nextChar} />
+          {/* Lower Section: Curriculum & Live Analytics Coach side-by-side */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-6 border-t border-border">
+            {/* Left Columns: Curriculum Selector */}
+            <div className="lg:col-span-2 flex flex-col space-y-6">
+              <div className="flex bg-zinc-100/80 dark:bg-zinc-850/40 p-1.5 rounded-2xl border border-zinc-200/60 dark:border-zinc-800/60 space-x-1.5 w-fit">
+                {(["lessons", "speedtest", "dashboard"] as const).map((tab) => {
+                  const isActive = activeSection === tab;
+                  const Icon = tab === "lessons" ? BookOpen : tab === "speedtest" ? Gauge : BarChart3;
+                  return (
+                    <button
+                      key={tab}
+                      className={cn(
+                        "flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all relative select-none cursor-pointer",
+                        {
+                          "bg-white dark:bg-zinc-900 text-emerald-600 dark:text-emerald-455 shadow-sm border border-zinc-250/20 dark:border-zinc-700/30": isActive,
+                          "text-zinc-500 dark:text-zinc-400 hover:bg-white/40 dark:hover:bg-zinc-900/30 hover:text-zinc-800 dark:hover:text-zinc-200": !isActive
+                        }
+                      )}
+                      onClick={() => setActiveSection(tab)}
+                    >
+                      <Icon size={13} className={isActive ? "text-emerald-500" : "text-zinc-400"} />
+                      <span>{tab === "speedtest" ? "Speed Test" : tab === "dashboard" ? "Progress Stats" : "Lessons"}</span>
+                    </button>
+                  );
+                })}
+              </div>
 
-      {/* ── Section Switcher: Lessons / Speed Test / Dashboard ── */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-        <div className="section-tabs">
-          <button
-            className={`section-tab ${activeSection === "lessons" ? "active" : ""}`}
-            onClick={() => setActiveSection("lessons")}
-          >
-            Lessons
-          </button>
-          <button
-            className={`section-tab ${activeSection === "speedtest" ? "active" : ""}`}
-            onClick={() => setActiveSection("speedtest")}
-          >
-            Speed Test
-          </button>
-          <button
-            className={`section-tab ${activeSection === "dashboard" ? "active" : ""}`}
-            onClick={() => setActiveSection("dashboard")}
-          >
-            Progress Stats
-          </button>
+              <div className="mt-2">
+                {activeSection === "lessons" ? (
+                  <LessonSelector />
+                ) : activeSection === "speedtest" ? (
+                  <ExamCenter />
+                ) : (
+                  <StatsDashboard />
+                )}
+              </div>
+            </div>
+
+            {/* Right Column: Live Coach Analytics */}
+            <div className="lg:col-span-1">
+              <TypeBanglaCoachPanel />
+            </div>
+          </div>
         </div>
+      ) : (
+        /* Typing Arena Mode (Distraction-Free) */
+        <div className="space-y-6 animate-in fade-in duration-300">
+          {/* Live Stats HUD */}
+          <StatsDashboard minimal />
 
-        {activeSection === "lessons" ? (
-          <LessonSelector />
-        ) : activeSection === "speedtest" ? (
-          <ExamCenter />
-        ) : (
-          <StatsDashboard />
-        )}
-      </div>
+          {/* Centered Typing Interface */}
+          <div className="flex flex-col space-y-6 max-w-5xl mx-auto w-full">
+            <TypingArea />
+            <VirtualKeyboard nextChar={nextChar} />
+          </div>
+        </div>
+      )}
 
-      {/* ── Completion Modal ── */}
+      {/* Completion Modal */}
       {isCompleted && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div style={{
-              width: 52, height: 52, borderRadius: "50%",
-              background: "hsla(160,60%,42%,0.12)",
-              color: "var(--accent)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              margin: "0 auto 20px"
-            }}>
-              <Sparkles size={24} />
-            </div>
-
-            <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: "var(--text-primary)", marginBottom: 4 }}>
-              {isRecapTest ? "Recap Complete!" : "Test Complete!"}
-            </h2>
-            <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
-              {isRecapTest ? "Great job on the recap challenge." : "Here are your results."}
-            </p>
-
-            <div className="stats-grid-large">
-              <div className="stats-block-large">
-                <div className="value">{Math.max(0, finalWpm)}</div>
-                <div className="label">WPM</div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" onClick={resetTest} />
+          <Card className="relative z-50 w-full max-w-sm border border-border shadow-lg text-center p-6 bg-card">
+            <CardHeader className="p-0">
+              <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-4">
+                <Sparkles size={20} />
               </div>
-              <div className="stats-block-large">
-                <div className="value">{Math.max(0, Math.min(100, finalAccuracy))}%</div>
-                <div className="label">Accuracy</div>
+              <CardTitle className="text-xl font-bold text-zinc-900">
+                {isRecapTest ? "Recap Complete!" : "Test Complete!"}
+              </CardTitle>
+              <CardDescription className="text-xs mt-1">
+                {isRecapTest ? "Great job on the recap challenge." : "Here are your results."}
+              </CardDescription>
+            </CardHeader>
+            
+            <CardContent className="p-0 py-6">
+              <div className="grid grid-cols-3 gap-3 bg-zinc-50 p-4 rounded-lg border border-zinc-100">
+                <div>
+                  <div className="text-2xl font-bold text-zinc-900">{Math.max(0, finalWpm)}</div>
+                  <div className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground mt-0.5">WPM</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-zinc-900">{Math.max(0, Math.min(100, finalAccuracy))}%</div>
+                  <div className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground mt-0.5">Accuracy</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-zinc-900">{elapsedTime}s</div>
+                  <div className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground mt-0.5">Time</div>
+                </div>
               </div>
-              <div className="stats-block-large">
-                <div className="value">{elapsedTime}s</div>
-                <div className="label">Time</div>
+              
+              <div className="mt-4 text-xs text-muted-foreground">
+                <Badge variant="outline" className="text-zinc-600 border-zinc-200">
+                  {errorIndices.length} errors
+                </Badge>
+                <span className="mx-2">·</span>
+                <span>{typedText.length} keystrokes</span>
               </div>
-            </div>
+            </CardContent>
 
-            <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: 24 }}>
-              {errorIndices.length} errors · {typedText.length} keystrokes
-            </p>
-
-            <div style={{ display: "flex", gap: 10, width: "100%" }}>
+            <div className="flex gap-2">
               {isRecapTest ? (
                 <>
-                  <button onClick={resetTest} className="btn-secondary" style={{ flex: 1, padding: "12px" }}>Retry</button>
-                  <button onClick={exitRecapTest} className="btn-primary" style={{ flex: 1, padding: "12px" }}>Back to Lesson</button>
+                  <Button variant="outline" onClick={resetTest} className="flex-1">Retry</Button>
+                  <Button onClick={exitRecapTest} className="flex-1 bg-zinc-950 text-white hover:bg-zinc-800">Back</Button>
                 </>
               ) : (
                 focusKeys && focusKeys !== "all" &&
                 (lessonType === "drill" || lessonType === "combo" || lessonType === "pair") ? (
                   <>
-                    <button onClick={resetTest} className="btn-secondary" style={{ flex: 1, padding: "12px" }}>Again</button>
-                    <button onClick={startRecapTest} className="btn-primary" style={{ flex: 1, padding: "12px" }}>Recap Test</button>
+                    <Button variant="outline" onClick={resetTest} className="flex-1">Again</Button>
+                    <Button onClick={startRecapTest} className="flex-1 bg-zinc-950 text-white hover:bg-zinc-800">Recap Test</Button>
                   </>
                 ) : (
-                  <button onClick={resetTest} className="btn-primary" style={{ width: "100%", padding: "12px" }}>
-                    Practice Again
-                  </button>
+                  <>
+                    <Button variant="outline" onClick={resetTest} className="flex-1">Practice Again</Button>
+                    <Button 
+                      onClick={() => {
+                        resetTest();
+                        setIsArenaActive(false);
+                      }} 
+                      className="flex-1 bg-zinc-950 text-white hover:bg-zinc-800"
+                    >
+                      Back to Dashboard
+                    </Button>
+                  </>
                 )
               )}
             </div>
-          </div>
+          </Card>
         </div>
       )}
-      {/* ── Settings Modal ── */}
+
+      {/* Settings Modal */}
       {showSettings && (
-        <div className="modal-overlay" style={{ zIndex: 1100 }}>
-          <div className="modal-content" style={{ maxWidth: "420px", textAlign: "left", padding: "24px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-              <h2 style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "8px", margin: 0 }}>
-                <Settings size={18} style={{ color: "var(--accent)" }} />
-                <span>Practice Settings</span>
-              </h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setShowSettings(false)} />
+          <Card className="relative z-50 w-full max-w-sm border border-border shadow-lg p-6 bg-card">
+            <CardHeader className="p-0 pb-4 border-b border-border flex flex-row items-center justify-between">
+              <div className="space-y-0.5">
+                <CardTitle className="text-base font-bold text-zinc-900 flex items-center gap-2">
+                  <Settings size={16} className="text-emerald-600" />
+                  <span>Practice Settings</span>
+                </CardTitle>
+                <CardDescription className="text-[11px] m-0">Customize your trainer sounds and metrics</CardDescription>
+              </div>
               <button 
                 onClick={() => setShowSettings(false)} 
-                className="btn-icon" 
-                style={{ border: "none", background: "none", padding: 4, color: "var(--text-secondary)", cursor: "pointer", display: "flex", alignItems: "center" }}
+                className="p-1 rounded-sm text-muted-foreground hover:bg-zinc-100 hover:text-foreground"
               >
-                <X size={18} />
+                <X size={16} />
               </button>
-            </div>
-            
-            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-              {/* Sound Toggle */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div>
-                  <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-primary)", display: "block" }}>Typing Audio</span>
-                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Mechanical audio feedback</span>
-                </div>
-                <button 
-                  onClick={() => setSoundEnabled(!soundEnabled)} 
-                  className="btn-icon"
-                  style={{
-                    borderColor: soundEnabled ? "var(--accent)" : "var(--border)",
-                    color: soundEnabled ? "var(--accent)" : "var(--text-muted)",
-                    backgroundColor: soundEnabled ? "var(--accent-subtle)" : "var(--bg-elevated)",
-                    padding: "6px 12px",
-                    gap: "6px"
-                  }}
+            </CardHeader>
+
+            <CardContent className="p-0 py-5 space-y-6">
+              {/* Keyboard Layout Selector in settings */}
+              <div className="space-y-2">
+                <span className="text-xs font-bold text-zinc-700 block">Keyboard Layout</span>
+                <select
+                  value={activeLayout}
+                  onChange={(e) => setActiveLayout(e.target.value as KeyboardLayout)}
+                  className="w-full h-9 bg-white border border-zinc-200 rounded-md px-3 text-xs font-semibold focus:outline-none cursor-pointer focus:ring-1 focus:ring-emerald-500"
                 >
-                  {soundEnabled ? <Volume2 size={13} style={{ color: "var(--accent)" }} /> : <VolumeX size={13} />}
+                  <option value="avro">Avro Phonetic</option>
+                  <option value="unibijoy">UniBijoy (Unicode)</option>
+                  <option value="jatiya">Jatiya (BCC Standard)</option>
+                  <option value="probhat">Probhat</option>
+                  <option value="inscript">Inscript</option>
+                  <option value="unicode">Unicode Map</option>
+                  <option value="english">English QWERTY</option>
+                </select>
+              </div>
+
+              {/* Sound Toggle */}
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <span className="text-xs font-bold text-zinc-900 block">Typing Audio</span>
+                  <span className="text-[10px] text-muted-foreground block">Mechanical audio feedback</span>
+                </div>
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSoundEnabled(!soundEnabled)} 
+                  className={`gap-1.5 h-8 ${soundEnabled ? "border-emerald-200 bg-emerald-50/50 text-emerald-700" : ""}`}
+                >
+                  {soundEnabled ? <Volume2 size={13} /> : <VolumeX size={13} />}
                   <span>{soundEnabled ? "On" : "Muted"}</span>
-                </button>
+                </Button>
               </div>
               
               {soundEnabled && (
                 <>
                   {/* Volume Slider */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", fontWeight: 600, color: "var(--text-secondary)" }}>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-bold text-zinc-700">
                       <span>Volume</span>
-                      <span style={{ color: "var(--accent)" }}>{Math.round(soundVolume * 100)}%</span>
+                      <span className="text-emerald-600">{Math.round(soundVolume * 100)}%</span>
                     </div>
                     <input 
                       type="range" 
@@ -241,55 +380,42 @@ export default function PracticeClient() {
                       step="0.05" 
                       value={soundVolume}
                       onChange={(e) => setSoundVolume(parseFloat(e.target.value))}
-                      style={{
-                        width: "100%",
-                        accentColor: "var(--accent)",
-                        cursor: "pointer",
-                        background: "var(--bg-elevated)",
-                        height: "6px",
-                        borderRadius: "3px",
-                        outline: "none",
-                      }}
+                      className="w-full accent-emerald-600 cursor-pointer bg-zinc-100 h-1.5 rounded-full outline-none"
                     />
                   </div>
                   
                   {/* Sound Profile Selector */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                    <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-secondary)" }}>Sound Profile</span>
-                    <div style={{ display: "flex", gap: "6px" }}>
+                  <div className="space-y-2">
+                    <span className="text-xs font-bold text-zinc-700 block">Sound Profile</span>
+                    <div className="flex gap-2">
                       {(["mechanical", "retro", "digital"] as SoundProfile[]).map((profile) => (
-                        <button
+                        <Button
                           key={profile}
+                          variant={soundProfile === profile ? "default" : "outline"}
+                          size="sm"
                           onClick={() => {
                             setSoundProfile(profile);
                             setTimeout(() => playTypewriterSound("click"), 30);
                           }}
-                          className="btn-secondary"
-                          style={{
-                            flex: 1,
-                            fontSize: "0.75rem",
-                            padding: "8px 0",
-                            borderColor: soundProfile === profile ? "var(--accent)" : "var(--border)",
-                            color: soundProfile === profile ? "var(--text-primary)" : "var(--text-secondary)",
-                            backgroundColor: soundProfile === profile ? "var(--accent-subtle)" : "var(--bg-elevated)",
-                            fontWeight: soundProfile === profile ? "700" : "500",
-                          }}
+                          className={`flex-1 h-8 text-[11px] capitalize ${
+                            soundProfile === profile ? "bg-zinc-950 text-white" : ""
+                          }`}
                         >
-                          <span style={{ textTransform: "capitalize" }}>{profile}</span>
-                        </button>
+                          {profile}
+                        </Button>
                       ))}
                     </div>
                   </div>
                 </>
               )}
-            </div>
-            
-            <div style={{ marginTop: "24px" }}>
-              <button onClick={() => setShowSettings(false)} className="btn-primary" style={{ width: "100%", padding: "10px" }}>
+            </CardContent>
+
+            <div className="pt-2">
+              <Button onClick={() => setShowSettings(false)} className="w-full bg-zinc-950 text-white hover:bg-zinc-800 h-9">
                 Apply Changes
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
         </div>
       )}
     </main>

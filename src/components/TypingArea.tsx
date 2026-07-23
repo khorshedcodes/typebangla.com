@@ -1,9 +1,57 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { useTypingStore } from "../store/typingStore";
+import { parse_phonetic_input } from "../utils/phoneticEngine";
+import { cn } from "../utils/cn";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
 
-export default function TypingArea() {
+function ConfettiBurst() {
+  const PIECES = [
+    { color: "#09090B", delay: "0ms",   left: "20%", rotate: "12deg"  },
+    { color: "#71717A", delay: "80ms",  left: "35%", rotate: "-20deg" },
+    { color: "#A1A1AA", delay: "40ms",  left: "50%", rotate: "30deg"  },
+    { color: "#18181B", delay: "120ms", left: "65%", rotate: "-8deg"  },
+    { color: "#52525B", delay: "60ms",  left: "80%", rotate: "45deg"  },
+    { color: "#27272A", delay: "20ms",  left: "10%", rotate: "-35deg" },
+    { color: "#71717A", delay: "100ms", left: "90%", rotate: "22deg"  },
+  ];
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden z-20">
+      {PIECES.map((p, i) => (
+        <span
+          key={i}
+          className="confetti-piece"
+          style={{
+            backgroundColor: p.color,
+            left: p.left,
+            top: "10%",
+            animationDelay: p.delay,
+            transform: `rotate(${p.rotate})`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+interface TypingAreaProps {
+  onSessionComplete?: (wpm: number, accuracy: number) => void;
+  backLink?: string;
+  backLabel?: string;
+  hideModeHeader?: boolean;
+}
+
+export default function TypingArea({
+  onSessionComplete,
+  backLink,
+  backLabel,
+  hideModeHeader = false,
+}: TypingAreaProps = {}) {
   const {
     targetText,
     typedText,
@@ -12,11 +60,40 @@ export default function TypingArea() {
     isCompleted,
     handleKeystroke,
     inputLanguage,
-    outputPreview
+    outputPreview,
+    targetWpm,
+    setTargetWpm,
+    setTargetText,
+    setFocusModeActive,
+    isStarted,
+    startTime,
+    elapsedTime,
+    errorIndices,
   } = useTypingStore();
 
   const [isFocused, setIsFocused] = useState(false);
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  const [customInputText, setCustomInputText] = useState("");
+  const [ghostPosition, setGhostPosition] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isCompleted && onSessionComplete) {
+      const liveWpm = elapsedTime === 0 ? 0 : Math.round((typedText.length / 5) / (elapsedTime / 60));
+      const liveAccuracy = typedText.length === 0 ? 100 : Math.round(((typedText.length - errorIndices.length) / typedText.length) * 100);
+      onSessionComplete(liveWpm, liveAccuracy);
+    }
+  }, [isCompleted, elapsedTime, typedText.length, errorIndices.length, onSessionComplete]);
+
+
+  // Distraction-Free: hide Header & Footer for entire practice/test session
+  // Activates on mount, deactivates on unmount (navigation away)
+  useEffect(() => {
+    setFocusModeActive(true);
+    return () => {
+      setFocusModeActive(false);
+    };
+  }, [setFocusModeActive]);
 
   useEffect(() => {
     if (containerRef.current) containerRef.current.focus();
@@ -38,24 +115,76 @@ export default function TypingArea() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isFocused, isCompleted, handleKeystroke]);
 
+  useEffect(() => {
+    if (!isStarted || targetWpm <= 0 || !startTime) {
+      const handle = requestAnimationFrame(() => {
+        setGhostPosition(0);
+      });
+      return () => cancelAnimationFrame(handle);
+    }
+
+    const interval = setInterval(() => {
+      const elapsedMs = Date.now() - startTime;
+      const elapsedSec = elapsedMs / 1000;
+      const charPerSec = (targetWpm * 5) / 60;
+      const currentPos = Math.floor(elapsedSec * charPerSec);
+      setGhostPosition(currentPos);
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [isStarted, startTime, targetWpm]);
+
   const handleBlur = () => setIsFocused(false);
   const handleFocus = () => setIsFocused(true);
 
-  const renderCharacters = () => {
-    return Array.from(targetText).map((char, index) => {
-      let charClass = "char-untyped";
-      const isCurrent = index === typedText.length;
+  const words = targetText.split(/(\s+)/);
+  let charCounter = 0;
+  const wordRanges: { start: number; end: number; isWord: boolean }[] = [];
 
-      if (index < typedText.length) {
-        charClass = typedText[index] === char ? "char-correct" : "char-incorrect";
-      } else if (isCurrent) {
-        charClass = "char-current";
-      }
+  for (const w of words) {
+    const start = charCounter;
+    const end = charCounter + w.length;
+    wordRanges.push({ start, end, isWord: !/\s/.test(w) });
+    charCounter = end;
+  }
+
+  const renderCharacters = () => {
+    let charIndex = 0;
+    const targetWordsList = targetText.split(" ");
+
+    return targetWordsList.map((word, wordIdx) => {
+      const isLastWord = wordIdx === targetWordsList.length - 1;
+      const wordWithSpace = isLastWord ? word : word + " ";
 
       return (
-        <span key={index} className={charClass} style={{ position: "relative" }}>
-          {isCurrent && <span className="typing-cursor" />}
-          {char}
+        <span key={wordIdx} className="inline-block whitespace-nowrap">
+          {Array.from(wordWithSpace).map((char) => {
+            const index = charIndex++;
+            const isCurrent = index === typedText.length;
+            const hasTyped = index < typedText.length;
+            const isCorrect = hasTyped && typedText[index] === char;
+            const isGhostCurrent = index === ghostPosition && targetWpm > 0 && isStarted;
+
+            return (
+              <span
+                key={index}
+                className={cn("relative transition-all duration-75 select-none font-medium rounded-xs", {
+                  "text-muted-foreground/60": !hasTyped && !isCurrent,
+                  "text-foreground font-bold": hasTyped && isCorrect,
+                  "text-red-500 bg-red-500/10 font-bold underline decoration-red-500": hasTyped && !isCorrect,
+                  "text-foreground bg-primary/20 font-extrabold underline decoration-primary": isCurrent,
+                })}
+              >
+                {isCurrent && (
+                  <span className="absolute -left-[1px] top-1/2 -translate-y-1/2 w-[2px] h-[1.1em] bg-primary animate-pulse" />
+                )}
+                {isGhostCurrent && (
+                  <span className="absolute left-0 right-0 bottom-0 h-[2px] bg-muted-foreground/60 rounded-full" title="Ghost Pacer Cursor" />
+                )}
+                {char === " " ? "\u00A0" : char}
+              </span>
+            );
+          })}
         </span>
       );
     });
@@ -63,69 +192,118 @@ export default function TypingArea() {
 
   const isBanglaText = !targetText.match(/[a-zA-Z]/);
 
+  const targetWords = targetText.split(/\s+/);
+  const typedWords = typedText.split(/\s+/);
+  const currentWordIdx = Math.max(0, typedWords.length - 1);
+  const targetedWord = targetWords[currentWordIdx] || "";
+  const phoneticAnalysis = parse_phonetic_input(phoneticBuffer, targetedWord);
+
+  const pathname = usePathname();
+  const isExamMode = pathname?.startsWith("/practice/test") || pathname?.startsWith("/exam") || pathname?.startsWith("/tests");
+
+  // Dynamic backLink and backLabel computation with intelligent route fallbacks
+  let computedBackLink = backLink;
+  let computedBackLabel = backLabel;
+
+  if (!computedBackLink) {
+    if (pathname?.startsWith("/exam/govt")) {
+      computedBackLink = "/exam/govt";
+      computedBackLabel = "Back to Govt Portal";
+    } else if (pathname?.startsWith("/exam/ranked")) {
+      computedBackLink = "/exam/ranked";
+      computedBackLabel = "Back to Ranked Exam";
+    } else if (pathname?.startsWith("/courses")) {
+      computedBackLink = "/courses";
+      computedBackLabel = "Back to Courses";
+    } else if (pathname?.startsWith("/tests")) {
+      computedBackLink = "/tests";
+      computedBackLabel = "Back to Tests";
+    } else {
+      computedBackLink = "/practice";
+      computedBackLabel = "Back to Practice";
+    }
+  }
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+    <div className="flex flex-col space-y-3">
+      {/* Mode Header Banner */}
+      {!hideModeHeader && (
+        <div className="border border-border bg-card p-3 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs shadow-xs">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-black text-foreground flex items-center gap-1.5 text-xs">
+              {isExamMode ? "🏛️ TypeBangla Timed Exam Mode" : "🌱 Free Practice Mode"}
+            </span>
+            {isExamMode ? (
+              <>
+                <Badge variant="outline" className="border-border text-foreground font-semibold bg-secondary text-[10px]">
+                  Countdown Timer Active
+                </Badge>
+                <Badge variant="outline" className="border-border text-foreground font-semibold bg-secondary text-[10px]">
+                  Certificate Eligible
+                </Badge>
+              </>
+            ) : (
+              <>
+                <Badge variant="outline" className="border-border text-foreground font-semibold bg-secondary text-[10px]">
+                  Untimed Practice
+                </Badge>
+                <Badge variant="outline" className="border-border text-foreground font-semibold bg-secondary text-[10px]">
+                  Instant Restart
+                </Badge>
+              </>
+            )}
+          </div>
+
+          <Link href={computedBackLink}>
+            <Button variant="outline" size="sm" className="h-7 text-xs font-bold gap-1.5 border-border bg-secondary hover:bg-secondary/80 text-foreground">
+              <ArrowLeft size={12} />
+              <span>{computedBackLabel}</span>
+            </Button>
+          </Link>
+        </div>
+      )}
+
       {/* Avro preview */}
       {activeLayout === "avro" && inputLanguage === "latin" && outputPreview && (
-        <div style={{
-          fontSize: "1.1rem",
-          color: "var(--gold)",
-          padding: "10px 14px",
-          background: "var(--gold-subtle)",
-          border: "1px solid hsla(42,90%,55%,0.2)",
-          borderRadius: "var(--radius-sm)",
-          fontFamily: "var(--font-bangla)",
-          lineHeight: 1.6
-        }}>
-          <span style={{ fontSize: "0.7rem", color: "var(--text-muted)", display: "block", letterSpacing: "0.05em", marginBottom: 4, fontWeight: 600 }}>
-            Bangla Preview
+        <div className="text-sm font-bangla border border-border bg-secondary text-foreground p-3 rounded-xl leading-relaxed shadow-xs">
+          <span className="text-[10px] uppercase font-bold text-muted-foreground block mb-1">
+            বাংলা প্রিভিউ
           </span>
           {outputPreview}
         </div>
       )}
 
       {/* Typing container */}
-      <div style={{ position: "relative" }}>
-        {/* Focus overlay */}
+      <div className="relative">
         {!isFocused && !isCompleted && (
           <div
             onClick={() => containerRef.current?.focus()}
-            style={{
-              position: "absolute",
-              inset: 0,
-              background: "hsla(228, 12%, 7%, 0.8)",
-              backdropFilter: "blur(3px)",
-              WebkitBackdropFilter: "blur(3px)",
-              zIndex: 10,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              borderRadius: "var(--radius-lg)",
-              cursor: "pointer",
-            }}
+            className="absolute inset-0 bg-background/80 backdrop-blur-xs border border-dashed border-border z-10 flex items-center justify-center rounded-xl cursor-pointer transition-all hover:bg-background/90"
           >
-            <span style={{ fontSize: "0.9rem", fontWeight: 600, color: "var(--text-secondary)" }}>
-              Click to focus
+            <span className="text-xs font-semibold text-foreground flex items-center gap-2 bg-card px-4 py-2 rounded-full border border-border shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-foreground animate-ping" />
+              ক্লিক করুন বা Tab চাপুন — টাইপিং শুরু করুন
             </span>
           </div>
         )}
 
-        {/* Text box */}
+        {isCompleted && <ConfettiBurst />}
+
         <div
           ref={containerRef}
           tabIndex={0}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          className="glass-card typing-box-wrapper"
-          style={{
-            border: isFocused ? "1px solid var(--border-active)" : "1px solid var(--border)",
-            outline: "none",
-            fontFamily: isBanglaText ? "var(--font-bangla)" : "var(--font-sans)",
-            fontSize: isBanglaText ? "1.6rem" : "1.35rem",
-            cursor: "text",
-            transition: "border-color 0.2s, filter 0.2s",
-            filter: (!isFocused && !isCompleted) ? "blur(2px)" : "none"
-          }}
+          className={cn(
+            "border rounded-xl bg-card p-6 min-h-[140px] outline-none cursor-text transition-all leading-relaxed tracking-normal break-words shadow-xs flex flex-wrap gap-x-2 gap-y-2 border-border text-foreground",
+            {
+              "border-ring ring-1 ring-ring": isFocused,
+              "blur-[2px]": !isFocused && !isCompleted,
+              "font-bangla text-xl sm:text-2xl": isBanglaText,
+              "font-mono text-base sm:text-lg": !isBanglaText,
+              "slide-up": isCompleted,
+            }
+          )}
         >
           {renderCharacters()}
         </div>
@@ -133,11 +311,64 @@ export default function TypingArea() {
 
       {/* Avro buffer indicator */}
       {activeLayout === "avro" && phoneticBuffer.length > 0 && (
-        <div style={{ fontSize: "0.8rem", color: "var(--gold)", display: "flex", alignItems: "center", gap: 8 }}>
-          <span>Buffer:</span>
-          <code style={{ background: "var(--bg-elevated)", padding: "2px 8px", borderRadius: 4, fontSize: "0.75rem" }}>
-            {phoneticBuffer}
-          </code>
+        <div className="flex gap-4 flex-wrap items-center text-xs">
+          <div className="text-muted-foreground flex items-center gap-1.5 font-semibold">
+            <span>ফোনেটিক কী:</span>
+            <code className="bg-secondary border border-border px-2 py-0.5 rounded text-foreground font-mono">
+              {phoneticBuffer}
+            </code>
+          </div>
+
+          {phoneticAnalysis.predictedOutput && (
+            <div className="text-foreground flex items-center gap-1.5 font-semibold">
+              <span>পরামর্শ:</span>
+              <kbd className="bg-secondary border border-border px-2 py-0.5 rounded text-foreground font-mono text-[10px]">
+                {phoneticAnalysis.predictedOutput}
+              </kbd>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Custom Text Import Modal Dialog */}
+      {showImportDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="fixed inset-0 bg-background/80 backdrop-blur-xs" onClick={() => setShowImportDialog(false)} />
+          <div className="relative z-50 w-full max-w-md bg-popover border border-border rounded-xl p-6 shadow-xl space-y-4">
+            <div className="space-y-1">
+              <h3 className="text-sm font-bold text-foreground">কাস্টম অনুশীলন টেক্সট আমদানি</h3>
+              <p className="text-[10px] text-muted-foreground">যেকোনো বাংলা বা ইংরেজি অনুচ্ছেদ পেস্ট করুন।</p>
+            </div>
+
+            <textarea
+              className="w-full h-32 border border-input rounded-md p-3 text-xs bg-background text-foreground focus:outline-none resize-none focus:ring-1 focus:ring-ring font-sans"
+              placeholder="এখানে আপনার অনুচ্ছেদ পেস্ট করুন..."
+              value={customInputText}
+              onChange={(e) => setCustomInputText(e.target.value)}
+            />
+
+            <div className="flex justify-end space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowImportDialog(false)}
+                className="border-border bg-background text-muted-foreground hover:text-foreground"
+              >
+                বাতিল
+              </Button>
+              <Button
+                size="sm"
+                disabled={!customInputText.trim()}
+                onClick={() => {
+                  setTargetText(customInputText.trim());
+                  setShowImportDialog(false);
+                  setCustomInputText("");
+                }}
+              >
+                টেক্সট প্রয়োগ করুন
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>

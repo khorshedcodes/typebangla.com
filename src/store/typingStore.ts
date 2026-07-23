@@ -1,7 +1,7 @@
 import { create } from "zustand";
-import { UNI_BIJOY_MAP, JATIYA_MAP, avroTransliterate } from "../utils/layouts";
+import { UNI_BIJOY_MAP, JATIYA_MAP, PROBHAT_MAP, INSCRIPT_MAP, UNICODE_MAP, avroTransliterate } from "../utils/layouts";
 
-export type KeyboardLayout = "english" | "unibijoy" | "jatiya" | "avro";
+export type KeyboardLayout = "english" | "unibijoy" | "jatiya" | "avro" | "probhat" | "inscript" | "unicode";
 export type SoundProfile = "mechanical" | "retro" | "digital";
 
 export interface ExamResult {
@@ -23,6 +23,18 @@ interface TypingState {
   soundProfile: SoundProfile;
   selectedDuration: number; // in seconds (0 for infinite/lessons)
   
+  // Curriculum & Prompt Settings
+  selectedLevel: 1 | 2 | 3;
+  selectedDomain: "literary" | "contemporary" | "synthesized";
+
+  // Telemetry Metrics
+  lastKeystrokeTime: number | null;
+  flightTimes: number[];
+  flightTimeVarianceMs: number;
+  fatigueSignature: string;
+  problematicPairs: string[];
+  delayOnConjunctsMs: number;
+
   // Test State
   targetText: string;
   typedText: string;
@@ -44,7 +56,13 @@ interface TypingState {
   // History
   history: ExamResult[];
 
+  theme: "light" | "dark";
+  keyStats: Record<string, { correct: number; total: number }>;
+  targetWpm: number;
+  isFocusModeActive: boolean;
+
   // Actions
+  setFocusModeActive: (active: boolean) => void;
   setTargetText: (
     text: string,
     focusKeys?: string,
@@ -66,6 +84,11 @@ interface TypingState {
   setSoundProfile: (profile: SoundProfile) => void;
   loadHistory: () => void;
   clearHistory: () => void;
+  setSelectedLevel: (level: 1 | 2 | 3) => void;
+  setSelectedDomain: (domain: "literary" | "contemporary" | "synthesized") => void;
+  setTheme: (theme: "light" | "dark") => void;
+  setTargetWpm: (wpm: number) => void;
+  clearKeyStats: () => void;
 }
 
 // Web Audio API Sound Synthesizer (Zero asset download required)
@@ -480,11 +503,23 @@ function generateDrillText(focusKeys: string, length = 280): string {
 
 export const useTypingStore = create<TypingState>((set, get) => ({
   // Initial Settings
-  activeLayout: "english",
+  activeLayout: "avro",
   soundEnabled: true,
   soundVolume: 0.5,
   soundProfile: "mechanical",
   selectedDuration: 60, // Default 1 minute
+  
+  // Curriculum & Prompt Settings
+  selectedLevel: 1,
+  selectedDomain: "literary",
+
+  // Telemetry Metrics
+  lastKeystrokeTime: null,
+  flightTimes: [],
+  flightTimeVarianceMs: 0,
+  fatigueSignature: "none",
+  problematicPairs: [],
+  delayOnConjunctsMs: 0,
   
   // Initial Test State
   targetText: "সিলেট ও মৌলভীবাজারে মৃদু ভূকম্পন অনুভূত হয়েছে। আবহাওয়া অধিদপ্তর জানায়, ভূমিকম্পের উৎপত্তিস্থল ছিল আসামের করিমগঞ্জ এলাকায়।",
@@ -505,6 +540,11 @@ export const useTypingStore = create<TypingState>((set, get) => ({
   isRecapTest: false,
   
   history: [],
+  theme: "light",
+  keyStats: {},
+  targetWpm: 0,
+  isFocusModeActive: false,
+  setFocusModeActive: (active) => set({ isFocusModeActive: active }),
 
   // Load results history
   loadHistory: () => {
@@ -512,6 +552,19 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       const stored = localStorage.getItem("typemaster_history");
       if (stored) {
         set({ history: JSON.parse(stored) });
+      }
+      const storedStats = localStorage.getItem("typemaster_keystats");
+      if (storedStats) {
+        set({ keyStats: JSON.parse(storedStats) });
+      }
+      const storedTheme = localStorage.getItem("typemaster_theme") as "light" | "dark";
+      if (storedTheme) {
+        set({ theme: storedTheme });
+        if (storedTheme === "dark") {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
       }
     }
   },
@@ -562,7 +615,13 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       elapsedTime: 0,
       keystrokes: 0,
       backspaceCount: 0,
-      errorIndices: []
+      errorIndices: [],
+      lastKeystrokeTime: null,
+      flightTimes: [],
+      flightTimeVarianceMs: 0,
+      fatigueSignature: "none",
+      problematicPairs: [],
+      delayOnConjunctsMs: 0
     });
   },
 
@@ -590,7 +649,13 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       elapsedTime: 0,
       keystrokes: 0,
       backspaceCount: 0,
-      errorIndices: []
+      errorIndices: [],
+      lastKeystrokeTime: null,
+      flightTimes: [],
+      flightTimeVarianceMs: 0,
+      fatigueSignature: "none",
+      problematicPairs: [],
+      delayOnConjunctsMs: 0
     });
   },
 
@@ -638,18 +703,25 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       elapsedTime: 0,
       keystrokes: 0,
       backspaceCount: 0,
-      errorIndices: []
+      errorIndices: [],
+      lastKeystrokeTime: null,
+      flightTimes: [],
+      flightTimeVarianceMs: 0,
+      fatigueSignature: "none",
+      problematicPairs: [],
+      delayOnConjunctsMs: 0
     });
   },
 
   completeTest: () => {
-    const { soundEnabled, targetText, typedText, activeLayout, elapsedTime, errorIndices, history } = get();
+    const { soundEnabled, targetText, typedText, activeLayout, elapsedTime, startTime, errorIndices, history } = get();
     if (soundEnabled) {
       playTypewriterSound("success");
     }
     
     // Calculate final metrics
-    const wpm = Math.round((typedText.length / 5) / (elapsedTime / 60 || 1));
+    const durationSec = startTime ? (Date.now() - startTime) / 1000 : elapsedTime;
+    const wpm = Math.round((typedText.length / 5) / (Math.max(0.5, durationSec) / 60));
     const accuracy = Math.round(((typedText.length - errorIndices.length) / (typedText.length || 1)) * 100);
     
     const result: ExamResult = {
@@ -672,6 +744,31 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       isCompleted: true,
       history: newHistory
     });
+
+    if (typeof window !== "undefined") {
+      import("../lib/firestoreService").then(({ saveTypingSession }) => {
+        import("../lib/firebase").then(({ getFirebaseAuth }) => {
+          getFirebaseAuth().then((auth) => {
+            const currentUser = auth?.currentUser;
+            const uid = currentUser?.uid || "guest";
+            const displayName = currentUser?.displayName || "Guest Learner";
+            saveTypingSession({
+              userId: uid,
+              name: displayName,
+              wpm: result.wpm,
+              netWpm: result.wpm,
+              accuracy: result.accuracy,
+              cpm: Math.round(result.wpm * 5),
+              errors: result.errors,
+              layout: result.layout,
+              language: result.language,
+              mode: result.duration > 0 ? `${result.duration}s` : "practice",
+              duration: result.duration
+            }).catch(console.error);
+          });
+        });
+      });
+    }
   },
 
   updateElapsedTime: () => {
@@ -698,7 +795,13 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       targetText, 
       typedText, 
       phoneticBuffer, 
-      soundEnabled 
+      soundEnabled,
+      lastKeystrokeTime,
+      flightTimes,
+      flightTimeVarianceMs,
+      fatigueSignature,
+      delayOnConjunctsMs,
+      problematicPairs
     } = get();
 
     if (isCompleted) return;
@@ -708,7 +811,68 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       get().startTest();
     }
 
-    set((state) => ({ keystrokes: state.keystrokes + 1 }));
+    const nowTime = Date.now();
+    const newFlightTimes = [...flightTimes];
+    let newFlightTimeVarianceMs = flightTimeVarianceMs;
+    let newFatigueSignature = fatigueSignature;
+    let newDelayOnConjunctsMs = delayOnConjunctsMs;
+
+    if (lastKeystrokeTime !== null) {
+      const flightTime = nowTime - lastKeystrokeTime;
+      if (flightTime < 2500) {
+        newFlightTimes.push(flightTime);
+        if (newFlightTimes.length > 30) {
+          newFlightTimes.shift(); // Keep rolling window of 30
+        }
+        
+        const n = newFlightTimes.length;
+        const mean = newFlightTimes.reduce((a, b) => a + b, 0) / n;
+        const variance = newFlightTimes.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / n;
+        newFlightTimeVarianceMs = Math.round(variance * 10) / 10;
+        
+        const elapsed = get().elapsedTime;
+        // Detect fatigue signature after 120s of active work or high variance
+        if (elapsed > 120 && newFlightTimeVarianceMs > 75) {
+          newFatigueSignature = "detected_after_120_seconds";
+        } else if (elapsed > 60 && newFlightTimeVarianceMs > 110) {
+          newFatigueSignature = "detected_high_variance";
+        } else {
+          newFatigueSignature = "none";
+        }
+
+        const currentChar = targetText[typedText.length] || "";
+        const nextChar = targetText[typedText.length + 1] || "";
+        const isConjunctContext = currentChar === "্" || nextChar === "্" || "ক্ষজ্ঞঞ্চন্ত".includes(currentChar);
+        if (isConjunctContext && flightTime > 150) {
+          newDelayOnConjunctsMs = Math.round((newDelayOnConjunctsMs * 0.7) + (flightTime * 0.3));
+        }
+      }
+    }
+
+    set((state) => ({ 
+      keystrokes: state.keystrokes + 1,
+      lastKeystrokeTime: nowTime,
+      flightTimes: newFlightTimes,
+      flightTimeVarianceMs: newFlightTimeVarianceMs,
+      fatigueSignature: newFatigueSignature,
+      delayOnConjunctsMs: newDelayOnConjunctsMs
+    }));
+
+    // Helper to log a problematic pair
+    const checkAndLogProblem = (tTyped: string) => {
+      const lastIndex = tTyped.length - 1;
+      const targetChar = targetText[lastIndex];
+      const typedChar = tTyped[lastIndex];
+      if (targetChar && typedChar && targetChar !== typedChar) {
+        const newPair = `${targetChar}-${typedChar}`;
+        const currentPairs = [...get().problematicPairs];
+        if (!currentPairs.includes(newPair)) {
+          currentPairs.push(newPair);
+          if (currentPairs.length > 5) currentPairs.shift();
+          set({ problematicPairs: currentPairs });
+        }
+      }
+    };
 
     // --- 1. Handle Backspace ---
     if (key === "Backspace") {
@@ -765,14 +929,39 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       }
 
       const errors = getErrorIndices(nextTyped, targetText);
+      checkAndLogProblem(nextTyped);
+
+      // Track keyStats for space
+      const expectedChar = targetText[typedText.length];
+      if (expectedChar) {
+        const isCorrect = expectedChar === " ";
+        const charKey = " ";
+        const currentStats = { ...(get().keyStats || {}) };
+        const stats = currentStats[charKey] || { correct: 0, total: 0 };
+        stats.total += 1;
+        if (isCorrect) {
+          stats.correct += 1;
+        }
+        currentStats[charKey] = stats;
+        set({ keyStats: currentStats });
+        if (typeof window !== "undefined") {
+          localStorage.setItem("typemaster_keystats", JSON.stringify(currentStats));
+        }
+      }
+
       set({ 
         typedText: nextTyped,
         errorIndices: errors
       });
 
-      // Complete automatically if we matched target length
+      // Auto-repeat passage if timed session is active, otherwise complete
       if (nextTyped.length >= targetText.length) {
-        get().completeTest();
+        const { selectedDuration, originalText } = get();
+        if (selectedDuration > 0 && originalText) {
+          set({ targetText: targetText + " " + originalText });
+        } else {
+          get().completeTest();
+        }
       }
       return;
     }
@@ -797,6 +986,21 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       if (mapped) {
         resolvedChar = isShift ? mapped.shift : mapped.normal;
       }
+    } else if (activeLayout === "probhat") {
+      const mapped = PROBHAT_MAP[code];
+      if (mapped) {
+        resolvedChar = isShift ? mapped.shift : mapped.normal;
+      }
+    } else if (activeLayout === "inscript") {
+      const mapped = INSCRIPT_MAP[code];
+      if (mapped) {
+        resolvedChar = isShift ? mapped.shift : mapped.normal;
+      }
+    } else if (activeLayout === "unicode") {
+      const mapped = UNICODE_MAP[code];
+      if (mapped) {
+        resolvedChar = isShift ? mapped.shift : mapped.normal;
+      }
     } else if (activeLayout === "avro" && get().inputLanguage === "bangla") {
       // English character added to phonetic string
       if (/[a-zA-Z]/i.test(key)) {
@@ -812,6 +1016,27 @@ export const useTypingStore = create<TypingState>((set, get) => ({
         
         if (soundEnabled) playTypewriterSound("click");
         
+        checkAndLogProblem(nextTyped);
+
+        // Track keyStats for Avro character key
+        const typedChar = nextTyped[nextTyped.length - 1];
+        const expectedChar = targetText[nextTyped.length - 1];
+        if (expectedChar && typedChar) {
+          const isCorrect = typedChar === expectedChar;
+          const charKey = expectedChar.toLowerCase();
+          const currentStats = { ...(get().keyStats || {}) };
+          const stats = currentStats[charKey] || { correct: 0, total: 0 };
+          stats.total += 1;
+          if (isCorrect) {
+            stats.correct += 1;
+          }
+          currentStats[charKey] = stats;
+          set({ keyStats: currentStats });
+          if (typeof window !== "undefined") {
+            localStorage.setItem("typemaster_keystats", JSON.stringify(currentStats));
+          }
+        }
+
         set({
           phoneticBuffer: nextPhonetic,
           typedText: nextTyped,
@@ -820,6 +1045,66 @@ export const useTypingStore = create<TypingState>((set, get) => ({
         
         if (nextTyped.length >= targetText.length) {
           get().completeTest();
+        }
+        return;
+      } else {
+        // Handle numbers and punctuation in Avro Bangla mode
+        // 1. First commit the current phonetic buffer (if any)
+        let committed = "";
+        if (phoneticBuffer.length > 0) {
+          committed = avroTransliterate(phoneticBuffer);
+          set({ phoneticBuffer: "" });
+        }
+
+        // 2. Map punctuation and digits to appropriate Bangla symbols
+        let mappedChar = key;
+        if (key >= "0" && key <= "9") {
+          const banglaDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
+          mappedChar = banglaDigits[parseInt(key, 10)];
+        } else if (key === ".") {
+          mappedChar = "।"; // Dari
+        }
+
+        const nextTyped = typedText + committed + mappedChar;
+        const errors = getErrorIndices(nextTyped, targetText);
+
+        if (soundEnabled) {
+          const expectedChar = targetText[nextTyped.length - 1];
+          const isError = mappedChar !== expectedChar;
+          playTypewriterSound(isError ? "error" : "click");
+        }
+
+        checkAndLogProblem(nextTyped);
+
+        // Track keyStats for normal character/symbol
+        const expectedChar = targetText[nextTyped.length - 1];
+        if (expectedChar) {
+          const charKey = expectedChar.toLowerCase();
+          const currentStats = { ...(get().keyStats || {}) };
+          const stats = currentStats[charKey] || { correct: 0, total: 0 };
+          stats.total += 1;
+          if (mappedChar === expectedChar) {
+            stats.correct += 1;
+          }
+          currentStats[charKey] = stats;
+          set({ keyStats: currentStats });
+          if (typeof window !== "undefined") {
+            localStorage.setItem("typemaster_keystats", JSON.stringify(currentStats));
+          }
+        }
+
+        set({
+          typedText: nextTyped,
+          errorIndices: errors
+        });
+
+        if (nextTyped.length >= targetText.length) {
+          const { selectedDuration, originalText } = get();
+          if (selectedDuration > 0 && originalText) {
+            set({ targetText: targetText + " " + originalText });
+          } else {
+            get().completeTest();
+          }
         }
         return;
       }
@@ -835,6 +1120,25 @@ export const useTypingStore = create<TypingState>((set, get) => ({
         playTypewriterSound(isError ? "error" : "click");
       }
 
+      checkAndLogProblem(nextTyped);
+
+      // Track keyStats for normal character
+      const expectedChar = targetText[typedText.length];
+      if (expectedChar) {
+        const charKey = expectedChar.toLowerCase();
+        const currentStats = { ...(get().keyStats || {}) };
+        const stats = currentStats[charKey] || { correct: 0, total: 0 };
+        stats.total += 1;
+        if (!isError) {
+          stats.correct += 1;
+        }
+        currentStats[charKey] = stats;
+        set({ keyStats: currentStats });
+        if (typeof window !== "undefined") {
+          localStorage.setItem("typemaster_keystats", JSON.stringify(currentStats));
+        }
+      }
+
       set({ 
         typedText: nextTyped,
         errorIndices: errors
@@ -847,8 +1151,13 @@ export const useTypingStore = create<TypingState>((set, get) => ({
   },
 
   setActiveLayout: (layout) => {
+    const { targetText } = get();
+    const isTargetBangla = !targetText.match(/[a-zA-Z]/);
+    const inputLanguage = (layout === "avro" && isTargetBangla) ? "bangla" : "latin";
+
     set({ 
       activeLayout: layout,
+      inputLanguage,
       typedText: "",
       phoneticBuffer: "",
       isStarted: false,
@@ -857,14 +1166,40 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       elapsedTime: 0,
       keystrokes: 0,
       backspaceCount: 0,
-      errorIndices: []
+      errorIndices: [],
+      lastKeystrokeTime: null,
+      flightTimes: [],
+      flightTimeVarianceMs: 0,
+      fatigueSignature: "none",
+      problematicPairs: [],
+      delayOnConjunctsMs: 0
     });
   },
 
   setSelectedDuration: (duration) => set({ selectedDuration: duration }),
   setSoundEnabled: (enabled) => set({ soundEnabled: enabled }),
   setSoundVolume: (volume) => set({ soundVolume: volume }),
-  setSoundProfile: (profile) => set({ soundProfile: profile })
+  setSoundProfile: (profile) => set({ soundProfile: profile }),
+  setSelectedLevel: (level) => set({ selectedLevel: level }),
+  setSelectedDomain: (domain) => set({ selectedDomain: domain }),
+  setTheme: (theme) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("typemaster_theme", theme);
+      if (theme === "dark") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    }
+    set({ theme });
+  },
+  setTargetWpm: (wpm) => set({ targetWpm: wpm }),
+  clearKeyStats: () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("typemaster_keystats");
+      set({ keyStats: {} });
+    }
+  }
 }));
 
 // Helpers for checking typing matches
