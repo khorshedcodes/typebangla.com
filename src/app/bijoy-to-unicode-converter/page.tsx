@@ -1,5 +1,6 @@
 import React from "react";
 import { Metadata } from "next";
+import Script from "next/script";
 import BijoyClient from "../unicode-to-bijoy-converter/BijoyClient";
 
 export const metadata: Metadata = {
@@ -55,7 +56,8 @@ const jsonLd = {
 export default function Page() {
   return (
     <>
-      <script
+      <Script
+        id="jsonld-bijoy-to-unicode"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />

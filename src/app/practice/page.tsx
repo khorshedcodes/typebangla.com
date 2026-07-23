@@ -1,5 +1,6 @@
 import React from "react";
 import { Metadata } from "next";
+import Script from "next/script";
 import { HelpCircle } from "lucide-react";
 import { PracticeHubClient } from "../../components/PracticeHubClient";
 
@@ -68,11 +69,13 @@ export default function PracticeHubPage() {
   return (
     <main className="container max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-16 fade-in text-foreground">
       {/* Inject JSON-LD SEO Schema */}
-      <script
+      <Script
+        id="jsonld-practice-webapp"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <script
+      <Script
+        id="jsonld-practice-faq"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />

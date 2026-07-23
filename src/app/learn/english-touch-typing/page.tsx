@@ -1,6 +1,7 @@
 import React from "react";
 import { Metadata } from "next";
 import Link from "next/link";
+import Script from "next/script";
 import {
   Sparkles, Keyboard, BookOpen, CheckCircle2, ArrowRight,
   HelpCircle, Zap, Play
@@ -71,7 +72,8 @@ const FAQS = [
 export default function LearnEnglishPage() {
   return (
     <main className="w-full bg-background text-foreground space-y-12 py-10 fade-in">
-      <script
+      <Script
+        id="jsonld-learn-english"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />

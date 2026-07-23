@@ -1,6 +1,7 @@
 import React from "react";
 import { Metadata } from "next";
 import Link from "next/link";
+import Script from "next/script";
 import {
   Sparkles, Keyboard, BookOpen, CheckCircle2, ArrowRight,
   HelpCircle, Zap, Award, Play
@@ -84,7 +85,8 @@ const FAQS = [
 export default function LearnBijoyPage() {
   return (
     <main className="w-full bg-background text-foreground space-y-12 py-10 fade-in">
-      <script
+      <Script
+        id="jsonld-learn-bijoy"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />

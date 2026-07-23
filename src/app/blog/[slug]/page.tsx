@@ -1,6 +1,7 @@
 import React from "react";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Script from "next/script";
 import { BLOG_POSTS, getBlogPostBySlug } from "../../../utils/blogData";
 import BlogPostClient from "./BlogPostClient";
 
@@ -90,7 +91,8 @@ export default async function BlogPostPage({
 
   return (
     <>
-      <script
+      <Script
+        id={`jsonld-blog-${post.slug}`}
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />

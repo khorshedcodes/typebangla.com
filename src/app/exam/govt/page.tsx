@@ -1,5 +1,6 @@
 import React from "react";
 import { Metadata } from "next";
+import Script from "next/script";
 import GovtExamClient from "./GovtExamClient";
 
 export const metadata: Metadata = {
@@ -21,7 +22,7 @@ const jsonLd = {
 export default function GovtExamPage() {
   return (
     <main className="container max-w-6xl mx-auto px-4 sm:px-6 py-8">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <Script id="jsonld-govt-exam" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <GovtExamClient />
     </main>
   );

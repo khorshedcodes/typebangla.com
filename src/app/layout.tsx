@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -74,7 +75,9 @@ export default function RootLayout({
     <html lang="bn">
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <script
+        <Script
+          id="sw-register"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               if ('serviceWorker' in navigator) {
@@ -87,8 +90,10 @@ export default function RootLayout({
             `,
           }}
         />
-        <script
+        <Script
+          id="json-ld-website"
           type="application/ld+json"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
