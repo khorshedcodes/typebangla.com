@@ -99,11 +99,11 @@ export function ExamCertificateModal({ isOpen, onClose, result }: ExamCertificat
     drawCornerDiamond(92, 1608);
     drawCornerDiamond(2308, 1608);
 
-    // 3. Logo Image
+    // 3. Logo Image (Full Horizontal Brand Mark)
     const logoImg = new window.Image();
-    logoImg.src = "/images/logo/blackbg.png";
+    logoImg.src = "/images/logo/logohorizontal.png";
     logoImg.onload = () => {
-      ctx.drawImage(logoImg, 140, 130, 260, 75);
+      ctx.drawImage(logoImg, 130, 115, 340, 70);
     };
 
     // 4. Header Badge / Title
