@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Award, Download, X, UserCheck, LayoutDashboard, Printer } from "lucide-react";
+import { Award, Download, X, UserCheck, Printer, FileText } from "lucide-react";
 import { Button } from "./ui/button";
 import { saveCertificateRecord } from "../lib/firestoreService";
 import { drawQrCodeOnCanvas } from "../utils/qrCode";
@@ -31,6 +31,7 @@ export function ExamCertificateModal({ isOpen, onClose, result }: ExamCertificat
   const [candidateName, setCandidateName] = useState(result?.candidateName || "TypeMaster Speed Candidate");
   const [certId] = useState(() => `TM-${Math.floor(100000 + Math.random() * 900000)}`);
   const [showTopUpModal, setShowTopUpModal] = useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   const { quota, deductInstituteQuota } = useInstitute();
   const isInstitute = Boolean(result?.instituteName);
@@ -52,136 +53,193 @@ export function ExamCertificateModal({ isOpen, onClose, result }: ExamCertificat
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    canvas.width = 1200;
-    canvas.height = 850;
+    // Ultra High-Resolution 2400 x 1700 Canvas for 300 DPI Sharpness
+    canvas.width = 2400;
+    canvas.height = 1700;
 
-    const bgGradient = ctx.createLinearGradient(0, 0, 1200, 850);
-    bgGradient.addColorStop(0, "#fafafa");
-    bgGradient.addColorStop(1, "#f4f4f5");
+    // 1. Luxury Off-White Parchment Background
+    const bgGradient = ctx.createRadialGradient(1200, 850, 200, 1200, 850, 1400);
+    bgGradient.addColorStop(0, "#fdfcf9");
+    bgGradient.addColorStop(1, "#f5f0e6");
     ctx.fillStyle = bgGradient;
-    ctx.fillRect(0, 0, 1200, 850);
+    ctx.fillRect(0, 0, 2400, 1700);
 
-    ctx.strokeStyle = "#18181b";
+    // 2. Luxury Double Frame: Outer Gold Filament + Inner Deep Slate Border
+    ctx.strokeStyle = "#ca8a04"; // Gold Metallic
     ctx.lineWidth = 12;
-    ctx.strokeRect(24, 24, 1152, 802);
+    ctx.strokeRect(40, 40, 2320, 1620);
 
-    ctx.strokeStyle = "#e4e4e7";
-    ctx.lineWidth = 4;
-    ctx.strokeRect(36, 36, 1128, 778);
+    ctx.strokeStyle = "#18181b"; // Deep Slate
+    ctx.lineWidth = 6;
+    ctx.strokeRect(64, 64, 2272, 1572);
 
-    ctx.fillStyle = "#18181b";
-    ctx.fillRect(24, 24, 60, 60);
-    ctx.fillRect(1116, 24, 60, 60);
-    ctx.fillRect(24, 766, 60, 60);
-    ctx.fillRect(1116, 766, 60, 60);
+    ctx.strokeStyle = "#ca8a04"; // Inner Gold Hairline
+    ctx.lineWidth = 3;
+    ctx.strokeRect(80, 80, 2240, 1540);
 
+    // Corner Ornaments (Gold Diamonds & Squares)
+    const drawCornerDiamond = (x: number, y: number) => {
+      ctx.save();
+      ctx.fillStyle = "#ca8a04";
+      ctx.beginPath();
+      ctx.moveTo(x, y - 24);
+      ctx.lineTo(x + 24, y);
+      ctx.lineTo(x, y + 24);
+      ctx.lineTo(x - 24, y);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = "#18181b";
+      ctx.fillRect(x - 8, y - 8, 16, 16);
+      ctx.restore();
+    };
+
+    drawCornerDiamond(92, 92);
+    drawCornerDiamond(2308, 92);
+    drawCornerDiamond(92, 1608);
+    drawCornerDiamond(2308, 1608);
+
+    // 3. Logo Image
     const logoImg = new window.Image();
     logoImg.src = "/images/logo/blackbg.png";
     logoImg.onload = () => {
-      ctx.drawImage(logoImg, 80, 80, 140, 40);
+      ctx.drawImage(logoImg, 140, 130, 260, 75);
     };
 
+    // 4. Header Badge / Title
     if (result.mode === "ranked") {
       ctx.fillStyle = "#ca8a04";
-      ctx.fillRect(350, 65, 500, 32);
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 13px sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText("🏆 NATIONAL RANKING COMPETITION QUALIFIED", 600, 86);
+      ctx.roundRect?.(700, 110, 1000, 56, 12);
+      ctx.fill();
 
-      ctx.fillStyle = "#18181b";
-      ctx.font = "bold 22px sans-serif";
-      ctx.fillText("TYPEBANGLA VERIFIED CERTIFICATION", 600, 125);
-    } else {
-      ctx.fillStyle = "#18181b";
+      ctx.fillStyle = "#ffffff";
       ctx.font = "bold 24px sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText("TYPEBANGLA VERIFIED CERTIFICATION", 600, 110);
+      ctx.fillText("🏆 NATIONAL RANKING COMPETITION QUALIFIED", 1200, 146);
+
+      ctx.fillStyle = "#18181b";
+      ctx.font = "bold 38px sans-serif";
+      ctx.fillText("TYPEBANGLA VERIFIED CERTIFICATION", 1200, 225);
+    } else {
+      ctx.fillStyle = "#ca8a04";
+      ctx.font = "bold 26px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("✦ TYPEBANGLA OFFICIAL VERIFIED CERTIFICATION ✦", 1200, 150);
     }
 
+    // Main Certificate Heading
     ctx.fillStyle = "#09090b";
-    ctx.font = "extrabold 46px serif";
-    ctx.fillText("Certificate of Typing Proficiency", 600, 175);
+    ctx.font = "extrabold 82px serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Certificate of Typing Proficiency", 1200, 320);
 
     ctx.fillStyle = "#71717a";
-    ctx.font = "18px sans-serif";
-    ctx.fillText("This is to officially certify that", 600, 230);
+    ctx.font = "32px sans-serif";
+    ctx.fillText("This is to officially certify that", 1200, 420);
 
+    // Candidate Name (Regal Display)
     ctx.fillStyle = "#09090b";
-    ctx.font = "bold 42px sans-serif";
-    ctx.fillText(candidateName, 600, 300);
+    ctx.font = "bold 76px sans-serif";
+    ctx.fillText(candidateName, 1200, 540);
 
-    ctx.strokeStyle = "#18181b";
-    ctx.lineWidth = 2;
+    // Gold Accent Underline Bar
+    const textWidth = ctx.measureText(candidateName).width;
+    const barWidth = Math.max(700, textWidth + 80);
+    const barX = 1200 - barWidth / 2;
+
+    ctx.strokeStyle = "#ca8a04";
+    ctx.lineWidth = 6;
     ctx.beginPath();
-    ctx.moveTo(350, 320);
-    ctx.lineTo(850, 320);
+    ctx.moveTo(barX, 580);
+    ctx.lineTo(barX + barWidth, 580);
     ctx.stroke();
 
+    // Qualification Statement
     ctx.fillStyle = "#3f3f46";
-    ctx.font = "20px sans-serif";
+    ctx.font = "36px sans-serif";
     ctx.fillText(
-      `has successfully completed the TypeBangla ${result.language.toUpperCase()} typing proficiency exam`,
-      600,
-      365
+      `has successfully completed the official [ ${result.language.toUpperCase()} ] typing proficiency examination`,
+      1200,
+      670
     );
 
     if (result.instituteName) {
-      ctx.fillStyle = "#18181b";
-      ctx.font = "bold 16px sans-serif";
+      ctx.fillStyle = "#ca8a04";
+      ctx.font = "bold 30px sans-serif";
       ctx.fillText(
         `Issued by: ${result.instituteName} in partnership with TypeBangla`,
-        600,
-        395
+        1200,
+        730
       );
     }
 
-    const boxGradient = ctx.createLinearGradient(200, 420, 1000, 560);
+    // 5. Score Container Card (Dark Slate with Gold Border)
+    const cardX = 350;
+    const cardY = 780;
+    const cardW = 1700;
+    const cardH = 300;
+
+    const boxGradient = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH);
     boxGradient.addColorStop(0, "#18181b");
     boxGradient.addColorStop(1, "#09090b");
     ctx.fillStyle = boxGradient;
-    ctx.roundRect?.(200, 410, 800, 150, 16);
+    ctx.roundRect?.(cardX, cardY, cardW, cardH, 28);
     ctx.fill();
 
+    ctx.strokeStyle = "#ca8a04";
+    ctx.lineWidth = 4;
+    ctx.roundRect?.(cardX, cardY, cardW, cardH, 28);
+    ctx.stroke();
+
+    // Column 1: WPM
     ctx.fillStyle = "#ffffff";
     ctx.textAlign = "center";
+    ctx.font = "bold 96px sans-serif";
+    ctx.fillText(`${result.wpm}`, cardX + 300, cardY + 140);
+    ctx.fillStyle = "#a1a1aa";
+    ctx.font = "bold 24px sans-serif";
+    ctx.fillText("WORDS PER MINUTE (WPM)", cardX + 300, cardY + 210);
 
-    ctx.font = "bold 52px sans-serif";
-    ctx.fillText(`${result.wpm}`, 360, 485);
-    ctx.font = "14px sans-serif";
-    ctx.fillText("WORDS PER MINUTE (WPM)", 360, 520);
-
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
-    ctx.lineWidth = 2;
+    // Separator 1
+    ctx.strokeStyle = "rgba(202, 138, 4, 0.4)";
+    ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(520, 430);
-    ctx.lineTo(520, 540);
+    ctx.moveTo(cardX + 570, cardY + 40);
+    ctx.lineTo(cardX + 570, cardY + 260);
     ctx.stroke();
 
-    ctx.font = "bold 52px sans-serif";
-    ctx.fillText(`${result.accuracy}%`, 600, 485);
-    ctx.font = "14px sans-serif";
-    ctx.fillText("TYPING ACCURACY", 600, 520);
+    // Column 2: Accuracy
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 96px sans-serif";
+    ctx.fillText(`${result.accuracy}%`, cardX + 850, cardY + 140);
+    ctx.fillStyle = "#a1a1aa";
+    ctx.font = "bold 24px sans-serif";
+    ctx.fillText("TYPING ACCURACY", cardX + 850, cardY + 210);
 
+    // Separator 2
     ctx.beginPath();
-    ctx.moveTo(680, 430);
-    ctx.lineTo(680, 540);
+    ctx.moveTo(cardX + 1130, cardY + 40);
+    ctx.lineTo(cardX + 1130, cardY + 260);
     ctx.stroke();
 
-    ctx.font = "bold 32px sans-serif";
-    ctx.fillText(result.layout.toUpperCase(), 840, 485);
-    ctx.font = "14px sans-serif";
-    ctx.fillText("KEYBOARD LAYOUT", 840, 520);
+    // Column 3: Layout Name
+    ctx.fillStyle = "#ca8a04";
+    ctx.font = "bold 64px sans-serif";
+    ctx.fillText(result.layout.toUpperCase(), cardX + 1410, cardY + 140);
+    ctx.fillStyle = "#a1a1aa";
+    ctx.font = "bold 24px sans-serif";
+    ctx.fillText("KEYBOARD LAYOUT", cardX + 1410, cardY + 210);
 
+    // 6. Metadata Footer (Issued Date, Certificate ID, Verification URL)
     const issueDate = result.date || new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-    ctx.fillStyle = "#71717a";
-    ctx.font = "16px sans-serif";
+    ctx.fillStyle = "#52525b";
+    ctx.font = "28px sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText(`Issued Date: ${issueDate}`, 120, 680);
-    ctx.fillText(`Certificate ID: ${certId}`, 120, 710);
-    ctx.fillText(`Verification URL: typebangla.com/verify/${certId}`, 120, 740);
+    ctx.fillText(`Issued Date: ${issueDate}`, 240, 1340);
+    ctx.fillText(`Certificate ID: ${certId}`, 240, 1390);
+    ctx.fillText(`Verification URL: typebangla.com/verify/${certId}`, 240, 1440);
 
-    // Signature & Verification Block
+    // 7. Signature & Verification Block
     const sigImg = new window.Image();
     sigImg.src = "/images/logo/signature.png";
 
@@ -193,91 +251,90 @@ export function ExamCertificateModal({ isOpen, onClose, result }: ExamCertificat
         
         // 1. CEO Signature
         ctx.strokeStyle = "#18181b";
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.moveTo(460, 710);
-        ctx.lineTo(660, 710);
+        ctx.moveTo(920, 1420);
+        ctx.lineTo(1320, 1420);
         ctx.stroke();
 
         if (hasImg) {
-          ctx.drawImage(sigImg, 490, 650, 140, 50);
+          ctx.drawImage(sigImg, 990, 1300, 260, 100);
         } else {
-          ctx.font = "italic bold 22px 'Brush Script MT', cursive, serif";
+          ctx.font = "italic bold 44px 'Brush Script MT', cursive, serif";
           ctx.fillStyle = "#18181b";
           ctx.textAlign = "center";
-          ctx.fillText("Khorshed Alam", 560, 700);
+          ctx.fillText("Khorshed Alam", 1120, 1400);
         }
 
-        ctx.font = "bold 12px sans-serif";
+        ctx.font = "bold 24px sans-serif";
         ctx.fillStyle = "#18181b";
         ctx.textAlign = "center";
-        ctx.fillText("Khorshed Alam", 560, 726);
-        ctx.font = "10px sans-serif";
+        ctx.fillText("Khorshed Alam", 1120, 1455);
+        ctx.font = "20px sans-serif";
         ctx.fillStyle = "#71717a";
-        ctx.fillText("CEO, TypeBangla", 560, 740);
+        ctx.fillText("CEO, TypeBangla", 1120, 1485);
 
         // 2. Institute Director Signature
         ctx.strokeStyle = "#18181b";
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.moveTo(700, 710);
-        ctx.lineTo(900, 710);
+        ctx.moveTo(1400, 1420);
+        ctx.lineTo(1800, 1420);
         ctx.stroke();
 
-        ctx.font = "italic bold 20px 'Brush Script MT', cursive, serif";
+        ctx.font = "italic bold 40px 'Brush Script MT', cursive, serif";
         ctx.fillStyle = "#18181b";
         ctx.textAlign = "center";
-        ctx.fillText("Authorized Director", 800, 700);
+        ctx.fillText("Authorized Director", 1600, 1400);
 
-        ctx.font = "bold 12px sans-serif";
+        ctx.font = "bold 24px sans-serif";
         ctx.fillStyle = "#18181b";
-        ctx.fillText(result.instituteName || "Institute Admin", 800, 726);
-        ctx.font = "10px sans-serif";
+        ctx.fillText(result.instituteName || "Institute Admin", 1600, 1455);
+        ctx.font = "20px sans-serif";
         ctx.fillStyle = "#71717a";
-        ctx.fillText("Certified Trainer / Director", 800, 740);
+        ctx.fillText("Certified Trainer / Director", 1600, 1485);
 
       } else {
         // Single CEO Signature Block (Center)
         ctx.strokeStyle = "#18181b";
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.moveTo(560, 710);
-        ctx.lineTo(800, 710);
+        ctx.moveTo(1120, 1420);
+        ctx.lineTo(1620, 1420);
         ctx.stroke();
 
         if (hasImg) {
-          ctx.drawImage(sigImg, 610, 650, 140, 50);
+          ctx.drawImage(sigImg, 1230, 1300, 280, 105);
         } else {
-          ctx.font = "italic bold 24px 'Brush Script MT', cursive, serif";
+          ctx.font = "italic bold 48px 'Brush Script MT', cursive, serif";
           ctx.fillStyle = "#18181b";
           ctx.textAlign = "center";
-          ctx.fillText("Khorshed Alam", 680, 700);
+          ctx.fillText("Khorshed Alam", 1370, 1400);
         }
 
-        ctx.font = "bold 13px sans-serif";
+        ctx.font = "bold 26px sans-serif";
         ctx.fillStyle = "#18181b";
         ctx.textAlign = "center";
-        ctx.fillText("Khorshed Alam", 680, 728);
+        ctx.fillText("Khorshed Alam", 1370, 1458);
 
-        ctx.font = "11px sans-serif";
+        ctx.font = "22px sans-serif";
         ctx.fillStyle = "#71717a";
-        ctx.fillText("Chief Executive Officer, TypeBangla", 680, 744);
+        ctx.fillText("Chief Executive Officer, TypeBangla", 1370, 1490);
       }
     };
 
     sigImg.onload = () => drawSignatures(true);
     sigImg.onerror = () => drawSignatures(false);
 
-    // Draw Dynamic Scannable QR Code
+    // 8. Draw Dynamic Scannable QR Code
     const verifyUrl = `https://typebangla.com/verify/${certId}`;
-    drawQrCodeOnCanvas(ctx, verifyUrl, 940, 630, 115);
+    drawQrCodeOnCanvas(ctx, verifyUrl, 1880, 1260, 240);
 
     ctx.fillStyle = "#71717a";
-    ctx.font = "bold 11px sans-serif";
+    ctx.font = "bold 22px sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("SCAN TO VERIFY", 995, 762);
+    ctx.fillText("SCAN TO VERIFY", 2000, 1530);
   }, [candidateName, result, certId]);
-
 
   useEffect(() => {
     if (!isOpen) return;
@@ -298,10 +355,20 @@ export function ExamCertificateModal({ isOpen, onClose, result }: ExamCertificat
     } catch (e) {
       console.error("Failed to save local cert:", e);
     }
-    saveCertificateRecord(certPayload).catch(console.error);
+    saveCertificateRecord({
+      certificateId: certId,
+      candidateName,
+      wpm: result.wpm,
+      accuracy: result.accuracy,
+      layout: result.layout,
+      language: result.language,
+      instituteName: result.instituteName,
+      mode: result.mode,
+    }).catch(console.error);
   }, [isOpen, drawCertificate, certId, candidateName, result]);
 
-  const handleDownload = () => {
+  // High-Res PNG Download Handler
+  const handleDownloadPng = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -317,18 +384,63 @@ export function ExamCertificateModal({ isOpen, onClose, result }: ExamCertificat
     }).catch(console.error);
 
     const link = document.createElement("a");
-    link.download = `TypeBangla_Certificate_${candidateName.replace(/\s+/g, "_")}.png`;
+    link.download = `TypeBangla_Official_Certificate_${candidateName.replace(/\s+/g, "_")}.png`;
     link.href = canvas.toDataURL("image/png");
     link.click();
   };
 
-  const handlePrintPdf = () => {
+  // Direct PDF Download Handler (Using jsPDF)
+  const handleDownloadPdf = async () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    setIsGeneratingPdf(true);
+
+    try {
+      saveCertificateRecord({
+        certificateId: certId,
+        candidateName,
+        wpm: result.wpm,
+        accuracy: result.accuracy,
+        layout: result.layout,
+        language: result.language,
+        instituteName: result.instituteName,
+        mode: result.mode,
+      }).catch(console.error);
+
+      const dataUrl = canvas.toDataURL("image/png");
+      const { jsPDF } = await import("jspdf");
+
+      // Create A4 Landscape PDF Document (297mm x 210mm)
+      const pdf = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4",
+      });
+
+      pdf.addImage(dataUrl, "PNG", 0, 0, 297, 210);
+      pdf.save(`TypeBangla_Official_Certificate_${candidateName.replace(/\s+/g, "_")}.pdf`);
+    } catch (error) {
+      console.error("PDF generation failed:", error);
+      // Fallback to PNG download if PDF generation fails
+      handleDownloadPng();
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
+
+  // Printable A4 Document Handler
+  const handlePrintDocument = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const dataUrl = canvas.toDataURL("image/png");
 
     const printWindow = window.open("", "_blank");
-    if (!printWindow) return;
+    if (!printWindow) {
+      // If popup blocker blocked window.open, trigger direct PDF download
+      handleDownloadPdf();
+      return;
+    }
 
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -337,12 +449,15 @@ export function ExamCertificateModal({ isOpen, onClose, result }: ExamCertificat
           <title>TypeBangla Official Certificate - ${candidateName}</title>
           <style>
             @page { size: A4 landscape; margin: 0; }
-            body { margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; background: #ffffff; }
-            img { width: 100vw; height: 100vh; object-fit: contain; }
+            html, body { width: 100%; height: 100%; margin: 0; padding: 0; background: #ffffff; overflow: hidden; }
+            .container { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
+            img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
           </style>
         </head>
         <body>
-          <img src="${dataUrl}" onload="window.print(); window.close();" />
+          <div class="container">
+            <img src="${dataUrl}" onload="setTimeout(function(){ window.print(); window.close(); }, 300);" />
+          </div>
         </body>
       </html>
     `);
@@ -353,58 +468,75 @@ export function ExamCertificateModal({ isOpen, onClose, result }: ExamCertificat
 
   return (
     <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-popover border border-border rounded-xl max-w-4xl w-full p-6 shadow-xl space-y-5 my-8">
+      <div className="bg-popover border border-border rounded-2xl max-w-4xl w-full p-6 shadow-2xl space-y-5 my-8">
+        {/* Header Bar */}
         <div className="flex items-center justify-between border-b border-border pb-4">
-          <div className="flex items-center gap-2 text-foreground">
-            <Award size={22} />
-            <h2 className="text-lg font-bold text-foreground">
-              Official Typing Certificate
-            </h2>
+          <div className="flex items-center gap-2.5 text-foreground">
+            <Award size={22} className="text-amber-500" />
+            <div>
+              <h2 className="text-lg font-black tracking-tight text-foreground">
+                Official Typing Proficiency Certificate
+              </h2>
+              <p className="text-xs text-muted-foreground">TypeBangla National Verified Credential</p>
+            </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
+          <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full hover:bg-muted">
             <X size={18} />
           </Button>
         </div>
 
-        <div className="flex items-center gap-3 bg-secondary p-3 rounded-lg border border-border">
-          <UserCheck size={18} className="text-foreground flex-shrink-0" />
+        {/* Candidate Name Input */}
+        <div className="flex items-center gap-3 bg-secondary/60 p-3 rounded-xl border border-border">
+          <UserCheck size={18} className="text-primary flex-shrink-0" />
           <label className="text-xs font-bold text-foreground flex-shrink-0">
-            Candidate Name:
+            Candidate Name on Certificate:
           </label>
           <input
             type="text"
             value={candidateName}
             onChange={(e) => setCandidateName(e.target.value)}
             placeholder="Enter your full name..."
-            className="flex-1 bg-background border border-input rounded-md px-3 py-1.5 text-sm font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+            className="flex-1 bg-background border border-input rounded-lg px-3 py-1.5 text-sm font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
           />
         </div>
 
-        <div className="border border-border rounded-xl overflow-hidden bg-secondary flex items-center justify-center p-2">
-          <canvas ref={canvasRef} className="w-full h-auto max-h-[500px] object-contain rounded-lg shadow-xs" />
+        {/* Canvas Display Container */}
+        <div className="border border-border rounded-xl overflow-hidden bg-muted/40 flex items-center justify-center p-3 shadow-inner">
+          <canvas ref={canvasRef} className="w-full h-auto max-h-[520px] object-contain rounded-lg shadow-md" />
         </div>
 
+        {/* Action Controls */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
           <p className="text-xs text-muted-foreground">
-            ID: <span className="font-mono font-bold text-foreground">{certId}</span> • PNG &amp; Printable A4 PDF
+            Certificate ID: <span className="font-mono font-bold text-foreground">{certId}</span> • 300 DPI Verified Document
           </p>
 
           <div className="flex items-center gap-2 flex-wrap">
             <Button
               variant="outline"
-              onClick={() => checkQuotaAndProceed(handlePrintPdf)}
+              onClick={() => checkQuotaAndProceed(handlePrintDocument)}
               className="font-bold text-xs gap-1.5 h-10 border-border"
             >
               <Printer size={15} />
-              <span>Print A4 PDF</span>
+              <span>Print A4 Document</span>
             </Button>
 
             <Button
-              onClick={() => checkQuotaAndProceed(handleDownload)}
-              className="font-bold text-xs gap-2 h-10 shadow-xs"
+              variant="outline"
+              onClick={() => checkQuotaAndProceed(handleDownloadPng)}
+              className="font-bold text-xs gap-1.5 h-10 border-border"
             >
               <Download size={15} />
-              <span>Download High-Res PNG</span>
+              <span>Download PNG</span>
+            </Button>
+
+            <Button
+              onClick={() => checkQuotaAndProceed(handleDownloadPdf)}
+              disabled={isGeneratingPdf}
+              className="font-bold text-xs gap-2 h-10 bg-emerald-600 hover:bg-emerald-500 text-white shadow-md"
+            >
+              <FileText size={15} />
+              <span>{isGeneratingPdf ? "Generating PDF..." : "Download Official PDF"}</span>
             </Button>
           </div>
         </div>

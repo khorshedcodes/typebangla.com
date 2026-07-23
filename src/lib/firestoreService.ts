@@ -119,8 +119,11 @@ export async function saveCertificateRecord(certData: {
 
     const firestore = await import("firebase/firestore");
     const certRef = firestore.doc(db, "certificates", certData.certificateId);
+    const cleanData = Object.fromEntries(
+      Object.entries(certData).filter(([_, v]) => v !== undefined)
+    );
     await firestore.setDoc(certRef, {
-      ...certData,
+      ...cleanData,
       issuedAt: firestore.serverTimestamp(),
     });
     return true;
