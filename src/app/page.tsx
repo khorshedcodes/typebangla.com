@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "../components/ui/card";
 import { getClusterRanges } from "../utils/grapheme";
-import { avroTransliterate } from "../utils/layouts";
+import { avroTransliterate, mapInputToBangla } from "../utils/layouts";
 import { Button } from "../components/ui/button";
 
 // ── PASSAGE DICTIONARY FOR HERO MULTI-LAYOUT ARENA ─────────────────────────────
@@ -58,10 +58,9 @@ function HeroMultiLayoutArena() {
   const passages = SAMPLE_PASSAGES[activeLayout] || SAMPLE_PASSAGES.avro;
   const targetText = passages[passageIndex % passages.length];
 
-  // Effective typed text (Transliterate Banglish to Bangla if layout is non-English)
+  // Effective typed text (Map input keystrokes to Bangla/English based on active layout)
   const getEffectiveTypedText = (raw: string) => {
-    if (activeLayout === "english") return raw;
-    return avroTransliterate(raw);
+    return mapInputToBangla(raw, activeLayout);
   };
 
   const effectiveInput = getEffectiveTypedText(input);

@@ -432,3 +432,47 @@ export const UNICODE_MAP: LayoutMap = {
   Space: { normal: " ", shift: " " },
 };
 
+/**
+ * Universal Input Mapper for Interactive Components & Arenas
+ * Translates raw input keystrokes to Bangla script based on active layout.
+ */
+export function mapInputToBangla(rawInput: string, layout: string): string {
+  if (layout === "english") return rawInput;
+  if (layout === "avro") return avroTransliterate(rawInput);
+
+  let mapTable: LayoutMap = UNI_BIJOY_MAP;
+  if (layout === "jatiya") mapTable = JATIYA_MAP;
+  else if (layout === "probhat") mapTable = PROBHAT_MAP;
+  else if (layout === "inscript") mapTable = INSCRIPT_MAP;
+  else if (layout === "unicode") mapTable = UNICODE_MAP;
+
+  let result = "";
+  for (let i = 0; i < rawInput.length; i++) {
+    const char = rawInput[i];
+    // If character is already Bangla or punctuation/space, keep it intact
+    if (/[\u0980-\u09FF\s.,!?:;'"()\-_]/.test(char)) {
+      result += char;
+      continue;
+    }
+
+    let keyCode = "";
+    if (/[a-zA-Z]/.test(char)) {
+      keyCode = `Key${char.toUpperCase()}`;
+    } else if (/[0-9]/.test(char)) {
+      keyCode = `Digit${char}`;
+    }
+
+    if (keyCode && mapTable[keyCode]) {
+      const isShift = char === char.toUpperCase() && char !== char.toLowerCase();
+      const mapped = isShift ? mapTable[keyCode].shift : mapTable[keyCode].normal;
+      result += mapped || char;
+    } else {
+      // Fallback to Avro transliteration if key is not mapped
+      result += avroTransliterate(char);
+    }
+  }
+
+  return result;
+}
+
+
