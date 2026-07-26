@@ -1,16 +1,288 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   ArrowRight, CheckCircle2, Award, Zap, BookOpen,
   BarChart3, Trophy, ChevronDown, Sparkles, Play,
-  ShieldCheck, Star, Keyboard
+  ShieldCheck, Star, RefreshCw, Flame, Target, Compass
 } from "lucide-react";
 import { Card, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 
-// ── 1. Hero Typewriter Animation ──────────────────────────────────────────────
+// ── PASSAGE DICTIONARY FOR HERO MULTI-LAYOUT ARENA ─────────────────────────────
+const SAMPLE_PASSAGES: Record<string, string[]> = {
+  avro: [
+    "বাংলাদেশ আমাদের প্রিয় জন্মভূমি। বাংলা টাইপিং শেখা এখন সবথেকে সহজ টাইপবাংলা প্ল্যাটফর্মে।",
+    "প্রযুক্তি ও শিক্ষার আলো ছড়িয়ে পড়ুক দূরদূরান্তে। স্বনির্ভর বাংলাদেশ গড়ার লক্ষ্যে আমরা এগিয়ে চলি।",
+    "কম্পিউটার অপারেটিং ও বাংলা টাইপিং গতি বাড়াতে নিয়মিত অনুশীলন ও চর্চার বিকল্প নেই।",
+  ],
+  unibijoy: [
+    "জাতির পিতা বঙ্গবন্ধু শেখ মুজিবুর রহমানের স্বপ্নে গড়া সোনার বাংলা গড়াই আমাদের অঙ্গীকার।",
+    "ডিজিটাল বাংলাদেশ বিনির্মাণে তথ্যপ্রযুক্তির সঠিক ব্যবহার ও দক্ষ মানবসম্পদ বৃদ্ধি অতীব জরুরি।",
+    "বিজয় কীবোর্ড দিয়ে দ্রুত ও নির্ভুলভাবে সকল দাপ্তরিক নথিপত্র তৈরি করা সম্ভব।",
+  ],
+  jatiya: [
+    "বাংলাদেশ সরকারের সরকারি চাকরি পরীক্ষায় কম্পিউটারে ৩০ শব্দ প্রতি মিনিটে গতি অর্জনের বিধান রয়েছে।",
+    "বিসিসি অনুমোদিত জাতীয় কীবোর্ড লেআউট সকল সরকারি প্রশাসনিক দপ্তর ও ব্যাংকসমূহে ব্যবহৃত হয়।",
+    "সঠিক নিয়মে টাচ টাইপিং অনুশীলন করলে কয়েক সপ্তাহের মধ্যে নির্ভুলতা বহুগুণ বৃদ্ধি পায়।",
+  ],
+  english: [
+    "The quick brown fox jumps over the lazy dog. Daily typing practice increases WPM and accuracy.",
+    "Mastering touch typing is essential for modern software development and digital communication.",
+    "TypeBangla provides interactive courses for English QWERTY and Bangla layouts completely free.",
+  ],
+};
+
+const LAYOUT_META: Record<string, { label: string; badge: string; desc: string }> = {
+  avro: { label: "Avro Phonetic", badge: "সহজ ফোনের্টিক", desc: "a=আ, k=ক (Banglish style)" },
+  unibijoy: { label: "UniBijoy / Bijoy 52", badge: "বিজয় লেআউট", desc: "প্রথাগত বিজয় ৫০ কীবোর্ড" },
+  jatiya: { label: "Jatiya (BCC Govt)", badge: "সরকারি পরীক্ষা", desc: "বিসিসি অনুমোদিত জাতীয় কীবোর্ড" },
+  english: { label: "English QWERTY", badge: "Standard", desc: "আন্তর্জাতিক স্ট্যান্ডার্ড কীবোর্ড" },
+};
+
+// ── 1. HERO MULTI-LAYOUT ARENA COMPONENT ──────────────────────────────────────
+function HeroMultiLayoutArena() {
+  const [activeLayout, setActiveLayout] = useState<string>("avro");
+  const [passageIndex, setPassageIndex] = useState(0);
+  const [input, setInput] = useState("");
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [wpm, setWpm] = useState(0);
+  const [accuracy, setAccuracy] = useState(100);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const passages = SAMPLE_PASSAGES[activeLayout] || SAMPLE_PASSAGES.avro;
+  const targetText = passages[passageIndex % passages.length];
+
+  // Timer tick
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (startTime && !isCompleted) {
+      timer = setInterval(() => {
+        const sec = Math.floor((Date.now() - startTime) / 1000);
+        setElapsedSeconds(sec);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [startTime, isCompleted]);
+
+  // Handle Input Changes
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (isCompleted) return;
+
+    if (!startTime && val.length > 0) {
+      setStartTime(Date.now());
+    }
+
+    setInput(val);
+
+    // Calculate accuracy & WPM
+    if (val.length > 0) {
+      const durationSec = Math.max(1, startTime ? (Date.now() - startTime) / 1000 : 1);
+      const calculatedWpm = Math.round((val.length / 5) / (durationSec / 60));
+      setWpm(calculatedWpm);
+
+      let correct = 0;
+      for (let i = 0; i < val.length; i++) {
+        if (val[i] === targetText[i]) correct++;
+      }
+      setAccuracy(Math.max(0, Math.round((correct / val.length) * 100)));
+
+      // Check completion
+      if (val.length >= targetText.length) {
+        setIsCompleted(true);
+      }
+    } else {
+      setWpm(0);
+      setAccuracy(100);
+    }
+  };
+
+  // Reset Arena
+  const resetArena = () => {
+    setInput("");
+    setStartTime(null);
+    setElapsedSeconds(0);
+    setWpm(0);
+    setAccuracy(100);
+    setIsCompleted(false);
+    if (inputRef.current) inputRef.current.focus();
+  };
+
+  // Switch Layout
+  const handleLayoutSwitch = (layoutKey: string) => {
+    setActiveLayout(layoutKey);
+    setPassageIndex(0);
+    setInput("");
+    setStartTime(null);
+    setElapsedSeconds(0);
+    setWpm(0);
+    setAccuracy(100);
+    setIsCompleted(false);
+  };
+
+  // Shuffle Passage
+  const shufflePassage = () => {
+    setPassageIndex((prev) => prev + 1);
+    setInput("");
+    setStartTime(null);
+    setElapsedSeconds(0);
+    setWpm(0);
+    setAccuracy(100);
+    setIsCompleted(false);
+  };
+
+  return (
+    <div className="border border-border bg-card/90 backdrop-blur-md rounded-2xl p-5 sm:p-8 shadow-lg max-w-4xl mx-auto space-y-6 text-left relative overflow-hidden">
+      
+      {/* Layout Tabs Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-xs font-black text-foreground uppercase tracking-wider">
+            সরাসরি লাইভ টেস্ট প্লে-গ্রাউন্ড
+          </span>
+        </div>
+
+        {/* Layout Tabs */}
+        <div className="flex flex-wrap gap-1 bg-secondary/80 p-1 rounded-xl border border-border">
+          {Object.keys(LAYOUT_META).map((key) => {
+            const meta = LAYOUT_META[key];
+            const isActive = activeLayout === key;
+            return (
+              <button
+                key={key}
+                onClick={() => handleLayoutSwitch(key)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  isActive
+                    ? "bg-background text-foreground shadow-xs border border-border"
+                    : "text-muted-foreground hover:text-foreground hover:bg-background/40"
+                }`}
+              >
+                {meta.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Live Metrics HUD */}
+      <div className="grid grid-cols-4 gap-2 sm:gap-4 bg-secondary/50 p-3 sm:p-4 rounded-xl border border-border text-center">
+        <div>
+          <span className="text-[10px] sm:text-xs text-muted-foreground font-semibold block">টাইপিং স্পিড</span>
+          <span className="text-lg sm:text-2xl font-black text-foreground">{wpm} <span className="text-xs font-bold text-muted-foreground">WPM</span></span>
+        </div>
+        <div>
+          <span className="text-[10px] sm:text-xs text-muted-foreground font-semibold block">নির্ভুলতা</span>
+          <span className="text-lg sm:text-2xl font-black text-foreground">{accuracy}%</span>
+        </div>
+        <div>
+          <span className="text-[10px] sm:text-xs text-muted-foreground font-semibold block">সময়</span>
+          <span className="text-lg sm:text-2xl font-black text-foreground">{elapsedSeconds}s</span>
+        </div>
+        <div>
+          <span className="text-[10px] sm:text-xs text-muted-foreground font-semibold block">লেআউট</span>
+          <span className="text-xs sm:text-sm font-bold text-foreground truncate block mt-1">{LAYOUT_META[activeLayout].badge}</span>
+        </div>
+      </div>
+
+      {/* Target Text Container with Character Color Feedback */}
+      <div className="font-bangla text-base sm:text-xl leading-relaxed p-4 sm:p-6 bg-secondary/30 rounded-xl border border-border select-none min-h-[100px] flex items-center flex-wrap gap-0.5">
+        {Array.from(targetText).map((char, idx) => {
+          const typedChar = input[idx];
+          let statusClass = "text-muted-foreground";
+
+          if (typedChar !== undefined) {
+            if (typedChar === char) {
+              statusClass = "text-foreground font-bold bg-emerald-500/15 border-b-2 border-emerald-500 px-0.5 rounded-t-xs";
+            } else {
+              statusClass = "text-red-500 font-bold bg-red-500/15 border-b-2 border-red-500 underline px-0.5 rounded-t-xs";
+            }
+          } else if (idx === input.length) {
+            statusClass = "text-foreground font-bold bg-primary/20 border-b-2 border-primary animate-pulse px-0.5 rounded-t-xs";
+          }
+
+          return (
+            <span key={idx} className={statusClass}>
+              {char}
+            </span>
+          );
+        })}
+      </div>
+
+      {/* Input Field & Control Buttons */}
+      <div className="space-y-3">
+        <div className="relative">
+          <input
+            ref={inputRef}
+            type="text"
+            value={input}
+            onChange={handleInputChange}
+            disabled={isCompleted}
+            placeholder={isCompleted ? "টেস্ট সম্পন্ন হয়েছে! নিচে ফলাফল দেখুন..." : "এখানে টাইপ করা শুরু করুন (কোনো অ্যাকাউন্ট লাগবে না)..."}
+            className="w-full font-bangla text-sm sm:text-base p-4 pr-12 border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground shadow-xs disabled:opacity-75"
+          />
+          <button
+            onClick={shufflePassage}
+            title="অনুচ্ছেদ পরিবর্তন করুন"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg transition-colors"
+          >
+            <RefreshCw size={16} />
+          </button>
+        </div>
+
+        <div className="flex flex-wrap justify-between items-center text-xs text-muted-foreground gap-2">
+          <span>লেআউট: <strong className="text-foreground">{LAYOUT_META[activeLayout].label}</strong> — {LAYOUT_META[activeLayout].desc}</span>
+          <div className="flex items-center gap-4">
+            <button onClick={resetArena} className="text-foreground hover:underline font-bold flex items-center gap-1">
+              <RefreshCw size={12} /> পুনরায় শুরু করুন
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Completion Modal Card */}
+      {isCompleted && (
+        <div className="p-6 bg-primary/10 border border-primary/30 rounded-xl space-y-4 text-center animate-in fade-in zoom-in-95 duration-200">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary text-primary-foreground rounded-full text-xs font-bold">
+            <Trophy size={14} /> টেস্ট সম্পন্ন হয়েছে!
+          </div>
+          <div className="flex justify-center gap-8 text-foreground">
+            <div>
+              <span className="text-xs text-muted-foreground block">চূড়ান্ত স্পিড</span>
+              <span className="text-3xl font-black">{wpm} WPM</span>
+            </div>
+            <div>
+              <span className="text-xs text-muted-foreground block">নির্ভুলতা</span>
+              <span className="text-3xl font-black">{accuracy}%</span>
+            </div>
+          </div>
+          <div className="flex flex-wrap justify-center gap-3 pt-2">
+            <Link href="/learn">
+              <Button size="sm" className="font-bold text-xs gap-1.5 h-10 px-5">
+                <BookOpen size={14} /> কোর্স শুরু করুন (Start Course)
+              </Button>
+            </Link>
+            <Link href="/practice/test">
+              <Button size="sm" variant="outline" className="font-bold text-xs gap-1.5 h-10 px-5 border-border">
+                <Zap size={14} /> স্পিড টেস্ট সার্টিফিকেট নিন
+              </Button>
+            </Link>
+            <Button size="sm" variant="ghost" onClick={resetArena} className="font-bold text-xs h-10">
+              আবার টাইপ করুন
+            </Button>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
+
+// ── 2. HERO TYPEWRITER ANIMATION ──────────────────────────────────────────────
 const HERO_TEXTS = [
   "বাংলাদেশ আমার প্রিয় মাতৃভূমি",
   "আমার সোনার বাংলা, আমি তোমায় ভালোবাসি",
@@ -44,101 +316,14 @@ function HeroTypewriter() {
   }, [displayed, isDeleting, index]);
 
   return (
-    <div className="border border-border bg-card rounded-xl p-5 shadow-xs max-w-[540px] mx-auto flex items-center justify-center h-[76px]">
-      <span className="font-bangla text-xl sm:text-2xl font-bold text-foreground">{displayed}</span>
-      <span className="inline-block w-[3px] h-[1.3em] bg-foreground ml-2 animate-pulse rounded-full" />
+    <div className="border border-border bg-card/60 backdrop-blur-xs rounded-xl p-4 shadow-xs max-w-[500px] mx-auto flex items-center justify-center h-[64px]">
+      <span className="font-bangla text-lg sm:text-xl font-bold text-foreground">{displayed}</span>
+      <span className="inline-block w-[2.5px] h-[1.2em] bg-foreground ml-2 animate-pulse rounded-full" />
     </div>
   );
 }
 
-// ── 3. Interactive Live Typing Demo Component ─────────────────────────────────
-const DEMO_PROMPT = "বাংলাদেশ আমাদের প্রিয় জন্মভূমি। বাংলা টাইপিং শেখা এখন সবথেকে সহজ টাইপবাংলা প্ল্যাটফর্মে।";
-
-function LiveTypingDemo() {
-  const [input, setInput] = useState("");
-  const [startTime, setStartTime] = useState<number | null>(null);
-  const [wpm, setWpm] = useState(0);
-  const [accuracy, setAccuracy] = useState(100);
-
-  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    if (!startTime && val.length > 0) setStartTime(Date.now());
-    setInput(val);
-
-    if (val.length > 0 && startTime) {
-      const elapsedSec = (Date.now() - startTime) / 1000;
-      const calculatedWpm = Math.round((val.length / 5) / (elapsedSec / 60));
-      setWpm(calculatedWpm > 0 ? calculatedWpm : 0);
-
-      let correct = 0;
-      for (let i = 0; i < val.length; i++) {
-        if (val[i] === DEMO_PROMPT[i]) correct++;
-      }
-      setAccuracy(Math.round((correct / val.length) * 100));
-    }
-  };
-
-  const resetDemo = () => {
-    setInput("");
-    setStartTime(null);
-    setWpm(0);
-    setAccuracy(100);
-  };
-
-  return (
-    <div className="border border-border bg-card rounded-xl p-6 sm:p-8 shadow-xs max-w-3xl mx-auto space-y-6">
-      <div className="flex items-center justify-between border-b border-border pb-4">
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-foreground animate-pulse" />
-          <span className="text-xs font-bold text-foreground uppercase tracking-wider">সরাসরি টাইপ করে দেখুন</span>
-        </div>
-        <div className="flex items-center gap-6 text-sm font-bold">
-          <div>
-            <span className="text-muted-foreground text-xs">গতি: </span>
-            <span className="text-foreground font-black text-lg">{wpm} WPM</span>
-          </div>
-          <div>
-            <span className="text-muted-foreground text-xs">সঠিকতা: </span>
-            <span className="text-foreground font-black text-lg">{accuracy}%</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="font-bangla text-lg sm:text-xl leading-relaxed p-4 bg-secondary rounded-lg border border-border select-none text-left">
-        {Array.from(DEMO_PROMPT).map((char, idx) => {
-          const typed = input[idx];
-          let color = "text-muted-foreground";
-          if (typed !== undefined) {
-            color = typed === char ? "text-foreground font-bold bg-primary/10 px-0.5 rounded" : "text-red-500 bg-red-500/10 px-0.5 rounded underline font-bold";
-          }
-          return (
-            <span key={idx} className={color}>
-              {char}
-            </span>
-          );
-        })}
-      </div>
-
-      <div className="space-y-3">
-        <input
-          type="text"
-          value={input}
-          onChange={handleInput}
-          placeholder="এখানে টাইপ করা শুরু করুন (কোনো অ্যাকাউন্ট দরকার নেই)..."
-          className="w-full font-bangla text-base p-4 border border-input rounded-md focus:outline-none focus:ring-1 focus:ring-ring bg-background text-foreground shadow-xs"
-        />
-        <div className="flex justify-between items-center text-xs text-muted-foreground">
-          <span>বিনা নিবন্ধনে সাথে সাথে টাইপ করে দেখুন।</span>
-          <button onClick={resetDemo} className="text-foreground hover:underline font-bold">
-            পুনরায় শুরু করুন ↺
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── 10. FAQ Accordion Item ───────────────────────────────────────────────────
+// ── 3. FAQ ACCORDION ITEM ───────────────────────────────────────────────────
 function FaqItem({ question, answer }: { question: string; answer: string }) {
   const [open, setOpen] = useState(false);
   return (
@@ -159,119 +344,123 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
   );
 }
 
+// ── MAIN LANDING PAGE COMPONENT ─────────────────────────────────────────────
 export default function LandingPage() {
   return (
-    <main className="w-full bg-background text-foreground space-y-24 py-12 md:py-20 overflow-hidden">
+    <main className="w-full bg-background text-foreground space-y-24 py-10 md:py-16 overflow-hidden">
       
-      {/* ── 1. HERO SECTION ───────────────────────────────────────────────── */}
-      <section className="container max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-8 relative">
+      {/* ── 1. HERO SECTION & LIVE ARENA ──────────────────────────────────── */}
+      <section className="container max-w-6xl mx-auto px-4 sm:px-6 text-center space-y-8 relative">
         <div className="inline-flex items-center space-x-2 bg-secondary border border-border px-4 py-1.5 rounded-full shadow-xs">
           <Sparkles size={14} className="text-foreground" />
           <span className="text-xs font-bold text-foreground tracking-widest uppercase">
-            TYPEBANGLA
+            TYPEBANGLA PLATFORM
           </span>
         </div>
 
-        <div className="space-y-4">
-          <h1 className="text-4xl sm:text-6xl font-black text-foreground tracking-tight leading-tight">
-            বাংলা টাইপিং শেখার{" "}
+        <div className="space-y-4 max-w-3xl mx-auto">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-foreground tracking-tight leading-tight">
+            বাংলা ও ইংরেজি টাইপিং শেখার{" "}
             <span className="underline decoration-border">
-              সবচেয়ে সহজ উপায়
+              স্মার্ট ডিজিটাল প্ল্যাটফর্ম
             </span>
           </h1>
-          <p className="text-base sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Practice Avro, Bijoy, Jatiya and English. Get certificates and track your typing progress.
+          <p className="text-sm sm:text-lg text-muted-foreground leading-relaxed">
+            Avro, UniBijoy, Jatiya Govt & English touch typing. Free structured lessons, live speed tests, and verified digital certificates.
           </p>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-4 pt-2">
-          <Link href="/learn">
-            <Button size="lg" className="font-bold text-sm h-12 px-8 rounded-md shadow-xs gap-2">
-              শেখা শুরু করুন (Start Learning) <ArrowRight size={16} />
-            </Button>
-          </Link>
-          <Link href="/practice/test">
-            <Button size="lg" variant="outline" className="font-bold text-sm h-12 px-8 rounded-md gap-2 border-border">
-              স্পিড টেস্ট দিন (Take a Test) <Play size={15} />
-            </Button>
-          </Link>
-        </div>
+        {/* Hero Typewriter */}
+        <HeroTypewriter />
 
+        {/* Live Multi-Layout Typing Arena */}
         <div className="pt-4">
-          <HeroTypewriter />
+          <HeroMultiLayoutArena />
         </div>
       </section>
 
-      {/* ── 2. WHY TYPEBANGLA? ────────────────────────────────────────────── */}
-      <section className="container max-w-5xl mx-auto px-4 sm:px-6 space-y-12">
-        <div className="text-center space-y-2">
-          <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">কেন টাইপবাংলা?</span>
-          <h2 className="text-2xl sm:text-3xl font-black text-foreground">Why Choose TypeBangla?</h2>
-          <p className="text-sm text-muted-foreground">এক জায়গায় সব কিবোর্ড লেআউট ও আধুনিক অনুশীলন সুবিধা।</p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[
-            { title: "Learn Bangla & English Together", desc: "দ্বিভাষিক পাঠ্যক্রমের মাধ্যমে দ্রুত টাইপিং শিখুন।", icon: "🌐" },
-            { title: "Avro, Bijoy & Jatiya Support", desc: "অভ্র ফোনেটিক, বিজয় ৫২ ও বিসিসি জাতীয় লেআউট সাপোর্ট।", icon: "⌨️" },
-            { title: "Structured Typing Lessons", desc: "হোম রো থেকে জটিল যুক্তাক্ষর পর্যন্ত ধাপে ধাপে পাঠ।", icon: "📚" },
-            { title: "Speed & Accuracy Analytics", desc: "রিয়েল-টাইম গতি (WPM) ও সঠিকতার গ্রাফ ট্র্যাকিং।", icon: "📊" },
-            { title: "Free Speed Tests", desc: "১৫, ৩০ ও ৬০ সেকেন্ডের বিনামূল্যে টাইপিং পরীক্ষা।", icon: "⚡" },
-            { title: "Printable Certificates", desc: "যাচাইযোগ্য ডিজিটাল টাইপিং সার্টিফিকেট ডাউনলোড করুন।", icon: "🎓" },
-          ].map((b, i) => (
-            <Card key={i} className="border border-border bg-card hover:border-foreground/50 transition-all rounded-xl shadow-xs">
-              <CardContent className="p-6 space-y-3">
-                <div className="text-3xl">{b.icon}</div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 size={16} className="text-foreground shrink-0" />
-                  <h3 className="font-extrabold text-sm text-foreground">{b.title}</h3>
-                </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">{b.desc}</p>
-              </CardContent>
-            </Card>
-          ))}
+      {/* ── 2. PLATFORM STATISTICS HUD BAR ────────────────────────────────── */}
+      <section className="border-y border-border bg-secondary/40 py-10">
+        <div className="container max-w-5xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            {[
+              { value: "50,000+", label: "টাইপিং পরীক্ষা সম্পন্ন" },
+              { value: "7 Layouts", label: "অভ্র, বিজয়, জাতীয়, প্রভাত ও QWERTY" },
+              { value: "90+ Lessons", label: "ধাপে ধাপে শিক্ষাক্রম পাঠ" },
+              { value: "100% Free", label: "যাচাইযোগ্য ডিজিটাল সনদ" },
+            ].map((s, i) => (
+              <div key={i} className="space-y-1">
+                <div className="text-2xl sm:text-4xl font-black text-foreground">{s.value}</div>
+                <div className="text-xs font-bold text-muted-foreground">{s.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ── 3. INTERACTIVE TYPING DEMO ─────────────────────────────────── */}
-      <section className="bg-secondary py-16 border-y border-border">
-        <div className="container max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-8">
-          <div className="space-y-2">
-            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">লাইভ ট্রায়াল</span>
-            <h2 className="text-2xl sm:text-4xl font-black text-foreground">Try Typing Live Now ⭐</h2>
-            <p className="text-sm text-muted-foreground">নিচে সরাসরি টাইপ করুন — কোনো অ্যাকাউন্ট নিবন্ধনের দরকার নেই।</p>
+      {/* ── 3. GOVT JOB OPERATOR REQUIREMENTS BANNER ──────────────────────── */}
+      <section className="container max-w-5xl mx-auto px-4 sm:px-6">
+        <div className="border border-border bg-card rounded-2xl p-6 sm:p-10 shadow-sm relative overflow-hidden space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-6">
+            <div className="space-y-1">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-500 rounded-full text-xs font-bold border border-emerald-500/20">
+                <ShieldCheck size={14} /> সরকারি চাকরি ও কম্পিউটার অপারেটর প্রস্তুতি
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-foreground">Government Job Operator Exam Criteria</h2>
+            </div>
+            <Link href="/exam/govt">
+              <Button size="sm" className="font-bold text-xs gap-2">
+                গভঃ এক্সাম সিমুলেটর <ArrowRight size={14} />
+              </Button>
+            </Link>
           </div>
 
-          <LiveTypingDemo />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="p-4 bg-secondary/50 rounded-xl border border-border space-y-2">
+              <div className="text-xs font-bold text-muted-foreground uppercase">বাংলা টাইপিং স্পিড</div>
+              <div className="text-2xl font-black text-foreground">৩০ WPM</div>
+              <p className="text-xs text-muted-foreground">জাতীয় বিসিসি বা বিজয় কীবোর্ড লেআউট</p>
+            </div>
+            <div className="p-4 bg-secondary/50 rounded-xl border border-border space-y-2">
+              <div className="text-xs font-bold text-muted-foreground uppercase">ইংরেজি টাইপিং স্পিড</div>
+              <div className="text-2xl font-black text-foreground">৪০ WPM</div>
+              <p className="text-xs text-muted-foreground">স্ট্যান্ডার্ড ইংরেজি QWERTY কীবোর্ড</p>
+            </div>
+            <div className="p-4 bg-secondary/50 rounded-xl border border-border space-y-2">
+              <div className="text-xs font-bold text-muted-foreground uppercase">নূন্যতম নির্ভুলতা</div>
+              <div className="text-2xl font-black text-foreground">৮৫%+ Accuracy</div>
+              <p className="text-xs text-muted-foreground">অতিরিক্ত ভুলের জন্য স্পিড কর্তন নিয়ম</p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ── 4. KEYBOARD LAYOUTS ───────────────────────────────────────────── */}
+      {/* ── 4. SUPPORTED KEYBOARD LAYOUT EXPLORER ─────────────────────────── */}
       <section className="container max-w-5xl mx-auto px-4 sm:px-6 space-y-12">
         <div className="text-center space-y-2">
-          <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">লেআউট সমর্থন</span>
+          <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">কীবোর্ড সমর্থক</span>
           <h2 className="text-2xl sm:text-3xl font-black text-foreground">Supported Keyboard Layouts</h2>
           <p className="text-sm text-muted-foreground">আপনার পছন্দের যেকোনো লেআউটে অনুশীলন করুন।</p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
-            { name: "Avro Phonetic", desc: "সহজ ফোনেটিক টাইপিং (a=আ, k=ক)", badge: "জনপ্রিয়" },
-            { name: "UniBijoy / Bijoy 52", desc: "প্রথাগত বিজয় কীবোর্ড স্টাইল", badge: "অফিসিয়াল" },
-            { name: "Jatiya (BCC)", desc: "সরকারি চাকরি পরীক্ষার লেআউট", badge: "Govt Job" },
-            { name: "English QWERTY", desc: "স্ট্যান্ডার্ড ইংরেজি টাচ-টাইপিং", badge: "Standard" },
+            { name: "Avro Phonetic", desc: "সহজ ফোনেটিক টাইপিং (a=আ, k=ক)", badge: "জনপ্রিয়", icon: "⌨️" },
+            { name: "UniBijoy / Bijoy 52", desc: "প্রথাগত বিজয় কীবোর্ড স্টাইল", badge: "অফিসিয়াল", icon: "🏛️" },
+            { name: "Jatiya (BCC)", desc: "সরকারি চাকরি পরীক্ষার লেআউট", badge: "Govt Job", icon: "🎖️" },
+            { name: "English QWERTY", desc: "স্ট্যান্ডার্ড ইংরেজি টাচ-টাইপিং", badge: "Standard", icon: "🌐" },
           ].map((l, i) => (
-            <Card key={i} className="border border-border bg-card hover:border-foreground/50 transition-all rounded-xl text-center shadow-xs">
+            <Card key={i} className="border border-border bg-card hover:border-foreground/50 transition-all rounded-xl shadow-xs text-center">
               <CardContent className="p-6 space-y-3">
-                <div className="w-12 h-12 rounded-lg bg-secondary text-foreground flex items-center justify-center mx-auto font-black text-lg border border-border">
-                  ⌨️
+                <div className="w-12 h-12 rounded-xl bg-secondary text-foreground flex items-center justify-center mx-auto text-2xl border border-border">
+                  {l.icon}
                 </div>
                 <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-secondary border border-border text-foreground">
                   {l.badge}
                 </span>
                 <h3 className="font-extrabold text-sm text-foreground">{l.name}</h3>
                 <p className="text-xs text-muted-foreground">{l.desc}</p>
-                <Link href={`/learn`} className="inline-block text-xs font-bold text-foreground hover:underline pt-2">
+                <Link href="/learn" className="inline-block text-xs font-bold text-foreground hover:underline pt-2">
                   পাঠ দেখুন →
                 </Link>
               </CardContent>
@@ -280,8 +469,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 5. LEARNING PATH ROADMAP ──────────────────────────────────────── */}
-      <section className="bg-secondary py-16 border-y border-border">
+      {/* ── 5. STEP-BY-STEP LEARNING ROADMAP ──────────────────────────────── */}
+      <section className="bg-secondary/40 py-16 border-y border-border">
         <div className="container max-w-5xl mx-auto px-4 sm:px-6 space-y-12 text-center">
           <div className="space-y-2">
             <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">শেখার রোডম্যাপ</span>
@@ -291,11 +480,11 @@ export default function LandingPage() {
 
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
             {[
-              { step: "01", title: "Beginner", desc: "মৌলিক স্বরবর্ণ ও ধারণা" },
-              { step: "02", title: "Home Row", desc: "আঙুল রাখার সঠিক অবস্থান" },
-              { step: "03", title: "Words", desc: "শব্দ ও যুক্তাক্ষর অনুশীলন" },
-              { step: "04", title: "Paragraphs", desc: "পূর্ণ অনুচ্ছেদ টাইপিং" },
-              { step: "05", title: "Typing Tests", desc: "১৫-৬০ সেকেন্ড গতি পরীক্ষা" },
+              { step: "01", title: "Beginner", desc: "মৌলিক ধারণা" },
+              { step: "02", title: "Home Row", desc: "আঙুলের সঠিক স্থান" },
+              { step: "03", title: "Words", desc: "শব্দ ও যুক্তাক্ষর" },
+              { step: "04", title: "Paragraphs", desc: "পূর্ণ অনুচ্ছেদ" },
+              { step: "05", title: "Speed Tests", desc: "১৫-৬০ সেকেন্ড টেস্ট" },
               { step: "06", title: "Certificate", desc: "যাচাইকৃত সনদ অর্জন" },
             ].map((path, idx) => (
               <React.Fragment key={idx}>
@@ -313,145 +502,53 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 6. FEATURE PREVIEWS ───────────────────────────────────────────── */}
-      <section className="container max-w-5xl mx-auto px-4 sm:px-6 space-y-12">
-        <div className="text-center space-y-2">
-          <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">প্ল্যাটফর্ম ফিচার</span>
-          <h2 className="text-2xl sm:text-3xl font-black text-foreground">Explore Platform Modules</h2>
-          <p className="text-sm text-muted-foreground">টাইপবাংলার প্রতিটি গুরুত্বপূর্ণ মডিউলের সংক্ষিপ্ত বিবরণ।</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { title: "Lesson Modules", desc: "৯০+ লেসন ইন্টারঅ্যাক্টিভ ভার্চুয়াল কীবোর্ড নির্দেশিকা সহ।", href: "/learn", icon: BookOpen },
-            { title: "Typing Test Arena", desc: "১৫, ৩০ ও ৬০ সেকেন্ডের গতি ও নির্ভুলতা টেস্ট ইঞ্জিন।", href: "/practice/test", icon: Zap },
-            { title: "Analytics Dashboard", desc: "আপনার গড় WPM, পিক গতি ও ভুল কীর গ্রাফ চার্ট।", href: "/dashboard", icon: BarChart3 },
-            { title: "Govt Exam Simulator", desc: "সরকারি চাকরি ও ব্যাংক টাইপিং পরীক্ষা পরিবেশ।", href: "/exam/govt", icon: ShieldCheck },
-            { title: "National Leaderboard", desc: "বাংলাদেশের সেরা টাইপিস্টদের সঙ্গে রিয়েল-টাইম র‍্যাঙ্কিং।", href: "/leaderboard", icon: Trophy },
-            { title: "Digital Certificate", desc: "উচ্চ-রেজোলিউশন ডাউনলোড ও অনলাইনে সনদে লিংক।", href: "/dashboard", icon: Award },
-          ].map((f, i) => (
-            <Card key={i} className="border border-border bg-card hover:border-foreground/50 transition-all rounded-xl shadow-xs">
-              <CardContent className="p-6 space-y-3">
-                <div className="w-10 h-10 rounded-md bg-secondary text-foreground flex items-center justify-center border border-border">
-                  <f.icon size={20} />
-                </div>
-                <h3 className="font-extrabold text-sm text-foreground">{f.title}</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">{f.desc}</p>
-                <Link href={f.href} className="inline-flex items-center gap-1 text-xs font-bold text-foreground hover:underline pt-2">
-                  খুলুন <ArrowRight size={13} />
-                </Link>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* ── 7. CERTIFICATE PREVIEW ────────────────────────────────────────── */}
-      <section className="bg-secondary py-16 border-y border-border">
-        <div className="container max-w-5xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          <div className="space-y-4">
-            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">যাচাইকৃত সনদ</span>
-            <h2 className="text-2xl sm:text-4xl font-black text-foreground">Earn Official Typing Certificates</h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              যেকোনো স্পিড টেস্ট বা সরকারি পরীক্ষা সিমুলেটর সফলভাবে সম্পন্ন করে অর্জন করুন যাচাইযোগ্য ডিজিটাল টাইপিং সার্টিফিকেট।
-            </p>
-            <div className="space-y-2 text-xs font-bold text-foreground">
-              <div className="flex items-center gap-2">✓ ইউনিক সার্টিফিকেট আইডি কোড</div>
-              <div className="flex items-center gap-2">✓ ১-ক্লিক উচ্চ-রেজোলিউশন PNG ডাউনলোড</div>
-              <div className="flex items-center gap-2">✓ অনলাইন ভেরিফিকেশন ইউআরএল (/verify/...)</div>
-            </div>
-            <Link href="/practice/test" className="inline-block pt-2">
-              <Button className="font-bold text-xs h-10 px-6 rounded-md shadow-xs">
-                সনদ অর্জন করতে টেস্ট দিন
-              </Button>
-            </Link>
+      {/* ── 6. CERTIFICATE PREVIEW & VERIFICATION ─────────────────────────── */}
+      <section className="container max-w-5xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div className="space-y-4">
+          <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">যাচাইকৃত সনদ</span>
+          <h2 className="text-2xl sm:text-4xl font-black text-foreground">Earn Official Digital Typing Certificates</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            স্পিড টেস্ট বা সরকারি পরীক্ষা সিমুলেটর সম্পন্ন করে অর্জন করুন অনলাইন যাচাইযোগ্য ডিজিটাল টাইপিং সার্টিফিকেট।
+          </p>
+          <div className="space-y-2 text-xs font-bold text-foreground">
+            <div className="flex items-center gap-2">✓ ইউনিক সার্টিফিকেট আইডি কোড</div>
+            <div className="flex items-center gap-2">✓ ১-ক্লিক উচ্চ-রেজোলিউশন ডাউনলোড</div>
+            <div className="flex items-center gap-2">✓ অনলাইন ভেরিফিকেশন ইউআরএল (/verify/...)</div>
           </div>
+          <Link href="/practice/test" className="inline-block pt-2">
+            <Button className="font-bold text-xs h-10 px-6 rounded-md shadow-xs">
+              সনদ অর্জন করতে টেস্ট দিন
+            </Button>
+          </Link>
+        </div>
 
-          <div className="border border-border bg-card rounded-2xl p-8 shadow-md space-y-6 text-center relative overflow-hidden">
-            <div className="space-y-1">
-              <span className="text-xs font-black text-foreground tracking-widest uppercase">TYPEBANGLA CERTIFICATE</span>
-              <h3 className="text-xl font-black text-foreground">Certificate of Proficiency</h3>
-              <p className="text-[10px] text-muted-foreground">This is proudly presented to</p>
+        <div className="border border-border bg-card rounded-2xl p-8 shadow-md space-y-6 text-center relative overflow-hidden">
+          <div className="space-y-1">
+            <span className="text-xs font-black text-foreground tracking-widest uppercase">TYPEBANGLA CERTIFICATE</span>
+            <h3 className="text-xl font-black text-foreground">Certificate of Proficiency</h3>
+            <p className="text-[10px] text-muted-foreground">This is proudly presented to</p>
+          </div>
+          <div className="font-bangla text-2xl font-black text-foreground border-b border-border pb-3">
+            আরিফুল ইসলাম
+          </div>
+          <div className="flex justify-center gap-8 text-xs font-bold">
+            <div>
+              <span className="text-muted-foreground block text-[10px]">TYPING SPEED</span>
+              <span className="text-xl font-black text-foreground">75 WPM</span>
             </div>
-            <div className="font-bangla text-2xl font-black text-foreground border-b border-border pb-3">
-              আরিফুল ইসলাম
+            <div>
+              <span className="text-muted-foreground block text-[10px]">ACCURACY</span>
+              <span className="text-xl font-black text-foreground">98%</span>
             </div>
-            <div className="flex justify-center gap-8 text-xs font-bold">
-              <div>
-                <span className="text-muted-foreground block text-[10px]">TYPING SPEED</span>
-                <span className="text-xl font-black text-foreground">75 WPM</span>
-              </div>
-              <div>
-                <span className="text-muted-foreground block text-[10px]">ACCURACY</span>
-                <span className="text-xl font-black text-foreground">98%</span>
-              </div>
-            </div>
-            <div className="pt-2 flex justify-between items-center text-[9px] text-muted-foreground border-t border-border">
-              <span>ID: TB-2026-8841</span>
-              <span className="text-foreground font-bold">VERIFIED CERTIFICATE ✓</span>
-            </div>
+          </div>
+          <div className="pt-2 flex justify-between items-center text-[9px] text-muted-foreground border-t border-border">
+            <span>ID: TB-2026-8841</span>
+            <span className="text-foreground font-bold">VERIFIED CERTIFICATE ✓</span>
           </div>
         </div>
       </section>
 
-      {/* ── 8. HONEST STATISTICS ─────────────────────────────────────────── */}
-      <section className="container max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-8">
-        <div className="space-y-2">
-          <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">পরিসংখ্যান</span>
-          <h2 className="text-2xl sm:text-3xl font-black text-foreground">Platform Statistics</h2>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {[
-            { value: "50,000+", label: "Typing Tests Completed" },
-            { value: "90+", label: "Curriculum Lessons" },
-            { value: "4 Layouts", label: "Avro, Bijoy, Jatiya, QWERTY" },
-            { value: "1,000+", label: "Practice Paragraphs" },
-          ].map((s, i) => (
-            <Card key={i} className="border border-border bg-card shadow-xs rounded-xl">
-              <CardContent className="p-6 text-center">
-                <div className="text-2xl sm:text-3xl font-black text-foreground">{s.value}</div>
-                <div className="text-xs text-muted-foreground font-bold mt-1">{s.label}</div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* ── 9. TESTIMONIALS ──────────────────────────────────────────────── */}
-      <section className="bg-secondary py-16 border-y border-border">
-        <div className="container max-w-5xl mx-auto px-4 sm:px-6 space-y-12 text-center">
-          <div className="space-y-2">
-            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">ব্যবহারকারীদের মতামত</span>
-            <h2 className="text-2xl sm:text-3xl font-black text-foreground">What Learners Say</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { quote: "মাত্র ৩ সপ্তাহে আমার টাইপিং গতি ২০ থেকে ৫৫ WPM এ উন্নীত হয়েছে!", author: "তানভীর হাসান", role: "বিশ্ববিদ্যালয় শিক্ষার্থী" },
-              { quote: "বিসিএস ও সরকারি চাকরির টাইপিং পরীক্ষার প্রস্তুতির জন্য সেরা প্ল্যাটফর্ম।", author: "শাহাদাত হোসেন", role: "চাকরিপ্রার্থী" },
-              { quote: "অভ্র ও জাতীয় কিবোর্ডের সবচেয়ে নির্ভুল লেসন গাইড টাইপবাংলাতেই পেয়েছি।", author: "আনিকা রহমান", role: "ফ্রিল্যান্সার" },
-            ].map((t, i) => (
-              <Card key={i} className="border border-border bg-card shadow-xs rounded-xl text-left">
-                <CardContent className="p-6 space-y-4">
-                  <div className="flex text-foreground gap-1">
-                    {Array.from({ length: 5 }).map((_, starIdx) => (
-                      <Star key={starIdx} size={14} className="fill-foreground text-foreground" />
-                    ))}
-                  </div>
-                  <p className="text-xs text-foreground leading-relaxed italic">"{t.quote}"</p>
-                  <div>
-                    <div className="font-extrabold text-xs text-foreground">{t.author}</div>
-                    <div className="text-[10px] text-muted-foreground">{t.role}</div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── 10. FAQ SECTION ──────────────────────────────────────────────── */}
+      {/* ── 7. FAQ SECTION ────────────────────────────────────────────────── */}
       <section className="container max-w-4xl mx-auto px-4 sm:px-6 space-y-8">
         <div className="text-center space-y-2">
           <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">প্রশ্নোত্তর</span>
@@ -483,7 +580,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 11. FINAL CTA SECTION ────────────────────────────────────────── */}
+      {/* ── 8. FINAL CTA BANNER ───────────────────────────────────────────── */}
       <section className="container max-w-4xl mx-auto px-4 sm:px-6">
         <div className="border border-border bg-primary text-primary-foreground rounded-2xl p-10 text-center space-y-6 shadow-md">
           <h2 className="text-3xl sm:text-4xl font-black">Ready to improve your typing speed?</h2>
