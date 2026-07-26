@@ -11,6 +11,7 @@ import { Card, CardContent } from "../components/ui/card";
 import { getClusterRanges } from "../utils/grapheme";
 import { avroTransliterate, mapInputToBangla } from "../utils/layouts";
 import { Button } from "../components/ui/button";
+import { HeroKeyboardVisualizer } from "../components/HeroKeyboardVisualizer";
 
 // ── PASSAGE DICTIONARY FOR HERO MULTI-LAYOUT ARENA ─────────────────────────────
 const SAMPLE_PASSAGES: Record<string, string[]> = {
@@ -233,6 +234,13 @@ function HeroMultiLayoutArena() {
         })}
       </div>
 
+      {/* Interactive Dual-Legend Mechanical Keyboard Visualizer */}
+      <HeroKeyboardVisualizer
+        activeLayout={activeLayout}
+        nextTargetChar={targetText[effectiveInput.length]}
+        lastPressedKey={input.length > 0 ? input[input.length - 1] : ""}
+      />
+
       {/* Input Field & Live Transliteration Preview */}
       <div className="space-y-3">
         <div className="relative">
@@ -361,7 +369,90 @@ function HeroTypewriter() {
   );
 }
 
-// ── 3. FAQ ACCORDION ITEM ───────────────────────────────────────────────────
+// ── 4. LIVE ACTIVITY TICKER ──────────────────────────────────────────────────
+function LiveActivityTicker() {
+  const [tickerIndex, setTickerIndex] = useState(0);
+  const tickers = [
+    "🎉 রাশেদ আহমেদ (ঢাকা) — স্পিড টেস্টে ৪২ WPM অর্জন করলেন!",
+    "🏆 সুমাইয়া আক্তার (চট্টগ্রাম) — অনার্সে গোল্ড সনদ লাভ করেছেন!",
+    "🏛️ হাসান মাহমুদ (সিলেট) — সরকারি এক্সাম সিমুলেটরে পাস করেছেন!",
+    "⚡ টাইপবাংলা ড্রাইভার — নতুন জাতীয় (Jatiya BCC Govt) লেআউট আপগ্রেড সম্পন্ন!",
+  ];
+
+  useEffect(() => {
+    const t = setInterval(() => setTickerIndex((i) => (i + 1) % tickers.length), 4000);
+    return () => clearInterval(t);
+  }, [tickers.length]);
+
+  return (
+    <div className="bg-emerald-500/10 border-b border-emerald-500/20 text-emerald-500 py-2.5 px-4 text-center text-xs font-bold flex items-center justify-center gap-2 overflow-hidden select-none">
+      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+      <span className="truncate">
+        {tickers[tickerIndex]}
+      </span>
+    </div>
+  );
+}
+
+// ── 5. GOVT SPEED GAUGE WIDGET ────────────────────────────────────────────────
+function GovtSpeedGaugeWidget() {
+  const [userWpm, setUserWpm] = useState(35);
+
+  let statusBadge = { label: "🔴 শিক্ষানবিস (Improvement Needed)", color: "text-amber-500 bg-amber-500/10 border-amber-500/20" };
+  if (userWpm >= 40) {
+    statusBadge = { label: "🟢 শ্রেষ্ঠ স্পিড (Fully Qualified for both Bangla & English Govt Operator)", color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20" };
+  } else if (userWpm >= 30) {
+    statusBadge = { label: "🟡 যোগ্য (Qualified for Bangla Govt Exam)", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" };
+  }
+
+  return (
+    <div className="p-5 sm:p-6 bg-secondary/50 backdrop-blur-md rounded-xl border border-border space-y-4 shadow-inner">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="text-xs font-bold text-foreground">আপনার বর্তমান স্পিড টেস্ট সিমুলেটর:</span>
+        <span className={`text-xs font-bold px-3 py-1 rounded-full border ${statusBadge.color}`}>
+          {statusBadge.label}
+        </span>
+      </div>
+
+      {/* Slider Control */}
+      <div className="space-y-2">
+        <div className="flex justify-between text-xs font-mono font-bold text-muted-foreground">
+          <span>0 WPM</span>
+          <span className="text-foreground text-sm font-black">{userWpm} WPM</span>
+          <span>80 WPM</span>
+        </div>
+        <input
+          type="range"
+          min="0"
+          max="80"
+          value={userWpm}
+          onChange={(e) => setUserWpm(Number(e.target.value))}
+          className="w-full accent-primary h-2 bg-secondary rounded-lg cursor-pointer"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-1">
+        <div className="p-3 bg-card rounded-lg border border-border">
+          <span className="text-muted-foreground block text-[10px]">বাংলা সরকারি রিকোয়ারমেন্ট</span>
+          <span className="font-extrabold text-foreground text-sm">৩০ WPM</span>
+          <span className="block text-[10px] text-muted-foreground">{userWpm >= 30 ? "✓ অর্জিত" : "❌ বাকি আছে"}</span>
+        </div>
+        <div className="p-3 bg-card rounded-lg border border-border">
+          <span className="text-muted-foreground block text-[10px]">ইংরেজি সরকারি রিকোয়ারমেন্ট</span>
+          <span className="font-extrabold text-foreground text-sm">৪০ WPM</span>
+          <span className="block text-[10px] text-muted-foreground">{userWpm >= 40 ? "✓ অর্জিত" : "❌ বাকি আছে"}</span>
+        </div>
+        <div className="p-3 bg-card rounded-lg border border-border">
+          <span className="text-muted-foreground block text-[10px]">নূন্যতম নির্ভুলতা (Accuracy)</span>
+          <span className="font-extrabold text-foreground text-sm">৮৫%+</span>
+          <span className="block text-[10px] text-muted-foreground">যাচাইকৃত সনদ মানদণ্ড</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── 6. FAQ ACCORDION ITEM ───────────────────────────────────────────────────
 function FaqItem({ question, answer }: { question: string; answer: string }) {
   const [open, setOpen] = useState(false);
   return (
@@ -384,22 +475,27 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
 
 // ── MAIN LANDING PAGE COMPONENT ─────────────────────────────────────────────
 export default function LandingPage() {
+  const [showCertModal, setShowCertModal] = useState(false);
+
   return (
-    <main className="w-full bg-background text-foreground space-y-24 py-10 md:py-16 overflow-hidden">
+    <main className="w-full bg-background text-foreground space-y-24 pb-16 overflow-hidden">
       
+      {/* Top Live Milestone Ticker */}
+      <LiveActivityTicker />
+
       {/* ── 1. HERO SECTION & LIVE ARENA ──────────────────────────────────── */}
-      <section className="container max-w-6xl mx-auto px-4 sm:px-6 text-center space-y-8 relative">
+      <section className="container max-w-6xl mx-auto px-4 sm:px-6 text-center space-y-8 relative pt-6">
         <div className="inline-flex items-center space-x-2 bg-secondary border border-border px-4 py-1.5 rounded-full shadow-xs">
-          <Sparkles size={14} className="text-foreground" />
+          <Sparkles size={14} className="text-emerald-500 animate-pulse" />
           <span className="text-xs font-bold text-foreground tracking-widest uppercase">
-            TYPEBANGLA PLATFORM
+            TYPEBANGLA ENGINE v2.0
           </span>
         </div>
 
         <div className="space-y-4 max-w-3xl mx-auto">
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-foreground tracking-tight leading-tight">
             বাংলা ও ইংরেজি টাইপিং শেখার{" "}
-            <span className="underline decoration-border">
+            <span className="underline decoration-emerald-500 decoration-4 underline-offset-4">
               স্মার্ট ডিজিটাল প্ল্যাটফর্ম
             </span>
           </h1>
@@ -418,7 +514,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── 2. PLATFORM STATISTICS HUD BAR ────────────────────────────────── */}
-      <section className="border-y border-border bg-secondary/40 py-10">
+      <section className="border-y border-border bg-secondary/40 backdrop-blur-md py-10">
         <div className="container max-w-5xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {[
@@ -427,7 +523,7 @@ export default function LandingPage() {
               { value: "90+ Lessons", label: "ধাপে ধাপে শিক্ষাক্রম পাঠ" },
               { value: "100% Free", label: "যাচাইযোগ্য ডিজিটাল সনদ" },
             ].map((s, i) => (
-              <div key={i} className="space-y-1">
+              <div key={i} className="space-y-1 p-3 rounded-xl hover:bg-secondary/60 transition-colors">
                 <div className="text-2xl sm:text-4xl font-black text-foreground">{s.value}</div>
                 <div className="text-xs font-bold text-muted-foreground">{s.label}</div>
               </div>
@@ -436,9 +532,9 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 3. GOVT JOB OPERATOR REQUIREMENTS BANNER ──────────────────────── */}
+      {/* ── 3. GOVT JOB OPERATOR REQUIREMENTS BANNER & SPEED GAUGE ───────── */}
       <section className="container max-w-5xl mx-auto px-4 sm:px-6">
-        <div className="border border-border bg-card rounded-2xl p-6 sm:p-10 shadow-sm relative overflow-hidden space-y-6">
+        <div className="border border-border bg-card/80 backdrop-blur-md rounded-2xl p-6 sm:p-10 shadow-lg relative overflow-hidden space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-6">
             <div className="space-y-1">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-500 rounded-full text-xs font-bold border border-emerald-500/20">
@@ -453,23 +549,8 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="p-4 bg-secondary/50 rounded-xl border border-border space-y-2">
-              <div className="text-xs font-bold text-muted-foreground uppercase">বাংলা টাইপিং স্পিড</div>
-              <div className="text-2xl font-black text-foreground">৩০ WPM</div>
-              <p className="text-xs text-muted-foreground">জাতীয় বিসিসি বা বিজয় কীবোর্ড লেআউট</p>
-            </div>
-            <div className="p-4 bg-secondary/50 rounded-xl border border-border space-y-2">
-              <div className="text-xs font-bold text-muted-foreground uppercase">ইংরেজি টাইপিং স্পিড</div>
-              <div className="text-2xl font-black text-foreground">৪০ WPM</div>
-              <p className="text-xs text-muted-foreground">স্ট্যান্ডার্ড ইংরেজি QWERTY কীবোর্ড</p>
-            </div>
-            <div className="p-4 bg-secondary/50 rounded-xl border border-border space-y-2">
-              <div className="text-xs font-bold text-muted-foreground uppercase">নূন্যতম নির্ভুলতা</div>
-              <div className="text-2xl font-black text-foreground">৮৫%+ Accuracy</div>
-              <p className="text-xs text-muted-foreground">অতিরিক্ত ভুলের জন্য স্পিড কর্তন নিয়ম</p>
-            </div>
-          </div>
+          {/* Interactive Govt Speed Gauge Slider */}
+          <GovtSpeedGaugeWidget />
         </div>
       </section>
 
@@ -488,17 +569,17 @@ export default function LandingPage() {
             { name: "Jatiya (BCC)", desc: "সরকারি চাকরি পরীক্ষার লেআউট", badge: "Govt Job", icon: "🎖️" },
             { name: "English QWERTY", desc: "স্ট্যান্ডার্ড ইংরেজি টাচ-টাইপিং", badge: "Standard", icon: "🌐" },
           ].map((l, i) => (
-            <Card key={i} className="border border-border bg-card hover:border-foreground/50 transition-all rounded-xl shadow-xs text-center">
+            <Card key={i} className="border border-border bg-card/80 backdrop-blur-md hover:border-emerald-500/50 transition-all rounded-xl shadow-xs text-center group">
               <CardContent className="p-6 space-y-3">
-                <div className="w-12 h-12 rounded-xl bg-secondary text-foreground flex items-center justify-center mx-auto text-2xl border border-border">
+                <div className="w-12 h-12 rounded-xl bg-secondary text-foreground flex items-center justify-center mx-auto text-2xl border border-border group-hover:scale-110 transition-transform">
                   {l.icon}
                 </div>
-                <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-secondary border border-border text-foreground">
+                <span className="inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-secondary border border-border text-foreground">
                   {l.badge}
                 </span>
                 <h3 className="font-extrabold text-sm text-foreground">{l.name}</h3>
                 <p className="text-xs text-muted-foreground">{l.desc}</p>
-                <Link href="/learn" className="inline-block text-xs font-bold text-foreground hover:underline pt-2">
+                <Link href="/learn" className="inline-block text-xs font-bold text-emerald-500 hover:underline pt-2">
                   পাঠ দেখুন →
                 </Link>
               </CardContent>
@@ -507,40 +588,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 5. STEP-BY-STEP LEARNING ROADMAP ──────────────────────────────── */}
-      <section className="bg-secondary/40 py-16 border-y border-border">
-        <div className="container max-w-5xl mx-auto px-4 sm:px-6 space-y-12 text-center">
-          <div className="space-y-2">
-            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">শেখার রোডম্যাপ</span>
-            <h2 className="text-2xl sm:text-3xl font-black text-foreground">Your Step-by-Step Learning Path</h2>
-            <p className="text-sm text-muted-foreground">শিক্ষানবিস থেকে দক্ষ টাইপিস্ট হওয়ার সুস্পষ্ট প্রক্রিয়া।</p>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
-            {[
-              { step: "01", title: "Beginner", desc: "মৌলিক ধারণা" },
-              { step: "02", title: "Home Row", desc: "আঙুলের সঠিক স্থান" },
-              { step: "03", title: "Words", desc: "শব্দ ও যুক্তাক্ষর" },
-              { step: "04", title: "Paragraphs", desc: "পূর্ণ অনুচ্ছেদ" },
-              { step: "05", title: "Speed Tests", desc: "১৫-৬০ সেকেন্ড টেস্ট" },
-              { step: "06", title: "Certificate", desc: "যাচাইকৃত সনদ অর্জন" },
-            ].map((path, idx) => (
-              <React.Fragment key={idx}>
-                <div className="border border-border bg-card p-5 rounded-xl text-center w-36 shadow-xs hover:border-foreground/50 transition-all">
-                  <span className="text-xs font-black text-foreground block mb-1">{path.step}</span>
-                  <h4 className="font-extrabold text-sm text-foreground">{path.title}</h4>
-                  <p className="text-[10px] text-muted-foreground mt-1">{path.desc}</p>
-                </div>
-                {idx < 5 && (
-                  <ArrowRight size={18} className="text-muted-foreground hidden md:block shrink-0" />
-                )}
-              </React.Fragment>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── 6. CERTIFICATE PREVIEW & VERIFICATION ─────────────────────────── */}
+      {/* ── 5. CERTIFICATE PREVIEW & VERIFICATION ─────────────────────────── */}
       <section className="container max-w-5xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         <div className="space-y-4">
           <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">যাচাইকৃত সনদ</span>
@@ -549,24 +597,40 @@ export default function LandingPage() {
             স্পিড টেস্ট বা সরকারি পরীক্ষা সিমুলেটর সম্পন্ন করে অর্জন করুন অনলাইন যাচাইযোগ্য ডিজিটাল টাইপিং সার্টিফিকেট।
           </p>
           <div className="space-y-2 text-xs font-bold text-foreground">
-            <div className="flex items-center gap-2">✓ ইউনিক সার্টিফিকেট আইডি কোড</div>
-            <div className="flex items-center gap-2">✓ ১-ক্লিক উচ্চ-রেজোলিউশন ডাউনলোড</div>
-            <div className="flex items-center gap-2">✓ অনলাইন ভেরিফিকেশন ইউআরএল (/verify/...)</div>
+            <div className="flex items-center gap-2"><CheckCircle2 size={16} className="text-emerald-500" /> ইউনিক সার্টিফিকেট আইডি কোড</div>
+            <div className="flex items-center gap-2"><CheckCircle2 size={16} className="text-emerald-500" /> ১-ক্লিক উচ্চ-রেজোলিউশন ডাউনলোড</div>
+            <div className="flex items-center gap-2"><CheckCircle2 size={16} className="text-emerald-500" /> অনলাইন ভেরিফিকেশন ইউআরএল (/verify/...)</div>
           </div>
-          <Link href="/practice/test" className="inline-block pt-2">
-            <Button className="font-bold text-xs h-10 px-6 rounded-md shadow-xs">
-              সনদ অর্জন করতে টেস্ট দিন
+          <div className="flex flex-wrap gap-3 pt-2">
+            <Link href="/practice/test">
+              <Button className="font-bold text-xs h-10 px-6 rounded-xl shadow-xs">
+                সনদ অর্জন করতে টেস্ট দিন
+              </Button>
+            </Link>
+            <Button
+              variant="outline"
+              onClick={() => setShowCertModal(true)}
+              className="font-bold text-xs h-10 px-5 rounded-xl border-border"
+            >
+              সনদ প্রিভিউ দেখুন 👁️
             </Button>
-          </Link>
+          </div>
         </div>
 
-        <div className="border border-border bg-card rounded-2xl p-8 shadow-md space-y-6 text-center relative overflow-hidden">
-          <div className="space-y-1">
+        {/* Holographic Certificate Card */}
+        <div
+          onClick={() => setShowCertModal(true)}
+          className="border border-emerald-500/30 bg-card/90 backdrop-blur-md rounded-2xl p-8 shadow-xl space-y-6 text-center relative overflow-hidden cursor-pointer hover:border-emerald-500/60 transition-all group"
+        >
+          <div className="absolute top-3 right-3 px-2.5 py-0.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full text-[10px] font-bold">
+            GOLD HONORS BADGE 🎖️
+          </div>
+          <div className="space-y-1 pt-2">
             <span className="text-xs font-black text-foreground tracking-widest uppercase">TYPEBANGLA CERTIFICATE</span>
             <h3 className="text-xl font-black text-foreground">Certificate of Proficiency</h3>
             <p className="text-[10px] text-muted-foreground">This is proudly presented to</p>
           </div>
-          <div className="font-bangla text-2xl font-black text-foreground border-b border-border pb-3">
+          <div className="font-bangla text-2xl font-black text-foreground border-b border-border pb-3 group-hover:text-emerald-500 transition-colors">
             আরিফুল ইসলাম
           </div>
           <div className="flex justify-center gap-8 text-xs font-bold">
@@ -581,12 +645,42 @@ export default function LandingPage() {
           </div>
           <div className="pt-2 flex justify-between items-center text-[9px] text-muted-foreground border-t border-border">
             <span>ID: TB-2026-8841</span>
-            <span className="text-foreground font-bold">VERIFIED CERTIFICATE ✓</span>
+            <span className="text-emerald-500 font-bold">VERIFIED CERTIFICATE ✓</span>
           </div>
         </div>
       </section>
 
-      {/* ── 7. FAQ SECTION ────────────────────────────────────────────────── */}
+      {/* Certificate Modal Preview */}
+      {showCertModal && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-card border border-border p-6 rounded-2xl max-w-md w-full space-y-4 text-center shadow-2xl relative animate-in zoom-in-95 duration-150">
+            <button
+              onClick={() => setShowCertModal(false)}
+              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground font-bold text-xs"
+            >
+              ✕ বন্ধ করুন
+            </button>
+            <div className="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto text-xl border border-emerald-500/20">
+              🏆
+            </div>
+            <h3 className="text-lg font-black">যাচাইকৃত টাইপিং সার্টিফিকেট</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              স্পিড টেস্ট সম্পন্ন করার সাথে সাথেই আপনার কিবোর্ড স্পিড ও একিউরেসি সহ অনলাইন সনদের ভেরিফিকেশন আইডি জেনারেট হয়।
+            </p>
+            <div className="p-4 bg-secondary/50 rounded-xl text-left text-xs font-mono space-y-1.5 border border-border">
+              <div><strong>সনদ আইডি:</strong> TM-VERIFIED-9912</div>
+              <div><strong>স্ট্যাটাস:</strong> 🟢 Verified (অনলাইন যাচাইকৃত)</div>
+              <div><strong>পরীক্ষার্থী:</strong> আরিফুল ইসলাম</div>
+              <div><strong>স্কোর:</strong> ৭৫ WPM | ৯৮% Accuracy</div>
+            </div>
+            <Button onClick={() => setShowCertModal(false)} className="w-full font-bold text-xs">
+              ঠিক আছে
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* ── 6. FAQ SECTION ────────────────────────────────────────────────── */}
       <section className="container max-w-4xl mx-auto px-4 sm:px-6 space-y-8">
         <div className="text-center space-y-2">
           <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">প্রশ্নোত্তর</span>
@@ -618,16 +712,16 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 8. FINAL CTA BANNER ───────────────────────────────────────────── */}
+      {/* ── 7. FINAL CTA BANNER ───────────────────────────────────────────── */}
       <section className="container max-w-4xl mx-auto px-4 sm:px-6">
-        <div className="border border-border bg-primary text-primary-foreground rounded-2xl p-10 text-center space-y-6 shadow-md">
+        <div className="border border-border bg-primary text-primary-foreground rounded-2xl p-10 text-center space-y-6 shadow-xl">
           <h2 className="text-3xl sm:text-4xl font-black">Ready to improve your typing speed?</h2>
           <p className="text-sm text-primary-foreground/80 max-w-xl mx-auto">
             আজই শুরু করুন বাংলা ও ইংরেজি টাইপিং অনুশীলন। সম্পূর্ণ বিনামূল্যে।
           </p>
           <div className="pt-2">
             <Link href="/learn">
-              <Button size="lg" variant="secondary" className="font-bold text-sm h-12 px-8 rounded-md shadow-xs">
+              <Button size="lg" variant="secondary" className="font-bold text-sm h-12 px-8 rounded-xl shadow-xs">
                 বিনামূল্যে শুরু করুন (Start for Free) →
               </Button>
             </Link>
@@ -638,3 +732,4 @@ export default function LandingPage() {
     </main>
   );
 }
+

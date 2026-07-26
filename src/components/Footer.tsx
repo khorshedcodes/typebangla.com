@@ -1,9 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { CheckCircle2, ArrowRight, ShieldCheck, Heart, Sparkles, Send } from "lucide-react";
+import { useTypingStore } from "../store/typingStore";
+import { isFocusModePage } from "../utils/navigation";
 
 const FacebookIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
@@ -22,19 +25,81 @@ const GithubIcon = () => (
   </svg>
 );
 
-import { useTypingStore } from "../store/typingStore";
-import { isFocusModePage } from "../utils/navigation";
-
 export default function Footer() {
   const pathname = usePathname();
   const isFocusModeActive = useTypingStore((s) => s.isFocusModeActive);
+  const [emailInput, setEmailInput] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
 
   if (isFocusModeActive || isFocusModePage(pathname)) return null;
 
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!emailInput || !emailInput.includes("@")) return;
+    setSubscribed(true);
+    setEmailInput("");
+  };
+
   return (
-    <footer className="w-full border-t border-border bg-background py-12 mt-auto">
-      <div className="container max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-2 md:grid-cols-5 gap-8">
-        {/* Brand Column */}
+    <footer className="w-full border-t border-border bg-card/80 backdrop-blur-md py-14 mt-auto text-foreground">
+      
+      {/* Upper Newsletter & System Status Bar */}
+      <div className="container max-w-7xl mx-auto px-4 sm:px-6 pb-10 border-b border-border grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+        
+        {/* Brand & System Status Indicator */}
+        <div className="space-y-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full text-xs font-bold">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>System Status: All Services Operational 🟢</span>
+          </div>
+          <h3 className="text-xl font-black tracking-tight text-foreground">
+            TypeBangla Engine
+          </h3>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            বাংলাদেশের বিশ্বস্ত টাইপিং লার্নিং ইকোসিস্টেম — সরকারি পরীক্ষা প্রস্তুতি ও সনদ সেবা।
+          </p>
+        </div>
+
+        {/* Newsletter Signup Form */}
+        <div className="lg:col-span-2 border border-border bg-secondary/50 p-5 rounded-2xl shadow-xs space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+              <Sparkles size={14} className="text-emerald-500" />
+              দৈনিক টাইপিং টিপস ও পরীক্ষার আপডেট পান
+            </span>
+            <span className="text-[10px] text-muted-foreground font-semibold">100% Spam Free</span>
+          </div>
+
+          {subscribed ? (
+            <div className="p-3 bg-emerald-500/15 border border-emerald-500/30 rounded-xl text-xs text-emerald-500 font-bold flex items-center gap-2">
+              <CheckCircle2 size={16} /> ধন্যবাদ! আপনি সফলভাবে সাবস্ক্রাইব করেছেন।
+            </div>
+          ) : (
+            <form onSubmit={handleSubscribe} className="flex gap-2">
+              <input
+                type="email"
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+                placeholder="আপনার ইমেইল ঠিকানা লিখুন..."
+                className="flex-1 font-sans text-xs p-3 border border-input rounded-xl bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring shadow-xs"
+                required
+              />
+              <button
+                type="submit"
+                className="px-5 py-3 bg-primary text-primary-foreground font-bold text-xs rounded-xl shadow-xs hover:opacity-95 transition-opacity flex items-center gap-1.5 shrink-0"
+              >
+                <span>সাবস্ক্রাইব</span>
+                <Send size={13} />
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
+
+      {/* Main Grid Navigation Links */}
+      <div className="container max-w-7xl mx-auto px-4 sm:px-6 pt-12 grid grid-cols-2 md:grid-cols-5 gap-8">
+        
+        {/* Brand Info & Social Icons */}
         <div className="col-span-2 md:col-span-1 flex flex-col space-y-4">
           <Link href="/" className="flex items-center gap-2 group">
             <Image
@@ -56,7 +121,7 @@ export default function Footer() {
             </span>
           </Link>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            বাংলাদেশের প্রথম প্রিমিয়াম টাইপিং ইঞ্জিন — সরকারি পরীক্ষা প্রস্তুতি, কীবোর্ড অনুশীলন ও ডায়াগনস্টিকস কোচিং।
+            স্মার্ট কিবোর্ড অনুশীলন, সময়ভিত্তিক স্পিড পরীক্ষা ও অনলাইন ভেরিফিকেশন ব্যবস্থা।
           </p>
 
           <div className="flex items-center gap-2 pt-1">
@@ -65,7 +130,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Facebook"
-              className="w-8 h-8 flex items-center justify-center rounded-md bg-secondary text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
+              className="w-8 h-8 flex items-center justify-center rounded-xl bg-secondary text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all border border-border shadow-xs"
             >
               <FacebookIcon />
             </a>
@@ -74,7 +139,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="YouTube"
-              className="w-8 h-8 flex items-center justify-center rounded-md bg-secondary text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
+              className="w-8 h-8 flex items-center justify-center rounded-xl bg-secondary text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all border border-border shadow-xs"
             >
               <YoutubeIcon />
             </a>
@@ -83,7 +148,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub"
-              className="w-8 h-8 flex items-center justify-center rounded-md bg-secondary text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
+              className="w-8 h-8 flex items-center justify-center rounded-xl bg-secondary text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all border border-border shadow-xs"
             >
               <GithubIcon />
             </a>
@@ -92,63 +157,62 @@ export default function Footer() {
 
         {/* Column 1 - Learn */}
         <div className="flex flex-col space-y-2.5">
-          <span className="text-xs font-semibold text-foreground uppercase tracking-wider">শিখুন (Learn)</span>
+          <span className="text-xs font-bold text-foreground uppercase tracking-wider">শিখুন (Learn)</span>
           <Link href="/courses" className="text-xs text-muted-foreground hover:text-foreground transition-colors">সব পাঠ্যক্রম</Link>
           <Link href="/learn/avro-phonetic-typing" className="text-xs text-muted-foreground hover:text-foreground transition-colors">অভ্র ফোনেটিক টাইপিং</Link>
           <Link href="/learn/bijoy-52-typing" className="text-xs text-muted-foreground hover:text-foreground transition-colors">বিজয় ৫২ / ইউনিবিজয়</Link>
           <Link href="/learn/jatiya-keyboard-typing" className="text-xs text-muted-foreground hover:text-foreground transition-colors">জাতীয় কিবোর্ড (সরকারি)</Link>
           <Link href="/learn/probhat-layout-typing" className="text-xs text-muted-foreground hover:text-foreground transition-colors">প্রভাত লেআউট</Link>
-          <Link href="/learn/inscript-bangla-typing" className="text-xs text-muted-foreground hover:text-foreground transition-colors">ইনস্ক্রিপ্ট (Inscript)</Link>
           <Link href="/learn/english-touch-typing" className="text-xs text-muted-foreground hover:text-foreground transition-colors">English Touch Typing</Link>
         </div>
 
         {/* Column 2 - Practice & Exam */}
         <div className="flex flex-col space-y-2.5">
-          <span className="text-xs font-semibold text-foreground uppercase tracking-wider">অনুশীলন ও পরীক্ষা</span>
+          <span className="text-xs font-bold text-foreground uppercase tracking-wider">অনুশীলন ও পরীক্ষা</span>
           <Link href="/practice/test" className="text-xs text-muted-foreground hover:text-foreground transition-colors">স্পিড টেস্ট</Link>
           <Link href="/practice/words" className="text-xs text-muted-foreground hover:text-foreground transition-colors">শব্দ অনুশীলন</Link>
           <Link href="/practice/sentences" className="text-xs text-muted-foreground hover:text-foreground transition-colors">বাক্য অনুশীলন</Link>
-          <Link href="/practice/quotes" className="text-xs text-muted-foreground hover:text-foreground transition-colors">বাংলা উদ্ধৃতি</Link>
           <Link href="/practice/custom" className="text-xs text-muted-foreground hover:text-foreground transition-colors">নিজের টেক্সট</Link>
           <Link href="/juktakkhor" className="text-xs text-muted-foreground hover:text-foreground transition-colors">যুক্তাক্ষর মাস্টার</Link>
-          <Link href="/exam/govt" className="text-xs font-semibold text-foreground hover:underline transition-colors">সরকারি চাকরির পরীক্ষা ↗</Link>
+          <Link href="/exam/govt" className="text-xs font-extrabold text-primary hover:underline transition-colors flex items-center gap-1">
+            <span>সরকারি চাকরির পরীক্ষা</span>
+            <ArrowRight size={12} />
+          </Link>
         </div>
 
         {/* Column 3 - Tools */}
         <div className="flex flex-col space-y-2.5">
-          <span className="text-xs font-semibold text-foreground uppercase tracking-wider">টুলস (Tools)</span>
+          <span className="text-xs font-bold text-foreground uppercase tracking-wider">টুলস (Tools)</span>
           <Link href="/tools" className="text-xs text-muted-foreground hover:text-foreground transition-colors">সব টুলস</Link>
           <Link href="/unicode-to-bijoy-converter" className="text-xs text-muted-foreground hover:text-foreground transition-colors">ইউনিকোড ↔ বিজয়</Link>
           <Link href="/english-to-bangla-typing" className="text-xs text-muted-foreground hover:text-foreground transition-colors">বাংলিশ টাইপিং</Link>
           <Link href="/bangla-voice-typing" className="text-xs text-muted-foreground hover:text-foreground transition-colors">ভয়েস টাইপিং</Link>
           <Link href="/bangla-word-counter" className="text-xs text-muted-foreground hover:text-foreground transition-colors">শব্দ ও অক্ষর গণনা</Link>
-          <Link href="/bangla-slug-generator" className="text-xs text-muted-foreground hover:text-foreground transition-colors">স্লাগ জেনারেটর</Link>
         </div>
 
-        {/* Column 4 - Platform */}
+        {/* Column 4 - Platform Support */}
         <div className="flex flex-col space-y-2.5">
-          <span className="text-xs font-semibold text-foreground uppercase tracking-wider">তথ্য ও সাপোর্ট</span>
+          <span className="text-xs font-bold text-foreground uppercase tracking-wider">তথ্য ও সাপোর্ট</span>
           <Link href="/dashboard" className="text-xs text-muted-foreground hover:text-foreground transition-colors">মাই ড্যাশবোর্ড</Link>
-          <Link href="/institute" className="text-xs font-semibold text-foreground hover:underline transition-colors">ইনস্টিটিউট পোর্টাল 🏫</Link>
+          <Link href="/institute" className="text-xs font-extrabold text-foreground hover:underline transition-colors">ইনস্টিটিউট পোর্টাল 🏫</Link>
           <Link href="/leaderboard" className="text-xs text-muted-foreground hover:text-foreground transition-colors">লিডারবোর্ড</Link>
           <Link href="/keyboards" className="text-xs text-muted-foreground hover:text-foreground transition-colors">কীবোর্ড ম্যাপ</Link>
-          <Link href="/blog" className="text-xs text-muted-foreground hover:text-foreground transition-colors">ব্লগ</Link>
-          <Link href="/about" className="text-xs text-muted-foreground hover:text-foreground transition-colors">আমাদের সম্পর্কে</Link>
-          <Link href="/contact" className="text-xs text-muted-foreground hover:text-foreground transition-colors">যোগাযোগ</Link>
           <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground transition-colors">প্রাইভেসি পলিসি</Link>
         </div>
       </div>
 
-      <div className="container max-w-7xl mx-auto px-4 sm:px-6 border-t border-border mt-8 pt-6 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-muted-foreground">
+      {/* Bottom Sub-Footer Bar */}
+      <div className="container max-w-7xl mx-auto px-4 sm:px-6 border-t border-border mt-10 pt-6 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-muted-foreground">
         <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
           <span>© {new Date().getFullYear()} typebangla. All rights reserved.</span>
           <span className="hidden sm:block text-border">|</span>
           <span className="font-medium text-foreground">বাংলাদেশের প্রথম প্রিমিয়াম টাইপিং ইঞ্জিন</span>
         </div>
-        <span className="flex items-center gap-1.5">
+        <span className="flex items-center gap-1 font-semibold text-foreground">
           বাংলাদেশ থেকে ভালোবাসায় তৈরি 🇧🇩
         </span>
       </div>
+
     </footer>
   );
 }
