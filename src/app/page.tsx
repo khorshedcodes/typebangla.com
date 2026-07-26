@@ -245,9 +245,11 @@ function HeroMultiLayoutArena() {
             placeholder={
               isCompleted
                 ? "টেস্ট সম্পন্ন হয়েছে! নিচে ফলাফল দেখুন..."
+                : activeLayout === "avro"
+                ? "এখানে Banglish টাইপ করুন (যেমন: bangladesh = বাংলাদেশ)..."
                 : activeLayout === "english"
                 ? "Type English text here..."
-                : "এখানে Banglish টাইপ করুন (যেমন: bangladesh = বাংলাদেশ)..."
+                : "এখানে টাইপ করুন..."
             }
             className="w-full font-bangla text-sm sm:text-base p-4 pr-12 border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground shadow-xs disabled:opacity-75"
           />
@@ -260,8 +262,8 @@ function HeroMultiLayoutArena() {
           </button>
         </div>
 
-        {/* Live Transliteration Output Preview Badge */}
-        {activeLayout !== "english" && (
+        {/* Live Transliteration Output Preview Badge (Only for Avro Phonetic) */}
+        {activeLayout === "avro" && (
           <div className="text-xs text-muted-foreground font-semibold flex items-center gap-2 flex-wrap">
             <span>লাইভ বাংলা আউটপুট:</span>
             <span className="text-foreground font-bold font-bangla bg-secondary px-2.5 py-1 rounded-lg border border-border">
