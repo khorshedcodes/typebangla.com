@@ -1,4 +1,4 @@
-const CACHE_NAME = "typebangla-v1";
+const CACHE_NAME = "typebangla-v2";
 const OFFLINE_URLS = [
   "/",
   "/practice",
@@ -8,7 +8,18 @@ const OFFLINE_URLS = [
   "/manifest.json"
 ];
 
+// Instantly self-unregister on localhost / development environment
+const isDev = typeof location !== "undefined" && (
+  location.hostname === "localhost" ||
+  location.hostname === "127.0.0.1" ||
+  location.hostname.startsWith("192.168.")
+);
+
 self.addEventListener("install", (event) => {
+  if (isDev) {
+    self.registration.unregister();
+    return;
+  }
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(OFFLINE_URLS);
@@ -18,6 +29,10 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("activate", (event) => {
+  if (isDev) {
+    self.registration.unregister();
+    return;
+  }
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -33,22 +48,13 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") return;
+  if (isDev || event.request.method !== "GET") return;
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
-        // Fetch fresh copy in background
-        fetch(event.request)
-          .then((networkResponse) => {
-            if (networkResponse && networkResponse.status === 200) {
-              caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
-            }
-          })
-          .catch(() => {/* Offline fallback */});
         return cachedResponse;
       }
-
       return fetch(event.request).catch(() => {
         return caches.match("/");
       });
