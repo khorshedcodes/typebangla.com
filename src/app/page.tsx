@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "../components/ui/card";
 import { getClusterRanges } from "../utils/grapheme";
+import { avroTransliterate } from "../utils/layouts";
 import { Button } from "../components/ui/button";
 
 // ── PASSAGE DICTIONARY FOR HERO MULTI-LAYOUT ARENA ─────────────────────────────
@@ -57,6 +58,14 @@ function HeroMultiLayoutArena() {
   const passages = SAMPLE_PASSAGES[activeLayout] || SAMPLE_PASSAGES.avro;
   const targetText = passages[passageIndex % passages.length];
 
+  // Effective typed text (Transliterate Banglish to Bangla if layout is non-English)
+  const getEffectiveTypedText = (raw: string) => {
+    if (activeLayout === "english") return raw;
+    return avroTransliterate(raw);
+  };
+
+  const effectiveInput = getEffectiveTypedText(input);
+
   // Timer tick
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -79,21 +88,22 @@ function HeroMultiLayoutArena() {
     }
 
     setInput(val);
+    const effText = getEffectiveTypedText(val);
 
     // Calculate accuracy & WPM
-    if (val.length > 0) {
+    if (effText.length > 0) {
       const durationSec = Math.max(1, startTime ? (Date.now() - startTime) / 1000 : 1);
-      const calculatedWpm = Math.round((val.length / 5) / (durationSec / 60));
+      const calculatedWpm = Math.round((effText.length / 5) / (durationSec / 60));
       setWpm(calculatedWpm);
 
       let correct = 0;
-      for (let i = 0; i < val.length; i++) {
-        if (val[i] === targetText[i]) correct++;
+      for (let i = 0; i < effText.length; i++) {
+        if (effText[i] === targetText[i]) correct++;
       }
-      setAccuracy(Math.max(0, Math.round((correct / val.length) * 100)));
+      setAccuracy(Math.max(0, Math.round((correct / effText.length) * 100)));
 
       // Check completion
-      if (val.length >= targetText.length) {
+      if (effText.length >= targetText.length) {
         setIsCompleted(true);
       }
     } else {
@@ -193,21 +203,21 @@ function HeroMultiLayoutArena() {
       {/* Target Text Container with Cluster-Level Color Feedback */}
       <div className="font-bangla text-base sm:text-xl leading-relaxed p-4 sm:p-6 bg-secondary/30 rounded-xl border border-border select-none min-h-[100px] whitespace-pre-wrap break-words">
         {getClusterRanges(targetText).map(({ cluster, start, end }, idx) => {
-          const isFullyTyped = input.length >= end;
-          const isPartiallyTyped = input.length > start && input.length < end;
-          const isCurrent = input.length >= start && input.length < end;
+          const isFullyTyped = effectiveInput.length >= end;
+          const isPartiallyTyped = effectiveInput.length > start && effectiveInput.length < end;
+          const isCurrent = effectiveInput.length >= start && effectiveInput.length < end;
 
           let statusClass = "text-muted-foreground";
 
           if (isFullyTyped) {
-            const typedSegment = input.slice(start, end);
+            const typedSegment = effectiveInput.slice(start, end);
             if (typedSegment === cluster) {
               statusClass = "text-foreground font-bold bg-emerald-500/15 border-b-2 border-emerald-500 rounded-t-xs";
             } else {
               statusClass = "text-red-500 font-bold bg-red-500/15 border-b-2 border-red-500 underline rounded-t-xs";
             }
           } else if (isPartiallyTyped || isCurrent) {
-            const typedSegment = input.slice(start, input.length);
+            const typedSegment = effectiveInput.slice(start, effectiveInput.length);
             const targetSegment = cluster.slice(0, typedSegment.length);
             if (typedSegment === targetSegment) {
               statusClass = "text-foreground font-bold bg-primary/20 border-b-2 border-primary animate-pulse rounded-t-xs";
@@ -224,7 +234,7 @@ function HeroMultiLayoutArena() {
         })}
       </div>
 
-      {/* Input Field & Control Buttons */}
+      {/* Input Field & Live Transliteration Preview */}
       <div className="space-y-3">
         <div className="relative">
           <input
@@ -233,7 +243,13 @@ function HeroMultiLayoutArena() {
             value={input}
             onChange={handleInputChange}
             disabled={isCompleted}
-            placeholder={isCompleted ? "টেস্ট সম্পন্ন হয়েছে! নিচে ফলাফল দেখুন..." : "এখানে টাইপ করা শুরু করুন (কোনো অ্যাকাউন্ট লাগবে না)..."}
+            placeholder={
+              isCompleted
+                ? "টেস্ট সম্পন্ন হয়েছে! নিচে ফলাফল দেখুন..."
+                : activeLayout === "english"
+                ? "Type English text here..."
+                : "এখানে Banglish টাইপ করুন (যেমন: bangladesh = বাংলাদেশ)..."
+            }
             className="w-full font-bangla text-sm sm:text-base p-4 pr-12 border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground shadow-xs disabled:opacity-75"
           />
           <button
@@ -245,7 +261,17 @@ function HeroMultiLayoutArena() {
           </button>
         </div>
 
-        <div className="flex flex-wrap justify-between items-center text-xs text-muted-foreground gap-2">
+        {/* Live Transliteration Output Preview Badge */}
+        {activeLayout !== "english" && (
+          <div className="text-xs text-muted-foreground font-semibold flex items-center gap-2 flex-wrap">
+            <span>লাইভ বাংলা আউটপুট:</span>
+            <span className="text-foreground font-bold font-bangla bg-secondary px-2.5 py-1 rounded-lg border border-border">
+              {effectiveInput || "টাইপ করলে এখানে সরাসরি বাংলা দেখা যাবে..."}
+            </span>
+          </div>
+        )}
+
+        <div className="flex flex-wrap justify-between items-center text-xs text-muted-foreground gap-2 pt-1">
           <span>লেআউট: <strong className="text-foreground">{LAYOUT_META[activeLayout].label}</strong> — {LAYOUT_META[activeLayout].desc}</span>
           <div className="flex items-center gap-4">
             <button onClick={resetArena} className="text-foreground hover:underline font-bold flex items-center gap-1">
