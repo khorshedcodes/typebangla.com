@@ -190,24 +190,24 @@ function HeroMultiLayoutArena() {
       </div>
 
       {/* Target Text Container with Character Color Feedback */}
-      <div className="font-bangla text-base sm:text-xl leading-relaxed p-4 sm:p-6 bg-secondary/30 rounded-xl border border-border select-none min-h-[100px] flex items-center flex-wrap gap-0.5">
+      <div className="font-bangla text-base sm:text-xl leading-relaxed p-4 sm:p-6 bg-secondary/30 rounded-xl border border-border select-none min-h-[100px] whitespace-pre-wrap break-words">
         {Array.from(targetText).map((char, idx) => {
           const typedChar = input[idx];
           let statusClass = "text-muted-foreground";
 
           if (typedChar !== undefined) {
             if (typedChar === char) {
-              statusClass = "text-foreground font-bold bg-emerald-500/15 border-b-2 border-emerald-500 px-0.5 rounded-t-xs";
+              statusClass = "text-foreground font-bold bg-emerald-500/15 border-b-2 border-emerald-500 rounded-t-xs";
             } else {
-              statusClass = "text-red-500 font-bold bg-red-500/15 border-b-2 border-red-500 underline px-0.5 rounded-t-xs";
+              statusClass = "text-red-500 font-bold bg-red-500/15 border-b-2 border-red-500 underline rounded-t-xs";
             }
           } else if (idx === input.length) {
-            statusClass = "text-foreground font-bold bg-primary/20 border-b-2 border-primary animate-pulse px-0.5 rounded-t-xs";
+            statusClass = "text-foreground font-bold bg-primary/20 border-b-2 border-primary animate-pulse rounded-t-xs";
           }
 
           return (
             <span key={idx} className={statusClass}>
-              {char}
+              {char === " " ? "\u00A0" : char}
             </span>
           );
         })}

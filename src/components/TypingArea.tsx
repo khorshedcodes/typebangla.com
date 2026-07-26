@@ -295,7 +295,7 @@ export default function TypingArea({
           onFocus={handleFocus}
           onBlur={handleBlur}
           className={cn(
-            "border rounded-xl bg-card p-6 min-h-[140px] outline-none cursor-text transition-all leading-relaxed tracking-normal break-words shadow-xs flex flex-wrap gap-x-2 gap-y-2 border-border text-foreground",
+            "border rounded-xl bg-card p-6 min-h-[140px] outline-none cursor-text transition-all leading-relaxed tracking-normal break-words whitespace-pre-wrap shadow-xs border-border text-foreground",
             {
               "border-ring ring-1 ring-ring": isFocused,
               "blur-[2px]": !isFocused && !isCompleted,
