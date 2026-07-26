@@ -147,7 +147,7 @@ function HeroMultiLayoutArena() {
   };
 
   return (
-    <div className="border border-border bg-card/90 backdrop-blur-md rounded-2xl p-5 sm:p-8 shadow-lg max-w-4xl mx-auto space-y-6 text-left relative overflow-hidden">
+    <div className="border border-border/80 bg-card/85 backdrop-blur-xl rounded-3xl p-6 sm:p-9 shadow-[0_0_50px_-12px_rgba(16,185,129,0.22)] hover:border-emerald-500/40 transition-all max-w-4xl mx-auto space-y-6 text-left relative overflow-hidden group">
       
       {/* Layout Tabs Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
@@ -486,6 +486,9 @@ export default function LandingPage() {
       {/* ── 1. HERO SECTION (CRO CONVERSION ENGINE) ───────────────────────── */}
       <section className="container max-w-6xl mx-auto px-4 sm:px-6 text-center space-y-8 relative pt-4">
         
+        {/* Deep Ambient Background Radial Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-gradient-to-tr from-emerald-500/15 via-emerald-500/5 to-transparent blur-[120px] pointer-events-none -z-10 rounded-full" />
+
         {/* Trust Badge */}
         <div className="inline-flex items-center gap-2 bg-secondary border border-border px-4 py-2 rounded-full shadow-xs">
           <span className="text-amber-400 text-xs font-bold">★★★★★</span>
