@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { useTypingStore } from "../store/typingStore";
 import { parse_phonetic_input } from "../utils/phoneticEngine";
+import { getClusterRanges } from "../utils/grapheme";
 import { cn } from "../utils/cn";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -155,19 +156,35 @@ export default function TypingArea({
     return targetWordsList.map((word, wordIdx) => {
       const isLastWord = wordIdx === targetWordsList.length - 1;
       const wordWithSpace = isLastWord ? word : word + " ";
+      const clusterRanges = getClusterRanges(wordWithSpace);
+
+      const wordStart = charIndex;
+      charIndex += wordWithSpace.length;
 
       return (
         <span key={wordIdx} className="inline-block whitespace-nowrap">
-          {Array.from(wordWithSpace).map((char) => {
-            const index = charIndex++;
-            const isCurrent = index === typedText.length;
-            const hasTyped = index < typedText.length;
-            const isCorrect = hasTyped && typedText[index] === char;
-            const isGhostCurrent = index === ghostPosition && targetWpm > 0 && isStarted;
+          {clusterRanges.map(({ cluster, start, end }, cIdx) => {
+            const absStart = wordStart + start;
+            const absEnd = wordStart + end;
+
+            const isFullyTyped = typedText.length >= absEnd;
+            const isPartiallyTyped = typedText.length > absStart && typedText.length < absEnd;
+            const isCurrent = typedText.length >= absStart && typedText.length < absEnd;
+
+            let isCorrect = false;
+            if (isFullyTyped) {
+              isCorrect = typedText.slice(absStart, absEnd) === cluster;
+            } else if (isPartiallyTyped) {
+              const typedSeg = typedText.slice(absStart, typedText.length);
+              isCorrect = typedSeg === cluster.slice(0, typedSeg.length);
+            }
+
+            const hasTyped = isFullyTyped || isPartiallyTyped;
+            const isGhostCurrent = absStart <= ghostPosition && ghostPosition < absEnd && targetWpm > 0 && isStarted;
 
             return (
               <span
-                key={index}
+                key={cIdx}
                 className={cn("relative transition-all duration-75 select-none font-medium rounded-xs", {
                   "text-muted-foreground/60": !hasTyped && !isCurrent,
                   "text-foreground font-bold": hasTyped && isCorrect,
@@ -181,7 +198,7 @@ export default function TypingArea({
                 {isGhostCurrent && (
                   <span className="absolute left-0 right-0 bottom-0 h-[2px] bg-muted-foreground/60 rounded-full" title="Ghost Pacer Cursor" />
                 )}
-                {char === " " ? "\u00A0" : char}
+                {cluster === " " ? "\u00A0" : cluster}
               </span>
             );
           })}

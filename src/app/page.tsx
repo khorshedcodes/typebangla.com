@@ -8,6 +8,7 @@ import {
   ShieldCheck, Star, RefreshCw, Flame, Target, Compass
 } from "lucide-react";
 import { Card, CardContent } from "../components/ui/card";
+import { getClusterRanges } from "../utils/grapheme";
 import { Button } from "../components/ui/button";
 
 // ── PASSAGE DICTIONARY FOR HERO MULTI-LAYOUT ARENA ─────────────────────────────
@@ -189,25 +190,35 @@ function HeroMultiLayoutArena() {
         </div>
       </div>
 
-      {/* Target Text Container with Character Color Feedback */}
+      {/* Target Text Container with Cluster-Level Color Feedback */}
       <div className="font-bangla text-base sm:text-xl leading-relaxed p-4 sm:p-6 bg-secondary/30 rounded-xl border border-border select-none min-h-[100px] whitespace-pre-wrap break-words">
-        {Array.from(targetText).map((char, idx) => {
-          const typedChar = input[idx];
+        {getClusterRanges(targetText).map(({ cluster, start, end }, idx) => {
+          const isFullyTyped = input.length >= end;
+          const isPartiallyTyped = input.length > start && input.length < end;
+          const isCurrent = input.length >= start && input.length < end;
+
           let statusClass = "text-muted-foreground";
 
-          if (typedChar !== undefined) {
-            if (typedChar === char) {
+          if (isFullyTyped) {
+            const typedSegment = input.slice(start, end);
+            if (typedSegment === cluster) {
               statusClass = "text-foreground font-bold bg-emerald-500/15 border-b-2 border-emerald-500 rounded-t-xs";
             } else {
               statusClass = "text-red-500 font-bold bg-red-500/15 border-b-2 border-red-500 underline rounded-t-xs";
             }
-          } else if (idx === input.length) {
-            statusClass = "text-foreground font-bold bg-primary/20 border-b-2 border-primary animate-pulse rounded-t-xs";
+          } else if (isPartiallyTyped || isCurrent) {
+            const typedSegment = input.slice(start, input.length);
+            const targetSegment = cluster.slice(0, typedSegment.length);
+            if (typedSegment === targetSegment) {
+              statusClass = "text-foreground font-bold bg-primary/20 border-b-2 border-primary animate-pulse rounded-t-xs";
+            } else {
+              statusClass = "text-red-500 font-bold bg-red-500/15 border-b-2 border-red-500 underline rounded-t-xs";
+            }
           }
 
           return (
             <span key={idx} className={statusClass}>
-              {char === " " ? "\u00A0" : char}
+              {cluster === " " ? "\u00A0" : cluster}
             </span>
           );
         })}
