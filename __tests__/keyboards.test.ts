@@ -39,18 +39,31 @@ describe("Keyboard Layout Integrity Suite (All 7 Layouts)", () => {
     expect(PROBHAT_MAP.KeyF.normal).toBe("\u09a4");
   });
 
-  test("Inscript layout mapping should map KeyF normal keystroke to Bangla \u09bf (kar-i)", () => {
+  test("Inscript layout mapping should map KeyF to \u09bf (kar-i), KeyN shift to ja-fola, and KeyZ to ro-fola/reph", () => {
     expect(INSCRIPT_MAP.KeyF.normal).toBe("\u09bf");
+    expect(INSCRIPT_MAP.KeyN.shift).toBe("\u09cd\u09af"); // ্য
+    expect(INSCRIPT_MAP.KeyZ.normal).toBe("\u09cd\u09b0"); // ্র
+    expect(INSCRIPT_MAP.KeyZ.shift).toBe("\u09b0\u09cd"); // র্
   });
 
-  test("Unicode layout mapping should map KeyF normal keystroke to Bangla \u09be (kar-a)", () => {
+  test("Unicode layout mapping should map KeyF to \u09be (kar-a), KeyA shift to reph, and KeyZ to ro-fola/ja-fola", () => {
     expect(UNICODE_MAP.KeyF.normal).toBe("\u09be");
+    expect(UNICODE_MAP.KeyA.shift).toBe("\u09b0\u09cd"); // র্
+    expect(UNICODE_MAP.KeyZ.normal).toBe("\u09cd\u09b0"); // ্র
+    expect(UNICODE_MAP.KeyZ.shift).toBe("\u09cd\u09af"); // ্য
   });
 
-  test("Avro Phonetic engine should correctly transliterate Banglish input to Bangla", () => {
+  test("Probhat layout mapping should correctly map ZWJ, ZWNJ and Minus keys", () => {
+    expect(PROBHAT_MAP.Backquote.normal).toBe("\u200d");
+    expect(PROBHAT_MAP.Backslash.normal).toBe("\u200c");
+    expect(PROBHAT_MAP.Minus.normal).toBe("-");
+  });
+
+  test("Avro Phonetic engine should correctly transliterate Banglish input to Bangla including Reph", () => {
     expect(avroTransliterate("k")).toBe("ক");
     expect(avroTransliterate("kh")).toBe("খ");
     expect(avroTransliterate("g")).toBe("গ");
+    expect(avroTransliterate("rrk")).toBe("র্ক");
   });
 
   test("Every layout should produce valid non-empty certificate labels", () => {

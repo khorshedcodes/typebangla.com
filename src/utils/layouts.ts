@@ -243,6 +243,11 @@ export function avroTransliterate(input: string): string {
           currentToken.ban = "\u0985"; // অ
           currentToken.sign = "";
         }
+        // 'rr' before a consonant = Reph (র + ্)
+        if (token.eng === "rr" && nextIsConsonant(input, idx + len)) {
+          currentToken.ban = "\u09b0\u09cd"; // র্
+          currentToken.type = "special";
+        }
         if (currentToken.type === "consonant") {
           if (prevToken && prevToken.type === "consonant") result += "\u09cd"; // ্
           result += currentToken.ban;
@@ -273,8 +278,8 @@ export function avroTransliterate(input: string): string {
 
 // Mapped from Probhat layout findings
 export const PROBHAT_MAP: LayoutMap = {
-  Backquote: { normal: "`", shift: "~" },
-  Backslash: { normal: "\u005c", shift: "\u0965" },
+  Backquote: { normal: "\u200d", shift: "~" },
+  Backslash: { normal: "\u200c", shift: "\u0965" },
   BracketLeft: { normal: "\u09c7", shift: "\u09c8" },
   BracketRight: { normal: "\u09cb", shift: "\u09cc", altgr: "\u09d7" },
   Comma: { normal: ",", shift: "\u09c3" },
@@ -315,7 +320,7 @@ export const PROBHAT_MAP: LayoutMap = {
   KeyX: { normal: "\u09b6", shift: "\u09dd" },
   KeyY: { normal: "\u098f", shift: "\u0990" },
   KeyZ: { normal: "\u09df", shift: "\u09af" },
-  Minus: { normal: "\u200c", shift: "_" },
+  Minus: { normal: "-", shift: "_" },
   Period: { normal: "\u0964", shift: "\u0981", altgr: "\u09bc" },
   Quote: { normal: "'", shift: "\u0022" },
   Semicolon: { normal: ";", shift: ":" },
@@ -354,7 +359,7 @@ export const INSCRIPT_MAP: LayoutMap = {
   KeyK: { normal: "\u0995", shift: "\u0996" },
   KeyL: { normal: "\u09a4", shift: "\u09a5" },
   KeyM: { normal: "\u09b8", shift: "\u09b6" },
-  KeyN: { normal: "\u09b2", shift: "" },
+  KeyN: { normal: "\u09b2", shift: "\u09cd\u09af" },
   KeyO: { normal: "\u09a6", shift: "\u09a7" },
   KeyP: { normal: "\u099c", shift: "\u099d" },
   KeyQ: { normal: "\u09cc", shift: "\u0994", altgr: "\u09d7" },
@@ -366,7 +371,7 @@ export const INSCRIPT_MAP: LayoutMap = {
   KeyW: { normal: "\u09c8", shift: "\u0990", altgr: "\u09e3" },
   KeyX: { normal: "\u0982", shift: "\u0981", altgr: "\u09fa" },
   KeyY: { normal: "\u09ac", shift: "\u09ad" },
-  KeyZ: { normal: "", shift: "" },
+  KeyZ: { normal: "\u09cd\u09b0", shift: "\u09b0\u09cd" },
   Minus: { normal: "-", shift: "\u0983" },
   Period: { normal: ".", shift: "\u0964", altgr: "\u09bd", altgr_shift: ">" },
   Quote: { normal: "\u099f", shift: "\u09a0", altgr: "'", altgr_shift: "\u0022" },
@@ -393,7 +398,7 @@ export const UNICODE_MAP: LayoutMap = {
   Digit8: { normal: "\u09ee", shift: "\u00d7" },
   Digit9: { normal: "\u09ef", shift: "(" },
   Equal: { normal: "=", shift: "+" },
-  KeyA: { normal: "\u09c3", shift: "", altgr: "\u098c", altgr_shift: "\u09e0" },
+  KeyA: { normal: "\u09c3", shift: "\u09b0\u09cd", altgr: "\u098c", altgr_shift: "\u09e0" },
   KeyB: { normal: "\u09a8", shift: "\u09a3" },
   KeyC: { normal: "\u09c7", shift: "\u09c8" },
   KeyD: { normal: "\u09bf", shift: "\u09c0", altgr: "\u09c4", altgr_shift: "\u09e2" },
@@ -418,7 +423,7 @@ export const UNICODE_MAP: LayoutMap = {
   KeyW: { normal: "\u09af", shift: "\u09df" },
   KeyX: { normal: "\u09cb", shift: "\u09cc", altgr_shift: "\u09d7" },
   KeyY: { normal: "\u099a", shift: "\u099b" },
-  KeyZ: { normal: "\u0981", shift: "\u0983" },
+  KeyZ: { normal: "\u09cd\u09b0", shift: "\u09cd\u09af" },
   Minus: { normal: "-", shift: "\u09ce" },
   Period: { normal: ".", shift: ">", altgr: "\u09bc" },
   Quote: { normal: "'", shift: "\u0022" },

@@ -18,17 +18,27 @@ const PROGRESS_STORAGE_KEY = "typemaster_lesson_progress";
 
 export function getLessonProgress(lessonId: string): LessonProgress | null {
   if (typeof window === "undefined") return null;
-  const raw = localStorage.getItem(PROGRESS_STORAGE_KEY);
-  if (!raw) return null;
-  const all: Record<string, LessonProgress> = JSON.parse(raw);
-  return all[lessonId] ?? null;
+  try {
+    const raw = localStorage.getItem(PROGRESS_STORAGE_KEY);
+    if (!raw) return null;
+    const all: Record<string, LessonProgress> = JSON.parse(raw);
+    return all[lessonId] ?? null;
+  } catch (e) {
+    console.error("Failed to read lesson progress:", e);
+    return null;
+  }
 }
 
 export function getAllProgress(): Record<string, LessonProgress> {
   if (typeof window === "undefined") return {};
-  const raw = localStorage.getItem(PROGRESS_STORAGE_KEY);
-  if (!raw) return {};
-  return JSON.parse(raw);
+  try {
+    const raw = localStorage.getItem(PROGRESS_STORAGE_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error("Failed to read all progress:", e);
+    return {};
+  }
 }
 
 export function saveLessonProgress(
@@ -51,15 +61,25 @@ export function saveLessonProgress(
     lastAttempt: new Date().toISOString(),
   };
 
-  const raw = localStorage.getItem(PROGRESS_STORAGE_KEY);
-  const all: Record<string, LessonProgress> = raw ? JSON.parse(raw) : {};
-  all[lessonId] = updated;
-  localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(all));
+  if (typeof window !== "undefined") {
+    try {
+      const raw = localStorage.getItem(PROGRESS_STORAGE_KEY);
+      const all: Record<string, LessonProgress> = raw ? JSON.parse(raw) : {};
+      all[lessonId] = updated;
+      localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(all));
+    } catch (e) {
+      console.error("Failed to save lesson progress:", e);
+    }
+  }
 
   return updated;
 }
 
 export function clearAllProgress(): void {
   if (typeof window === "undefined") return;
-  localStorage.removeItem(PROGRESS_STORAGE_KEY);
+  try {
+    localStorage.removeItem(PROGRESS_STORAGE_KEY);
+  } catch (e) {
+    console.error("Failed to clear progress:", e);
+  }
 }

@@ -32,6 +32,7 @@ export async function getFirebaseDb() {
   return getFirestore(app);
 }
 
-export const db = null as any;
-export const auth = null as any;
-export const googleProvider = null as any;
+// Legacy exports deprecated — use dynamic getters getFirebaseDb() & getFirebaseAuth() instead
+export const db = null;
+export const auth = null;
+export const googleProvider = null;

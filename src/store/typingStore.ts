@@ -94,12 +94,15 @@ interface TypingState {
 // Web Audio API Sound Synthesizer (Zero asset download required)
 let audioCtx: AudioContext | null = null;
 
-function getAudioContext() {
+function getAudioContext(): AudioContext | null {
+  if (typeof window === "undefined") return null;
   if (!audioCtx) {
     const AudioContextClass = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    audioCtx = new AudioContextClass();
+    if (AudioContextClass) {
+      audioCtx = new AudioContextClass();
+    }
   }
-  if (audioCtx.state === "suspended") {
+  if (audioCtx && audioCtx.state === "suspended") {
     audioCtx.resume();
   }
   return audioCtx;
@@ -108,6 +111,7 @@ function getAudioContext() {
 export function playTypewriterSound(type: "click" | "error" | "success" | "space") {
   try {
     const ctx = getAudioContext();
+    if (!ctx) return;
     const now = ctx.currentTime;
     
     // Retrieve volume and sound profile from store
@@ -549,22 +553,36 @@ export const useTypingStore = create<TypingState>((set, get) => ({
   // Load results history
   loadHistory: () => {
     if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("typemaster_history");
-      if (stored) {
-        set({ history: JSON.parse(stored) });
-      }
-      const storedStats = localStorage.getItem("typemaster_keystats");
-      if (storedStats) {
-        set({ keyStats: JSON.parse(storedStats) });
-      }
-      const storedTheme = localStorage.getItem("typemaster_theme") as "light" | "dark";
-      if (storedTheme) {
-        set({ theme: storedTheme });
-        if (storedTheme === "dark") {
-          document.documentElement.classList.add("dark");
-        } else {
-          document.documentElement.classList.remove("dark");
+      try {
+        const stored = localStorage.getItem("typemaster_history");
+        if (stored) {
+          set({ history: JSON.parse(stored) });
         }
+      } catch (e) {
+        console.error("Failed to parse stored history:", e);
+      }
+
+      try {
+        const storedStats = localStorage.getItem("typemaster_keystats");
+        if (storedStats) {
+          set({ keyStats: JSON.parse(storedStats) });
+        }
+      } catch (e) {
+        console.error("Failed to parse stored keystats:", e);
+      }
+
+      try {
+        const storedTheme = localStorage.getItem("typemaster_theme") as "light" | "dark";
+        if (storedTheme) {
+          set({ theme: storedTheme });
+          if (storedTheme === "dark") {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
+        }
+      } catch (e) {
+        console.error("Failed to restore stored theme:", e);
       }
     }
   },
