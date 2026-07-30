@@ -589,14 +589,19 @@ export default function CourseDetailClient({ courseId }: { courseId: string }) {
                         </span>
 
                         {isUnlocked ? (
-                          <Link href={`/courses/${courseId}/lesson-${idx + 1}`}>
-                            <Button
-                              size="sm"
-                              className="font-bold text-xs h-8 px-3 rounded-md cursor-pointer"
-                            >
-                              {isPassed ? "Practice Again" : "Start Lesson →"}
-                            </Button>
-                          </Link>
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              if (!user) {
+                                setShowAuthGateModal(true);
+                                return;
+                              }
+                              router.push(`/courses/${courseId}/lesson-${idx + 1}`);
+                            }}
+                            className="font-bold text-xs h-8 px-3 rounded-md cursor-pointer"
+                          >
+                            {isPassed ? "Practice Again" : "Start Lesson →"}
+                          </Button>
                         ) : (
                           <Button
                             size="sm"

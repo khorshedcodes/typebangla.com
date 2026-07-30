@@ -21,6 +21,7 @@ import {
 import VirtualKeyboard from "../../../../components/VirtualKeyboard";
 import { ExamCertificateModal } from "../../../../components/ExamCertificateModal";
 import { useAuth } from "../../../../context/AuthContext";
+import { AuthModal } from "../../../../components/AuthModal";
 
 interface CourseMeta {
   id: string;
@@ -107,11 +108,18 @@ export default function LessonPracticeClient({
   const [lessonIndex, setLessonIndex] = useState(0);
   const [inputVal, setInputVal] = useState("");
   const [showCertModal, setShowCertModal] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const [resultState, setResultState] = useState<{
     wpm: number;
     accuracy: number;
     passed: boolean;
   } | null>(null);
+
+  useEffect(() => {
+    if (!user) {
+      setAuthModalOpen(true);
+    }
+  }, [user]);
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -373,6 +381,15 @@ export default function LessonPracticeClient({
           }}
         />
       )}
+      {/* Auth Gate Modal */}
+      <AuthModal
+        isOpen={authModalOpen || !user}
+        onClose={() => {
+          setAuthModalOpen(false);
+          if (!user) router.push(`/courses/${courseId}`);
+        }}
+        initialMode="signup"
+      />
     </main>
   );
 }

@@ -160,6 +160,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!auth) return;
       const { signOut: firebaseSignOut } = await import("firebase/auth");
       await firebaseSignOut(auth);
+      localStorage.removeItem("typemaster_enrolled_courses");
+      localStorage.removeItem("typemaster_lesson_progress");
+      localStorage.removeItem("typemaster_history");
+      localStorage.removeItem("typemaster_earned_certificates");
     } catch (error) {
       console.error("Sign-Out Error:", error);
     }

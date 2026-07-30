@@ -169,7 +169,7 @@ export default function CoursesCatalogPage() {
     setActiveLayout(course.layout);
   };
 
-  const enrolledCourses = COURSES.filter((c) => enrolledIds.includes(c.id));
+  const enrolledCourses = user ? COURSES.filter((c) => enrolledIds.includes(c.id)) : [];
 
   return (
     <main className="container max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-12 fade-in text-foreground">
@@ -268,7 +268,7 @@ export default function CoursesCatalogPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {COURSES.map((course) => {
-            const isEnrolled = enrolledIds.includes(course.id);
+            const isEnrolled = !!user && enrolledIds.includes(course.id);
             const isCurrentActive = activeLayout === course.layout;
             const progress = progressMap[course.id] || 0;
 
