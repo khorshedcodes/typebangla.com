@@ -1,796 +1,423 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import {
   Building2, Users, GraduationCap, BookOpen,
   Award, CheckCircle2, ArrowRight, BarChart2,
-  ClipboardList, ShieldCheck, UserPlus, Keyboard,
-  Clock, Lock, Plus, Play, Sparkles, Copy, Check,
-  X, AlertCircle, FileText
+  ShieldCheck, Sparkles, Send, MessageSquare,
+  Clock, FileSpreadsheet, Lock, ExternalLink,
+  Laptop, Check, AlertCircle
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { Input } from "../../components/ui/input";
-import { useInstitute } from "../../context/InstituteContext";
-import { useTypingStore, KeyboardLayout } from "../../store/typingStore";
-import { useAuth } from "../../context/AuthContext";
-import TypingArea from "../../components/TypingArea";
-import { ExamCertificateModal } from "../../components/ExamCertificateModal";
-import { CertificateTopUpModal } from "../../components/CertificateTopUpModal";
-import { ClassAssignmentRecord } from "../../lib/firestoreService";
+import { submitInstituteV2Waitlist } from "../../lib/firestoreService";
 
-const FEATURES = [
+const V2_FEATURES = [
   {
-    icon: GraduationCap,
-    title: "Class Management",
-    titleBn: "ক্লাস ম্যানেজমেন্ট",
-    desc: "Create typing classes with specific keyboard layouts (Avro, UniBijoy, Jatiya, English). Invite students via unique class codes.",
+    icon: Users,
+    title: "Multi-Teacher Admin Roles",
+    titleBn: "মাল্টি-টিচার অ্যাডমিন রোলস",
+    desc: "Assign separate teacher permissions, manage multi-branch campuses, and control class-level access control.",
+    tag: "Enterprise"
   },
   {
-    icon: ClipboardList,
-    title: "Assignment Engine",
-    titleBn: "অ্যাসাইনমেন্ট ইঞ্জিন",
-    desc: "Assign typing passages with target WPM goals and deadlines. Track submissions and auto-grade student performance.",
+    icon: FileSpreadsheet,
+    title: "Bulk CSV Roster Import",
+    titleBn: "বাল্ক সিএসভি রস্টার ইমপোর্ট",
+    desc: "Import thousands of students in one click with automated account provisioning and login credentials generation.",
+    tag: "Automation"
   },
   {
-    icon: BarChart2,
-    title: "Student Progress Tracking",
-    titleBn: "শিক্ষার্থী অগ্রগতি ট্র্যাকিং",
-    desc: "Monitor individual and class-wide WPM trends, accuracy scores, practice streaks, and identify struggling students.",
+    icon: ShieldCheck,
+    title: "Anti-Cheat Exam System",
+    titleBn: "অ্যান্টি-চিট এক্সাম সিস্টেম",
+    desc: "Proctored typing exam sessions with tab-switch logging, copy-paste prevention, and real-time live monitoring.",
+    tag: "Security"
   },
   {
     icon: Award,
-    title: "Verified Certificate Issuer",
-    titleBn: "সনদপত্র ইস্যু",
-    desc: "Issue verifiable typing speed certificates to students upon course completion with unique certificate IDs.",
+    title: "Automated PDF Certificates",
+    titleBn: "অটোমেটেড পিডিএফ সার্টিফিকেট",
+    desc: "Instant verifiable QR-coded PDF speed certificates issued automatically upon assignment or exam completion.",
+    tag: "Verification"
   },
+  {
+    icon: BarChart2,
+    title: "Deep Performance Analytics",
+    titleBn: "অ্যাডভান্সড পারফরম্যান্স অ্যানালিটিক্স",
+    desc: "Heatmaps, error analysis by key, speed growth charts, and exportable gradebooks for institutional reporting.",
+    tag: "Analytics"
+  },
+  {
+    icon: BookOpen,
+    title: "Custom Passage & Exam Builder",
+    titleBn: "কাস্টম প্যাসেজ ও এক্সাম বিল্ডার",
+    desc: "Upload custom Govt recruitment typing passages (BPSC, Bank, NSI) with tailored WPM thresholds and duration limits.",
+    tag: "Customization"
+  }
 ];
 
-function InstitutionPortalContent() {
-  const searchParams = useSearchParams();
-  const { user } = useAuth();
-  const { setActiveLayout } = useTypingStore();
-  const {
-    instituteName,
-    registerInstitute,
-    classes,
-    createClass,
-    enrolledClasses,
-    joinClassByCode,
-    assignments,
-    createAssignment,
-    activeAssignment,
-    setActiveAssignment,
-    submissions,
-    submitAssignmentResult,
-    quota,
-  } = useInstitute();
+export default function InstitutePage() {
+  const [formData, setFormData] = useState({
+    instituteName: "",
+    contactName: "",
+    email: "",
+    phone: "",
+    role: "owner" as "owner" | "principal" | "teacher" | "student" | "other",
+    expectedStudents: "50-200",
+    requestedFeatures: ""
+  });
 
-  const [showTopUpModal, setShowTopUpModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submittedSuccess, setSubmittedSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const [activeTab, setActiveTab] = useState<"overview" | "teacher" | "student" | "register">("overview");
-  const [registerType, setRegisterType] = useState<"student" | "institute">("student");
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage("");
 
-  useEffect(() => {
-    const tabParam = searchParams.get("tab");
-    queueMicrotask(() => {
-      if (tabParam === "register") {
-        setActiveTab("register");
-        setRegisterType("institute");
-      } else if (tabParam === "teacher") {
-        setActiveTab("teacher");
-      } else if (tabParam === "student") {
-        setActiveTab("student");
+    if (!formData.instituteName.trim() || !formData.contactName.trim() || !formData.email.trim()) {
+      setErrorMessage("Please fill in all required fields (Institute Name, Contact Name, and Email).");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const res = await submitInstituteV2Waitlist(formData);
+      if (res) {
+        setSubmittedSuccess(true);
+      } else {
+        setErrorMessage("Failed to submit waitlist application. Please try again.");
       }
-    });
-  }, [searchParams]);
-
-  // Registration states
-  const [studentName, setStudentName] = useState(user?.displayName || "");
-  const [studentEmail, setStudentEmail] = useState(user?.email || "");
-  const [joinCodeInput, setJoinCodeInput] = useState("");
-  const [joinFeedback, setJoinFeedback] = useState<{ success?: boolean; message?: string } | null>(null);
-
-  const [instNameInput, setInstNameInput] = useState("");
-  const [adminNameInput, setAdminNameInput] = useState("");
-  const [adminEmailInput, setAdminEmailInput] = useState("");
-  const [adminPhoneInput, setAdminPhoneInput] = useState("");
-  const [instFeedback, setInstFeedback] = useState<string | null>(null);
-
-  // Modals state
-  const [showCreateClassModal, setShowCreateClassModal] = useState(false);
-  const [newClassName, setNewClassName] = useState("");
-  const [newClassLayout, setNewClassLayout] = useState<KeyboardLayout>("unibijoy");
-  const [newClassWpm, setNewClassWpm] = useState(35);
-
-  const [showCreateAsgModal, setShowCreateAsgModal] = useState(false);
-  const [asgClassId, setAsgClassId] = useState("");
-  const [asgTitle, setAsgTitle] = useState("");
-  const [asgText, setAsgText] = useState("");
-  const [asgLang, setAsgLang] = useState<"bangla" | "english">("bangla");
-  const [asgWpm, setAsgWpm] = useState(35);
-
-  const [copiedCode, setCopiedCode] = useState<string | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [certModalResult, setCertModalResult] = useState<any | null>(null);
-
-  const handleRegisterStudent = async () => {
-    if (!studentName.trim()) return;
-    if (joinCodeInput.trim()) {
-      const res = await joinClassByCode(joinCodeInput, studentName);
-      setJoinFeedback(res);
-      if (res.success) {
-        setActiveTab("student");
-      }
-    } else {
-      setJoinFeedback({ success: true, message: "Student account created! You can join classes anytime using a Class Code." });
-      setActiveTab("student");
+    } catch (err) {
+      console.error(err);
+      setErrorMessage("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleRegisterInstituteSubmit = async () => {
-    if (!instNameInput.trim() || !adminNameInput.trim()) return;
-    await registerInstitute(instNameInput, adminNameInput, adminEmailInput, adminPhoneInput);
-    setInstFeedback("Institute registered successfully! Teacher Dashboard activated.");
-    setActiveTab("teacher");
-  };
-
-  const handleCreateClassSubmit = async () => {
-    if (!newClassName.trim()) return;
-    await createClass(newClassName, newClassLayout, Number(newClassWpm));
-    setShowCreateClassModal(false);
-    setNewClassName("");
-  };
-
-  const handleCreateAssignmentSubmit = async () => {
-    if (!asgTitle.trim() || !asgText.trim() || !asgClassId) return;
-    const targetCls = classes.find((c) => c.id === asgClassId);
-    if (!targetCls) return;
-
-    await createAssignment(
-      asgClassId,
-      targetCls.className,
-      asgTitle,
-      asgText,
-      asgLang,
-      targetCls.layout as KeyboardLayout,
-      Number(asgWpm)
-    );
-    setShowCreateAsgModal(false);
-    setAsgTitle("");
-    setAsgText("");
-  };
-
-  const handleStartAssignment = (asg: ClassAssignmentRecord) => {
-    setActiveAssignment(asg);
-    setActiveLayout(asg.layout as KeyboardLayout);
-  };
-
-  const copyClassCode = (code: string) => {
-    navigator.clipboard.writeText(code);
-    setCopiedCode(code);
-    setTimeout(() => setCopiedCode(null), 2000);
-  };
-
-  // ── Assignment Typing Runner View ──────────────────────────────────────────
-  if (activeAssignment) {
-    return (
-      <main className="container max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6 fade-in text-foreground">
-        <div className="border border-border bg-card rounded-2xl p-5 shadow-xs flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="bg-primary text-primary-foreground font-bold text-xs">
-                Class Assignment
-              </Badge>
-              <span className="text-xs font-bold text-muted-foreground">{activeAssignment.className}</span>
-            </div>
-            <h1 className="text-xl font-black text-foreground mt-1">{activeAssignment.passageTitle}</h1>
-            <p className="text-xs text-muted-foreground">Target Goal: {activeAssignment.targetWpm} WPM | Accuracy: 85%+</p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Badge variant="outline" className="border-border text-foreground font-bold bg-secondary px-3 py-1 flex items-center gap-1.5">
-              <Lock size={12} />
-              <span>Layout Locked: <strong>{activeAssignment.layout.toUpperCase()}</strong></span>
-            </Badge>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setActiveAssignment(null)}
-              className="text-xs font-bold border-border"
-            >
-              Exit Assignment
-            </Button>
-          </div>
-        </div>
-
-        <TypingArea
-          onSessionComplete={(wpm: number, accuracy: number) => {
-            submitAssignmentResult(wpm, accuracy, studentName || user?.displayName || "Student Learner", user?.uid);
-          }}
-        />
-      </main>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <main className="container max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-12 fade-in">
+    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-teal-500 selection:text-slate-950">
+      {/* Background Glow Overlay */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-40 -left-40 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/3 -right-40 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 left-1/3 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"></div>
+      </div>
+
+      {/* Main Container */}
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-24 space-y-20">
 
         {/* Hero Section */}
-        <section className="text-center space-y-4 max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-secondary border border-border px-3.5 py-1.5 rounded-full text-xs font-bold text-foreground">
-            <Building2 size={14} />
-            <span>INSTITUTE PORTAL & CLASSROOM ENGINE</span>
+        <section className="text-center space-y-8 max-w-4xl mx-auto pt-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-sm font-medium animate-pulse">
+            <Sparkles className="w-4 h-4 text-teal-400" />
+            <span>Institute OS V2 is Coming Soon</span>
+            <Badge className="bg-teal-500 text-slate-950 hover:bg-teal-400 font-bold ml-1">v2.0 Early Access</Badge>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground">
-            Manage Your Typing Institute
+          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-tight">
+            The Next Generation Platform for <br className="hidden sm:inline" />
+            <span className="bg-gradient-to-r from-teal-400 via-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+              Typing Academies & Institutions
+            </span>
           </h1>
 
-          <p className="text-sm text-muted-foreground leading-relaxed max-w-lg mx-auto">
-            Create classes, assign homework, track student progress with layout locking, and issue verified typing speed certificates.
+          <p className="text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+            আমরা টাইপমাস্টার ইন্সটিটিউট প্ল্যাটফর্মকে সম্পূর্ণ নতুনভাবে সাজাচ্ছি! 
+            মাল্টি-টিচার অ্যাডমিন প্যানেল, অ্যান্টি-চিট এক্সাম ইঞ্জিন, বাল্ক সিএসভি রস্টার এবং অটোজেনারেটেড ভেরিফায়েড সার্টিফিকেট নিয়ে আসছে 
+            <strong className="text-teal-400 font-semibold"> TypeMaster Institute V2</strong>।
           </p>
 
-          {/* Navigation Bar */}
-          <div className="flex flex-wrap items-center justify-center gap-2 pt-3">
-            <button
-              onClick={() => setActiveTab("overview")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${activeTab === "overview" ? "bg-primary text-primary-foreground border-primary shadow-xs" : "border-border bg-card text-muted-foreground hover:text-foreground"
-                }`}
+          <div className="flex flex-wrap justify-center items-center gap-4 pt-2">
+            <a
+              href="#waitlist-form"
+              className="px-8 py-4 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 text-slate-950 font-bold text-lg hover:from-teal-400 hover:to-emerald-400 transition-all shadow-lg shadow-teal-500/25 flex items-center gap-2"
+              id="cta-join-waitlist"
             >
-              Overview & Features
-            </button>
-            <button
-              onClick={() => setActiveTab("teacher")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${activeTab === "teacher" ? "bg-primary text-primary-foreground border-primary shadow-xs" : "border-border bg-card text-muted-foreground hover:text-foreground"
-                }`}
+              Join V2 Early Access Waitlist <ArrowRight className="w-5 h-5" />
+            </a>
+            <a
+              href="#features-showcase"
+              className="px-6 py-4 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 font-medium hover:bg-slate-800 hover:text-white transition-all flex items-center gap-2"
+              id="cta-explore-features"
             >
-              <Building2 size={13} className="inline mr-1.5" />
-              Teacher Dashboard ({classes.length} Classes)
-            </button>
-            <button
-              onClick={() => setActiveTab("student")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${activeTab === "student" ? "bg-primary text-primary-foreground border-primary shadow-xs" : "border-border bg-card text-muted-foreground hover:text-foreground"
-                }`}
-            >
-              <UserPlus size={13} className="inline mr-1.5" />
-              Student Classroom ({enrolledClasses.length} Enrolled)
-            </button>
-            <button
-              onClick={() => setActiveTab("register")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${activeTab === "register" ? "bg-primary text-primary-foreground border-primary shadow-xs" : "border-border bg-card text-muted-foreground hover:text-foreground"
-                }`}
-            >
-              Register Account
-            </button>
+              Explore Planned Features <Sparkles className="w-4 h-4 text-teal-400" />
+            </a>
           </div>
         </section>
 
-        {/* ── TAB 1: OVERVIEW & FEATURES ───────────────────────────────────── */}
-        {activeTab === "overview" && (
-          <div className="space-y-12 animate-in fade-in duration-200">
-            {/* Feature Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {FEATURES.map((f) => (
-                <Card key={f.title} className="border border-border bg-card p-5 rounded-xl hover:border-foreground/30 transition-all shadow-xs">
-                  <CardContent className="p-0 space-y-3">
-                    <div className="w-10 h-10 rounded-xl bg-secondary border border-border flex items-center justify-center">
-                      <f.icon size={18} className="text-foreground" />
+        {/* Highlights Stats Counter */}
+        <section className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+          {[
+            { label: "Planned Capacity", val: "50,000+ Students", desc: "Scalable Infrastructure" },
+            { label: "Security Standard", val: "Anti-Cheat 2.0", desc: "Proctored Exam Modes" },
+            { label: "Certificate Engine", val: "QR Verified", desc: "Instant PDF Generation" },
+            { label: "Layout Support", val: "Avro, Bijoy, Eng", desc: "Full Govt Exam Specs" },
+          ].map((item, idx) => (
+            <Card key={idx} className="bg-slate-900/60 border-slate-800/80 backdrop-blur-sm p-6 text-center">
+              <div className="text-2xl sm:text-3xl font-extrabold text-teal-400">{item.val}</div>
+              <div className="text-sm font-semibold text-slate-200 mt-1">{item.label}</div>
+              <div className="text-xs text-slate-400 mt-0.5">{item.desc}</div>
+            </Card>
+          ))}
+        </section>
+
+        {/* Feature Grid Showcase */}
+        <section id="features-showcase" className="space-y-10">
+          <div className="text-center space-y-3">
+            <Badge className="bg-slate-800 text-teal-400 border-slate-700">Sneak Peek</Badge>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white">Powering Next-Gen Typing Education</h2>
+            <p className="text-slate-400 max-w-2xl mx-auto">
+              Key features currently being crafted in our active development branch for Institute V2 launch.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {V2_FEATURES.map((feat, idx) => {
+              const Icon = feat.icon;
+              return (
+                <Card key={idx} className="bg-slate-900/70 border-slate-800 hover:border-teal-500/40 transition-all duration-300 group hover:-translate-y-1">
+                  <CardContent className="p-6 space-y-4">
+                    <div className="flex justify-between items-start">
+                      <div className="p-3 rounded-xl bg-teal-500/10 text-teal-400 group-hover:bg-teal-500 group-hover:text-slate-950 transition-colors">
+                        <Icon className="w-6 h-6" />
+                      </div>
+                      <Badge variant="outline" className="border-slate-700 text-slate-400 text-xs">
+                        {feat.tag}
+                      </Badge>
                     </div>
+
                     <div>
-                      <h3 className="text-sm font-black text-foreground">{f.title}</h3>
-                      <p className="text-[10px] font-bold text-muted-foreground">{f.titleBn}</p>
+                      <h3 className="text-xl font-bold text-white group-hover:text-teal-400 transition-colors">
+                        {feat.title}
+                      </h3>
+                      <div className="text-xs font-medium text-teal-500/80 mb-2">{feat.titleBn}</div>
+                      <p className="text-sm text-slate-400 leading-relaxed">
+                        {feat.desc}
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{f.desc}</p>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-
-            {/* Quick Action Banner */}
-            <div className="border border-border bg-card rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xs bg-grid-pattern">
-              <div className="space-y-1 text-center sm:text-left">
-                <h3 className="text-xl font-black text-foreground">Ready to Launch Your Classroom?</h3>
-                <p className="text-xs text-muted-foreground">Create a teacher dashboard or join an existing class with a Class Code.</p>
-              </div>
-              <div className="flex gap-3">
-                <Button onClick={() => setActiveTab("teacher")} className="text-xs font-bold gap-1.5 h-10 px-5">
-                  <Building2 size={14} /> Open Teacher Dashboard
-                </Button>
-                <Button variant="outline" onClick={() => setActiveTab("student")} className="text-xs font-bold gap-1.5 h-10 px-5 border-border">
-                  <UserPlus size={14} /> Student Join Class
-                </Button>
-              </div>
-            </div>
+              );
+            })}
           </div>
-        )}
+        </section>
 
-        {/* ── TAB 2: TEACHER DASHBOARD ─────────────────────────────────────── */}
-        {activeTab === "teacher" && (
-          !user ? (
-            <Card className="border border-border bg-card shadow-sm p-8 sm:p-12 text-center space-y-6 animate-in fade-in duration-200">
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto text-primary">
-                <Building2 size={32} />
-              </div>
-              <div className="space-y-2 max-w-md mx-auto">
-                <Badge variant="outline" className="text-xs font-bold text-primary border-primary/30 bg-primary/5 px-3 py-1">
-                  Teacher Sign-In Required 🏫
-                </Badge>
-                <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
-                  Access Your Institute Classroom Dashboard
-                </h2>
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  Sign in to create typing classes, generate unique class codes, lock keyboard layouts (Avro, UniBijoy, Jatiya, English), assign drills, and issue verified student certificates.
-                </p>
-              </div>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-                <Link href="/login?redirect=/institute?tab=teacher" className="w-full sm:w-auto">
-                  <Button className="w-full text-xs font-bold h-11 px-6 gap-2">
-                    Sign In as Teacher <ArrowRight size={14} />
-                  </Button>
-                </Link>
-                <Link href="/signup?redirect=/institute?tab=register" className="w-full sm:w-auto">
-                  <Button variant="outline" className="w-full text-xs font-bold h-11 px-6 border-border">
-                    Register Computer Institute
-                  </Button>
-                </Link>
-              </div>
-            </Card>
-          ) : (
-            <div className="space-y-8 animate-in fade-in duration-200">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Institute Operator</span>
-                  <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px] font-bold px-2 py-0.5">
-                    BETA PARTNER — 200 FREE CERTS
-                  </Badge>
-                </div>
-                <h2 className="text-2xl font-black text-foreground">{instituteName || "Dhaka Computer Training Institute"}</h2>
-              </div>
-              <div className="flex gap-2">
-                <Button onClick={() => setShowCreateClassModal(true)} className="text-xs font-bold gap-1.5 h-9">
-                  <Plus size={14} /> Create New Class
-                </Button>
-                <Button variant="outline" onClick={() => setShowCreateAsgModal(true)} disabled={classes.length === 0} className="text-xs font-bold gap-1.5 h-9 border-border">
-                  <FileText size={14} /> Create Assignment
-                </Button>
-              </div>
+        {/* Interactive Waitlist & Feature Request Form */}
+        <section id="waitlist-form" className="max-w-4xl mx-auto bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+            <Building2 className="w-64 h-64 text-teal-400" />
+          </div>
+
+          <div className="relative space-y-8">
+            <div className="text-center space-y-2">
+              <Badge className="bg-teal-500/10 text-teal-400 border-teal-500/20">Early Access & Input</Badge>
+              <h2 className="text-2xl sm:text-4xl font-bold text-white">Join the Institute V2 Priority Access</h2>
+              <p className="text-slate-400 max-w-xl mx-auto">
+                Be the first academy or school to test Institute V2 upon release. Tell us what features your institution needs most!
+              </p>
             </div>
 
-            {/* Quota Progress Banner */}
-            <Card className="border border-primary/20 bg-primary/5 p-4 rounded-xl shadow-xs">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <Award className="w-4 h-4 text-primary" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-foreground">Institute Certificate Quota</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    <strong className="text-foreground">{quota.remaining}</strong> of {quota.totalQuota} free certificate credits remaining. (Bulk rate: 20 BDT/cert)
-                  </p>
+            {submittedSuccess ? (
+              <div className="bg-emerald-950/40 border border-emerald-500/30 rounded-2xl p-8 text-center space-y-4 animate-in fade-in zoom-in duration-300">
+                <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto">
+                  <CheckCircle2 className="w-10 h-10" />
                 </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <div className="w-32 bg-secondary rounded-full h-2.5 overflow-hidden border border-border">
-                    <div
-                      className="bg-primary h-full transition-all duration-300"
-                      style={{ width: `${Math.min(100, Math.max(0, (quota.remaining / quota.totalQuota) * 100))}%` }}
+                <h3 className="text-2xl font-bold text-white">You're on the Priority List!</h3>
+                <p className="text-slate-300 max-w-lg mx-auto">
+                  Thank you for submitting your institute's request. Our product team will review your feature feedback and notify you via email when Early Access opens.
+                </p>
+                <Button
+                  onClick={() => setSubmittedSuccess(false)}
+                  variant="outline"
+                  className="border-emerald-500/30 text-emerald-400 hover:bg-emerald-950/60 mt-4"
+                >
+                  Submit Another Response
+                </Button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {errorMessage && (
+                  <div className="p-4 rounded-xl bg-red-950/40 border border-red-500/30 text-red-400 text-sm flex items-center gap-2">
+                    <AlertCircle className="w-5 h-5 shrink-0" />
+                    <span>{errorMessage}</span>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+                      Institute / Academy Name *
+                    </label>
+                    <Input
+                      id="input-institute-name"
+                      placeholder="e.g. Dhaka IT & Typing Academy"
+                      value={formData.instituteName}
+                      onChange={(e) => setFormData({ ...formData, instituteName: e.target.value })}
+                      className="bg-slate-900 border-slate-800 text-slate-100 focus:border-teal-500 h-12"
+                      required
                     />
                   </div>
-                  <Button
-                    onClick={() => setShowTopUpModal(true)}
-                    variant="outline"
-                    className="text-xs font-bold border-primary/30 text-primary hover:bg-primary/10 h-8 px-3"
-                  >
-                    Buy Credits (20 Tk/cert)
-                  </Button>
-                </div>
-              </div>
-            </Card>
 
-            {/* Classes Grid */}
-            <div className="space-y-3">
-              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Active Classes & Layout Locks</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {classes.map((cls) => (
-                  <Card key={cls.id} className="border border-border bg-card p-5 rounded-xl shadow-xs space-y-4">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h4 className="text-base font-black text-foreground">{cls.className}</h4>
-                        <span className="text-xs text-muted-foreground">Target WPM: {cls.targetWpm} WPM</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 bg-secondary px-2.5 py-1 rounded-md border border-border">
-                        <span className="text-xs font-mono font-extrabold text-foreground">{cls.classCode}</span>
-                        <button onClick={() => copyClassCode(cls.classCode)} className="text-muted-foreground hover:text-foreground">
-                          {copiedCode === cls.classCode ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between border-t border-border pt-3 text-xs">
-                      <div className="flex items-center gap-1.5 text-muted-foreground">
-                        <Users size={14} />
-                        <span>{cls.studentCount} Registered Students</span>
-                      </div>
-                      <Badge variant="outline" className="text-[10px] font-bold border-border text-foreground bg-secondary">
-                        <Lock size={10} className="mr-1" />
-                        Locked to: {cls.layout.toUpperCase()}
-                      </Badge>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </div>
-
-            {/* Assignments List */}
-            <div className="space-y-3 pt-4 border-t border-border">
-              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Class Assignments ({assignments.length})</h3>
-              <div className="grid grid-cols-1 gap-3">
-                {assignments.map((asg) => (
-                  <div key={asg.id} className="border border-border bg-card p-4 rounded-xl flex items-center justify-between gap-4 shadow-xs">
-                    <div className="space-y-0.5">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-foreground">{asg.passageTitle}</span>
-                        <Badge variant="outline" className="text-[9px] font-bold uppercase">{asg.className}</Badge>
-                      </div>
-                      <p className="text-xs text-muted-foreground line-clamp-1">{asg.passageText}</p>
-                    </div>
-                    <div className="flex items-center gap-3 shrink-0">
-                      <span className="text-xs font-bold text-foreground font-mono">{asg.targetWpm} WPM</span>
-                      <Button size="sm" onClick={() => handleStartAssignment(asg)} className="text-xs font-bold h-8 gap-1">
-                        <Play size={12} /> Test Run
-                      </Button>
-                    </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+                      Your Full Name *
+                    </label>
+                    <Input
+                      id="input-contact-name"
+                      placeholder="e.g. Tanvir Hossain"
+                      value={formData.contactName}
+                      onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
+                      className="bg-slate-900 border-slate-800 text-slate-100 focus:border-teal-500 h-12"
+                      required
+                    />
                   </div>
-                ))}
-              </div>
-            </div>
 
-            {/* Student Submissions Roster */}
-            <div className="space-y-3 pt-4 border-t border-border">
-              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Student Performance Roster</h3>
-              <Card className="border border-border bg-card shadow-xs overflow-hidden">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-secondary text-muted-foreground uppercase font-bold border-b border-border">
-                    <tr>
-                      <th className="p-3">Student Name</th>
-                      <th className="p-3">Speed (WPM)</th>
-                      <th className="p-3">Accuracy</th>
-                      <th className="p-3">Status</th>
-                      <th className="p-3 text-right">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {[
-                      { name: "Tanvir Ahmed", wpm: 42, accuracy: 96, passed: true, layout: "unibijoy" },
-                      { name: "Anika Rahman", wpm: 38, accuracy: 94, passed: true, layout: "avro" },
-                      ...submissions.map((s) => ({ name: s.studentName, wpm: s.wpm, accuracy: s.accuracy, passed: s.passed, layout: "unibijoy" }))
-                    ].map((sub, i) => (
-                      <tr key={i} className="hover:bg-secondary/50">
-                        <td className="p-3 font-bold text-foreground">{sub.name}</td>
-                        <td className="p-3 font-mono font-extrabold text-foreground">{sub.wpm} WPM</td>
-                        <td className="p-3 font-bold">{sub.accuracy}%</td>
-                        <td className="p-3">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${sub.passed ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"
-                            }`}>
-                            {sub.passed ? "PASSED 🏆" : "RETRY NEEDED"}
-                          </span>
-                        </td>
-                        <td className="p-3 text-right">
-                          {sub.passed && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => setCertModalResult({
-                                wpm: sub.wpm,
-                                accuracy: sub.accuracy,
-                                layout: sub.layout,
-                                candidateName: sub.name,
-                                instituteName: instituteName || "Dhaka Computer Training Institute",
-                                language: sub.layout === "english" ? "english" : "bangla",
-                                duration: 300,
-                                errors: 2
-                              })}
-                              className="text-[10px] font-bold h-7 border-border gap-1"
-                            >
-                              <Award size={11} /> Issue Cert
-                            </Button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+                      Work Email *
+                    </label>
+                    <Input
+                      id="input-email"
+                      type="email"
+                      placeholder="e.g. admin@academy.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="bg-slate-900 border-slate-800 text-slate-100 focus:border-teal-500 h-12"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+                      Phone / WhatsApp Number
+                    </label>
+                    <Input
+                      id="input-phone"
+                      placeholder="e.g. +880 1700-000000"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      className="bg-slate-900 border-slate-800 text-slate-100 focus:border-teal-500 h-12"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+                      Your Role
+                    </label>
+                    <select
+                      id="select-role"
+                      value={formData.role}
+                      onChange={(e: any) => setFormData({ ...formData, role: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-800 text-slate-100 focus:border-teal-500 rounded-md px-3 h-12 text-sm focus:outline-none"
+                    >
+                      <option value="owner">Institute Owner / Director</option>
+                      <option value="principal">Principal / Headmaster</option>
+                      <option value="teacher">Typing Instructor / Teacher</option>
+                      <option value="student">Student / Candidate</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+                      Expected Student Count
+                    </label>
+                    <select
+                      id="select-students"
+                      value={formData.expectedStudents}
+                      onChange={(e) => setFormData({ ...formData, expectedStudents: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-800 text-slate-100 focus:border-teal-500 rounded-md px-3 h-12 text-sm focus:outline-none"
+                    >
+                      <option value="< 50">Under 50 Students</option>
+                      <option value="50-200">50 – 200 Students</option>
+                      <option value="200-1000">200 – 1,000 Students</option>
+                      <option value="1000+">1,000+ Students</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+                    What features do you need most for your Institute? (Feature Requests & Suggestions)
+                  </label>
+                  <textarea
+                    id="textarea-features"
+                    rows={4}
+                    placeholder="Tell us about your custom exam needs, grading criteria, certificate designs, or any specific workflow..."
+                    value={formData.requestedFeatures}
+                    onChange={(e) => setFormData({ ...formData, requestedFeatures: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-800 text-slate-100 focus:border-teal-500 rounded-md p-3 text-sm focus:outline-none resize-y"
+                  ></textarea>
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full h-14 bg-gradient-to-r from-teal-500 to-emerald-500 text-slate-950 font-bold text-lg hover:from-teal-400 hover:to-emerald-400 transition-all shadow-lg shadow-teal-500/20"
+                  id="btn-submit-waitlist"
+                >
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div>
+                      Submitting Request...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <Send className="w-5 h-5" /> Submit & Lock Early Access
+                    </span>
+                  )}
+                </Button>
+              </form>
+            )}
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="max-w-4xl mx-auto space-y-8">
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white">Frequently Asked Questions</h2>
+            <p className="text-slate-400">Everything you need to know about TypeMaster Institute V2</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[
+              {
+                q: "When will Institute V2 launch?",
+                a: "Institute V2 is actively under development on our V2 release branch. Early Access rollout for registered waitlist institutes will begin in Q3."
+              },
+              {
+                q: "What happens to existing V1 Institute data?",
+                a: "All existing V1 classes, students, and certificates will automatically be migrated smoothly without any data loss."
+              },
+              {
+                q: "Can I request custom features for my academy?",
+                a: "Yes! Use the interest form above to tell us what features your academy needs, and our product team will evaluate incorporating it before final launch."
+              },
+              {
+                q: "Will V2 support custom government exam passages?",
+                a: "Absolutely. Institute V2 includes a dedicated Passage & Exam Builder tailored for BPSC, Bank, Secretariat, and Custom recruitment standards."
+              }
+            ].map((faq, idx) => (
+              <Card key={idx} className="bg-slate-900/60 border-slate-800 p-6 space-y-2">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4 text-teal-400 shrink-0" />
+                  {faq.q}
+                </h3>
+                <p className="text-sm text-slate-400 leading-relaxed">
+                  {faq.a}
+                </p>
               </Card>
-            </div>
+            ))}
           </div>
-        )
-      )}
+        </section>
 
-        {/* ── TAB 3: STUDENT CLASSROOM ─────────────────────────────────────── */}
-        {activeTab === "student" && (
-          <div className="space-y-8 animate-in fade-in duration-200">
-            {/* Join Code Banner */}
-            <div className="border border-border bg-card rounded-2xl p-6 shadow-xs space-y-4 bg-grid-pattern">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-lg font-black text-foreground">Join an Institute Class</h3>
-                  <p className="text-xs text-muted-foreground">Enter the unique Class Code provided by your instructor (e.g. UB-2026-X).</p>
-                </div>
-                <div className="flex gap-2 max-w-sm w-full">
-                  <Input
-                    placeholder="Enter Class Code..."
-                    value={joinCodeInput}
-                    onChange={(e) => setJoinCodeInput(e.target.value)}
-                    className="h-10 text-xs border-border uppercase font-mono font-bold"
-                  />
-                  <Button
-                    onClick={async () => {
-                      const res = await joinClassByCode(joinCodeInput, studentName || user?.displayName || undefined);
-                      setJoinFeedback(res);
-                    }}
-                    className="text-xs font-bold h-10 px-5 shrink-0"
-                  >
-                    Join Class
-                  </Button>
-                </div>
-              </div>
-
-              {joinFeedback && (
-                <div className={`p-3 rounded-lg text-xs font-bold flex items-center gap-2 ${joinFeedback.success ? "bg-emerald-50 text-emerald-800 border border-emerald-200" : "bg-rose-50 text-rose-800 border border-rose-200"
-                  }`}>
-                  {joinFeedback.success ? <CheckCircle2 size={15} /> : <AlertCircle size={15} />}
-                  <span>{joinFeedback.message}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Enrolled Classes List */}
-            <div className="space-y-4">
-              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Enrolled Classes ({enrolledClasses.length})</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {enrolledClasses.map((cls) => (
-                  <Card key={cls.id} className="border border-border bg-card p-5 rounded-xl shadow-xs space-y-3">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h4 className="text-base font-black text-foreground">{cls.className}</h4>
-                        <p className="text-xs text-muted-foreground">{cls.instituteName}</p>
-                      </div>
-                      <Badge variant="outline" className="text-[10px] font-bold border-border bg-secondary text-foreground">
-                        <Lock size={10} className="mr-1" />
-                        Target: {cls.layout.toUpperCase()}
-                      </Badge>
-                    </div>
-
-                    <div className="border-t border-border pt-3 space-y-2">
-                      <div className="text-xs font-bold text-foreground">Active Assignments:</div>
-                      {assignments.filter(a => a.classId === cls.id || a.layout === cls.layout).map((asg) => (
-                        <div key={asg.id} className="bg-secondary p-3 rounded-lg flex items-center justify-between border border-border text-xs">
-                          <div>
-                            <div className="font-bold text-foreground">{asg.passageTitle}</div>
-                            <div className="text-[10px] text-muted-foreground">Target Goal: {asg.targetWpm} WPM</div>
-                          </div>
-                          <Button size="sm" onClick={() => handleStartAssignment(asg)} className="text-xs font-bold h-8 gap-1">
-                            <Play size={12} /> Start Assignment
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── TAB 4: REGISTRATION FORMS ────────────────────────────────────── */}
-        {activeTab === "register" && (
-          <section className="max-w-lg mx-auto space-y-6 border border-border bg-card rounded-xl p-6 sm:p-8 shadow-xs animate-in fade-in duration-200">
-            <div className="flex gap-1 p-1 bg-secondary rounded-lg">
-              <button
-                onClick={() => setRegisterType("student")}
-                className={`flex-1 py-2 rounded-md text-xs font-bold transition-all ${registerType === "student" ? "bg-primary text-primary-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
-                  }`}
-              >
-                <UserPlus size={12} className="inline mr-1.5" /> Register as Student
-              </button>
-              <button
-                onClick={() => setRegisterType("institute")}
-                className={`flex-1 py-2 rounded-md text-xs font-bold transition-all ${registerType === "institute" ? "bg-primary text-primary-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
-                  }`}
-              >
-                <Building2 size={12} className="inline mr-1.5" /> Register as Institute
-              </button>
-            </div>
-
-            {registerType === "student" && (
-              <div className="space-y-4">
-                <div className="space-y-1">
-                  <h3 className="text-base font-black text-foreground">Student Registration</h3>
-                  <p className="text-xs text-muted-foreground">Create account to join classes, track homework, and earn certificates.</p>
-                </div>
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-[10px] font-bold text-muted-foreground uppercase block mb-1">Full Name</label>
-                    <Input value={studentName} onChange={(e) => setStudentName(e.target.value)} placeholder="আপনার পূর্ণ নাম" className="h-9 text-xs border-border" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-muted-foreground uppercase block mb-1">Email Address</label>
-                    <Input value={studentEmail} onChange={(e) => setStudentEmail(e.target.value)} type="email" placeholder="email@example.com" className="h-9 text-xs border-border" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-muted-foreground uppercase block mb-1">Class Code (Optional)</label>
-                    <Input value={joinCodeInput} onChange={(e) => setJoinCodeInput(e.target.value)} placeholder="e.g. UB-2026-X" className="h-9 text-xs border-border uppercase font-mono font-bold" />
-                  </div>
-                </div>
-                <Button onClick={handleRegisterStudent} className="w-full text-xs font-bold h-10 gap-2">
-                  <UserPlus size={14} /> Complete Student Setup
-                </Button>
-              </div>
-            )}
-
-            {registerType === "institute" && (
-              <div className="space-y-4">
-                <div className="space-y-1">
-                  <h3 className="text-base font-black text-foreground">Institute Registration</h3>
-                  <p className="text-xs text-muted-foreground">Register your center to manage classes, assign homework, and issue certificates.</p>
-                </div>
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-[10px] font-bold text-muted-foreground uppercase block mb-1">Institute Name</label>
-                    <Input value={instNameInput} onChange={(e) => setInstNameInput(e.target.value)} placeholder="e.g. Dhaka Computer Training Institute" className="h-9 text-xs border-border" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-muted-foreground uppercase block mb-1">Admin Full Name</label>
-                    <Input value={adminNameInput} onChange={(e) => setAdminNameInput(e.target.value)} placeholder="প্রশাসকের পূর্ণ নাম" className="h-9 text-xs border-border" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-muted-foreground uppercase block mb-1">Admin Email</label>
-                    <Input value={adminEmailInput} onChange={(e) => setAdminEmailInput(e.target.value)} type="email" placeholder="admin@institute.edu" className="h-9 text-xs border-border" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-muted-foreground uppercase block mb-1">Phone Number</label>
-                    <Input value={adminPhoneInput} onChange={(e) => setAdminPhoneInput(e.target.value)} placeholder="+880 1XXXXXXXXX" className="h-9 text-xs border-border" />
-                  </div>
-                </div>
-                <Button onClick={handleRegisterInstituteSubmit} className="w-full text-xs font-bold h-10 gap-2">
-                  <Building2 size={14} /> Register Institute & Open Dashboard
-                </Button>
-              </div>
-            )}
-          </section>
-        )}
-
-      </main>
-
-      {/* MODAL 1: CREATE CLASS */}
-      {showCreateClassModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-2xl p-6 max-w-md w-full space-y-4 shadow-xl animate-in fade-in duration-150">
-            <div className="flex items-center justify-between border-b border-border pb-3">
-              <h3 className="text-base font-black text-foreground">Create New Class</h3>
-              <button onClick={() => setShowCreateClassModal(false)} className="text-muted-foreground hover:text-foreground"><X size={16} /></button>
-            </div>
-            <div className="space-y-3 text-xs">
-              <div>
-                <label className="font-bold block mb-1">Class Name</label>
-                <Input value={newClassName} onChange={(e) => setNewClassName(e.target.value)} placeholder="e.g. Computer Operator Batch #5" className="h-9 border-border" />
-              </div>
-              <div>
-                <label className="font-bold block mb-1">Required Keyboard Layout Lock</label>
-                <select
-                  value={newClassLayout}
-                  onChange={(e) => setNewClassLayout(e.target.value as KeyboardLayout)}
-                  className="w-full h-9 rounded-md border border-border bg-background px-3 text-xs font-bold text-foreground"
-                >
-                  <option value="unibijoy">UniBijoy (Publishing Standard)</option>
-                  <option value="jatiya">Jatiya BCC (Govt Job Standard)</option>
-                  <option value="avro">Avro Phonetic (Bengali Standard)</option>
-                  <option value="english">English QWERTY</option>
-                  <option value="probhat">Probhat Layout</option>
-                </select>
-              </div>
-              <div>
-                <label className="font-bold block mb-1">Target WPM Requirement</label>
-                <Input type="number" value={newClassWpm} onChange={(e) => setNewClassWpm(Number(e.target.value))} className="h-9 border-border" />
-              </div>
-            </div>
-            <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" size="sm" onClick={() => setShowCreateClassModal(false)}>Cancel</Button>
-              <Button size="sm" onClick={handleCreateClassSubmit} className="font-bold">Create Class & Generate Code</Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL 2: CREATE ASSIGNMENT */}
-      {showCreateAsgModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-2xl p-6 max-w-lg w-full space-y-4 shadow-xl animate-in fade-in duration-150">
-            <div className="flex items-center justify-between border-b border-border pb-3">
-              <h3 className="text-base font-black text-foreground">Create Class Assignment</h3>
-              <button onClick={() => setShowCreateAsgModal(false)} className="text-muted-foreground hover:text-foreground"><X size={16} /></button>
-            </div>
-            <div className="space-y-3 text-xs">
-              <div>
-                <label className="font-bold block mb-1">Select Target Class</label>
-                <select
-                  value={asgClassId}
-                  onChange={(e) => setAsgClassId(e.target.value)}
-                  className="w-full h-9 rounded-md border border-border bg-background px-3 text-xs font-bold text-foreground"
-                >
-                  <option value="">-- Choose Class --</option>
-                  {classes.map((c) => (
-                    <option key={c.id} value={c.id}>{c.className} ({c.layout.toUpperCase()})</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="font-bold block mb-1">Passage Title</label>
-                <Input value={asgTitle} onChange={(e) => setAsgTitle(e.target.value)} placeholder="e.g. সরকারি আদেশ ও টাইপিং প্র্যাকটিস" className="h-9 border-border" />
-              </div>
-              <div>
-                <label className="font-bold block mb-1">Passage Content</label>
-                <textarea
-                  value={asgText}
-                  onChange={(e) => setAsgText(e.target.value)}
-                  rows={4}
-                  placeholder="Paste the passage text for students to type..."
-                  className="w-full p-3 rounded-md border border-border bg-background text-foreground font-bangla text-sm"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-bold block mb-1">Language</label>
-                  <select value={asgLang} onChange={(e) => setAsgLang(e.target.value as "bangla" | "english")} className="w-full h-9 rounded-md border border-border bg-background px-3 font-bold">
-                    <option value="bangla">Bangla</option>
-                    <option value="english">English</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="font-bold block mb-1">Target Speed Goal (WPM)</label>
-                  <Input type="number" value={asgWpm} onChange={(e) => setAsgWpm(Number(e.target.value))} className="h-9 border-border" />
-                </div>
-              </div>
-            </div>
-            <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" size="sm" onClick={() => setShowCreateAsgModal(false)}>Cancel</Button>
-              <Button size="sm" onClick={handleCreateAssignmentSubmit} className="font-bold">Distribute Assignment</Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL 3: CERTIFICATE GENERATOR */}
-      {certModalResult && (
-        <ExamCertificateModal
-          isOpen={true}
-          onClose={() => setCertModalResult(null)}
-          result={certModalResult}
-        />
-      )}
-
-      {/* MODAL 4: TOP-UP PAYMENTS */}
-      <CertificateTopUpModal
-        isOpen={showTopUpModal}
-        onClose={() => setShowTopUpModal(false)}
-        payerType="institute"
-        instituteName={instituteName || undefined}
-        userId={user?.uid}
-      />
+      </div>
     </div>
   );
 }
-
-export default function InstitutionPortalPage() {
-  return (
-    <Suspense fallback={<div className="container max-w-7xl mx-auto p-8 text-center text-sm font-semibold text-muted-foreground">Loading Institute Portal...</div>}>
-      <InstitutionPortalContent />
-    </Suspense>
-  );
-}
-

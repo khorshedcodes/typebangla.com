@@ -459,3 +459,39 @@ export async function saveAssignmentSubmission(sub: Omit<AssignmentSubmissionRec
   }
 }
 
+// ── Institute V2 Waitlist & Feedback ─────────────────────────────────────────
+export interface InstituteV2WaitlistRecord {
+  id?: string;
+  instituteName: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  role: "owner" | "principal" | "teacher" | "student" | "other";
+  expectedStudents: string;
+  requestedFeatures: string;
+  createdAt?: any;
+  status: "pending" | "contacted" | "approved";
+}
+
+export async function submitInstituteV2Waitlist(data: Omit<InstituteV2WaitlistRecord, "id" | "createdAt" | "status">) {
+  if (typeof window === "undefined") return null;
+  try {
+    const db = await getFirebaseDb();
+    if (!db) return null;
+    const firestore = await import("firebase/firestore");
+    const ref = firestore.doc(firestore.collection(db, "institute_v2_waitlist"));
+    const record = {
+      ...data,
+      id: ref.id,
+      status: "pending" as const,
+      createdAt: firestore.serverTimestamp(),
+    };
+    await firestore.setDoc(ref, record);
+    return record;
+  } catch (err) {
+    console.error("Error submitting Institute V2 waitlist:", err);
+    return null;
+  }
+}
+
+
