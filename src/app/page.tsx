@@ -606,7 +606,7 @@ export default function LandingPage() {
           <p className="text-sm text-muted-foreground">আপনার পছন্দের যেকোনো লেআউটে অনুশীলন করুন।</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {[
             {
               name: "Avro Phonetic",
@@ -614,6 +614,7 @@ export default function LandingPage() {
               diff: "Beginner Friendly",
               audience: "Recommended for Beginners & Students",
               icon: "⌨️",
+              link: "/learn/avro-phonetic-typing",
             },
             {
               name: "UniBijoy / Bijoy 52",
@@ -621,6 +622,7 @@ export default function LandingPage() {
               diff: "Govt Standard",
               audience: "Recommended for Office & Govt Staff",
               icon: "🏛️",
+              link: "/learn/bijoy-52-typing",
             },
             {
               name: "Jatiya (BCC)",
@@ -628,6 +630,23 @@ export default function LandingPage() {
               diff: "Official Exam",
               audience: "Recommended for Govt Operator Applicants",
               icon: "🎖️",
+              link: "/learn/jatiya-keyboard-typing",
+            },
+            {
+              name: "Probhat Layout",
+              pop: "Intuitive Bangla Map",
+              diff: "Fixed Layout",
+              audience: "Recommended for Writers & Translators",
+              icon: "🌅",
+              link: "/learn/probhat-layout-typing",
+            },
+            {
+              name: "Inscript Bangla",
+              pop: "India National Standard",
+              diff: "Regional Standard",
+              audience: "Recommended for West Bengal & Regional Typing",
+              icon: "🇮🇳",
+              link: "/learn/inscript-bangla-typing",
             },
             {
               name: "English QWERTY",
@@ -635,6 +654,7 @@ export default function LandingPage() {
               diff: "All-Level Practice",
               audience: "Recommended for Global Freelancers & Coders",
               icon: "🌐",
+              link: "/learn/english-touch-typing",
             },
           ].map((l, i) => (
             <Card key={i} className="border border-border bg-card/80 backdrop-blur-md hover:border-emerald-500/50 transition-all rounded-2xl p-6 space-y-3 text-center shadow-xs group">
@@ -651,7 +671,7 @@ export default function LandingPage() {
                 </span>
               </div>
               <p className="text-[11px] text-muted-foreground pt-1">{l.audience}</p>
-              <Link href="/learn" className="inline-block text-xs font-bold text-emerald-500 hover:underline pt-2">
+              <Link href={l.link} className="inline-block text-xs font-bold text-emerald-500 hover:underline pt-2">
                 পাঠ দেখুন →
               </Link>
             </Card>
@@ -915,11 +935,11 @@ export default function LandingPage() {
         <div className="space-y-3">
           <FaqItem
             question="টাইপবাংলা কি পুরোপুরি বিনামূল্যে?"
-            answer="হ্যাঁ, টাইপবাংলার সব কিবোর্ড লেআউট, লেসন, স্পিড টেস্ট ও ডিজিটাল সার্টিফিকেট সার্ভিস সম্পূর্ণ বিনামূল্যে ব্যবহার করা যায়।"
+            answer="হ্যাঁ! টাইপবাংলার সব কিবোর্ড লেআউট, লেসন ও স্পিড টেস্ট সম্পূর্ণ বিনামূল্যে ব্যবহার করা যায়।"
           />
           <FaqItem
             question="কোন কোন কীবোর্ড লেআউট সমর্থিত?"
-            answer="অভ্র ফোনেটিক (Avro Phonetic), ইউনিবিজয় (UniBijoy), সরকারি বিসিসি জাতীয় (Jatiya), প্রভাত (Probhat) এবং ইংরেজি QWERTY কীবোর্ড সমর্থিত।"
+            answer="অভ্র ফোনেটিক (Avro), ইউনিবিজয় (UniBijoy), বিসিসি জাতীয় (Jatiya), প্রভাত (Probhat), ইনস্ক্রিপ্ট (Inscript) এবং ইংরেজি QWERTY — মোট ৬টি কীবোর্ড লেআউট সমর্থিত।"
           />
           <FaqItem
             question="অনুশীলনের জন্য কি অ্যাকাউন্ট খোলা বাধ্যতামূলক?"
@@ -927,7 +947,7 @@ export default function LandingPage() {
           />
           <FaqItem
             question="আমি কি অনলাইন যাচাইযোগ্য সার্টিফিকেট পাব?"
-            answer="হ্যাঁ! স্পিড টেস্ট বা এক্সাম সিমুলেটর সম্পন্ন করার সাথে সাথে ইউনিক ভেরিফিকেশন আইডি (TB-XXXXXX) সহ ডিজিটাল সার্টিফিকেট পাবেন।"
+            answer="হ্যাঁ! টেস্ট সম্পন্ন করার সাথে সাথেই স্কোরের রিয়েল-টাইম প্রিভিউ পাবেন। তবে কিউআর কোড যুক্ত অফিশিয়াল ভেরিফাইড সার্টিফিকেট ও পিডিএফ ডাউনলোডের জন্য সামান্য টপআপ/ভেরিফিকেশন ফি প্রযোজ্য।"
           />
           <FaqItem
             question="এটি কি সরকারি চাকরির টাইপিং পরীক্ষার প্রস্তুতির জন্য উপযোগী?"
