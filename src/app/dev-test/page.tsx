@@ -119,8 +119,8 @@ export default function DevTestPlaygroundPage() {
               </Button>
             </Link>
             <Link href="/institute">
-              <Button size="sm" className="text-xs font-bold gap-1.5">
-                <Building2 size={14} /> Institute Dashboard
+              <Button size="sm" className="text-xs font-bold gap-1.5 bg-teal-600 hover:bg-teal-500 text-white">
+                <Building2 size={14} /> Institute V2 Teaser
               </Button>
             </Link>
           </div>

@@ -194,7 +194,9 @@ export default function Footer() {
         <div className="flex flex-col space-y-2.5">
           <span className="text-xs font-bold text-foreground uppercase tracking-wider">তথ্য ও সাপোর্ট</span>
           <Link href="/dashboard" className="text-xs text-muted-foreground hover:text-foreground transition-colors">মাই ড্যাশবোর্ড</Link>
-          <Link href="/institute" className="text-xs font-extrabold text-foreground hover:underline transition-colors">ইনস্টিটিউট পোর্টাল 🏫</Link>
+          <Link href="/institute" className="text-xs font-extrabold text-teal-500 hover:underline transition-colors flex items-center gap-1">
+            <span>ইনস্টিটিউট V2 পোর্টাল 🏫</span>
+          </Link>
           <Link href="/leaderboard" className="text-xs text-muted-foreground hover:text-foreground transition-colors">লিডারবোর্ড</Link>
           <Link href="/keyboards" className="text-xs text-muted-foreground hover:text-foreground transition-colors">কীবোর্ড ম্যাপ</Link>
           <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground transition-colors">প্রাইভেসি পলিসি</Link>

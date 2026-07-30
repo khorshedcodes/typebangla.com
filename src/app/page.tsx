@@ -11,6 +11,7 @@ import { Card, CardContent } from "../components/ui/card";
 import { getClusterRanges } from "../utils/grapheme";
 import { avroTransliterate, mapInputToBangla } from "../utils/layouts";
 import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
 import { HeroKeyboardVisualizer } from "../components/HeroKeyboardVisualizer";
 import { AutoTypingSimulation } from "../components/AutoTypingSimulation";
 
@@ -928,18 +929,21 @@ export default function LandingPage() {
 
       {/* ── 11. INSTITUTE & ENTERPRISE PORTAL (ITEM #12) ───────────────────── */}
       <section className="container max-w-5xl mx-auto px-4 sm:px-6">
-        <div className="border border-border bg-card/80 backdrop-blur-md rounded-2xl p-8 sm:p-10 shadow-lg space-y-6 text-center sm:text-left">
+        <div className="border border-teal-500/30 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 rounded-2xl p-8 sm:p-10 shadow-lg space-y-6 text-center sm:text-left text-slate-100">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
             <div className="space-y-2">
-              <span className="text-xs font-bold text-emerald-500 uppercase tracking-widest">স্কুল, কোচিং ও ইনস্টিটিউট পোর্টাল 🏫</span>
-              <h2 className="text-2xl sm:text-3xl font-black text-foreground">For Schools, Universities & Coaching Centers</h2>
-              <p className="text-xs sm:text-sm text-muted-foreground max-w-xl">
-                আপনার প্রতিষ্ঠানের শিক্ষার্থীদের জন্য ব্যাচভিত্তিক টাইপিং পরীক্ষা পরিচালনা, শিক্ষক ড্যাশবোর্ড ও ব্র্যান্ডেড সার্টিফিকেট ইস্যু করুন।
+              <div className="flex items-center justify-center sm:justify-start gap-2">
+                <span className="text-xs font-extrabold text-teal-400 uppercase tracking-widest">স্কুল, কোচিং ও ইনস্টিটিউট পোর্টাল 🏫</span>
+                <Badge className="bg-amber-500 text-slate-950 font-bold text-[10px]">V2 COMING SOON</Badge>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-white">For Schools, Universities & Coaching Centers</h2>
+              <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
+                মাল্টি-টিচার অ্যাডমিন প্যানেল, অ্যান্টি-চিট প্রক্টরড এক্সাম ইঞ্জিন এবং স্বয়ংক্রিয় রেজাল্ট সার্টিফিকেট নিয়ে আসছে <strong className="text-teal-400">Institute OS V2</strong>।
               </p>
             </div>
             <Link href="/institute">
-              <Button size="lg" className="font-extrabold text-xs h-12 px-6 rounded-xl shadow-xs shrink-0 gap-2">
-                <span>ইনস্টিটিউট পোর্টালে যান</span>
+              <Button size="lg" className="font-extrabold text-xs h-12 px-6 rounded-xl shadow-lg shrink-0 gap-2 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 border-none">
+                <span>V2 ಅರ್লি এক্সেস ও ওয়েটলিস্ট ➔</span>
                 <ArrowRight size={14} />
               </Button>
             </Link>

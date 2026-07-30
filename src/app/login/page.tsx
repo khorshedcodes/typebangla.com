@@ -236,23 +236,28 @@ export default function LoginPage() {
               <div className="w-12 h-12 rounded-xl bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold shadow-xs">
                 🏫
               </div>
-              <Badge variant="outline" className="text-[10px] border-primary text-primary font-bold">
-                COMPUTER TRAINING INSTITUTES &amp; SCHOOLS
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-[10px] border-primary text-primary font-bold">
+                  COMPUTER TRAINING INSTITUTES
+                </Badge>
+                <Badge className="bg-amber-500 text-slate-950 text-[10px] font-extrabold animate-pulse">
+                  V2 COMING SOON
+                </Badge>
+              </div>
               <h3 className="text-xl font-black text-foreground">
-                Register as an Institute
+                Institute OS V2 Early Access
               </h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Are you a Computer Training Academy, School, or Teacher? Create custom typing classes and manage your students effortlessly.
+                TypeMaster Institute V2 is launching soon with Multi-Teacher Admin, anti-cheat proctored exams, and instant QR-verified PDF certificates.
               </p>
             </div>
 
             <div className="space-y-3 pt-2">
               {[
-                "Create custom Bangla & English typing classes",
-                "Assign speed homework & custom passage drills",
-                "Track student WPM trends & accuracy heatmaps",
-                "Issue verifiable typing certificates to graduates",
+                "Multi-Teacher Admin & Campus Hierarchy",
+                "Automated CSV Student Roster Provisioning",
+                "Anti-Cheat & Tab-Switch Proctored Exam System",
+                "Verifiable Digital Speed Certificates & Reports",
               ].map((feat, i) => (
                 <div key={i} className="flex items-start gap-2 text-xs text-foreground font-medium">
                   <CheckCircle2 size={15} className="text-primary shrink-0 mt-0.5" />
@@ -262,14 +267,14 @@ export default function LoginPage() {
             </div>
 
             <div className="pt-4 border-t border-primary/20 space-y-2">
-              <Link href="/institute?tab=register">
-                <Button className="w-full font-extrabold text-xs h-11 gap-2 shadow-xs">
+              <Link href="/institute">
+                <Button className="w-full font-extrabold text-xs h-11 gap-2 shadow-xs bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 border-none">
                   <Building2 size={16} />
-                  <span>Register Your Institute ➔</span>
+                  <span>Join Institute V2 Waitlist ➔</span>
                 </Button>
               </Link>
               <p className="text-[11px] text-muted-foreground text-center">
-                Instant setup. Free portal for training centers &amp; schools.
+                Early access & priority onboarding for training centers & schools.
               </p>
             </div>
           </CardContent>

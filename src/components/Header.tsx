@@ -139,10 +139,13 @@ export default function Header() {
                     <Link
                       href="/institute"
                       onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-foreground hover:bg-secondary rounded-lg transition-colors"
+                      className="flex items-center justify-between px-3 py-2 text-xs font-medium text-foreground hover:bg-secondary rounded-lg transition-colors"
                     >
-                      <Building2 size={14} className="text-muted-foreground" />
-                      <span>Institute Portal</span>
+                      <div className="flex items-center gap-2.5">
+                        <Building2 size={14} className="text-muted-foreground" />
+                        <span>Institute Portal</span>
+                      </div>
+                      <span className="text-[9px] font-extrabold bg-amber-500/20 text-amber-500 px-1.5 py-0.5 rounded">V2</span>
                     </Link>
                     <Link
                       href="/admin"
@@ -234,9 +237,10 @@ export default function Header() {
               <Link
                 href="/institute"
                 onClick={() => setDrawerOpen(false)}
-                className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-primary hover:bg-secondary rounded-md transition-colors font-semibold"
+                className="flex items-center justify-between px-4 py-2.5 text-sm font-medium text-primary hover:bg-secondary rounded-md transition-colors font-semibold"
               >
                 <span>Institute Portal 🏫</span>
+                <span className="text-[10px] font-extrabold bg-amber-500/20 text-amber-500 px-2 py-0.5 rounded">V2 Coming Soon</span>
               </Link>
             </div>
 
