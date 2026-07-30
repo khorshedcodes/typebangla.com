@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -20,6 +20,7 @@ import { useAuth } from "../../context/AuthContext";
 import TypingArea from "../../components/TypingArea";
 import { ExamCertificateModal } from "../../components/ExamCertificateModal";
 import { CertificateTopUpModal } from "../../components/CertificateTopUpModal";
+import { ClassAssignmentRecord } from "../../lib/firestoreService";
 
 const FEATURES = [
   {
@@ -48,7 +49,7 @@ const FEATURES = [
   },
 ];
 
-export default function InstitutionPortalPage() {
+function InstitutionPortalContent() {
   const searchParams = useSearchParams();
   const { user } = useAuth();
   const { setActiveLayout } = useTypingStore();
@@ -75,14 +76,16 @@ export default function InstitutionPortalPage() {
 
   useEffect(() => {
     const tabParam = searchParams.get("tab");
-    if (tabParam === "register") {
-      setActiveTab("register");
-      setRegisterType("institute");
-    } else if (tabParam === "teacher") {
-      setActiveTab("teacher");
-    } else if (tabParam === "student") {
-      setActiveTab("student");
-    }
+    queueMicrotask(() => {
+      if (tabParam === "register") {
+        setActiveTab("register");
+        setRegisterType("institute");
+      } else if (tabParam === "teacher") {
+        setActiveTab("teacher");
+      } else if (tabParam === "student") {
+        setActiveTab("student");
+      }
+    });
   }, [searchParams]);
 
   // Registration states
@@ -111,6 +114,7 @@ export default function InstitutionPortalPage() {
   const [asgWpm, setAsgWpm] = useState(35);
 
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [certModalResult, setCertModalResult] = useState<any | null>(null);
 
   const handleRegisterStudent = async () => {
@@ -160,7 +164,7 @@ export default function InstitutionPortalPage() {
     setAsgText("");
   };
 
-  const handleStartAssignment = (asg: any) => {
+  const handleStartAssignment = (asg: ClassAssignmentRecord) => {
     setActiveAssignment(asg);
     setActiveLayout(asg.layout as KeyboardLayout);
   };
@@ -204,7 +208,7 @@ export default function InstitutionPortalPage() {
         </div>
 
         <TypingArea
-          onSessionComplete={(wpm, accuracy) => {
+          onSessionComplete={(wpm: number, accuracy: number) => {
             submitAssignmentResult(wpm, accuracy, studentName || user?.displayName || "Student Learner", user?.uid);
           }}
         />
@@ -526,7 +530,7 @@ export default function InstitutionPortalPage() {
                   />
                   <Button
                     onClick={async () => {
-                      const res = await joinClassByCode(joinCodeInput, studentName || user?.displayName);
+                      const res = await joinClassByCode(joinCodeInput, studentName || user?.displayName || undefined);
                       setJoinFeedback(res);
                     }}
                     className="text-xs font-bold h-10 px-5 shrink-0"
@@ -742,7 +746,7 @@ export default function InstitutionPortalPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="font-bold block mb-1">Language</label>
-                  <select value={asgLang} onChange={(e) => setAsgLang(e.target.value as any)} className="w-full h-9 rounded-md border border-border bg-background px-3 font-bold">
+                  <select value={asgLang} onChange={(e) => setAsgLang(e.target.value as "bangla" | "english")} className="w-full h-9 rounded-md border border-border bg-background px-3 font-bold">
                     <option value="bangla">Bangla</option>
                     <option value="english">English</option>
                   </select>
@@ -779,6 +783,14 @@ export default function InstitutionPortalPage() {
         userId={user?.uid}
       />
     </div>
+  );
+}
+
+export default function InstitutionPortalPage() {
+  return (
+    <Suspense fallback={<div className="container max-w-7xl mx-auto p-8 text-center text-sm font-semibold text-muted-foreground">Loading Institute Portal...</div>}>
+      <InstitutionPortalContent />
+    </Suspense>
   );
 }
 

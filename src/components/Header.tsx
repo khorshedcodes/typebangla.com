@@ -41,34 +41,36 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b border-border bg-background/80 backdrop-blur-md">
+      <header className="sticky top-0 z-40 w-full border-b border-border/80 bg-background/75 backdrop-blur-xl transition-all">
         <div className="container max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 gap-4">
 
           {/* Brand Logo */}
-          <Link href="/" className="flex items-center gap-2 group shrink-0" onClick={() => setDrawerOpen(false)}>
-            <Image
-              src="/images/logo/blackbg.png"
-              alt="typebangla logo"
-              width={32}
-              height={32}
-              className="w-8 h-8 hidden dark:block object-contain"
-              priority
-            />
-            <Image
-              src="/images/logo/whitebg_1.png"
-              alt="typebangla logo"
-              width={32}
-              height={32}
-              className="w-8 h-8 block dark:hidden object-contain"
-              priority
-            />
-            <span className="font-black text-lg tracking-tight text-foreground select-none">
-              typebangla<span className="text-primary font-bold">.com</span>
+          <Link href="/" className="flex items-center gap-2.5 group shrink-0" onClick={() => setDrawerOpen(false)}>
+            <div className="relative w-8 h-8 flex items-center justify-center rounded-xl bg-secondary/80 border border-border group-hover:scale-105 transition-transform">
+              <Image
+                src="/images/logo/blackbg.png"
+                alt="typebangla logo"
+                width={28}
+                height={28}
+                className="w-7 h-7 hidden dark:block object-contain"
+                priority
+              />
+              <Image
+                src="/images/logo/whitebg_1.png"
+                alt="typebangla logo"
+                width={28}
+                height={28}
+                className="w-7 h-7 block dark:hidden object-contain"
+                priority
+              />
+            </div>
+            <span className="font-black text-lg tracking-tight text-foreground select-none group-hover:text-foreground/90">
+              typebangla<span className="text-emerald-500 font-bold">.com</span>
             </span>
           </Link>
 
-          {/* Desktop Nav Hub Direct Links (No Dropdown Menus) */}
-          <nav className="hidden md:flex items-center gap-1 flex-1 justify-center">
+          {/* Desktop Nav Hub Direct Links */}
+          <nav className="hidden md:flex items-center gap-1.5 flex-1 justify-center">
             {NAV_HUBS.map((hub) => {
               const isActive = activeHubId === hub.id;
 
@@ -76,13 +78,16 @@ export default function Header() {
                 <Link
                   key={hub.id}
                   href={hub.href}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                  className={`relative px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 ${
                     isActive
-                      ? "text-foreground bg-secondary font-semibold border border-border shadow-xs"
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                      ? "text-foreground bg-secondary/90 border border-border/80 shadow-xs"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/40"
                   }`}
                 >
                   {hub.label}
+                  {isActive && (
+                    <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-emerald-500 rounded-full animate-in fade-in" />
+                  )}
                 </Link>
               );
             })}

@@ -51,8 +51,9 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
     try {
       await signInWithGoogle();
       onClose();
-    } catch (err: any) {
-      setError(err?.message || "Google sign in failed. Please try again.");
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string; code?: string };
+      setError(errorObj?.message || "Google sign in failed. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -80,14 +81,15 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
         await signUpWithEmail(email, password, name.trim());
       }
       onClose();
-    } catch (err: any) {
-      const msg = err?.code === "auth/invalid-credential"
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string; code?: string };
+      const msg = errorObj?.code === "auth/invalid-credential"
         ? "Invalid email or password."
-        : err?.code === "auth/email-already-in-use"
+        : errorObj?.code === "auth/email-already-in-use"
         ? "This email is already registered."
-        : err?.code === "auth/weak-password"
+        : errorObj?.code === "auth/weak-password"
         ? "Password should be at least 6 characters."
-        : err?.message || "Authentication failed. Please try again.";
+        : errorObj?.message || "Authentication failed. Please try again.";
       setError(msg);
     } finally {
       setIsSubmitting(false);
@@ -217,7 +219,7 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
         </form>
 
         <p className="text-[10px] text-muted-foreground text-center">
-          By continuing, you agree to typebangla's Terms of Service & Privacy Policy.
+          By continuing, you agree to typebangla&apos;s Terms of Service & Privacy Policy.
         </p>
       </div>
     </div>

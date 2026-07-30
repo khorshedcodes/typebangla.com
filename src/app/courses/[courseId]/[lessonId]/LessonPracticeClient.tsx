@@ -114,41 +114,43 @@ export default function LessonPracticeClient({
   } | null>(null);
 
   useEffect(() => {
-    setActiveLayout(meta.layout);
-    const category = meta.layout === "english" ? "english" : "bangla";
-    const lessonList = getLessonsByCategory(category, meta.layout);
-    setLessons(lessonList);
+    queueMicrotask(() => {
+      setActiveLayout(meta.layout);
+      const category = meta.layout === "english" ? "english" : "bangla";
+      const lessonList = getLessonsByCategory(category, meta.layout);
+      setLessons(lessonList);
 
-    // Resolve lesson by index or ID
-    let foundIdx = -1;
-    if (lessonId.startsWith("lesson-") || !isNaN(Number(lessonId))) {
-      const parsedNum = parseInt(lessonId.replace("lesson-", ""), 10);
-      if (!isNaN(parsedNum) && parsedNum >= 1 && parsedNum <= lessonList.length) {
-        foundIdx = parsedNum - 1;
+      // Resolve lesson by index or ID
+      let foundIdx = -1;
+      if (lessonId.startsWith("lesson-") || !isNaN(Number(lessonId))) {
+        const parsedNum = parseInt(lessonId.replace("lesson-", ""), 10);
+        if (!isNaN(parsedNum) && parsedNum >= 1 && parsedNum <= lessonList.length) {
+          foundIdx = parsedNum - 1;
+        }
       }
-    }
 
-    if (foundIdx === -1) {
-      foundIdx = lessonList.findIndex((l) => l.id === lessonId);
-    }
+      if (foundIdx === -1) {
+        foundIdx = lessonList.findIndex((l) => l.id === lessonId);
+      }
 
-    if (foundIdx === -1) foundIdx = 0;
+      if (foundIdx === -1) foundIdx = 0;
 
-    setLessonIndex(foundIdx);
-    const lessonObj = lessonList[foundIdx] || lessonList[0];
-    setActiveLesson(lessonObj);
+      setLessonIndex(foundIdx);
+      const lessonObj = lessonList[foundIdx] || lessonList[0];
+      setActiveLesson(lessonObj);
 
-    if (lessonObj) {
-      setTargetText(
-        lessonObj.text,
-        lessonObj.focusKeys,
-        lessonObj.type,
-        lessonObj.inputLanguage,
-        lessonObj.outputPreview
-      );
-    }
-    setInputVal("");
-    setResultState(null);
+      if (lessonObj) {
+        setTargetText(
+          lessonObj.text,
+          lessonObj.focusKeys,
+          lessonObj.type,
+          lessonObj.inputLanguage,
+          lessonObj.outputPreview
+        );
+      }
+      setInputVal("");
+      setResultState(null);
+    });
   }, [meta.layout, courseId, lessonId, setActiveLayout, setTargetText]);
 
   useEffect(() => {
@@ -170,7 +172,9 @@ export default function LessonPracticeClient({
       targetAccuracy: 85,
     });
 
-    setResultState({ wpm: grossWpm, accuracy, passed });
+    queueMicrotask(() => {
+      setResultState({ wpm: grossWpm, accuracy, passed });
+    });
   }, [isCompleted, elapsedTime, typedText, targetText, activeLesson]);
 
   if (!activeLesson) {
@@ -285,7 +289,7 @@ export default function LessonPracticeClient({
             {targetText.split("").map((char, i) => {
               const typedChar = typedText[i];
               let colorClass = "text-muted-foreground/80";
-              let isCurrent = i === typedText.length;
+              const isCurrent = i === typedText.length;
 
               if (typedChar !== undefined) {
                 colorClass =

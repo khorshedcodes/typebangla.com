@@ -304,6 +304,36 @@ export default function GovtExamClient() {
             </div>
           </div>
 
+          {/* Section 3.5: Authentic Past Question Bank */}
+          <div className="border-t border-border pt-6 space-y-3">
+            <h4 className="text-xs font-black uppercase text-foreground tracking-wider flex items-center gap-1.5">
+              <FileText size={14} className="text-emerald-500" />
+              ৪. বিগত বছরের প্রশ্ন ব্যাংক (Authentic Govt Past Question Bank):
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {[
+                { id: "govt-sec-2024", title: "বাংলাদেশ সচিবালয় ২০২৪", dept: "সচিবালয় ও ক্যাবিনেট" },
+                { id: "govt-bb-2024", title: "বাংলাদেশ ব্যাংক ২০২৪", dept: "বাংলাদেশ ব্যাংক" },
+                { id: "govt-nsi-2023", title: "NSI ফিল্ড অফিসার ২০২৩", dept: "জাতীয় নিরাপত্তা গোয়েন্দা" },
+                { id: "govt-nbr-2023", title: "NBR কাস্টমস ২০২৩", dept: "জাতীয় রাজস্ব বোর্ড" },
+                { id: "govt-jud-2024", title: "সুপ্রিম কোর্ট ২০২৪", dept: "বিচারালয় ও আইন মন্ত্রণালয়" },
+                { id: "govt-edu-2024", title: "শিক্ষা অধিদপ্তর ২০২৪", dept: "প্রাথমিক ও মাধ্যমিক শিক্ষা" },
+              ].map((item) => (
+                <div
+                  key={item.id}
+                  onClick={handleStartExam}
+                  className="p-3 rounded-xl border border-border bg-card hover:border-emerald-500/80 cursor-pointer transition-all flex flex-col justify-between space-y-1 shadow-xs glass-card-hover"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-foreground line-clamp-1">{item.title}</span>
+                    <Badge variant="outline" className="text-[9px] font-bold border-emerald-500/40 text-emerald-600 dark:text-emerald-400">Past Q</Badge>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground">{item.dept}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Section 4: SINGLE UNIFIED PRIMARY CTA BUTTON */}
           <div className="border-t border-border pt-6 text-center">
             <Button

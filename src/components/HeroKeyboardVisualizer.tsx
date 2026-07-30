@@ -98,7 +98,7 @@ export function HeroKeyboardVisualizer({
   lastPressedKey = "",
 }: HeroKeyboardVisualizerProps) {
   // Helper to determine if key matches nextTargetChar
-  const isTargetKey = (keyObj: any) => {
+  const isTargetKey = (keyObj: { en: string; bn?: string; code?: string; unibijoy?: string; jatiya?: string }) => {
     if (!nextTargetChar) return false;
     const lowerTarget = nextTargetChar.toLowerCase();
 

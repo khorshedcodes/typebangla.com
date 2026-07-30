@@ -138,8 +138,10 @@ function CoursePracticeArena({
       lesson.inputLanguage,
       lesson.outputPreview
     );
-    setInputVal("");
-    setResultState(null);
+    queueMicrotask(() => {
+      setInputVal("");
+      setResultState(null);
+    });
   }, [lesson, setTargetText]);
 
   useEffect(() => {
@@ -161,7 +163,9 @@ function CoursePracticeArena({
       targetAccuracy: 85,
     });
 
-    setResultState({ wpm: grossWpm, accuracy, passed });
+    queueMicrotask(() => {
+      setResultState({ wpm: grossWpm, accuracy, passed });
+    });
   }, [isCompleted, elapsedTime, typedText, targetText, lesson]);
 
   const currentNextChar = targetText[typedText.length] || "";
@@ -271,7 +275,7 @@ function CoursePracticeArena({
             {targetText.split("").map((char, i) => {
               const typedChar = typedText[i];
               let colorClass = "text-muted-foreground/80";
-              let isCurrent = i === typedText.length;
+              const isCurrent = i === typedText.length;
 
               if (typedChar !== undefined) {
                 colorClass = typedChar === char ? "text-emerald-600 dark:text-emerald-400 font-bold" : "text-rose-500 dark:text-rose-400 bg-rose-500/10 rounded font-bold underline";
@@ -351,18 +355,20 @@ export default function CourseDetailClient({ courseId }: { courseId: string }) {
   const [unlockAll, setUnlockAll] = useState(false);
 
   useEffect(() => {
-    // Automatically lock layout for this course
-    setActiveLayout(meta.layout);
-    
-    // Fetch lessons for this category + layout
-    const category = meta.layout === "english" ? "english" : "bangla";
-    const lessonList = getLessonsByCategory(category, meta.layout);
-    setLessons(lessonList);
+    queueMicrotask(() => {
+      // Automatically lock layout for this course
+      setActiveLayout(meta.layout);
+      
+      // Fetch lessons for this category + layout
+      const category = meta.layout === "english" ? "english" : "bangla";
+      const lessonList = getLessonsByCategory(category, meta.layout);
+      setLessons(lessonList);
 
-    // Fetch user progress
-    if (typeof window !== "undefined") {
-      setProgress(getAllProgress());
-    }
+      // Fetch user progress
+      if (typeof window !== "undefined") {
+        setProgress(getAllProgress());
+      }
+    });
   }, [meta.layout, setActiveLayout]);
 
   const passedCount = lessons.filter((l) => progress[l.id]?.passed).length;

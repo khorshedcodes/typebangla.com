@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useRef, useState, useEffect, useCallback } from "react";
-import Link from "next/link";
 import { Award, Download, X, UserCheck, Printer, FileText } from "lucide-react";
 import { Button } from "./ui/button";
 import { saveCertificateRecord } from "../lib/firestoreService";
@@ -350,10 +349,10 @@ export function ExamCertificateModal({ isOpen, onClose, result }: ExamCertificat
     };
     try {
       const prev = JSON.parse(localStorage.getItem("typemaster_earned_certificates") || "[]");
-      const updated = [certPayload, ...prev.filter((c: any) => c.certificateId !== certId)];
+      const updated = [certPayload, ...prev.filter((c: { certificateId?: string }) => c.certificateId !== certId)];
       localStorage.setItem("typemaster_earned_certificates", JSON.stringify(updated));
-    } catch (e) {
-      console.error("Failed to save local cert:", e);
+    } catch (_e) {
+      console.error("Failed to save local cert:", _e);
     }
     saveCertificateRecord({
       certificateId: certId,

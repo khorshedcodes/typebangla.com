@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState } from "react";
 import {
   InstituteClassRecord,
   ClassAssignmentRecord,
@@ -54,58 +54,6 @@ const InstituteContext = createContext<InstituteContextType>({
   deductInstituteQuota: () => false,
 });
 
-const DEFAULT_MOCK_CLASSES: InstituteClassRecord[] = [
-  {
-    id: "cls-demo-1",
-    instituteId: "inst-demo-1",
-    instituteName: "Dhaka Computer Training Institute",
-    className: "Computer Operator Batch #4",
-    layout: "unibijoy",
-    classCode: "UB-2026-X",
-    targetWpm: 35,
-    studentCount: 28,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "cls-demo-2",
-    instituteId: "inst-demo-1",
-    instituteName: "Dhaka Computer Training Institute",
-    className: "Executive Typing Intensive",
-    layout: "avro",
-    classCode: "AV-2026-Y",
-    targetWpm: 40,
-    studentCount: 19,
-    createdAt: new Date().toISOString(),
-  },
-];
-
-const DEFAULT_MOCK_ASSIGNMENTS: ClassAssignmentRecord[] = [
-  {
-    id: "asg-demo-1",
-    classId: "cls-demo-1",
-    className: "Computer Operator Batch #4",
-    passageTitle: "বাংলা ভাষা ও টাইপিং গুরুত্ব",
-    passageText: "ডিজিটাল বাংলাদেশ নির্মাণে কম্পিউটার টাইপিং এর ভূমিকা অপরিসীম। বিশেষ করে বিজয ও অভ্র ফোনেটিক কিবোর্ড লেআউট ব্যবহার করে দ্রুত বাংলায় টাইপ করার দক্ষতা সরকারি ও বেসরকারি কর্মক্ষেত্রে অত্যন্ত মূল্যবান। প্রতিদিন অনুশীলনের মাধ্যমে নির্ভুলতা বৃদ্ধি পায়।",
-    language: "bangla",
-    layout: "unibijoy",
-    targetWpm: 35,
-    deadline: "2026-07-30",
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "asg-demo-2",
-    classId: "cls-demo-2",
-    className: "Executive Typing Intensive",
-    passageTitle: "Modern Avro Phonetic Speed Drill",
-    passageText: "Avro Phonetic layout allows seamless transliteration from English keystrokes to accurate Bangla script. Master vowels, consonants, and conjuncts with proper finger positions.",
-    language: "english",
-    layout: "avro",
-    targetWpm: 40,
-    deadline: "2026-08-05",
-    createdAt: new Date().toISOString(),
-  },
-];
-
 export function InstituteProvider({ children }: { children: React.ReactNode }) {
   const [instituteName, setInstituteName] = useState<string | null>(() => {
     if (typeof window === "undefined") return null;
@@ -113,21 +61,30 @@ export function InstituteProvider({ children }: { children: React.ReactNode }) {
   });
 
   const [classes, setClasses] = useState<InstituteClassRecord[]>(() => {
-    if (typeof window === "undefined") return DEFAULT_MOCK_CLASSES;
+    if (typeof window === "undefined") return [];
     const cached = localStorage.getItem("typemaster_classes");
-    return cached ? JSON.parse(cached) : DEFAULT_MOCK_CLASSES;
+    if (cached) {
+      try { return JSON.parse(cached); } catch { return []; }
+    }
+    return [];
   });
 
   const [enrolledClasses, setEnrolledClasses] = useState<InstituteClassRecord[]>(() => {
-    if (typeof window === "undefined") return [DEFAULT_MOCK_CLASSES[0]];
+    if (typeof window === "undefined") return [];
     const cached = localStorage.getItem("typemaster_enrolled_classes");
-    return cached ? JSON.parse(cached) : [DEFAULT_MOCK_CLASSES[0]];
+    if (cached) {
+      try { return JSON.parse(cached); } catch { return []; }
+    }
+    return [];
   });
 
   const [assignments, setAssignments] = useState<ClassAssignmentRecord[]>(() => {
-    if (typeof window === "undefined") return DEFAULT_MOCK_ASSIGNMENTS;
+    if (typeof window === "undefined") return [];
     const cached = localStorage.getItem("typemaster_assignments");
-    return cached ? JSON.parse(cached) : DEFAULT_MOCK_ASSIGNMENTS;
+    if (cached) {
+      try { return JSON.parse(cached); } catch { return []; }
+    }
+    return [];
   });
 
   const [activeAssignment, setActiveAssignment] = useState<ClassAssignmentRecord | null>(null);
@@ -135,14 +92,17 @@ export function InstituteProvider({ children }: { children: React.ReactNode }) {
   const [submissions, setSubmissions] = useState<AssignmentSubmissionRecord[]>(() => {
     if (typeof window === "undefined") return [];
     const cached = localStorage.getItem("typemaster_submissions");
-    return cached ? JSON.parse(cached) : [];
+    if (cached) {
+      try { return JSON.parse(cached); } catch { return []; }
+    }
+    return [];
   });
 
   const [quota, setQuota] = useState<InstituteQuota>(() => {
     if (typeof window === "undefined") return { totalQuota: 200, issuedCount: 0, remaining: 200, isBeta: true };
     const cached = localStorage.getItem("typemaster_institute_quota");
     if (cached) {
-      try { return JSON.parse(cached); } catch (e) {}
+      try { return JSON.parse(cached); } catch {}
     }
     return { totalQuota: 200, issuedCount: 0, remaining: 200, isBeta: true };
   });
@@ -163,12 +123,12 @@ export function InstituteProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
-  const saveStateToStorage = (key: string, data: any) => {
+  const saveStateToStorage = (key: string, data: unknown) => {
     if (typeof window === "undefined") return;
     try {
       localStorage.setItem(key, JSON.stringify(data));
-    } catch (e) {
-      console.error("Error saving state:", e);
+    } catch (error) {
+      console.error("Error saving state:", error);
     }
   };
 

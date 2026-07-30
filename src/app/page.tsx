@@ -797,7 +797,7 @@ export default function LandingPage() {
                 <span className="text-emerald-500">➔ Now: <strong>{t.after}</strong></span>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                "{t.text}"
+                &ldquo;{t.text}&rdquo;
               </p>
             </Card>
           ))}

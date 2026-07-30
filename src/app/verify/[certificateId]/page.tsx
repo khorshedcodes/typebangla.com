@@ -7,13 +7,26 @@ import { Award, CheckCircle2, XCircle, ArrowLeft, Calendar, ShieldCheck, Clock, 
 import { getCertificateRecord } from "../../../lib/firestoreService";
 import { Button } from "../../../components/ui/button";
 
+interface CertificateData {
+  certificateId?: string;
+  candidateName?: string;
+  wpm?: number;
+  accuracy?: number;
+  layout?: string;
+  language?: string;
+  mode?: string;
+  instituteName?: string;
+  issuedAt?: string;
+  createdAt?: string;
+}
+
 interface VerifyPageProps {
   params: Promise<{ certificateId: string }>;
 }
 
 export default function CertificateVerificationPage({ params }: VerifyPageProps) {
   const { certificateId } = use(params);
-  const [certData, setCertData] = useState<any>(null);
+  const [certData, setCertData] = useState<CertificateData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

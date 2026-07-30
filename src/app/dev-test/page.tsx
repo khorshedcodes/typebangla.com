@@ -19,6 +19,7 @@ export default function DevTestPlaygroundPage() {
   const { quota } = useInstitute();
 
   // Test State
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [certResult, setCertResult] = useState<any>(null);
   const [showTopUpModal, setShowTopUpModal] = useState(false);
   const [topUpPayerType, setTopUpPayerType] = useState<"institute" | "individual">("institute");

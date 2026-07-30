@@ -432,6 +432,31 @@ export const UNICODE_MAP: LayoutMap = {
   Space: { normal: " ", shift: " " },
 };
 
+const SYMBOL_KEY_MAP: Record<string, { code: string; shift: boolean }> = {
+  "-": { code: "Minus", shift: false },
+  "_": { code: "Minus", shift: true },
+  "=": { code: "Equal", shift: false },
+  "+": { code: "Equal", shift: true },
+  "[": { code: "BracketLeft", shift: false },
+  "{": { code: "BracketLeft", shift: true },
+  "]": { code: "BracketRight", shift: false },
+  "}": { code: "BracketRight", shift: true },
+  "\\": { code: "Backslash", shift: false },
+  "|": { code: "Backslash", shift: true },
+  ";": { code: "Semicolon", shift: false },
+  ":": { code: "Semicolon", shift: true },
+  "'": { code: "Quote", shift: false },
+  '"': { code: "Quote", shift: true },
+  ",": { code: "Comma", shift: false },
+  "<": { code: "Comma", shift: true },
+  ".": { code: "Period", shift: false },
+  ">": { code: "Period", shift: true },
+  "/": { code: "Slash", shift: false },
+  "?": { code: "Slash", shift: true },
+  "`": { code: "Backquote", shift: false },
+  "~": { code: "Backquote", shift: true },
+};
+
 /**
  * Universal Input Mapper for Interactive Components & Arenas
  * Translates raw input keystrokes to Bangla script based on active layout.
@@ -449,23 +474,28 @@ export function mapInputToBangla(rawInput: string, layout: string): string {
   let result = "";
   for (let i = 0; i < rawInput.length; i++) {
     const char = rawInput[i];
-    // If character is already Bangla or punctuation/space, keep it intact
-    if (/[\u0980-\u09FF\s.,!?:;'"()\-_]/.test(char)) {
+    // If character is already Bangla script or space, keep it as is
+    if (/[\u0980-\u09FF\s]/.test(char)) {
       result += char;
       continue;
     }
 
     let keyCode = "";
+    let isShift = false;
+
     if (/[a-zA-Z]/.test(char)) {
       keyCode = `Key${char.toUpperCase()}`;
+      isShift = char === char.toUpperCase() && char !== char.toLowerCase();
     } else if (/[0-9]/.test(char)) {
       keyCode = `Digit${char}`;
+    } else if (SYMBOL_KEY_MAP[char]) {
+      keyCode = SYMBOL_KEY_MAP[char].code;
+      isShift = SYMBOL_KEY_MAP[char].shift;
     }
 
     if (keyCode && mapTable[keyCode]) {
-      const isShift = char === char.toUpperCase() && char !== char.toLowerCase();
       const mapped = isShift ? mapTable[keyCode].shift : mapTable[keyCode].normal;
-      result += mapped || char;
+      result += mapped !== undefined ? mapped : char;
     } else {
       // Fallback to Avro transliteration if key is not mapped
       result += avroTransliterate(char);

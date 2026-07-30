@@ -63,7 +63,6 @@ export default function TypingArea({
     inputLanguage,
     outputPreview,
     targetWpm,
-    setTargetWpm,
     setTargetText,
     setFocusModeActive,
     isStarted,
@@ -241,11 +240,32 @@ export default function TypingArea({
     }
   }
 
+  const liveWpm = elapsedTime === 0 ? 0 : Math.round((typedText.length / 5) / (elapsedTime / 60));
+  const liveAccuracy = typedText.length === 0 ? 100 : Math.max(0, Math.round(((typedText.length - errorIndices.length) / typedText.length) * 100));
+
   return (
-    <div className="flex flex-col space-y-3">
+    <div className="flex flex-col space-y-4">
+      {/* Live Telemetry HUD Bar */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="glass-panel rounded-xl p-3 flex flex-col items-center justify-center border border-border/80 shadow-xs transition-all">
+          <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-0.5">WPM (Speed)</span>
+          <span className="text-xl sm:text-2xl font-black text-foreground">{liveWpm}</span>
+        </div>
+        <div className="glass-panel rounded-xl p-3 flex flex-col items-center justify-center border border-border/80 shadow-xs transition-all">
+          <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-0.5">Accuracy</span>
+          <span className={`text-xl sm:text-2xl font-black ${liveAccuracy >= 95 ? "text-emerald-500" : liveAccuracy >= 85 ? "text-amber-500" : "text-rose-500"}`}>
+            {liveAccuracy}%
+          </span>
+        </div>
+        <div className="glass-panel rounded-xl p-3 flex flex-col items-center justify-center border border-border/80 shadow-xs transition-all">
+          <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-0.5">Time</span>
+          <span className="text-xl sm:text-2xl font-black text-foreground font-mono">{elapsedTime}s</span>
+        </div>
+      </div>
+
       {/* Mode Header Banner */}
       {!hideModeHeader && (
-        <div className="border border-border bg-card p-3 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs shadow-xs">
+        <div className="border border-border/80 bg-card/60 backdrop-blur-md p-3 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs shadow-xs">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-black text-foreground flex items-center gap-1.5 text-xs">
               {isExamMode ? "🏛️ TypeBangla Timed Exam Mode" : "🌱 Free Practice Mode"}

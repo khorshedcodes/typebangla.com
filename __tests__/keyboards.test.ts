@@ -6,6 +6,7 @@ import {
   INSCRIPT_MAP,
   UNICODE_MAP,
   avroTransliterate,
+  mapInputToBangla,
 } from "../src/utils/layouts";
 
 describe("Keyboard Layout Integrity Suite (All 7 Layouts)", () => {
@@ -84,5 +85,13 @@ describe("Keyboard Layout Integrity Suite (All 7 Layouts)", () => {
       const label = getLayoutLabel(l);
       expect(label.length).toBeGreaterThanOrEqual(5);
     });
+  });
+
+  test("mapInputToBangla should correctly convert alphanumeric and punctuation keys across layouts", () => {
+    expect(mapInputToBangla("k", "unibijoy")).toBe("ত");
+    expect(mapInputToBangla("h", "jatiya")).toBe("া");
+    expect(mapInputToBangla(".", "probhat")).toBe("।");
+    expect(mapInputToBangla("/", "probhat")).toBe("্");
+    expect(mapInputToBangla("hello", "english")).toBe("hello");
   });
 });

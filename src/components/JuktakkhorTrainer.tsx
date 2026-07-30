@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Sparkles, CheckCircle2, ChevronRight, RotateCcw, Keyboard, Award, Info, Flame, Zap, Clock, Trophy, MousePointerClick } from "lucide-react";
-import { useTypingStore, playTypewriterSound } from "../store/typingStore";
+import { useTypingStore, playTypewriterSound, KeyboardLayout } from "../store/typingStore";
 import { UNI_BIJOY_MAP, JATIYA_MAP, PROBHAT_MAP, INSCRIPT_MAP, UNICODE_MAP, avroTransliterate } from "../utils/layouts";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
@@ -108,8 +108,10 @@ export function JuktakkhorTrainer() {
         setSprintTimeLeft((prev) => prev - 1);
       }, 1000);
     } else if (sprintTimeLeft === 0 && isSprintRunning) {
-      setIsSprintRunning(false);
-      setSprintCompleted(true);
+      queueMicrotask(() => {
+        setIsSprintRunning(false);
+        setSprintCompleted(true);
+      });
     }
     return () => {
       if (interval) clearInterval(interval);
@@ -373,7 +375,7 @@ export function JuktakkhorTrainer() {
           ].map((l) => (
             <button
               key={l.id}
-              onClick={() => setActiveLayout(l.id as any)}
+              onClick={() => setActiveLayout(l.id as KeyboardLayout)}
               className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all border ${
                 activeLayout === l.id
                   ? "bg-primary text-primary-foreground border-primary shadow-xs scale-105"

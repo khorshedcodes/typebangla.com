@@ -56,39 +56,41 @@ export default function DashboardClient() {
   const [showTopUpModal, setShowTopUpModal] = useState(false);
 
   useEffect(() => {
-    try {
-      const storedCerts = localStorage.getItem("typemaster_earned_certificates");
-      if (storedCerts) {
-        setCertificates(JSON.parse(storedCerts));
-      }
+    queueMicrotask(() => {
+      try {
+        const storedCerts = localStorage.getItem("typemaster_earned_certificates");
+        if (storedCerts) {
+          setCertificates(JSON.parse(storedCerts));
+        }
 
-      const enrolledIds: string[] = JSON.parse(localStorage.getItem("typemaster_enrolled_courses") || '["english-full", "avro-full"]');
-      const allProg = getAllProgress();
-      const metaMap: Record<string, { title: string; layout: string; total: number }> = {
-        "english-full": { title: "English QWERTY Full Course", layout: "english", total: 20 },
-        "avro-full": { title: "Avro Phonetic Bangla Course", layout: "avro", total: 25 },
-        "unibijoy-full": { title: "UniBijoy Full Course (Bijoy 52)", layout: "unibijoy", total: 25 },
-        "jatiya-full": { title: "Jatiya BCC Govt Course", layout: "jatiya", total: 25 },
-        "probhat-full": { title: "Probhat Layout Full Course", layout: "probhat", total: 20 },
-      };
-
-      const list: EnrolledCourse[] = enrolledIds.map((id) => {
-        const meta = metaMap[id] || { title: id, layout: "english", total: 20 };
-        let passedCount = 0;
-        Object.values(allProg).forEach((p) => {
-          if (p.passed && p.lessonId.startsWith(meta.layout)) passedCount++;
-        });
-        return {
-          id,
-          title: meta.title,
-          layout: meta.layout,
-          progress: Math.min(100, Math.round((passedCount / meta.total) * 100)),
+        const enrolledIds: string[] = JSON.parse(localStorage.getItem("typemaster_enrolled_courses") || '["english-full", "avro-full"]');
+        const allProg = getAllProgress();
+        const metaMap: Record<string, { title: string; layout: string; total: number }> = {
+          "english-full": { title: "English QWERTY Full Course", layout: "english", total: 20 },
+          "avro-full": { title: "Avro Phonetic Bangla Course", layout: "avro", total: 25 },
+          "unibijoy-full": { title: "UniBijoy Full Course (Bijoy 52)", layout: "unibijoy", total: 25 },
+          "jatiya-full": { title: "Jatiya BCC Govt Course", layout: "jatiya", total: 25 },
+          "probhat-full": { title: "Probhat Layout Full Course", layout: "probhat", total: 20 },
         };
-      });
-      setEnrolledCourses(list);
-    } catch (e) {
-      console.error("Failed to parse dashboard data:", e);
-    }
+
+        const list: EnrolledCourse[] = enrolledIds.map((id) => {
+          const meta = metaMap[id] || { title: id, layout: "english", total: 20 };
+          let passedCount = 0;
+          Object.values(allProg).forEach((p) => {
+            if (p.passed && p.lessonId.startsWith(meta.layout)) passedCount++;
+          });
+          return {
+            id,
+            title: meta.title,
+            layout: meta.layout,
+            progress: Math.min(100, Math.round((passedCount / meta.total) * 100)),
+          };
+        });
+        setEnrolledCourses(list);
+      } catch (_e) {
+        console.error("Failed to parse dashboard data:", _e);
+      }
+    });
   }, []);
 
   const recentSessions = [...history].reverse().slice(0, 5);

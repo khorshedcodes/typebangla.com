@@ -110,16 +110,17 @@ export default function CoursesCatalogPage() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Load enrolled course IDs from localStorage
-    try {
-      const stored = JSON.parse(localStorage.getItem("typemaster_enrolled_courses") || "[]");
-      setEnrolledIds(stored.length > 0 ? stored : ["english-full", "avro-full"]);
-    } catch (e) {
-      setEnrolledIds(["english-full", "avro-full"]);
-    }
+    queueMicrotask(() => {
+      // Load enrolled course IDs from localStorage
+      try {
+        const stored = JSON.parse(localStorage.getItem("typemaster_enrolled_courses") || "[]");
+        setEnrolledIds(stored.length > 0 ? stored : ["english-full", "avro-full"]);
+      } catch {
+        setEnrolledIds(["english-full", "avro-full"]);
+      }
 
-    const all = getAllProgress();
-    const map: Record<string, number> = {};
+      const all = getAllProgress();
+      const map: Record<string, number> = {};
 
     COURSES.forEach((c) => {
       let passedCount = 0;
@@ -132,6 +133,7 @@ export default function CoursesCatalogPage() {
     });
 
     setProgressMap(map);
+    });
   }, []);
 
   const handleEnroll = (course: FullCourse) => {

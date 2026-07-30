@@ -52,8 +52,9 @@ export default function LoginPage() {
     try {
       await signInWithGoogle();
       router.push("/dashboard");
-    } catch (err: any) {
-      setError(err?.message || "Google sign in failed. Please try again.");
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string; code?: string };
+      setError(errorObj?.message || "Google sign in failed. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -69,8 +70,9 @@ export default function LoginPage() {
     try {
       await sendPasswordReset(email.trim());
       setResetSent(true);
-    } catch (err: any) {
-      setError(err?.message || "Failed to send reset email. Please verify your email address.");
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string; code?: string };
+      setError(errorObj?.message || "Failed to send reset email. Please verify your email address.");
     } finally {
       setIsSubmitting(false);
     }
@@ -89,11 +91,12 @@ export default function LoginPage() {
     try {
       await signInWithEmail(email, password);
       router.push("/dashboard");
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string; code?: string };
       const msg =
-        err?.code === "auth/invalid-credential"
+        errorObj?.code === "auth/invalid-credential"
           ? "Invalid email or password."
-          : err?.message || "Login failed. Please check your credentials.";
+          : errorObj?.message || "Login failed. Please check your credentials.";
       setError(msg);
     } finally {
       setIsSubmitting(false);

@@ -68,6 +68,7 @@ export default function LeaderboardPage() {
   const { user } = useAuth();
 
   const [selectedLayout, setSelectedLayout] = useState<string>("all");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [showAuthGateModal, setShowAuthGateModal] = useState<boolean>(false);

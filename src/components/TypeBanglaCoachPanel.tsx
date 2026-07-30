@@ -3,7 +3,6 @@
 import React from "react";
 import { useTypingStore } from "../store/typingStore";
 import { Activity, Compass, ShieldAlert, Sparkles, TrendingUp, Flame, Rocket, Hourglass } from "lucide-react";
-import { cn } from "../utils/cn";
 import { Badge } from "./ui/badge";
 
 export default function TypeBanglaCoachPanel() {

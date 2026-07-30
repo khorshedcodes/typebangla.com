@@ -293,12 +293,12 @@ export default function VirtualKeyboard({ nextChar = "", onKeyClick }: VirtualKe
         }}
         style={accuracyStyle}
         className={cn(
-          "h-11 sm:h-12 border border-border border-t-2 bg-card text-foreground rounded-lg flex items-center justify-center relative select-none cursor-pointer hover:border-primary/80 active:scale-95 font-sans text-xs transition-all duration-100 shadow-xs",
+          "h-11 sm:h-12 border border-border border-t-2 bg-card text-foreground rounded-lg flex items-center justify-center relative select-none cursor-pointer hover:border-primary/80 active:scale-95 font-sans text-xs transition-all duration-100 keycap-tactile",
           key.classWidth || "w-11 sm:w-12",
           fingerAccentClass,
           {
             "bg-secondary border-border border-t-2 font-medium text-muted-foreground": isSystemKey,
-            "border-primary border-t-2 bg-primary text-primary-foreground ring-2 ring-primary/40 z-20 font-black shadow-md animate-pulse scale-[1.03]": isHighlighted,
+            "border-emerald-500 bg-emerald-600 text-white dark:bg-emerald-500 z-20 font-black shadow-lg scale-[1.05] key-target-glow": isHighlighted,
             "bg-secondary translate-y-[2px] shadow-none border-border": isPressed
           }
         )}

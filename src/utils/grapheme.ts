@@ -10,14 +10,24 @@ export interface ClusterInfo {
   end: number;
 }
 
+interface SegmenterInstance {
+  segment(input: string): Iterable<{ segment: string }>;
+}
+
+interface ExtendedIntl {
+  Segmenter?: new (locale: string, options?: { granularity: string }) => SegmenterInstance;
+}
+
 export function getGraphemeClusters(text: string): string[] {
-  if (typeof Intl !== "undefined" && (Intl as any).Segmenter) {
-    const segmenter = new (Intl as any).Segmenter("bn", { granularity: "grapheme" });
-    return Array.from(segmenter.segment(text)).map((s: any) => s.segment);
+  const intlObj = Intl as unknown as ExtendedIntl;
+  if (typeof Intl !== "undefined" && intlObj.Segmenter) {
+    const segmenter = new intlObj.Segmenter("bn", { granularity: "grapheme" });
+    return Array.from(segmenter.segment(text)).map((s: { segment: string }) => s.segment);
   }
 
   // Fallback regex for Bangla grapheme clusters (base char + combining marks/kars/virama)
   const graphemeRegex = /[\u0980-\u09FF][\u09BC-\u09CD\u09D7\u200C\u200D]*/g;
+  graphemeRegex.lastIndex = 0;
   const clusters: string[] = [];
   let lastIndex = 0;
   let match: RegExpExecArray | null;

@@ -914,7 +914,6 @@ export default function ProfessionalCoursePage() {
 
                 <Button
                   onClick={() => {
-                    activeLesson.completed = true;
                     setActiveLesson(null);
                   }}
                   className="w-full bg-[#10B981] hover:bg-[#059669] text-white text-xs font-bold h-11 rounded-xl shadow-md gap-2"

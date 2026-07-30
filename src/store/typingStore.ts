@@ -818,8 +818,7 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       flightTimes,
       flightTimeVarianceMs,
       fatigueSignature,
-      delayOnConjunctsMs,
-      problematicPairs
+      delayOnConjunctsMs
     } = get();
 
     if (isCompleted) return;

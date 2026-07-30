@@ -1,10 +1,11 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import type { User } from "firebase/auth";
 import { getFirebaseAuth, getFirebaseDb } from "../lib/firebase";
 
 interface AuthContextType {
-  user: any;
+  user: User | null;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (email: string, pass: string) => Promise<void>;
@@ -26,16 +27,11 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<string>("student");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (typeof window === "undefined") {
-      setLoading(false);
-      return;
-    }
-
     let unsubscribe: () => void;
 
     async function initAuth() {
@@ -97,6 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                       duration: sess.duration || 60,
                     });
                   }
+                  localStorage.removeItem("typemaster_history");
                 }
               }
             } catch (e) {

@@ -51,9 +51,10 @@ export async function saveTypingSession(session: SessionData) {
 
       if (userSnap.exists()) {
         const data = userSnap.data() as UserProfile;
-        const newHigh = Math.max(data.highWpm || 0, session.netWpm);
+        const safeNetWpm = Math.max(0, session.netWpm);
+        const newHigh = Math.max(data.highWpm || 0, safeNetWpm);
         const newTotal = (data.totalSessions || 0) + 1;
-        const newAvg = Math.round(((data.avgWpm || 0) * (newTotal - 1) + session.netWpm) / newTotal);
+        const newAvg = Math.round(((data.avgWpm || 0) * (newTotal - 1) + safeNetWpm) / Math.max(1, newTotal));
 
         await firestore.setDoc(
           userRef,
@@ -62,7 +63,7 @@ export async function saveTypingSession(session: SessionData) {
             totalTimeTypedSeconds: firestore.increment(session.duration),
             highWpm: newHigh,
             avgWpm: newAvg,
-            xp: firestore.increment(Math.round(session.netWpm * (session.accuracy / 100) * 10)),
+            xp: firestore.increment(Math.round(safeNetWpm * (Math.max(0, Math.min(100, session.accuracy)) / 100) * 10)),
             updatedAt: firestore.serverTimestamp(),
           },
           { merge: true }
@@ -162,7 +163,7 @@ export interface InstituteRecord {
   isBeta?: boolean;
   certificateQuota?: number;
   certificatesIssued?: number;
-  createdAt: any;
+  createdAt: unknown;
 }
 
 export interface InstituteClassRecord {
@@ -174,7 +175,7 @@ export interface InstituteClassRecord {
   classCode: string;
   targetWpm: number;
   studentCount: number;
-  createdAt: any;
+  createdAt: unknown;
 }
 
 export interface ClassAssignmentRecord {
@@ -187,7 +188,7 @@ export interface ClassAssignmentRecord {
   layout: string;
   targetWpm: number;
   deadline?: string;
-  createdAt: any;
+  createdAt: unknown;
 }
 
 export interface AssignmentSubmissionRecord {
@@ -199,7 +200,7 @@ export interface AssignmentSubmissionRecord {
   wpm: number;
   accuracy: number;
   passed: boolean;
-  submittedAt: any;
+  submittedAt: unknown;
 }
 
 export interface PaymentRequestRecord {
@@ -215,7 +216,7 @@ export interface PaymentRequestRecord {
   pricePerCertBDT: number;
   totalAmountBDT: number;
   status: "pending" | "approved" | "rejected";
-  createdAt?: any;
+  createdAt?: unknown;
 }
 
 export async function submitPaymentRequest(request: Omit<PaymentRequestRecord, "id" | "createdAt" | "status">) {

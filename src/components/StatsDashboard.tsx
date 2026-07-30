@@ -55,7 +55,7 @@ export default function StatsDashboard({ minimal = false }: { minimal?: boolean 
   const avgAccuracy = totalTests > 0 ? Math.round(history.reduce((sum, h) => sum + h.accuracy, 0) / totalTests) : 0;
 
   const mistypedKeys = Object.entries(keyStats || {})
-    .filter(([_, stats]) => stats.total >= 3)
+    .filter(([, stats]) => stats.total >= 3)
     .map(([char, stats]) => {
       const accuracy = Math.round((stats.correct / stats.total) * 100);
       return { char: char === " " ? "Space" : char, accuracy, total: stats.total };

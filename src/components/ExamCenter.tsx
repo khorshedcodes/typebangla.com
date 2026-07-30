@@ -38,7 +38,6 @@ function ExamCenterContent() {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [langFilter, setLangFilter] = useState<PassageLanguage | "all">("bangla");
   const [selectedPassage, setSelectedPassage] = useState<ExamPassage | null>(null);
-  const [showCertificate, setShowCertificate] = useState(false);
 
   // Auto-detect URL query params from Test Cards launch
   useEffect(() => {
@@ -51,11 +50,11 @@ function ExamCenterContent() {
 
     if (lang === "en" || lang === "english") {
       targetLang = "english";
-      setLangFilter("english");
+      queueMicrotask(() => setLangFilter("english"));
       isAutoLaunch = true;
     } else if (lang === "bn" || lang === "bangla") {
       targetLang = "bangla";
-      setLangFilter("bangla");
+      queueMicrotask(() => setLangFilter("bangla"));
       isAutoLaunch = true;
     }
 
@@ -72,15 +71,28 @@ function ExamCenterContent() {
     // If launched from a test card, pick a random passage and launch directly
     if (isAutoLaunch) {
       const p = getRandomPassage(targetLang);
-      setSelectedPassage(p);
-      setStep(3);
-      setTargetText(p.text);
+      queueMicrotask(() => {
+        setSelectedPassage(p);
+        setStep(3);
+        setTargetText(p.text);
+      });
     }
   }, [searchParams, setActiveLayout, setSelectedDuration, setTargetText]);
 
-  const filteredPassages = ALL_EXAM_PASSAGES.filter(
-    (p) => langFilter === "all" || p.language === langFilter
-  );
+  const [authorFilter, setAuthorFilter] = useState<string>("all");
+
+  const filteredPassages = ALL_EXAM_PASSAGES.filter((p) => {
+    const matchesLang = langFilter === "all" || p.language === langFilter;
+    const matchesAuthor =
+      authorFilter === "all" ||
+      (authorFilter === "rabindranath" && p.author.includes("রবীন্দ্রনাথ")) ||
+      (authorFilter === "nazrul" && p.author.includes("নজরুল")) ||
+      (authorFilter === "sukumar" && p.author.includes("সুকুমার")) ||
+      (authorFilter === "bankim" && p.author.includes("বঙ্কিম")) ||
+      (authorFilter === "saratchandra" && p.author.includes("শরৎচন্দ্র")) ||
+      (authorFilter === "humayun" && p.author.includes("হুমায়ূন"));
+    return matchesLang && matchesAuthor;
+  });
 
   const handlePickPassage = (p: ExamPassage) => {
     setSelectedPassage(p);
@@ -223,6 +235,31 @@ function ExamCenterContent() {
               <Shuffle size={13} />
               র‍্যান্ডম বেছে নিন
             </Button>
+          </div>
+
+          {/* Author Filter Chips */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {[
+              { id: "all", label: "সকল লেখক" },
+              { id: "rabindranath", label: "রবীন্দ্রনাথ ঠাকুর" },
+              { id: "nazrul", label: "কাজী নজরুল ইসলাম" },
+              { id: "sukumar", label: "সুকুমার রায়" },
+              { id: "bankim", label: "বঙ্কিমচন্দ্র" },
+              { id: "saratchandra", label: "শরৎচন্দ্র" },
+              { id: "humayun", label: "হুমায়ূন আহমেদ" },
+            ].map((author) => (
+              <button
+                key={author.id}
+                onClick={() => setAuthorFilter(author.id)}
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                  authorFilter === author.id
+                    ? "bg-primary text-primary-foreground font-bold shadow-xs"
+                    : "bg-secondary text-muted-foreground hover:text-foreground border border-border"
+                }`}
+              >
+                {author.label}
+              </button>
+            ))}
           </div>
 
           <div className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">

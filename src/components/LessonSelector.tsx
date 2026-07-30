@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useTypingStore } from "../store/typingStore";
 import {
   Lesson,
@@ -28,8 +28,6 @@ import {
   Trophy,
   FileText,
   Sparkles,
-  Layers,
-  Newspaper,
   BookMarked
 } from "lucide-react";
 import { Button } from "./ui/button";
@@ -134,7 +132,7 @@ export default function LessonSelector({ initialLessonId }: LessonSelectorProps 
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [isGridExpanded, setIsGridExpanded] = useState(false);
 
-  const generateSynthesizedDrill = () => {
+  const generateSynthesizedDrill = useCallback(() => {
     if (selectedCategory === "bangla") {
       const weakLetters = problematicPairs.map(p => p.split("-")[0]).filter(Boolean);
       if (weakLetters.length > 0) {
@@ -160,7 +158,7 @@ export default function LessonSelector({ initialLessonId }: LessonSelectorProps 
       }
       return "AI Speed Drill: quick brown fox jumps over the lazy dog system architecture performance test";
     }
-  };
+  }, [selectedCategory, problematicPairs]);
 
   useEffect(() => {
     const isEng = activeLayout === "english";
@@ -203,7 +201,6 @@ export default function LessonSelector({ initialLessonId }: LessonSelectorProps 
       if (typedText[i] === targetText[i]) correctChars++;
     }
     const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 0;
-    const passed = grossWpm >= lesson.targetWpm && accuracy >= 85;
 
     const updated = saveLessonProgress(lesson.id, grossWpm, accuracy, { targetWpm: lesson.targetWpm, targetAccuracy: 85 });
     setProgress((prev) => ({ ...prev, [lesson.id]: updated }));
@@ -218,7 +215,6 @@ export default function LessonSelector({ initialLessonId }: LessonSelectorProps 
   });
 
   const activeLessonIndex = currentLevelLessons.findIndex(l => l.id === activeLessonId);
-  const activeLessonObj = allLessons.find(l => l.id === activeLessonId) || currentLevelLessons[0] || allLessons[0];
 
   const completion = getCourseCompletion(selectedCategory, activeLayout);
 
@@ -423,12 +419,12 @@ export default function LessonSelector({ initialLessonId }: LessonSelectorProps 
                 <Card
                   key={lesson.id}
                   onClick={() => handleSelectLesson(lesson)}
-                  className={`border transition-all cursor-pointer select-none relative overflow-hidden ${
+                  className={`border transition-all cursor-pointer select-none relative overflow-hidden glass-card-hover ${
                     isSelected
-                      ? "border-primary bg-secondary ring-1 ring-primary shadow-xs"
+                      ? "border-emerald-500 bg-secondary/90 ring-2 ring-emerald-500/30 shadow-md scale-[1.02]"
                       : isUnlocked
-                      ? "border-border bg-card hover:border-foreground/50 shadow-xs"
-                      : "border-border bg-secondary/50 opacity-60 cursor-not-allowed"
+                      ? "border-border/80 bg-card hover:border-foreground/50 shadow-xs"
+                      : "border-border/60 bg-secondary/40 opacity-60 cursor-not-allowed"
                   }`}
                 >
                   <CardContent className="p-3.5 space-y-2">
@@ -478,7 +474,7 @@ export default function LessonSelector({ initialLessonId }: LessonSelectorProps 
                   <button
                     key={p.id}
                     onClick={() => {
-                      setPassageType(p.id as any);
+                      setPassageType(p.id as "literary" | "contemporary" | "weakKey");
                       if (p.id === "weakKey") {
                         handleSelectPassage("ai-weak-key", generateSynthesizedDrill());
                       }

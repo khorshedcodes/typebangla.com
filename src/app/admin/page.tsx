@@ -41,7 +41,9 @@ export default function AdminDashboardPage() {
   };
 
   useEffect(() => {
-    fetchPayments();
+    queueMicrotask(() => {
+      fetchPayments();
+    });
   }, []);
 
   const handleApprove = async (req: PaymentRequestRecord) => {
