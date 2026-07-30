@@ -505,9 +505,9 @@ export default function LandingPage() {
 
         {/* Trust Badge */}
         <div className="inline-flex items-center gap-2 bg-secondary border border-border px-4 py-2 rounded-full shadow-xs">
-          <span className="text-amber-400 text-xs font-bold">★★★★★</span>
+          <Sparkles size={14} className="text-emerald-500" />
           <span className="text-xs font-bold text-foreground">
-            Trusted by 50,000+ learners across Bangladesh 🇧🇩
+            100% Free & Open-Access Bangla & English Typing Engine 🇧🇩
           </span>
         </div>
 
@@ -561,10 +561,10 @@ export default function LandingPage() {
         <div className="container max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {[
-              { icon: "👨‍🎓", value: "50,000+", label: "Students" },
-              { icon: "🏆", value: "2 Million+", label: "Words Typed" },
-              { icon: "⌨️", value: "7 Layouts", label: "Keyboard Layouts" },
-              { icon: "📜", value: "5,000+", label: "Certificates Issued" },
+              { icon: "⚡", value: "Real-Time", label: "WPM & Accuracy Engine" },
+              { icon: "⌨️", value: "6 Layouts", label: "Avro, Bijoy, Jatiya & English" },
+              { icon: "🏛️", value: "BCC Specs", label: "Govt Exam Benchmark" },
+              { icon: "📜", value: "Verified PDF", label: "Instant QR Certificate" },
             ].map((s, i) => (
               <div key={i} className="space-y-1.5 p-4 rounded-2xl hover:bg-secondary/60 transition-colors border border-transparent hover:border-border">
                 <div className="text-2xl">{s.icon}</div>
@@ -610,23 +610,20 @@ export default function LandingPage() {
           {[
             {
               name: "Avro Phonetic",
-              rating: "⭐⭐⭐⭐⭐ 4.9",
-              pop: "78% Popular",
+              pop: "Phonetic Transliteration",
               diff: "Beginner Friendly",
               audience: "Recommended for Beginners & Students",
               icon: "⌨️",
             },
             {
               name: "UniBijoy / Bijoy 52",
-              rating: "⭐⭐⭐⭐⭐ 4.8",
-              pop: "18% Popular",
+              pop: "Unicode & ANSI",
               diff: "Govt Standard",
               audience: "Recommended for Office & Govt Staff",
               icon: "🏛️",
             },
             {
               name: "Jatiya (BCC)",
-              rating: "⭐⭐⭐⭐⭐ 4.9",
               pop: "Govt Required",
               diff: "Official Exam",
               audience: "Recommended for Govt Operator Applicants",
@@ -634,9 +631,8 @@ export default function LandingPage() {
             },
             {
               name: "English QWERTY",
-              rating: "⭐⭐⭐⭐⭐ 5.0",
-              pop: "Standard",
-              diff: "Touch Typing",
+              pop: "Standard Touch Typing",
+              diff: "All-Level Practice",
               audience: "Recommended for Global Freelancers & Coders",
               icon: "🌐",
             },
@@ -645,8 +641,7 @@ export default function LandingPage() {
               <div className="w-12 h-12 rounded-2xl bg-secondary text-foreground flex items-center justify-center mx-auto text-2xl border border-border group-hover:scale-110 transition-transform">
                 {l.icon}
               </div>
-              <div className="text-[10px] text-amber-400 font-bold">{l.rating}</div>
-              <h3 className="font-extrabold text-base text-foreground">{l.name}</h3>
+              <h3 className="font-extrabold text-base text-foreground pt-1">{l.name}</h3>
               <div className="flex justify-center gap-1.5 flex-wrap">
                 <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
                   {l.pop}
@@ -724,60 +719,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 7. STUDENT TESTIMONIALS & SUCCESS STORIES (ITEM #8) ─────────────── */}
-      <section className="container max-w-5xl mx-auto px-4 sm:px-6 space-y-10">
-        <div className="text-center space-y-2">
-          <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">সাফল্যের গল্প</span>
-          <h2 className="text-2xl sm:text-3xl font-black text-foreground">Real Student Transformations</h2>
-          <p className="text-sm text-muted-foreground">টাইপবাংলা ব্যবহারকারীদের বাস্তব অভিজ্ঞতার গল্প।</p>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            {
-              name: "তানজিল আহমেদ",
-              role: "কম্পিউটার অপারেটর পরীক্ষার্থী",
-              before: "18 WPM",
-              after: "52 WPM",
-              text: "টাইপবাংলার গভঃ এক্সাম সিমুলেটর দিয়ে প্র্যাকটিস করে মাত্র ৩ সপ্তাহে আমার স্পিড ১৮ থেকে ৫২ ডাব্লিউপিএম হয়। সরকারি টেস্টে পাস করেছি!",
-              stars: "★★★★★",
-            },
-            {
-              name: "ফারহানা ইয়াসমিন",
-              role: "বিশ্ববিদ্যালয় শিক্ষার্থী",
-              before: "22 WPM",
-              after: "58 WPM",
-              text: "অভ্র ও বিজয় কীবোর্ড দুটোই এক জায়গায় শেখার এত সুন্দর সিস্টেম আর কোথাও দেখিনি। অনলাইন সার্টিফিকেট পেয়ে অনেক উপকৃত হয়েছি।",
-              stars: "★★★★★",
-            },
-            {
-              name: "কামরুল হাসান",
-              role: "ফ্রিল্যান্স ডেটা এন্ট্রি স্পেশালিস্ট",
-              before: "25 WPM",
-              after: "68 WPM",
-              text: "টাইপিং গেম ও স্পিড ড্রিলস দিয়ে টাইপিং প্র্যাকটিস করা যেমন মজার, তেমনই কার্যকর। এখন অনেক দ্রুত ক্লায়েন্টের কাজ জমা দিতে পারি।",
-              stars: "★★★★★",
-            },
-          ].map((t, i) => (
-            <Card key={i} className="border border-border bg-card/80 backdrop-blur-md rounded-2xl p-6 space-y-4 shadow-sm relative">
-              <div className="flex justify-between items-center border-b border-border pb-3">
-                <div>
-                  <h4 className="font-extrabold text-sm text-foreground">{t.name}</h4>
-                  <span className="text-[10px] text-muted-foreground block">{t.role}</span>
-                </div>
-                <span className="text-amber-400 text-xs font-bold">{t.stars}</span>
-              </div>
-              <div className="flex items-center justify-between p-2.5 bg-secondary/50 rounded-xl text-xs font-bold font-mono">
-                <span>Before: <strong className="text-muted-foreground">{t.before}</strong></span>
-                <span className="text-emerald-500">➔ Now: <strong>{t.after}</strong></span>
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                &ldquo;{t.text}&rdquo;
-              </p>
-            </Card>
-          ))}
-        </div>
-      </section>
 
       {/* ── 8. TYPING GAMES PREVIEW (ITEM #9) ─────────────────────────────── */}
       <section className="container max-w-5xl mx-auto px-4 sm:px-6 space-y-10">
