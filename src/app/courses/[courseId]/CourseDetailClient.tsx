@@ -18,6 +18,7 @@ import VirtualKeyboard from "../../../components/VirtualKeyboard";
 import LessonSelector from "../../../components/LessonSelector";
 import { ExamCertificateModal } from "../../../components/ExamCertificateModal";
 import { saveCertificateRecord } from "../../../lib/firestoreService";
+import { AuthModal } from "../../../components/AuthModal";
 
 interface CourseMeta {
   id: string;
@@ -633,46 +634,11 @@ export default function CourseDetailClient({ courseId }: { courseId: string }) {
         />
       )}
       {/* Auth Gate Modal */}
-      {showAuthGateModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <Card className="max-w-md w-full border border-border bg-card shadow-2xl p-6 space-y-6 relative">
-            <button
-              onClick={() => setShowAuthGateModal(false)}
-              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
-            >
-              <X size={18} />
-            </button>
-            <div className="space-y-2 text-center">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center mx-auto">
-                <GraduationCap size={24} />
-              </div>
-              <Badge variant="outline" className="text-[10px] font-bold text-primary border-primary/30 bg-primary/5 px-2.5 py-0.5">
-                Sign In Required
-              </Badge>
-              <h3 className="text-xl font-black text-foreground">Sign In to Start Course</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Enrolling in courses requires a free TypeBangla Learner account to save your lesson progress, WPM scores, and verified course completion certificates.
-              </p>
-            </div>
-
-            <div className="space-y-2.5 pt-2">
-              <Button
-                onClick={() => router.push(`/login?redirect=/courses/${courseId}`)}
-                className="w-full text-xs font-bold h-10 gap-2"
-              >
-                Sign In to Enroll <ChevronRight size={14} />
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => router.push(`/signup?redirect=/courses/${courseId}`)}
-                className="w-full text-xs font-bold h-10 border-border"
-              >
-                Create Free Account
-              </Button>
-            </div>
-          </Card>
-        </div>
-      )}
+      <AuthModal
+        isOpen={showAuthGateModal}
+        onClose={() => setShowAuthGateModal(false)}
+        initialMode="signup"
+      />
     </main>
   );
 }

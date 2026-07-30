@@ -12,6 +12,7 @@ import { Button } from "../../components/ui/button";
 import { useTypingStore, KeyboardLayout } from "../../store/typingStore";
 import { getAllProgress } from "../../utils/lessons/progress";
 import { useAuth } from "../../context/AuthContext";
+import { AuthModal } from "../../components/AuthModal";
 
 interface FullCourse {
   id: string;
@@ -60,7 +61,7 @@ const COURSES: FullCourse[] = [
     badge: "Publishing Standard",
     lessonsCount: 25,
     targetWpm: "30–55+ WPM",
-    duration: "6–8 Hours",
+    duration: "5–7 Hours",
     flag: "🇧🇩",
   },
   {
@@ -72,7 +73,7 @@ const COURSES: FullCourse[] = [
     badge: "Govt Job Standard",
     lessonsCount: 25,
     targetWpm: "30–50+ WPM",
-    duration: "6–8 Hours",
+    duration: "5–7 Hours",
     flag: "🏛️",
   },
   {
@@ -84,7 +85,7 @@ const COURSES: FullCourse[] = [
     badge: "Intuitive Map",
     lessonsCount: 20,
     targetWpm: "25–45+ WPM",
-    duration: "4–5 Hours",
+    duration: "4–6 Hours",
     flag: "🇧🇩",
   },
   {
@@ -94,9 +95,9 @@ const COURSES: FullCourse[] = [
     titleBn: "ইনস্ক্রিপ্ট বাংলা সম্পূর্ণ কোর্স",
     desc: "Official Inscript layout for West Bengal & National Indian standard Bangla typing. Master home row, consonants, matras, and conjuncts.",
     badge: "India National Standard",
-    lessonsCount: 45,
+    lessonsCount: 20,
     targetWpm: "30–50+ WPM",
-    duration: "6–8 Hours",
+    duration: "4–6 Hours",
     flag: "🇮🇳",
   },
 ];
@@ -106,6 +107,8 @@ export default function CoursesCatalogPage() {
   const { activeLayout, setActiveLayout } = useTypingStore();
   const [enrolledIds, setEnrolledIds] = useState<string[]>([]);
   const [progressMap, setProgressMap] = useState<Record<string, number>>({});
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [pendingEnrollCourse, setPendingEnrollCourse] = useState<FullCourse | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -136,7 +139,26 @@ export default function CoursesCatalogPage() {
     });
   }, []);
 
+  useEffect(() => {
+    if (user && pendingEnrollCourse) {
+      const updated = Array.from(new Set([...enrolledIds, pendingEnrollCourse.id]));
+      setEnrolledIds(updated);
+      try {
+        localStorage.setItem("typemaster_enrolled_courses", JSON.stringify(updated));
+      } catch (e) {
+        console.error("Failed to save enrollment:", e);
+      }
+      setActiveLayout(pendingEnrollCourse.layout);
+      setPendingEnrollCourse(null);
+    }
+  }, [user, pendingEnrollCourse, enrolledIds, setActiveLayout]);
+
   const handleEnroll = (course: FullCourse) => {
+    if (!user) {
+      setPendingEnrollCourse(course);
+      setAuthModalOpen(true);
+      return;
+    }
     const updated = Array.from(new Set([...enrolledIds, course.id]));
     setEnrolledIds(updated);
     try {
@@ -321,6 +343,11 @@ export default function CoursesCatalogPage() {
         </div>
       </section>
 
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        initialMode="signup"
+      />
     </main>
   );
 }

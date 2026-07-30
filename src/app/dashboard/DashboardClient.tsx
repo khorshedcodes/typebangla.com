@@ -11,6 +11,7 @@ import { useTypingStore } from "../../store/typingStore";
 import { useAuth } from "../../context/AuthContext";
 import { getAllProgress } from "../../utils/lessons/progress";
 import { CertificateTopUpModal } from "../../components/CertificateTopUpModal";
+import { AuthModal } from "../../components/AuthModal";
 
 interface EarnedCertificate {
   certificateId: string;
@@ -54,6 +55,8 @@ export default function DashboardClient() {
   const [certificates, setCertificates] = useState<EarnedCertificate[]>([]);
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
   const [showTopUpModal, setShowTopUpModal] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState<"login" | "signup">("login");
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -120,18 +123,19 @@ export default function DashboardClient() {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-            <Link href="/login?redirect=/dashboard" className="w-full sm:w-auto">
-              <Button className="w-full text-xs font-bold h-11 px-6 gap-2">
-                Sign In Now <ChevronRight size={14} />
-              </Button>
-            </Link>
-            <Link href="/signup?redirect=/dashboard" className="w-full sm:w-auto">
-              <Button variant="outline" className="w-full text-xs font-bold h-11 px-6 border-border">
-                Create Free Learner Account
-              </Button>
-            </Link>
+            <Button onClick={() => { setAuthModalMode("login"); setAuthModalOpen(true); }} className="w-full sm:w-auto text-xs font-bold h-11 px-6 gap-2">
+              Sign In Now <ChevronRight size={14} />
+            </Button>
+            <Button onClick={() => { setAuthModalMode("signup"); setAuthModalOpen(true); }} variant="outline" className="w-full sm:w-auto text-xs font-bold h-11 px-6 border-border">
+              Create Free Learner Account
+            </Button>
           </div>
         </Card>
+        <AuthModal
+          isOpen={authModalOpen}
+          onClose={() => setAuthModalOpen(false)}
+          initialMode={authModalMode}
+        />
       </main>
     );
   }
