@@ -275,9 +275,6 @@ export default function TypingArea({
                 <Badge variant="outline" className="border-border text-foreground font-semibold bg-secondary text-[10px]">
                   Countdown Timer Active
                 </Badge>
-                <Badge variant="outline" className="border-border text-foreground font-semibold bg-secondary text-[10px]">
-                  Certificate Eligible
-                </Badge>
               </>
             ) : (
               <>

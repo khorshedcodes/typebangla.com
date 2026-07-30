@@ -207,6 +207,24 @@ export default function PracticeClient() {
                 );
               })}
             </div>
+
+            {/* Prominent Direct Launch Bar */}
+            <div className="pt-2 flex items-center justify-between border-t border-border gap-3">
+              <span className="text-xs text-muted-foreground font-semibold">
+                Selected: <strong className="text-foreground uppercase">{activeLayout} Layout</strong>
+              </span>
+              <Button
+                onClick={() => {
+                  resetTest();
+                  setIsArenaActive(true);
+                }}
+                size="sm"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs h-9 px-5 rounded-xl shadow-md gap-1.5 cursor-pointer ring-2 ring-emerald-500/30 animate-pulse"
+              >
+                <Sparkles size={14} />
+                <span>LAUNCH {activeLayout.toUpperCase()} ARENA NOW ➔</span>
+              </Button>
+            </div>
           </div>
 
           {/* Active Lesson Dashboard Card */}
@@ -245,10 +263,10 @@ export default function PracticeClient() {
                     setIsArenaActive(true);
                   }}
                   size="lg"
-                  className="bg-emerald-650 hover:bg-emerald-700 text-white font-extrabold text-xs tracking-wide shadow-md flex items-center justify-center gap-2 h-11 px-6 rounded-xl cursor-pointer"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs tracking-wide shadow-md flex items-center justify-center gap-2 h-11 px-6 rounded-xl cursor-pointer"
                 >
                   <Sparkles size={14} />
-                  <span>START TYPING ARENA</span>
+                  <span>START {activeLayout.toUpperCase()} ARENA</span>
                 </Button>
                 
                 <div className="text-[10px] text-zinc-400 font-semibold text-center select-none">
