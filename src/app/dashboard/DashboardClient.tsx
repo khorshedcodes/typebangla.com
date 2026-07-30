@@ -63,7 +63,7 @@ export default function DashboardClient() {
           setCertificates(JSON.parse(storedCerts));
         }
 
-        const enrolledIds: string[] = JSON.parse(localStorage.getItem("typemaster_enrolled_courses") || '["english-full", "avro-full"]');
+        const enrolledIds: string[] = JSON.parse(localStorage.getItem("typemaster_enrolled_courses") || "[]");
         const allProg = getAllProgress();
         const metaMap: Record<string, { title: string; layout: string; total: number }> = {
           "english-full": { title: "English QWERTY Full Course", layout: "english", total: 20 },

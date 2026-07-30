@@ -114,9 +114,9 @@ export default function CoursesCatalogPage() {
       // Load enrolled course IDs from localStorage
       try {
         const stored = JSON.parse(localStorage.getItem("typemaster_enrolled_courses") || "[]");
-        setEnrolledIds(stored.length > 0 ? stored : ["english-full", "avro-full"]);
+        setEnrolledIds(stored);
       } catch {
-        setEnrolledIds(["english-full", "avro-full"]);
+        setEnrolledIds([]);
       }
 
       const all = getAllProgress();

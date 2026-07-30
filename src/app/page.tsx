@@ -371,30 +371,6 @@ function HeroTypewriter() {
   );
 }
 
-// ── 4. LIVE ACTIVITY TICKER ──────────────────────────────────────────────────
-function LiveActivityTicker() {
-  const [tickerIndex, setTickerIndex] = useState(0);
-  const tickers = [
-    "🎉 রাশেদ আহমেদ (ঢাকা) — স্পিড টেস্টে ৪২ WPM অর্জন করলেন!",
-    "🏆 সুমাইয়া আক্তার (চট্টগ্রাম) — অনার্সে গোল্ড সনদ লাভ করেছেন!",
-    "🏛️ হাসান মাহমুদ (সিলেট) — সরকারি এক্সাম সিমুলেটরে পাস করেছেন!",
-    "⚡ টাইপবাংলা ড্রাইভার — নতুন জাতীয় (Jatiya BCC Govt) লেআউট আপগ্রেড সম্পন্ন!",
-  ];
-
-  useEffect(() => {
-    const t = setInterval(() => setTickerIndex((i) => (i + 1) % tickers.length), 4000);
-    return () => clearInterval(t);
-  }, [tickers.length]);
-
-  return (
-    <div className="bg-emerald-500/10 border-b border-emerald-500/20 text-emerald-500 py-2.5 px-4 text-center text-xs font-bold flex items-center justify-center gap-2 overflow-hidden select-none">
-      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-      <span className="truncate">
-        {tickers[tickerIndex]}
-      </span>
-    </div>
-  );
-}
 
 // ── 5. GOVT SPEED GAUGE WIDGET ────────────────────────────────────────────────
 function GovtSpeedGaugeWidget() {
@@ -520,8 +496,6 @@ export default function LandingPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      {/* Top Live Milestone Ticker */}
-      <LiveActivityTicker />
 
       {/* ── 1. HERO SECTION (CRO CONVERSION ENGINE) ───────────────────────── */}
       <section className="container max-w-6xl mx-auto px-4 sm:px-6 text-center space-y-8 relative pt-4">
