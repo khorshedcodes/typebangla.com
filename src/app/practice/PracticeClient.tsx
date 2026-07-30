@@ -15,6 +15,46 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../..
 import { Badge } from "../../components/ui/badge";
 import { cn } from "../../utils/cn";
 
+const LAYOUT_ITEMS: { id: KeyboardLayout; name: string; flag: string; badge: string }[] = [
+  { id: "avro", name: "Avro Phonetic", flag: "🇧🇩", badge: "Phonetic" },
+  { id: "unibijoy", name: "UniBijoy / Bijoy 52", flag: "🇧🇩", badge: "Unicode & ANSI" },
+  { id: "jatiya", name: "Jatiya (BCC)", flag: "🏛️", badge: "Govt Job Exam" },
+  { id: "probhat", name: "Probhat Layout", flag: "🌅", badge: "Intuitive Map" },
+  { id: "inscript", name: "Inscript Bangla", flag: "🇮🇳", badge: "National Standard" },
+  { id: "english", name: "English QWERTY", flag: "🌐", badge: "Touch Typing" },
+];
+
+const LAYOUT_HELPERS: Record<KeyboardLayout, { title: string; desc: string }> = {
+  avro: {
+    title: "অভ্র ফোনেটিক কীবোর্ড (Phonetic Transliteration)",
+    desc: "ইংরেজি হরফ টাইপ করলেই বাংলায় রূপান্তর হয় — যেমন: 'ami' ➔ 'আমি', 'koba' ➔ 'কবা', 'kh' ➔ 'খ'। শিক্ষানবিসদের জন্য সবচেয়ে সহজ।",
+  },
+  unibijoy: {
+    title: "ইউনিবিজয় / বিজয় ৫২ (UniBijoy Layout)",
+    desc: "ঐতিহ্যবাহী বিজয় কীবোর্ড লেআউট। সরকারি কাজ, মুদ্রণ ও প্রকাশনা শিল্পে প্রফেশনাল ব্যবহারের জন্য উপযোগী।",
+  },
+  unicode: {
+    title: "ইউনিকোড কীবোর্ড লেআউট (Standard Unicode)",
+    desc: "আন্তর্জাতিক স্ট্যান্ডার্ড ইউনিকোড বাংলা কীবোর্ড টাইপিং।",
+  },
+  jatiya: {
+    title: "জাতীয় কীবোর্ড (BCC Govt Standard)",
+    desc: "বাংলাদেশ কম্পিউটার কাউন্সিল (বিসিসি) নির্ধারিত সরকারি চাকরির টাইপিং পরীক্ষার অফিশিয়াল স্ট্যান্ডার্ড।",
+  },
+  probhat: {
+    title: "প্রভাত লেআউট (Probhat Layout)",
+    desc: "সহজ ও ধারাবাহিক বাংলা কীবোর্ড ম্যাপিং। ইংরেজি কী পজিশনের সাথে মিল রেখে বিন্যস্ত।",
+  },
+  inscript: {
+    title: "ইনস্ক্রিপ্ট বাংলা (Inscript National Standard)",
+    desc: "ভারত ও পশ্চিমবঙ্গ সরকারি টাইপিং পরীক্ষার অনুমোদিত জাতীয় কীবোর্ড লেআউট।",
+  },
+  english: {
+    title: "English QWERTY Touch Typing",
+    desc: "Standard English QWERTY keyboard layout for global touch typing, coding, and fast speed drills.",
+  },
+};
+
 export default function PracticeClient() {
   const {
     targetText,
@@ -68,6 +108,7 @@ export default function PracticeClient() {
   const finalWpm = Math.round((typedText.length / 5) / (elapsedTime / 60 || 1));
   const finalAccuracy = Math.round(((typedText.length - errorIndices.length) / (typedText.length || 1)) * 100);
   const nextChar = targetText[typedText.length] || "";
+  const currentHelper = LAYOUT_HELPERS[activeLayout] || LAYOUT_HELPERS.avro;
 
   return (
     <main className="container max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8 fade-in">
@@ -99,10 +140,10 @@ export default function PracticeClient() {
 
         <div className="flex gap-2">
           {!isArenaActive && (
-            <Link href="/layouts">
+            <Link href="/keyboards">
               <Button variant="outline" size="sm" className="gap-1.5 h-9 text-zinc-650 dark:text-zinc-350 cursor-pointer">
                 <Keyboard size={14} />
-                <span className="hidden sm:inline">Explore Keyboards</span>
+                <span className="hidden sm:inline">Explore Keyboard Maps</span>
               </Button>
             </Link>
           )}
@@ -126,8 +167,50 @@ export default function PracticeClient() {
       {!isArenaActive ? (
         /* Setup / Curriculum Dashboard Mode */
         <div className="space-y-8 animate-in fade-in duration-300">
+          
+          {/* 1-Click Interactive 6-Layout Selector Header Bar */}
+          <div className="border border-border bg-card/80 backdrop-blur-md rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-black uppercase text-foreground tracking-wider flex items-center gap-1.5">
+                <Keyboard size={14} className="text-primary" />
+                <span>Select Active Keyboard Layout (কীবোর্ড লেআউট নির্বাচন করুন)</span>
+              </span>
+              <Badge variant="outline" className="text-[10px] font-bold text-primary border-primary/30 bg-primary/5">
+                Active: {activeLayout.toUpperCase()}
+              </Badge>
+            </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+              {LAYOUT_ITEMS.map((item) => {
+                const isActive = activeLayout === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setActiveLayout(item.id);
+                      resetTest();
+                    }}
+                    className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                      isActive
+                        ? "bg-primary text-primary-foreground border-primary shadow-sm ring-2 ring-primary/20 scale-[1.02]"
+                        : "bg-secondary/50 border-border text-foreground hover:bg-secondary hover:border-foreground/40"
+                    }`}
+                  >
+                    <span className="text-base">{item.flag}</span>
+                    <span className="text-xs font-black truncate w-full mt-0.5">{item.name}</span>
+                    <span className={`text-[9px] font-bold mt-1 px-2 py-0.5 rounded-full ${
+                      isActive ? "bg-primary-foreground/20 text-primary-foreground" : "bg-card text-muted-foreground border border-border"
+                    }`}>
+                      {item.badge}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Active Lesson Dashboard Card */}
-          <Card className="border border-zinc-200/60 dark:border-zinc-800/60 rounded-2xl bg-gradient-to-br from-white to-zinc-50/30 dark:from-zinc-900 dark:to-zinc-950/30 p-6 shadow-sm max-w-3xl mx-auto w-full">
+          <Card className="border border-zinc-200/60 dark:border-zinc-800/60 rounded-2xl bg-gradient-to-br from-white to-zinc-50/30 dark:from-zinc-900 dark:to-zinc-950/30 p-6 shadow-sm max-w-4xl mx-auto w-full space-y-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="space-y-3 flex-1 min-w-0">
                 <Badge variant="outline" className="bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-250/35 text-emerald-700 dark:text-emerald-400 font-bold text-[10px] tracking-wide uppercase px-2.5 py-0.5 rounded-full flex items-center gap-1 w-fit">
@@ -173,7 +256,43 @@ export default function PracticeClient() {
                 </div>
               </div>
             </div>
+
+            {/* Contextual Layout Keymap Helper Badge */}
+            <div className="p-3 bg-secondary/60 border border-border rounded-xl flex items-start gap-2.5 text-xs text-muted-foreground">
+              <span className="text-base shrink-0">💡</span>
+              <div className="space-y-0.5">
+                <span className="font-extrabold text-foreground block text-xs">{currentHelper.title}</span>
+                <p className="text-[11px] leading-relaxed text-muted-foreground">{currentHelper.desc}</p>
+              </div>
+            </div>
           </Card>
+
+          {/* Quick Practice Mode Navigation Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Quick Drills:</span>
+              <Link href="/practice/words">
+                <Button size="sm" variant="outline" className="h-8 text-xs font-bold border-border gap-1">
+                  <span>🔤 Words Practice</span>
+                </Button>
+              </Link>
+              <Link href="/practice/sentences">
+                <Button size="sm" variant="outline" className="h-8 text-xs font-bold border-border gap-1">
+                  <span>📝 Sentence Practice</span>
+                </Button>
+              </Link>
+              <Link href="/practice/custom">
+                <Button size="sm" variant="outline" className="h-8 text-xs font-bold border-border gap-1">
+                  <span>✏️ Custom Text</span>
+                </Button>
+              </Link>
+              <Link href="/practice/test">
+                <Button size="sm" variant="outline" className="h-8 text-xs font-bold border-border text-primary gap-1">
+                  <span>⚡ Speed Test</span>
+                </Button>
+              </Link>
+            </div>
+          </div>
 
           {/* Lower Section: Curriculum & Live Analytics Coach side-by-side */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-6 border-t border-border">
@@ -196,7 +315,7 @@ export default function PracticeClient() {
                       onClick={() => setActiveSection(tab)}
                     >
                       <Icon size={13} className={isActive ? "text-emerald-500" : "text-zinc-400"} />
-                      <span>{tab === "speedtest" ? "Speed Test" : tab === "dashboard" ? "Progress Stats" : "Lessons"}</span>
+                      <span>{tab === "speedtest" ? "Speed Test" : tab === "dashboard" ? "Progress Stats" : "Guided Lessons"}</span>
                     </button>
                   );
                 })}
