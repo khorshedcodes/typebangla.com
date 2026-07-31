@@ -10,6 +10,7 @@ import { Badge } from "../../components/ui/badge";
 export default function BanglaLoremClient() {
   const [paragraphs, setParagraphs] = useState(3);
   const [wordsPerParagraph, setWordsPerParagraph] = useState(40);
+  const [loremType, setLoremType] = useState<"lorem" | "natural">("lorem");
   const [level, setLevel] = useState<1 | 2 | 3 | "all">("all");
   const [includeHtml, setIncludeHtml] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -21,6 +22,7 @@ export default function BanglaLoremClient() {
       const pText = generateBanglaPracticeText({
         wordCount: wordsPerParagraph,
         level,
+        type: loremType,
         includePunctuation: true,
       });
       resultArr.push(includeHtml ? `<p>${pText}</p>` : pText);
@@ -30,7 +32,7 @@ export default function BanglaLoremClient() {
 
   useEffect(() => {
     generateContent();
-  }, [paragraphs, wordsPerParagraph, level, includeHtml]);
+  }, [paragraphs, wordsPerParagraph, loremType, level, includeHtml]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(generatedText);
@@ -38,155 +40,166 @@ export default function BanglaLoremClient() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const totalWords = generatedText ? generatedText.trim().split(/\s+/).length : 0;
+  const totalChars = generatedText ? generatedText.length : 0;
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto space-y-8">
-        
-        {/* Header Section */}
-        <div className="text-center space-y-3">
-          <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 px-3 py-1 text-sm rounded-full inline-flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4" /> SEO Tool
-          </Badge>
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
-            বাংলা লরেম ইপসাম জেনারেটর
-          </h1>
-          <p className="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto">
-            ওয়েবসাইট ডিজাইন, ইউআই/ইউএক্স মকআপ এবং প্রিন্ট ডিজাইনের জন্য মানসম্পন্ন বাংলা ডামি টেক্সট তৈরি করুন।
-          </p>
+    <main className="container max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-10 fade-in text-foreground">
+      {/* Header Section */}
+      <section className="text-center space-y-3 max-w-2xl mx-auto">
+        <div className="inline-flex items-center gap-2 bg-secondary border border-border px-3.5 py-1.5 rounded-full text-xs font-bold text-foreground">
+          <Sparkles size={14} className="text-primary animate-pulse" />
+          <span>SEO DESIGNER UTILITY</span>
         </div>
+        <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground">
+          বাংলা লরেম ইপসাম জেনারেটর
+        </h1>
+        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+          ওয়েবসাইট ডিজাইন, ইউআই/ইউএক্স মকআপ এবং প্রিন্টিং মিডিয়া ডিজাইনের জন্য মানসম্মত ডামি বাংলা টেক্সট ও প্যারাগ্রাফ তৈরি করুন।
+        </p>
+      </section>
 
-        {/* Controls Card */}
-        <Card className="bg-slate-900/80 border-slate-800 backdrop-blur-md shadow-xl">
-          <CardContent className="p-6 space-y-6">
-            <div className="flex items-center gap-2 text-emerald-400 font-semibold text-lg border-b border-slate-800 pb-3">
-              <Sliders className="w-5 h-5" /> কাস্টমাইজেশন অপশন
+      {/* Controls Card */}
+      <Card className="border border-border bg-card shadow-xs rounded-2xl">
+        <CardContent className="p-6 space-y-6">
+          <div className="flex items-center justify-between border-b border-border pb-3">
+            <div className="flex items-center gap-2 font-black text-base text-foreground">
+              <Sliders size={18} className="text-primary" />
+              <span>কাস্টমাইজেশন অপশন (Generator Settings)</span>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              {/* Paragraphs Slider */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300 flex justify-between">
-                  <span>অনুচ্ছেদ (Paragraphs):</span>
-                  <span className="text-emerald-400 font-bold">{paragraphs}</span>
-                </label>
-                <input
-                  type="range"
-                  min="1"
-                  max="10"
-                  value={paragraphs}
-                  onChange={(e) => setParagraphs(parseInt(e.target.value, 10))}
-                  className="w-full accent-emerald-500 cursor-pointer bg-slate-800 h-2 rounded-lg"
-                />
-              </div>
-
-              {/* Words per Paragraph Slider */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300 flex justify-between">
-                  <span>শব্দ সংখ্যা (Words/Paragraph):</span>
-                  <span className="text-emerald-400 font-bold">{wordsPerParagraph}</span>
-                </label>
-                <input
-                  type="range"
-                  min="10"
-                  max="100"
-                  step="5"
-                  value={wordsPerParagraph}
-                  onChange={(e) => setWordsPerParagraph(parseInt(e.target.value, 10))}
-                  className="w-full accent-emerald-500 cursor-pointer bg-slate-800 h-2 rounded-lg"
-                />
-              </div>
-
-              {/* Vocabulary Level Selector */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300 block">
-                  শব্দভাণ্ডারের স্তর (Vocabulary Tier):
-                </label>
-                <select
-                  value={level}
-                  onChange={(e) => setLevel(e.target.value === "all" ? "all" : (parseInt(e.target.value, 10) as 1 | 2 | 3))}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                >
-                  <option value="all">সকল ৩,০০০ শব্দ (মিশ্র)</option>
-                  <option value="1">লেভেল ১ (সহজ মৌলিক শব্দ)</option>
-                  <option value="2">লেভেল ২ (মধ্যম দাপ্তরিক শব্দ)</option>
-                  <option value="3">লেভেল ৩ (কঠিন যুক্তবর্ণ শব্দ)</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Action Buttons & Toggles */}
-            <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
-              <div className="flex items-center gap-3">
-                <Button
-                  onClick={() => setIncludeHtml(!includeHtml)}
-                  variant={includeHtml ? "default" : "outline"}
-                  size="sm"
-                  className={includeHtml ? "bg-emerald-600 hover:bg-emerald-500" : "border-slate-700 text-slate-300 hover:bg-slate-800"}
-                >
-                  <Code className="w-4 h-4 mr-1.5" /> HTML &lt;p&gt; ট্যাগ
-                </Button>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Button
-                  onClick={generateContent}
-                  variant="outline"
-                  size="sm"
-                  className="border-slate-700 text-slate-300 hover:bg-slate-800"
-                >
-                  <RefreshCw className="w-4 h-4 mr-1.5" /> নতুনভাবে জেনারেট
-                </Button>
-                <Button
-                  onClick={handleCopy}
-                  className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold shadow-lg shadow-emerald-500/20"
-                  size="sm"
-                >
-                  {copied ? (
-                    <>
-                      <Check className="w-4 h-4 mr-1.5" /> কপি সম্পন্ন!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4 mr-1.5" /> কপি করুন
-                    </>
-                  )}
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Output Text Area */}
-        <Card className="bg-slate-900 border-slate-800 shadow-2xl relative overflow-hidden">
-          <div className="px-6 py-3 bg-slate-800/50 border-b border-slate-800 flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-              <FileText className="w-4 h-4 text-emerald-400" /> আউটপুট টেক্সট ({paragraphs * wordsPerParagraph} শব্দ)
-            </span>
+            <Badge variant="outline" className="text-xs font-bold border-border bg-secondary">
+              {loremType === "lorem" ? "Pseudo-Bangla Lorem" : "Natural Bangla"}
+            </Badge>
           </div>
-          <CardContent className="p-6">
-            <textarea
-              readOnly
-              value={generatedText}
-              rows={10}
-              className="w-full bg-transparent text-slate-200 text-base leading-relaxed resize-none focus:outline-none font-sans"
-            />
-          </CardContent>
-        </Card>
 
-        {/* SEO Information Footer Section */}
-        <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-6 space-y-4 text-slate-400 text-sm">
-          <h2 className="text-lg font-bold text-slate-200">বাংলা লরেম ইপসাম কী এবং কেন ব্যবহৃত হয়?</h2>
-          <p>
-            লরেম ইপসাম (Lorem Ipsum) হলো বিশ্বব্যাপী ওয়েব ডিজাইন, টাইপোগ্রাফি এবং পাবলিশিং ইন্ডাস্ট্রিতে ব্যবহৃত ডামি বা ফিলার টেক্সট। 
-            ডিজাইন প্রক্রিয়ায় মূল কনটেন্ট উপস্থিত না থাকলে ভিজ্যুয়াল আউটলুক ও লেআউট প্রদর্শনের জন্য ডামি টেক্সট ব্যবহার করা হয়।
-          </p>
-          <p>
-            TypeMaster-এর এই **বাংলা লরেম ইপসাম জেনারেটর** টুলটি ৩,০০০টি বিশুদ্ধ ও উচ্চ-ফ্রিকোয়েন্সি বাংলা শব্দের ডাটাবেজ থেকে র্যান্ডম বাক্য তৈরি করে, 
-            যা আপনার ডিজাইনে প্রাকৃতিক বাংলা লেখার অনুভূতি ফুটিয়ে তোলে।
-          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {/* Paragraphs Slider */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs font-bold text-muted-foreground">
+                <span>অনুচ্ছেদ (Paragraphs):</span>
+                <span className="text-primary font-black text-sm">{paragraphs}</span>
+              </div>
+              <input
+                type="range"
+                min="1"
+                max="10"
+                value={paragraphs}
+                onChange={(e) => setParagraphs(parseInt(e.target.value, 10))}
+                className="w-full accent-primary cursor-pointer h-2 bg-secondary rounded-lg"
+              />
+            </div>
+
+            {/* Words per Paragraph Slider */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs font-bold text-muted-foreground">
+                <span>শব্দ সংখ্যা (Words/Paragraph):</span>
+                <span className="text-primary font-black text-sm">{wordsPerParagraph}</span>
+              </div>
+              <input
+                type="range"
+                min="10"
+                max="120"
+                step="5"
+                value={wordsPerParagraph}
+                onChange={(e) => setWordsPerParagraph(parseInt(e.target.value, 10))}
+                className="w-full accent-primary cursor-pointer h-2 bg-secondary rounded-lg"
+              />
+            </div>
+
+            {/* Text Mode Selector */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-muted-foreground block">
+                টেক্সট ধরন (Lorem Mode):
+              </label>
+              <select
+                value={loremType}
+                onChange={(e) => setLoremType(e.target.value as "lorem" | "natural")}
+                className="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-foreground text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
+              >
+                <option value="lorem">ক্লাসিক ফোনেটিক লরেম (লরেম ইপসাম...)</option>
+                <option value="natural">প্রাকৃতিক বাংলা শব্দভাণ্ডার (Natural Bangla)</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Action Buttons & Toggles */}
+          <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-border">
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={() => setIncludeHtml(!includeHtml)}
+                variant={includeHtml ? "default" : "outline"}
+                size="sm"
+                className="font-bold text-xs gap-1.5 h-9 rounded-xl border-border"
+              >
+                <Code size={14} />
+                <span>HTML &lt;p&gt; ট্যাগসহ</span>
+              </Button>
+
+              <Button
+                onClick={generateContent}
+                variant="outline"
+                size="sm"
+                className="font-bold text-xs gap-1.5 h-9 rounded-xl border-border cursor-pointer"
+              >
+                <RefreshCw size={14} />
+                <span>পুনরায় জেনারেট</span>
+              </Button>
+            </div>
+
+            <Button
+              onClick={handleCopy}
+              className="bg-primary text-primary-foreground font-black text-xs gap-2 h-10 px-6 rounded-xl shadow-xs cursor-pointer hover:opacity-95"
+            >
+              {copied ? (
+                <>
+                  <Check size={16} />
+                  <span>কপি সম্পন্ন!</span>
+                </>
+              ) : (
+                <>
+                  <Copy size={16} />
+                  <span>টেক্সট কপি করুন</span>
+                </>
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Output Text Area Card */}
+      <Card className="border border-border bg-card shadow-xs rounded-2xl relative overflow-hidden">
+        <div className="px-6 py-3 bg-secondary border-b border-border flex items-center justify-between">
+          <span className="text-xs font-black text-foreground uppercase tracking-wider flex items-center gap-1.5">
+            <FileText size={14} className="text-primary" />
+            <span>জেনারেটেড টেক্সট আউটপুট</span>
+          </span>
+          <div className="flex items-center gap-3 text-xs font-bold text-muted-foreground">
+            <span>শব্দ: <strong className="text-foreground">{totalWords}</strong></span>
+            <span>•</span>
+            <span>অক্ষর: <strong className="text-foreground">{totalChars}</strong></span>
+          </div>
         </div>
+        <CardContent className="p-6">
+          <textarea
+            readOnly
+            value={generatedText}
+            rows={10}
+            className="w-full bg-transparent text-foreground text-sm sm:text-base leading-relaxed resize-none focus:outline-none font-mono"
+          />
+        </CardContent>
+      </Card>
 
-      </div>
-    </div>
+      {/* SEO Information Footer Section */}
+      <section className="border border-border bg-card rounded-2xl p-6 sm:p-8 space-y-4 text-muted-foreground text-xs sm:text-sm shadow-xs">
+        <h2 className="text-lg font-black text-foreground">বাংলা লরেম ইপসাম (Bangla Lorem Ipsum) কী এবং কেন প্রয়োজন?</h2>
+        <p className="leading-relaxed">
+          লরেম ইপসাম (Lorem Ipsum) হলো বিশ্বব্যাপী ওয়েব ডিজাইন, টাইপোগ্রাফি এবং মুদ্রণ শিল্পে ব্যবহৃত স্ট্যান্ডার্ড ডামি বা ফিলার টেক্সট। 
+          ওয়েবসাইট বা অ্যাপ ডিজাইনের প্রাথমিক ধাপে মূল কনটেন্ট তৈরি না হওয়া পর্যন্ত আউটলুক ও ইউআই টাইপোগ্রাফি মূল্যায়নের জন্য এই টেক্সট ব্যবহৃত হয়।
+        </p>
+        <p className="leading-relaxed">
+          TypeBangla-এর এই <strong>বাংলা লরেম ইপসাম জেনারেটর</strong> ইউজার ফ্রেন্ডলি অপশনের সাহায্যে রিয়েল-টাইমে ফিলার টেক্সট এবং HTML ট্যাগসহ ডামি প্যারাগ্রাফ তৈরি করতে সাহায্য করে।
+        </p>
+      </section>
+    </main>
   );
 }

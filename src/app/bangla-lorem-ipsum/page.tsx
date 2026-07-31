@@ -1,10 +1,11 @@
 import React from "react";
 import { Metadata } from "next";
+import Script from "next/script";
 import BanglaLoremClient from "./BanglaLoremClient";
 
 export const metadata: Metadata = {
-  title: "Bangla Lorem Ipsum Generator | বাংলা লরেম ইপসাম জেনারেটর | TypeMaster",
-  description: "Generate customized Bangla Lorem Ipsum dummy text for websites, UI designs, and printing layouts. Fast, free, and customizable word, sentence, and paragraph generator.",
+  title: "Bangla Lorem Ipsum Generator | বাংলা লরেম ইপসাম জেনারেটর | TypeBangla",
+  description: "Free online Bangla Lorem Ipsum generator for web design, UI/UX mockups, and print typography. Generate custom paragraphs, words, and HTML p tags.",
   keywords: [
     "bangla lorem ipsum",
     "বাংলা লরেম ইপসাম",
@@ -27,5 +28,29 @@ export const metadata: Metadata = {
 };
 
 export default function BanglaLoremPage() {
-  return <BanglaLoremClient />;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Bangla Lorem Ipsum Generator",
+    "url": "https://typebangla.com/bangla-lorem-ipsum",
+    "description": "Generate custom Bangla dummy text and filler paragraphs for web UI designs and publishing.",
+    "applicationCategory": "DesignApplication",
+    "operatingSystem": "All",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  };
+
+  return (
+    <>
+      <Script
+        id="jsonld-lorem-app"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <BanglaLoremClient />
+    </>
+  );
 }

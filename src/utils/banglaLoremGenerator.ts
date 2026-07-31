@@ -6,48 +6,57 @@ import {
 } from "../data/banglaFrequentWords";
 
 export interface BanglaLoremOptions {
-  /**
-   * Total number of words to generate (default: 50)
-   */
   wordCount?: number;
-  /**
-   * Difficulty level: 1 (easy), 2 (medium), 3 (hard/advanced), or "all"
-   */
   level?: 1 | 2 | 3 | "all";
-  /**
-   * Whether to format words into realistic Bangla sentence structures with punctuation
-   */
   includePunctuation?: boolean;
+  type?: "lorem" | "natural";
 }
 
+const LOREM_WORDS = [
+  "লরেম", "ইপসাম", "ডলার", "সিট", "আমেত", "কনসেকটেতুর", "আদিপিসিসিং", "এলিত",
+  "সেদ", "দো", "আইউস্মোদ", "তেম্পোর", "ইনসিদিদুন্ত", "উত", "লাবোরে", "এত",
+  "দোলোরে", "মাগ্না", "আলীকুয়া", "উত", "এনিম", "আদ", "মিনিম", "ভেনিয়াম",
+  "কিস", "নস্ত্রুদ", "এক্সের্সিতাসিয়োন", "উলামকো", "লাবোরিস", "নিসি", "উত",
+  "আলিকুইপ", "েক্স", "এয়া", "কমোদো", "কনসেকুয়াত", "দুইস", "আউতে", "ইরুরে",
+  "দোলোর", "ইন", "রেপ্রেহেনদেরিত", "ইন", "ভোলোপ্তাতে", "ভেলিত", "এসে", "সিলুম",
+  "দোলোরে", "ইউ", "ফু গিয়াৎ", "নুল্লা", "পারিয়াতুর", "এক্সেপ্তুর", "সিন", "ওক্কাএকাত",
+  "কুপাইদাতাত", "নোন", "প্রোইদেন্ত", "সুন্ত", "ইন", "কুল্পা", "কুই", "ওফিসিয়া",
+  "দেরুন্ত", "মোল্লিত", "আনিম", "ইদ", "এস্ত", "লাবোরুম"
+];
+
 /**
- * Generates custom Bangla typing practice text / Lorem Ipsum using the 3,000 top words database.
+ * Generates custom Bangla typing practice text / Lorem Ipsum using 3,000 top Bangla words or classic Bangla Lorem Ipsum.
  */
 export function generateBanglaPracticeText(options: BanglaLoremOptions = {}): string {
   const {
     wordCount = 50,
     level = "all",
-    includePunctuation = false,
+    includePunctuation = true,
+    type = "lorem",
   } = options;
 
   let pool: string[];
-  switch (level) {
-    case 1:
-      pool = BANGLA_WORDS_LEVEL_1;
-      break;
-    case 2:
-      pool = BANGLA_WORDS_LEVEL_2;
-      break;
-    case 3:
-      pool = BANGLA_WORDS_LEVEL_3;
-      break;
-    default:
-      pool = ALL_BANGLA_WORDS;
-      break;
+  if (type === "lorem") {
+    pool = LOREM_WORDS;
+  } else {
+    switch (level) {
+      case 1:
+        pool = BANGLA_WORDS_LEVEL_1;
+        break;
+      case 2:
+        pool = BANGLA_WORDS_LEVEL_2;
+        break;
+      case 3:
+        pool = BANGLA_WORDS_LEVEL_3;
+        break;
+      default:
+        pool = ALL_BANGLA_WORDS;
+        break;
+    }
   }
 
   if (!pool || pool.length === 0) {
-    return "";
+    pool = ALL_BANGLA_WORDS;
   }
 
   const selectedWords: string[] = [];
@@ -73,7 +82,7 @@ export function generateBanglaPracticeText(options: BanglaLoremOptions = {}): st
       word += "।";
       currentSentenceLength = 0;
       targetSentenceLength = Math.floor(Math.random() * 6) + 6;
-    } else if (currentSentenceLength > 3 && Math.random() < 0.2) {
+    } else if (currentSentenceLength > 3 && Math.random() < 0.25) {
       word += ",";
     }
 
