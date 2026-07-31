@@ -185,7 +185,8 @@ export default function Header() {
 
             {/* Mobile Drawer Toggle */}
             <button
-              className="md:hidden flex items-center justify-center w-9 h-9 rounded-md text-foreground hover:bg-secondary border border-border"
+              type="button"
+              className="md:hidden flex items-center justify-center w-9 h-9 rounded-md text-foreground hover:bg-secondary border border-border touch-manipulation cursor-pointer select-none active:scale-95 transition-all"
               onClick={() => setDrawerOpen(!drawerOpen)}
               aria-label="Toggle Navigation Menu"
             >
@@ -209,7 +210,11 @@ export default function Header() {
                 </div>
                 <span className="font-extrabold text-base text-foreground">typebangla</span>
               </Link>
-              <button onClick={() => setDrawerOpen(false)} className="p-1.5 rounded-md text-muted-foreground hover:bg-secondary">
+              <button 
+                type="button" 
+                onClick={() => setDrawerOpen(false)} 
+                className="p-1.5 rounded-md text-muted-foreground hover:bg-secondary touch-manipulation cursor-pointer select-none"
+              >
                 <X size={18} />
               </button>
             </div>

@@ -286,9 +286,10 @@ export default function VoiceClient() {
               <div className="flex items-center space-x-4">
                 {/* Pulsing Mic Button */}
                 <button
+                  type="button"
                   onClick={toggleListening}
                   className={cn(
-                    "w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-300 shadow-xs cursor-pointer focus:outline-none",
+                    "w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-300 shadow-xs cursor-pointer focus:outline-none touch-manipulation select-none active:scale-95 shrink-0",
                     {
                       "bg-red-500 border-red-400 text-white animate-pulse": isListening,
                       "bg-secondary border-border text-foreground hover:border-primary": !isListening
@@ -317,13 +318,14 @@ export default function VoiceClient() {
                     { code: "en-US", label: "🌐 English (EN)" },
                   ].map((l) => (
                     <button
+                      type="button"
                       key={l.code}
                       onClick={() => {
                         if (!isListening) setLang(l.code);
                       }}
                       disabled={isListening}
                       className={cn(
-                        "px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer",
+                        "px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer touch-manipulation select-none active:scale-95",
                         lang === l.code
                           ? "bg-primary text-primary-foreground shadow-xs"
                           : "text-muted-foreground hover:text-foreground disabled:opacity-50"

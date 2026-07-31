@@ -10,8 +10,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "default", size = "default", ...props }, ref) => {
     return (
       <button
+        type="button"
         className={cn(
-          "inline-flex items-center justify-center rounded-md text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98]",
+          "inline-flex items-center justify-center rounded-md text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98] touch-manipulation cursor-pointer select-none",
           {
             "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm border border-primary/20": variant === "default",
             "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm": variant === "destructive",
