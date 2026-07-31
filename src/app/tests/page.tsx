@@ -165,15 +165,6 @@ const ENGLISH_TESTS = [
     badge: "Rankings",
     stats: "Real-time Leaderboard",
   },
-  {
-    href: "/leaderboard",
-    icon: Award,
-    title: "Official Speed Scorecard",
-    titleBn: "টাইপিং গতি ও নির্ভুলতা রিপোর্ট",
-    desc: "পরীক্ষা শেষে তাৎক্ষণিক WPM, নেট গতি, ভুল কী-ম্যাপিং এবং অ্যাকুরেসি অ্যানালিটিক্স প্রতিবেদন।",
-    badge: "Speed Analytics",
-    stats: "Instant WPM Breakdown",
-  },
 ];
 
 export default function TestsHubPage() {
