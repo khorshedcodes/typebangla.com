@@ -117,10 +117,46 @@ export default function BanglaLoremClient() {
                 className="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-foreground text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
               >
                 <option value="lorem">ক্লাসিক ফোনেটিক লরেম (লরেম ইপসাম...)</option>
-                <option value="natural">প্রাকৃতিক বাংলা শব্দভাণ্ডার (Natural Bangla)</option>
+                <option value="natural">৩,০০০+ বাংলা শব্দভাণ্ডার (Natural Bangla DB)</option>
               </select>
             </div>
           </div>
+
+          {/* Vocabulary Tier Selector (Shown when Natural Bangla DB mode is selected) */}
+          {loremType === "natural" && (
+            <div className="p-4 bg-secondary/50 border border-border rounded-xl space-y-2 animate-in fade-in duration-200">
+              <div className="flex items-center justify-between text-xs font-bold text-foreground">
+                <span>বাংলা শব্দভাণ্ডারের স্তর (3,000+ Words DB Tier):</span>
+                <Badge variant="outline" className="text-[10px] border-primary text-primary font-bold">
+                  {level === "all" ? "All 3,000 Words" : `Tier ${level}`}
+                </Badge>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {[
+                  { id: "all", label: "সকল ৩,০০০ শব্দ" },
+                  { id: 1, label: "লেভেল ১ (সহজ শব্দ)" },
+                  { id: 2, label: "লেভেল ২ (দাপ্তরিক শব্দ)" },
+                  { id: 3, label: "লেভেল ৩ (যুক্তবর্ণ শব্দ)" },
+                ].map((tier) => {
+                  const isSelected = level === tier.id;
+                  return (
+                    <button
+                      key={tier.id}
+                      type="button"
+                      onClick={() => setLevel(tier.id as 1 | 2 | 3 | "all")}
+                      className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border text-center cursor-pointer ${
+                        isSelected
+                          ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                          : "bg-card text-muted-foreground border-border hover:text-foreground"
+                      }`}
+                    >
+                      {tier.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Action Buttons & Toggles */}
           <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-border">
