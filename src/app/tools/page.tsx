@@ -46,22 +46,6 @@ const ALL_TOOLS = [
     badge: "AI ভয়েস",
   },
   {
-    href: "/keyboards",
-    icon: Keyboard,
-    title: "Virtual Keyboard Explorer",
-    titleBn: "কীবোর্ড লেআউট মানচিত্র",
-    desc: "Avro, UniBijoy, Jatiya, Probhat ও QWERTY কীবোর্ডের ইন্টারেক্টিভ কী ম্যাপ।",
-    badge: "লেআউট ম্যাপ",
-  },
-  {
-    href: "/stats",
-    icon: BarChart3,
-    title: "Typing Telemetry Analyzer",
-    titleBn: "টাইপিং অ্যানালাইজার",
-    desc: "আপনার টাইপিং গতি, ক্লান্তির লক্ষণ ও ক্ষতিকারক কীজোড় (problematic pairs) বিশ্লেষণ।",
-    badge: "এনালাইটিক্স",
-  },
-  {
     href: "/bangla-slug-generator",
     icon: Wrench,
     title: "Text Cleaner & Slugger",
