@@ -92,28 +92,6 @@ const ALL_MODES: PracticeMode[] = [
     authBenefit: "Paste or File Upload",
   },
   {
-    href: "/tests/1min",
-    icon: Clock,
-    title: "1-Minute Bangla Speed Test",
-    titleBn: "১ মিনিট বাংলা গতি পরীক্ষা",
-    desc: "৬০ সেকেন্ডে অভ্র, ইউনিবিজয় বা জাতীয় লেআউটে আপনার WPM পরিমাপ করুন।",
-    badge: "১ মিনিট টেস্ট",
-    category: "tests",
-    targetWpm: "20 WPM Govt Standard",
-    authBenefit: "1-Min Sprint",
-  },
-  {
-    href: "/tests/5min",
-    icon: Clock,
-    title: "5-Minutes Bangla Speed Test",
-    titleBn: "৫ মিনিট বাংলা গতি পরীক্ষা",
-    desc: "সরকারী চাকরির পরীক্ষা মানসম্মত ৫ মিনিটের ফুল-লেংথ গতি পরীক্ষা।",
-    badge: "৫ মিনিট টেস্ট",
-    category: "tests",
-    targetWpm: "BCC Exam Standard",
-    authBenefit: "BCC Exam Specs",
-  },
-  {
     href: "/practice/sentences?lang=en",
     icon: FileText,
     title: "English Sentence Practice",
@@ -146,33 +124,11 @@ const ALL_MODES: PracticeMode[] = [
     targetWpm: "Accuracy Focus",
     authBenefit: "Symbol & Code Focus",
   },
-  {
-    href: "/tests/english",
-    icon: Clock,
-    title: "1-Minute English Speed Test",
-    titleBn: "১ মিনিট ইংরেজি গতি পরীক্ষা",
-    desc: "৬০ সেকেন্ডে আপনার ইংরেজি টাইপিং WPM ও একুরেসি পরিমাপ করুন।",
-    badge: "1-Min Test",
-    category: "tests",
-    targetWpm: "30-40 WPM",
-    authBenefit: "1-Min Sprint",
-  },
-  {
-    href: "/tests/5min",
-    icon: Clock,
-    title: "5-Minutes English Speed Test",
-    titleBn: "৫ মিনিট ইংরেজি গতি পরীক্ষা",
-    desc: "পেশাদার ফ্রিল্যান্সিং ও ডেটা এন্ট্রি পরীক্ষার মানসম্মত ৫ মিনিটের টেস্ট।",
-    badge: "5-Min Test",
-    category: "tests",
-    targetWpm: "Professional Standard",
-    authBenefit: "5-Min Test",
-  },
 ];
 
 export function PracticeHubClient() {
   const { history, activeLayout, setActiveLayout } = useTypingStore();
-  const [selectedTab, setSelectedTab] = useState<"all" | "bangla" | "english" | "tests" | "tools">("all");
+  const [selectedTab, setSelectedTab] = useState<"all" | "bangla" | "english" | "tools">("all");
 
   const bestWpm = history && history.length > 0 ? Math.max(...history.map((h) => h.wpm)) : 0;
   const avgAccuracy = history && history.length > 0
@@ -287,10 +243,9 @@ export function PracticeHubClient() {
       <div className="flex items-center gap-2 flex-wrap border-b border-border pb-4">
         {(
           [
-            { id: "all", label: "All Modes", count: ALL_MODES.length },
+            { id: "all", label: "All Practice Drills", count: ALL_MODES.length },
             { id: "bangla", label: "🇧🇩 Bangla Drills", count: ALL_MODES.filter(m => m.category === "bangla").length },
-            { id: "english", label: "🇺🇸 English Drills", count: ALL_MODES.filter(m => m.category === "english").length },
-            { id: "tests", label: "⏱️ Speed Tests", count: ALL_MODES.filter(m => m.category === "tests").length },
+            { id: "english", label: "🌐 English Drills", count: ALL_MODES.filter(m => m.category === "english").length },
             { id: "tools", label: "🛠️ Custom & Tools", count: ALL_MODES.filter(m => m.category === "tools").length },
           ] as const
         ).map((tab) => (
