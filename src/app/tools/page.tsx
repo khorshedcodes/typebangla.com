@@ -14,6 +14,14 @@ export const metadata: Metadata = {
 
 const ALL_TOOLS = [
   {
+    href: "/bangla-lorem-ipsum",
+    icon: FileText,
+    title: "Bangla Lorem Ipsum Generator",
+    titleBn: "বাংলা লরেম ইপসাম জেনারেটর",
+    desc: "ওয়েব ডিজাইন, ইউআই/ইউএক্স এবং মুদ্রণের জন্য ডামি বাংলা টেক্সট ও প্যারাগ্রাফ জেনারেটর।",
+    badge: "লরেম জেনারেটর",
+  },
+  {
     href: "/unicode-to-bijoy-converter",
     icon: RefreshCw,
     title: "Unicode ↔ Bijoy Converter",
