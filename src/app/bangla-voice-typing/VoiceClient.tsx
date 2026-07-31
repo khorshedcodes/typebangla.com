@@ -243,8 +243,12 @@ export default function VoiceClient() {
                 <button
                   type="button"
                   onClick={toggleListening}
+                  onTouchEnd={(e) => {
+                    e.preventDefault();
+                    toggleListening();
+                  }}
                   className={cn(
-                    "w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-300 shadow-xs cursor-pointer focus:outline-none touch-manipulation select-none active:scale-95 shrink-0",
+                    "w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-300 shadow-xs cursor-pointer focus:outline-none select-none active:scale-95 shrink-0 pointer-events-auto z-10",
                     {
                       "bg-red-500 border-red-400 text-white animate-pulse": isListening,
                       "bg-secondary border-border text-foreground hover:border-primary": !isListening

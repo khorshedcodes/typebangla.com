@@ -186,11 +186,18 @@ export default function Header() {
             {/* Mobile Drawer Toggle */}
             <button
               type="button"
-              className="md:hidden flex items-center justify-center w-9 h-9 rounded-md text-foreground hover:bg-secondary border border-border touch-manipulation cursor-pointer select-none active:scale-95 transition-all"
-              onClick={() => setDrawerOpen(!drawerOpen)}
+              className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg text-foreground hover:bg-secondary border border-border cursor-pointer pointer-events-auto select-none active:scale-95 transition-all z-50 shrink-0"
+              onClick={(e) => {
+                e.stopPropagation();
+                setDrawerOpen((prev) => !prev);
+              }}
+              onTouchEnd={(e) => {
+                e.stopPropagation();
+                setDrawerOpen((prev) => !prev);
+              }}
               aria-label="Toggle Navigation Menu"
             >
-              {drawerOpen ? <X size={18} /> : <Menu size={18} />}
+              {drawerOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
 
