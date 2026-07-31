@@ -172,12 +172,15 @@ export function PracticeHubClient() {
     ? ALL_MODES
     : ALL_MODES.filter((m) => m.category === selectedTab);
 
-  const LAYOUT_OPTIONS: { id: KeyboardLayout; name: string }[] = [
+  const BANGLA_LAYOUT_OPTIONS: { id: KeyboardLayout; name: string }[] = [
     { id: "avro", name: "Avro Phonetic" },
     { id: "unibijoy", name: "UniBijoy 52" },
     { id: "jatiya", name: "Jatiya BCC" },
     { id: "probhat", name: "Probhat Layout" },
     { id: "inscript", name: "Inscript Bangla" },
+  ];
+
+  const ENGLISH_LAYOUT_OPTIONS: { id: KeyboardLayout; name: string }[] = [
     { id: "english", name: "English QWERTY" },
   ];
 
@@ -226,7 +229,7 @@ export function PracticeHubClient() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {LAYOUT_OPTIONS.map((layout) => (
+            {[...BANGLA_LAYOUT_OPTIONS, ...ENGLISH_LAYOUT_OPTIONS].map((layout) => (
               <button
                 key={layout.id}
                 onClick={() => setActiveLayout(layout.id)}
@@ -298,6 +301,10 @@ export function PracticeHubClient() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredModes.map((mode, i) => {
           const Icon = mode.icon;
+          const isEnglishDrill = mode.category === "english" || mode.href.includes("lang=en") || mode.href.includes("/tests/english");
+          const cardLayoutOptions = isEnglishDrill ? ENGLISH_LAYOUT_OPTIONS : BANGLA_LAYOUT_OPTIONS;
+          const currentLayout = isEnglishDrill ? "english" : (activeLayout === "english" ? "avro" : activeLayout);
+
           return (
             <Card
               key={i}
@@ -319,31 +326,36 @@ export function PracticeHubClient() {
                   <p className="text-xs text-muted-foreground leading-relaxed pt-1">{mode.desc}</p>
                 </div>
 
-                {/* In-Card Layout Selection Pills */}
+                {/* Contextual In-Card Layout Selection Pills */}
                 <div className="pt-2 border-t border-border space-y-2">
                   <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground">
                     <span>Layout for this drill:</span>
-                    <span className="text-primary font-black uppercase">{activeLayout}</span>
+                    <span className="text-primary font-black uppercase">{currentLayout}</span>
                   </div>
-                  <div className="grid grid-cols-4 gap-1">
-                    {LAYOUT_OPTIONS.map((layout) => (
-                      <button
-                        key={layout.id}
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setActiveLayout(layout.id);
-                        }}
-                        className={`px-1.5 py-1 rounded text-[10px] font-bold transition-all text-center border truncate cursor-pointer ${
-                          activeLayout === layout.id
-                            ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                            : "bg-secondary/60 text-muted-foreground border-border hover:bg-secondary hover:text-foreground"
-                        }`}
-                      >
-                        {layout.name.split(" ")[0]}
-                      </button>
-                    ))}
+                  <div className={`grid gap-1 ${isEnglishDrill ? "grid-cols-1" : "grid-cols-3 sm:grid-cols-5"}`}>
+                    {cardLayoutOptions.map((layout) => {
+                      const isSelected = currentLayout === layout.id;
+                      return (
+                        <button
+                          key={layout.id}
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (!isEnglishDrill) {
+                              setActiveLayout(layout.id);
+                            }
+                          }}
+                          className={`px-1.5 py-1 rounded text-[10px] font-bold transition-all text-center border truncate cursor-pointer ${
+                            isSelected
+                              ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                              : "bg-secondary/60 text-muted-foreground border-border hover:bg-secondary hover:text-foreground"
+                          }`}
+                        >
+                          {layout.name.split(" ")[0]}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -364,9 +376,9 @@ export function PracticeHubClient() {
                     </span>
                   </div>
 
-                  <Link href={`${mode.href}${mode.href.includes("?") ? "&" : "?"}layout=${activeLayout}`} className="block pt-1">
+                  <Link href={`${mode.href}${mode.href.includes("?") ? "&" : "?"}layout=${currentLayout}`} className="block pt-1">
                     <Button className="w-full font-black text-xs gap-2 h-10 rounded-xl shadow-xs bg-primary text-primary-foreground hover:opacity-95">
-                      <span>Start in {activeLayout.toUpperCase()}</span>
+                      <span>Start in {currentLayout.toUpperCase()}</span>
                       <ArrowRight size={14} />
                     </Button>
                   </Link>
