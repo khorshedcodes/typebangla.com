@@ -187,14 +187,7 @@ export default function Header() {
             <button
               type="button"
               className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg text-foreground hover:bg-secondary border border-border cursor-pointer pointer-events-auto select-none active:scale-95 transition-all z-50 shrink-0"
-              onClick={(e) => {
-                e.stopPropagation();
-                setDrawerOpen((prev) => !prev);
-              }}
-              onTouchEnd={(e) => {
-                e.stopPropagation();
-                setDrawerOpen((prev) => !prev);
-              }}
+              onClick={() => setDrawerOpen((prev) => !prev)}
               aria-label="Toggle Navigation Menu"
             >
               {drawerOpen ? <X size={20} /> : <Menu size={20} />}
