@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Mic, MicOff, Copy, Check, RotateCcw, Download, Sparkles, AlertTriangle, Info } from "lucide-react";
+import { Mic, MicOff, Copy, Check, RotateCcw, Download, Sparkles, AlertTriangle, Info, Activity } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader } from "../../components/ui/card";
 import { cn } from "../../utils/cn";
@@ -41,13 +41,19 @@ export default function VoiceClient() {
   const [inputText, setInputText] = useState("");
   const [interimText, setInterimText] = useState("");
   const [isListening, setIsListening] = useState(false);
+  const [audioLevel, setAudioLevel] = useState(0);
   const [lang, setLang] = useState("bn-BD");
   const [copied, setCopied] = useState(false);
   const [supported, setSupported] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const recognitionRef = useRef<ISpeechRecognition | null>(null);
   const shouldListenRef = useRef(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const animFrameRef = useRef<number | null>(null);
 
+  // Initialize Web Speech Recognition
   useEffect(() => {
     const SpeechRecognition = typeof window !== "undefined" && (
       (window as Window & { SpeechRecognition?: new () => ISpeechRecognition }).SpeechRecognition || 
@@ -62,23 +68,31 @@ export default function VoiceClient() {
     rec.continuous = true;
     rec.interimResults = true;
     rec.lang = lang;
+
     rec.onstart = () => {
       setIsListening(true);
       setError(null);
     };
+
     rec.onend = () => { 
+      setInterimText("");
       if (shouldListenRef.current) {
-        try {
-          rec.start();
-        } catch {
-          setIsListening(false);
-          shouldListenRef.current = false;
-        }
+        // Safe 200ms restart to prevent Chrome invalid state errors
+        setTimeout(() => {
+          if (shouldListenRef.current) {
+            try {
+              rec.start();
+            } catch {
+              setIsListening(false);
+              shouldListenRef.current = false;
+            }
+          }
+        }, 200);
       } else {
         setIsListening(false); 
-        setInterimText("");
       }
     };
+
     rec.onerror = (event: ISpeechRecognitionErrorEvent) => {
       if (event.error === "no-speech" || event.error === "aborted") {
         return;
@@ -93,7 +107,7 @@ export default function VoiceClient() {
       } else if (event.error === "audio-capture") {
         errorMsg = "মাইক্রোফোন বা রেকর্ডার পাওয়া যায়নি। আপনার ডিভাইস সংযোগ পরীক্ষা করুন।";
       } else if (event.error === "network") {
-        errorMsg = "নেটওয়ার্ক সমস্যা দেখা দিয়েছে। আপনার ইন্টারনেট সংযোগ পরীক্ষা করুন।";
+        errorMsg = "নেটওয়ার্ক সমস্যা দেখা দিয়েছে। ইন্টারনেট সংযোগ ও ভয়েস ইঞ্জিন পরীক্ষা করুন।";
       } else if (event.error === "language-not-supported") {
         errorMsg = "নির্বাচিত ভাষাটি আপনার ব্রাউজার ইঞ্জিনে সমর্থিত নয়।";
       } else {
@@ -101,21 +115,70 @@ export default function VoiceClient() {
       }
       setError(errorMsg);
     };
+
     rec.onresult = (event: ISpeechRecognitionEvent) => {
       let final = "", interim = "";
       for (let i = event.resultIndex; i < event.results.length; ++i) {
-        if (event.results[i].isFinal) final += event.results[i][0].transcript + " ";
-        else interim += event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          final += event.results[i][0].transcript + " ";
+        } else {
+          interim += event.results[i][0].transcript;
+        }
       }
-      if (final) setInputText(prev => prev + final);
+      if (final) {
+        setInputText(prev => prev + final);
+      }
       setInterimText(interim);
     };
+
     recognitionRef.current = rec;
     return () => { 
       shouldListenRef.current = false;
       if (recognitionRef.current) recognitionRef.current.stop(); 
     };
   }, [lang]);
+
+  // Real-time Microphone Audio Level Monitor (Web Audio API)
+  const startMicMonitor = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStreamRef.current = stream;
+      const audioCtx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      audioContextRef.current = audioCtx;
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 64;
+      const source = audioCtx.createMediaStreamSource(stream);
+      source.connect(analyser);
+
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+      const updateVolume = () => {
+        analyser.getByteFrequencyData(dataArray);
+        let sum = 0;
+        for (let i = 0; i < dataArray.length; i++) {
+          sum += dataArray[i];
+        }
+        const average = sum / dataArray.length;
+        setAudioLevel(Math.min(100, Math.round((average / 128) * 100)));
+        if (shouldListenRef.current) {
+          animFrameRef.current = requestAnimationFrame(updateVolume);
+        }
+      };
+      updateVolume();
+    } catch {
+      // Audio stream error fallback
+    }
+  };
+
+  const stopMicMonitor = () => {
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach(track => track.stop());
+    }
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+    }
+    setAudioLevel(0);
+  };
 
   const toggleListening = () => {
     setError(null);
@@ -126,6 +189,7 @@ export default function VoiceClient() {
     if (shouldListenRef.current) {
       shouldListenRef.current = false;
       setIsListening(false);
+      stopMicMonitor();
       try {
         recognitionRef.current?.stop();
       } catch (e) {
@@ -134,12 +198,14 @@ export default function VoiceClient() {
     } else {
       shouldListenRef.current = true;
       setIsListening(true);
+      startMicMonitor();
       try {
         recognitionRef.current?.start();
       } catch (e) {
         console.error(e);
         shouldListenRef.current = false;
         setIsListening(false);
+        stopMicMonitor();
       }
     }
   };
@@ -270,6 +336,22 @@ export default function VoiceClient() {
               </div>
 
             </CardContent>
+
+            {/* Live Audio Level Meter Indicator */}
+            {isListening && (
+              <div className="px-5 pb-4 pt-1 border-t border-border flex items-center justify-between gap-4 text-xs font-bold text-muted-foreground">
+                <div className="flex items-center gap-2 text-primary">
+                  <Activity size={14} className="animate-pulse" />
+                  <span>Mic Input Level: {audioLevel}%</span>
+                </div>
+                <div className="flex-1 max-w-xs h-2 bg-secondary rounded-full overflow-hidden border border-border">
+                  <div 
+                    className="h-full bg-emerald-500 transition-all duration-75"
+                    style={{ width: `${audioLevel}%` }}
+                  />
+                </div>
+              </div>
+            )}
           </Card>
 
           {/* Text Editor Canvas */}
