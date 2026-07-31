@@ -1,16 +1,53 @@
 import React from "react";
 import { Metadata } from "next";
+import Script from "next/script";
 import PhoneticClient from "./PhoneticClient";
 
 export const metadata: Metadata = {
-  title: "English to Bangla Typing | ইংরেজি থেকে বাংলা টাইপিং অনলাইন | typebangla",
-  description: "Free online English to Bangla typing converter. Type in phonetic Banglish (e.g. amar) and get Unicode Bangla (আমার) in real-time. Copy or download text.",
-  keywords: ["english to bangla typing", "ইংরেজি থেকে বাংলা টাইপিং", "ইংরেজি থেকে বাংলা টাইপ", "bangla typing online", "banglish to bangla converter", "online bangla writing", "write bangla online", "typebangla"],
+  title: "English to Bangla Typing Online | ইংরেজি টু বাংলা টাইপিং (Phonetic Converter) | TypeBangla",
+  description: "Type in English / Banglish phonetics (e.g. ami banglay gan gai) to get instant Bangla Unicode text. Free online phonetic Bangla typing tool.",
+  keywords: [
+    "english to bangla typing",
+    "ইংরেজি টু বাংলা টাইপিং",
+    "banglish to bangla converter",
+    "phonetic bangla typing online",
+    "ami banglay gan gai",
+    "avro phonetic online",
+    "typebangla"
+  ],
   alternates: {
     canonical: "https://typebangla.com/english-to-bangla-typing",
   }
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "English to Bangla Phonetic Typing Converter",
+      "url": "https://typebangla.com/english-to-bangla-typing",
+      "description": "Convert English / Banglish phonetics to Bangla Unicode text in real-time.",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+  ]
+};
+
 export default function Page() {
-  return <PhoneticClient />;
+  return (
+    <>
+      <Script
+        id="jsonld-phonetic-typing"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <PhoneticClient />
+    </>
+  );
 }

@@ -73,17 +73,20 @@ export default function PhoneticClient() {
   };
 
   return (
-    <main className="container max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8 fade-in">
+    <main className="container max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-10 fade-in text-foreground">
       {/* Page Header */}
-      <div className="space-y-0.5">
-        <h1 className="text-xl font-bold text-zinc-900 flex items-center gap-2">
-          <Sparkles className="text-emerald-600" size={18} />
-          <span>Phonetic Bangla Typing</span>
+      <section className="text-center space-y-3 max-w-2xl mx-auto">
+        <div className="inline-flex items-center gap-2 bg-secondary border border-border px-3.5 py-1.5 rounded-full text-xs font-bold text-foreground">
+          <Sparkles size={14} className="text-primary animate-pulse" />
+          <span>ENGLISH ➔ BANGLA PHONETIC CONVERTER</span>
+        </div>
+        <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground">
+          English to Bangla Typing
         </h1>
-        <p className="text-xs text-muted-foreground">
-          Type in English (Banglish) and get Bangla Unicode output instantly in real-time.
+        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+          ইংরেজিতে টাইপ করুন (যেমন: ami banglay gan gai) এবং তাৎক্ষণিক বাংলা ইউনিকোড পান (আমি বাংলায় গান গাই)।
         </p>
-      </div>
+      </section>
 
       {/* Two Column Tool Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
@@ -92,27 +95,27 @@ export default function PhoneticClient() {
         <div className="lg:col-span-2 space-y-6">
           
           {/* Input Panel */}
-          <Card className="border border-border bg-card shadow-sm">
-            <CardHeader className="pb-3">
-              <span className="text-xs font-bold text-zinc-900">English (Banglish) Input</span>
+          <Card className="border border-border bg-card shadow-xs rounded-2xl">
+            <CardHeader className="pb-3 border-b border-border">
+              <span className="text-xs font-black text-foreground">English (Banglish) Input</span>
             </CardHeader>
-            <CardContent className="p-0 border-t border-border">
+            <CardContent className="p-0">
               <textarea
-                className="w-full text-base p-5 border-0 bg-white text-zinc-900 placeholder:text-zinc-400 focus:outline-none min-h-[160px] resize-y leading-relaxed font-mono"
+                className="w-full text-base p-5 border-0 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none min-h-[160px] resize-y leading-relaxed font-mono"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                placeholder="Type phonetic text here... (e.g. amar sonar bangla, ami tomay valobashi)"
+                placeholder="এখানে ফোনেটিক লিখুন... (e.g. amar sonar bangla, ami tomay valobashi)"
               />
-              <div className="p-4 flex justify-between items-center text-[10px] font-medium text-muted-foreground bg-zinc-50 border-t border-border">
-                <span>Characters: {inputText.length}</span>
+              <div className="p-4 flex justify-between items-center text-xs font-bold text-muted-foreground bg-secondary border-t border-border rounded-b-2xl">
+                <span>অক্ষর: <strong className="text-foreground">{inputText.length}</strong></span>
                 {inputText && (
                   <Button 
                     variant="outline"
                     size="sm"
                     onClick={() => setInputText("")} 
-                    className="h-7 text-[10px] gap-1 border-zinc-200"
+                    className="h-7 text-xs gap-1 border-border font-bold cursor-pointer"
                   >
-                    <RotateCcw size={11} className="text-zinc-400" />
+                    <RotateCcw size={12} />
                     <span>Clear</span>
                   </Button>
                 )}
@@ -121,17 +124,17 @@ export default function PhoneticClient() {
           </Card>
 
           {/* Output Panel */}
-          <Card className="border border-border bg-card shadow-sm">
-            <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
-              <span className="text-xs font-bold text-emerald-700">Bangla Unicode Output</span>
+          <Card className="border border-border bg-card shadow-xs rounded-2xl">
+            <CardHeader className="pb-3 border-b border-border flex flex-row items-center justify-between space-y-0">
+              <span className="text-xs font-black text-primary">Bangla Unicode Output</span>
               {outputText && (
                 <div className="flex gap-2">
                   <Button 
                     variant="outline"
                     size="sm"
                     onClick={handleCopy} 
-                    className={cn("gap-1.5 h-8 border-zinc-200 text-xs", {
-                      "border-emerald-200 text-emerald-700 bg-emerald-50/50": copied
+                    className={cn("gap-1.5 h-8 border-border text-xs font-bold cursor-pointer", {
+                      "border-primary text-primary bg-primary/10": copied
                     })}
                   >
                     {copied ? <Check size={12} /> : <Copy size={12} />}
@@ -141,7 +144,7 @@ export default function PhoneticClient() {
                     variant="outline"
                     size="sm"
                     onClick={handleDownload} 
-                    className="gap-1.5 h-8 border-zinc-200 text-xs text-zinc-650"
+                    className="gap-1.5 h-8 border-border text-xs font-bold cursor-pointer"
                   >
                     <Download size={12} />
                     <span>Download</span>
@@ -149,20 +152,19 @@ export default function PhoneticClient() {
                 </div>
               )}
             </CardHeader>
-            <CardContent className="p-0 border-t border-border">
-              <div className="p-5 font-bangla text-base min-h-[160px] bg-white leading-relaxed text-zinc-900 break-words">
+            <CardContent className="p-0">
+              <div className="p-5 text-base min-h-[160px] bg-transparent leading-relaxed text-foreground break-words font-mono">
                 {outputText || (
-                  <span className="text-zinc-400 text-xs font-sans">
-                    বাংলা লেখা এখানে পাওয়া যাবে...
+                  <span className="text-muted-foreground text-xs font-sans">
+                    বাংলা রূপান্তর এখানে দেখা যাবে...
                   </span>
                 )}
               </div>
-              <div className="p-4 flex justify-between items-center text-[10px] font-medium text-muted-foreground bg-zinc-50 border-t border-border rounded-b-lg h-[46px]">
-                <span>Characters: {outputText.length}</span>
+              <div className="p-4 flex justify-between items-center text-xs font-bold text-muted-foreground bg-secondary border-t border-border rounded-b-2xl h-[46px]">
+                <span>অক্ষর: <strong className="text-foreground">{outputText.length}</strong></span>
               </div>
             </CardContent>
           </Card>
-
         </div>
 
         {/* Right Column: Sticky Rules Guide */}
