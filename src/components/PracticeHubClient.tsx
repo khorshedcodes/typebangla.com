@@ -298,31 +298,35 @@ export function PracticeHubClient() {
                     <span>Layout for this drill:</span>
                     <span className="text-primary font-black uppercase">{currentLayout}</span>
                   </div>
-                  <div className={`grid gap-1 ${isEnglishDrill ? "grid-cols-1" : "grid-cols-3 sm:grid-cols-5"}`}>
-                    {cardLayoutOptions.map((layout) => {
-                      const isSelected = currentLayout === layout.id;
-                      return (
-                        <button
-                          key={layout.id}
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            if (!isEnglishDrill) {
+                  {isEnglishDrill ? (
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-secondary text-foreground border border-border text-[10px] font-bold w-fit">
+                      <span>🌐 English QWERTY Layout</span>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-1">
+                      {cardLayoutOptions.map((layout) => {
+                        const isSelected = currentLayout === layout.id;
+                        return (
+                          <button
+                            key={layout.id}
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
                               setActiveLayout(layout.id);
-                            }
-                          }}
-                          className={`px-1.5 py-1 rounded text-[10px] font-bold transition-all text-center border truncate cursor-pointer ${
-                            isSelected
-                              ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                              : "bg-secondary/60 text-muted-foreground border-border hover:bg-secondary hover:text-foreground"
-                          }`}
-                        >
-                          {layout.name.split(" ")[0]}
-                        </button>
-                      );
-                    })}
-                  </div>
+                            }}
+                            className={`px-1.5 py-1 rounded text-[10px] font-bold transition-all text-center border truncate cursor-pointer ${
+                              isSelected
+                                ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                                : "bg-secondary/60 text-muted-foreground border-border hover:bg-secondary hover:text-foreground"
+                            }`}
+                          >
+                            {layout.name.split(" ")[0]}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 <div className="pt-2 border-t border-border space-y-3">
