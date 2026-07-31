@@ -27,12 +27,12 @@ const BANGLA_TESTS = [
     icon: Clock,
     title: "Avro 1-Min Speed Test",
     titleBn: "অভ্র ফোনেটিক ১ মিনিট গতি পরীক্ষা",
-    desc: "অভ্র ফোনেটিক ফোনেটিক কী ম্যাপিং দিয়ে ৬০ সেকেন্ডে বাংলা স্পিড পরিমাপ।",
+    desc: "অভ্র ফোনেটিক কী ম্যাপিং দিয়ে ৬০ সেকেন্ডে বাংলা স্পিড পরিমাপ।",
     badge: "Avro Layout",
     stats: "60 Sec • Avro Phonetic",
   },
   {
-    href: "/tests/5min",
+    href: "/tests/5min?layout=avro",
     icon: Clock,
     title: "Avro 5-Min Official Test",
     titleBn: "অভ্র ৫ মিনিট পূর্ণাঙ্গ পরীক্ষা",
@@ -50,7 +50,7 @@ const BANGLA_TESTS = [
     stats: "60 Sec • Bijoy Layout",
   },
   {
-    href: "/tests/5min",
+    href: "/tests/5min?layout=unibijoy",
     icon: Keyboard,
     title: "UniBijoy 5-Min Full Test",
     titleBn: "ইউনিবিজয় ৫ মিনিট পূর্ণাঙ্গ পরীক্ষা",
@@ -65,16 +65,25 @@ const BANGLA_TESTS = [
     titleBn: "জাতীয় কীবোর্ড সরকারি পরীক্ষা",
     desc: "বাংলাদেশ কম্পিউটার কাউন্সিল (BCC) ও মন্ত্রণালয় নিয়োগ পরীক্ষার রিয়েল সিমুলেটর।",
     badge: "Govt Standard",
-    stats: "Govt Criteria & Timer",
+    stats: "BCC 20 WPM Criteria",
   },
   {
-    href: "/tests/1min",
+    href: "/tests/1min?layout=probhat",
     icon: FileText,
     title: "Probhat Layout Speed Test",
     titleBn: "প্রভাত কীবোর্ড গতি পরীক্ষা",
     desc: "প্রভাত লেআউটে ৬০ সেকেন্ডের গতি ও নির্ভুলতা টেস্ট।",
     badge: "Probhat Map",
     stats: "60 Sec • Probhat Layout",
+  },
+  {
+    href: "/tests/1min?layout=inscript",
+    icon: Keyboard,
+    title: "Inscript Bangla Speed Test",
+    titleBn: "ইনস্ক্রিপ্ট বাংলা গতি পরীক্ষা",
+    desc: "জাতীয় ইনস্ক্রিপ্ট লেআউটে ৬০ সেকেন্ডের গতি পরীক্ষা।",
+    badge: "Inscript Layout",
+    stats: "60 Sec • Inscript Map",
   },
 ];
 
@@ -93,12 +102,12 @@ const ENGLISH_TESTS = [
     icon: Clock,
     title: "English 3-Min Endurance Test",
     titleBn: "ইংরেজি ৩ মিনিট সহনশীলতা পরীক্ষা",
-    desc: "দীর্ঘ সময় ধরে টাইপিং গতি ও ধারাবাহিক নির্ভুলতা বজায় রাখার টেস্ট।",
+    desc: "দীর্ঘ সময় ধরে টাইপিং গতি ও ধারাবাহিক নির্ভুলতা বজায় রাখার টেস্ট।",
     badge: "QWERTY 3-Min",
     stats: "180 Sec • Endurance",
   },
   {
-    href: "/tests/5min",
+    href: "/tests/5min?layout=english",
     icon: Clock,
     title: "English 5-Min Official Test",
     titleBn: "ইংরেজি ৫ মিনিট অফিসিয়াল পরীক্ষা",
@@ -116,13 +125,13 @@ const ENGLISH_TESTS = [
     stats: "Real-time Leaderboard",
   },
   {
-    href: "/exam/ranked",
+    href: "/leaderboard",
     icon: Award,
-    title: "Verified Certificate",
-    titleBn: "অফিসিয়াল প্রতিযোগিতা সনদপত্র",
-    desc: "জাতীয় প্রতিযোগিতা বা সরকারি পরীক্ষায় ৮৫%+ নির্ভুলতায় উত্তীর্ণ হয়ে ডিজিটাল সনদপত্র লাভ করুন।",
-    badge: "Official Certificate",
-    stats: "QR Verified Certificate",
+    title: "Official Speed Scorecard",
+    titleBn: "টাইপিং গতি ও নির্ভুলতা রিপোর্ট",
+    desc: "পরীক্ষা শেষে তাৎক্ষণিক WPM, নেট গতি, ভুল কী-ম্যাপিং এবং অ্যাকুরেসি অ্যানালিটিক্স প্রতিবেদন।",
+    badge: "Speed Analytics",
+    stats: "Instant WPM Breakdown",
   },
 ];
 
@@ -133,15 +142,15 @@ export default function TestsHubPage() {
       <section className="text-center space-y-4 max-w-3xl mx-auto">
         <div className="inline-flex items-center gap-2 bg-secondary border border-border px-3.5 py-1.5 rounded-full text-xs font-bold text-foreground">
           <Sparkles size={14} />
-          <span>TESTS & EXAMS HUB</span>
+          <span>STRICT TIMED SPEED EVALUATION CENTER</span>
         </div>
 
         <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground">
-          Typing Tests & Exam Simulators
+          Typing Speed Tests & Exam Simulators
         </h1>
 
         <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-xl mx-auto">
-          Choose a timed speed test or official government exam simulator to test your WPM and earn verified certificates.
+          Evaluate your net WPM speed and typing accuracy under exam conditions with timed 1-min, 3-min, and 5-min tests across all 6 keyboard layouts.
         </p>
       </section>
 
@@ -157,12 +166,12 @@ export default function TestsHubPage() {
               3-Minute National Speed Competition
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              Test your speed on Avro, UniBijoy, Jatiya, or English. Score <strong>85%+ accuracy</strong> within 3 minutes to automatically qualify for the National Leaderboard and earn a verified certificate.
+              Test your speed on Avro, UniBijoy, Jatiya, Probhat, Inscript, or English. Score <strong>85%+ accuracy</strong> within 3 minutes to qualify for the National Leaderboard ranking.
             </p>
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-1 text-xs font-bold text-foreground">
               <span className="flex items-center gap-1.5"><Clock size={14} className="text-primary" /> 180 Seconds</span>
               <span className="flex items-center gap-1.5"><ShieldCheck size={14} className="text-emerald-500" /> 85%+ Accuracy Pass</span>
-              <span className="flex items-center gap-1.5"><Award size={14} className="text-amber-500" /> Free Certificate</span>
+              <span className="flex items-center gap-1.5"><Award size={14} className="text-amber-500" /> National Scorecard</span>
             </div>
           </div>
 
@@ -187,7 +196,7 @@ export default function TestsHubPage() {
           <span className="text-2xl">🇧🇩</span>
           <div>
             <h2 className="text-xl font-black text-foreground">Bangla Speed Tests & Exam Simulators</h2>
-            <p className="text-xs text-muted-foreground">অভ্র ফোনেটিক, ইউনিবিজয়, জাতীয় কীবোর্ড ও সরকারি চাকরির পরীক্ষা সিমুলেটর</p>
+            <p className="text-xs text-muted-foreground">অভ্র ফোনেটিক, ইউনিবিজয়, জাতীয়, প্রভাত ও ইনস্ক্রিপ্ট কীবোর্ডে সময়ভিত্তিক পরীক্ষা</p>
           </div>
         </div>
 
@@ -230,13 +239,13 @@ export default function TestsHubPage() {
         </div>
       </section>
 
-      {/* ── SECTION 2: ENGLISH SPEED TESTS & CERTIFICATION ── */}
+      {/* ── SECTION 2: ENGLISH SPEED TESTS ── */}
       <section className="space-y-6">
         <div className="flex items-center gap-3 border-b border-border pb-3">
           <span className="text-2xl">🇺🇸</span>
           <div>
-            <h2 className="text-xl font-black text-foreground">English Speed Tests & Certification</h2>
-            <p className="text-xs text-muted-foreground">Standard English QWERTY 1-min, 3-min, 5-min speed tests & certificates</p>
+            <h2 className="text-xl font-black text-foreground">English Speed Tests & Scorecards</h2>
+            <p className="text-xs text-muted-foreground">Standard English QWERTY 1-min, 3-min, and 5-min WPM speed evaluations</p>
           </div>
         </div>
 
@@ -280,15 +289,15 @@ export default function TestsHubPage() {
       </section>
 
       {/* Footer Banner */}
-      <section className="border border-border bg-primary text-primary-foreground rounded-xl p-8 text-center space-y-4 shadow-xs">
-        <h2 className="text-2xl font-black">Ready to get your official certificate?</h2>
-        <p className="text-xs text-primary-foreground/80 max-w-lg mx-auto">
-          Take the 1-minute or 5-minute speed test and instantly download a high-resolution verified PNG certificate.
+      <section className="border border-border bg-primary text-primary-foreground rounded-2xl p-8 text-center space-y-4 shadow-sm">
+        <h2 className="text-2xl font-black">Ready to test your typing WPM?</h2>
+        <p className="text-xs text-primary-foreground/80 max-w-lg mx-auto leading-relaxed">
+          Take a 1-minute or 5-minute timed speed test across Avro, UniBijoy, Jatiya, Probhat, Inscript, or English QWERTY layouts and evaluate your net typing speed.
         </p>
         <div className="pt-2">
-          <Link href="/practice/test?duration=60">
-            <Button variant="secondary" className="font-bold text-xs h-11 px-7 rounded-md">
-              Start 1-Min Test Now →
+          <Link href="/tests/1min">
+            <Button variant="secondary" className="font-extrabold text-xs h-11 px-7 rounded-xl">
+              Start 1-Min Speed Test Now →
             </Button>
           </Link>
         </div>

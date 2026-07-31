@@ -203,13 +203,13 @@ export function PracticeHubClient() {
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary text-xs font-bold border border-border">
               <Zap size={14} className="text-primary animate-pulse" />
-              <span>LIVE TYPING TELEMETRY</span>
+              <span>UNTIMED SKILL DRILLS & MUSCLE MEMORY</span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-foreground">
               Bangla & English Practice Hub
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground max-w-xl">
-              Master Bangla & English typing with structured word drills, literature passages, Juktakkhor breakdowns, and standard speed tests.
+              Build muscle memory and typing precision with structured word drills, literature passages, Juktakkhor breakdowns, and custom text.
             </p>
           </div>
 
