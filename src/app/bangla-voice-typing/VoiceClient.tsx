@@ -77,7 +77,6 @@ export default function VoiceClient() {
     rec.onend = () => { 
       setInterimText("");
       if (shouldListenRef.current) {
-        // Safe 200ms restart to prevent Chrome invalid state errors
         setTimeout(() => {
           if (shouldListenRef.current) {
             try {
@@ -138,48 +137,6 @@ export default function VoiceClient() {
     };
   }, [lang]);
 
-  // Real-time Microphone Audio Level Monitor (Web Audio API)
-  const startMicMonitor = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaStreamRef.current = stream;
-      const audioCtx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-      audioContextRef.current = audioCtx;
-      const analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 64;
-      const source = audioCtx.createMediaStreamSource(stream);
-      source.connect(analyser);
-
-      const dataArray = new Uint8Array(analyser.frequencyBinCount);
-      const updateVolume = () => {
-        analyser.getByteFrequencyData(dataArray);
-        let sum = 0;
-        for (let i = 0; i < dataArray.length; i++) {
-          sum += dataArray[i];
-        }
-        const average = sum / dataArray.length;
-        setAudioLevel(Math.min(100, Math.round((average / 128) * 100)));
-        if (shouldListenRef.current) {
-          animFrameRef.current = requestAnimationFrame(updateVolume);
-        }
-      };
-      updateVolume();
-    } catch {
-      // Audio stream error fallback
-    }
-  };
-
-  const stopMicMonitor = () => {
-    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-    if (mediaStreamRef.current) {
-      mediaStreamRef.current.getTracks().forEach(track => track.stop());
-    }
-    if (audioContextRef.current) {
-      audioContextRef.current.close();
-    }
-    setAudioLevel(0);
-  };
-
   const toggleListening = () => {
     setError(null);
     if (!supported) { 
@@ -189,7 +146,6 @@ export default function VoiceClient() {
     if (shouldListenRef.current) {
       shouldListenRef.current = false;
       setIsListening(false);
-      stopMicMonitor();
       try {
         recognitionRef.current?.stop();
       } catch (e) {
@@ -198,14 +154,13 @@ export default function VoiceClient() {
     } else {
       shouldListenRef.current = true;
       setIsListening(true);
-      startMicMonitor();
       try {
+        // MUST START SYNCHRONOUSLY FIRST INSIDE USER GESTURE
         recognitionRef.current?.start();
       } catch (e) {
         console.error(e);
         shouldListenRef.current = false;
         setIsListening(false);
-        stopMicMonitor();
       }
     }
   };
