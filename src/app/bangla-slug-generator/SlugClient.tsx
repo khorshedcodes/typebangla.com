@@ -91,34 +91,37 @@ export default function SlugClient() {
   };
 
   return (
-    <main className="container max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8 fade-in">
+    <main className="container max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-10 fade-in text-foreground">
       {/* Page Header */}
-      <div className="space-y-0.5">
-        <h1 className="text-xl font-bold text-zinc-900">
+      <section className="text-center space-y-3 max-w-2xl mx-auto">
+        <div className="inline-flex items-center gap-2 bg-secondary border border-border px-3.5 py-1.5 rounded-full text-xs font-bold text-foreground">
+          <Globe size={14} className="text-primary animate-pulse" />
+          <span>SEO URL SLUGGER</span>
+        </div>
+        <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground">
           Bangla URL Slug Generator
         </h1>
-        <p className="text-xs text-muted-foreground">
-          Convert Bangla text into SEO-friendly, clean URL slugs in phonetic English or formatted Unicode.
+        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+          বাংলা শিরোনাম থেকে পরিষ্কার, SEO-বান্ধব URL স্লাগ ও ডোমেন লিংক তৈরি করুন।
         </p>
-      </div>
+      </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Left Columns: Input & Output */}
         <div className="lg:col-span-2 space-y-6">
           
           {/* Input Panel */}
-          <Card className="border border-border bg-card shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-bold text-zinc-800">Bangla Input Text</CardTitle>
-              <CardDescription className="text-[11px]">Type or paste Bangla paragraphs to format</CardDescription>
+          <Card className="border border-border bg-card shadow-xs rounded-2xl">
+            <CardHeader className="pb-3 border-b border-border">
+              <CardTitle className="text-sm font-black text-foreground">বাংলা টেক্সট ইনপুট (Input Text)</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="p-4 space-y-3">
               <textarea
                 rows={4}
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="এখানে বাংলা লিখুন বা পেস্ট করুন... (যেমন: আমার সোনার বাংলা)"
-                className="w-full text-sm p-3.5 border border-zinc-200 bg-background text-zinc-800 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 resize-y leading-relaxed font-bangla"
+                className="w-full text-base p-4 border border-border bg-secondary text-foreground rounded-xl placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-y leading-relaxed font-sans"
               />
               {inputText && (
                 <div className="flex justify-end">
@@ -126,9 +129,9 @@ export default function SlugClient() {
                     variant="outline" 
                     size="sm"
                     onClick={() => setInputText("")} 
-                    className="gap-1.5 h-8 border-zinc-200"
+                    className="gap-1.5 h-8 text-xs font-bold border-border cursor-pointer"
                   >
-                    <RotateCcw size={12} className="text-zinc-400" />
+                    <RotateCcw size={12} />
                     <span>Clear Input</span>
                   </Button>
                 </div>
@@ -139,13 +142,13 @@ export default function SlugClient() {
           {/* Generated Slugs Outputs */}
           <div className="space-y-4">
             {/* Output 1: Unicode Bangla Slug */}
-            <Card className="border border-border bg-card shadow-sm">
+            <Card className="border border-border bg-card shadow-xs rounded-2xl">
               <CardContent className="p-5 flex flex-col space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <span className="text-xs font-bold text-zinc-900 block">Unicode Bangla Slug</span>
-                    <span className="text-[10px] text-muted-foreground block">
-                      SEO-friendly Bangla characters. Browser will percent-encode this slug.
+                    <span className="text-xs font-black text-foreground block">Unicode Bangla Slug</span>
+                    <span className="text-[10px] font-bold text-muted-foreground block">
+                      বাংলা ইউনিকোড ক্যারেক্টারসহ SEO স্লাগ।
                     </span>
                   </div>
                   {unicodeSlug && (
@@ -153,27 +156,27 @@ export default function SlugClient() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleCopy(unicodeSlug, "unicode")} 
-                      className={`gap-1.5 h-8 ${copiedType === "unicode" ? "border-emerald-200 text-emerald-700 bg-emerald-50/50" : "border-zinc-200 text-zinc-500"}`}
+                      className={`gap-1.5 h-8 text-xs font-bold cursor-pointer ${copiedType === "unicode" ? "border-primary text-primary bg-primary/10" : "border-border"}`}
                     >
                       {copiedType === "unicode" ? <Check size={12} /> : <Copy size={12} />}
                       <span>{copiedType === "unicode" ? "Copied" : "Copy"}</span>
                     </Button>
                   )}
                 </div>
-                <div className="border border-zinc-200 bg-zinc-50 p-4 rounded-md font-bangla text-base min-h-[50px] flex items-center text-zinc-800 break-all select-all">
-                  {unicodeSlug || <span className="text-zinc-400 text-xs font-sans">Unicode slug will appear here...</span>}
+                <div className="border border-border bg-secondary p-4 rounded-xl font-mono text-sm min-h-[48px] flex items-center text-foreground break-all select-all">
+                  {unicodeSlug || <span className="text-muted-foreground text-xs font-sans">Unicode slug will appear here...</span>}
                 </div>
               </CardContent>
             </Card>
 
             {/* Output 2: Phonetic English Slug */}
-            <Card className="border border-border bg-card shadow-sm">
+            <Card className="border border-border bg-card shadow-xs rounded-2xl">
               <CardContent className="p-5 flex flex-col space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <span className="text-xs font-bold text-emerald-700 block">Phonetic English Slug (Recommended)</span>
-                    <span className="text-[10px] text-muted-foreground block">
-                      English phonetic equivalent. Safe from percent-encoding when shared online.
+                    <span className="text-xs font-black text-primary block">Phonetic English Slug (Recommended)</span>
+                    <span className="text-[10px] font-bold text-muted-foreground block">
+                      ইংরেজি ফোনেটিক ট্রান্সলিটারেশন স্লাগ (percent-encoding মুক্ত)।
                     </span>
                   </div>
                   {phoneticSlug && (
@@ -181,15 +184,15 @@ export default function SlugClient() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleCopy(phoneticSlug, "phonetic")} 
-                      className={`gap-1.5 h-8 ${copiedType === "phonetic" ? "border-emerald-200 text-emerald-700 bg-emerald-50/50" : "border-zinc-200 text-zinc-500"}`}
+                      className={`gap-1.5 h-8 text-xs font-bold cursor-pointer ${copiedType === "phonetic" ? "border-primary text-primary bg-primary/10" : "border-border"}`}
                     >
                       {copiedType === "phonetic" ? <Check size={12} /> : <Copy size={12} />}
                       <span>{copiedType === "phonetic" ? "Copied" : "Copy"}</span>
                     </Button>
                   )}
                 </div>
-                <div className="border border-zinc-200 bg-zinc-50 p-4 rounded-md font-mono text-sm min-h-[50px] flex items-center text-zinc-800 break-all select-all">
-                  {phoneticSlug || <span className="text-zinc-400 text-xs font-sans">Phonetic slug will appear here...</span>}
+                <div className="border border-border bg-secondary p-4 rounded-xl font-mono text-sm min-h-[48px] flex items-center text-foreground break-all select-all">
+                  {phoneticSlug || <span className="text-muted-foreground text-xs font-sans">Phonetic slug will appear here...</span>}
                 </div>
               </CardContent>
             </Card>
@@ -197,7 +200,7 @@ export default function SlugClient() {
 
           {/* URL Address Bar Preview */}
           {(unicodeSlug || phoneticSlug) && (
-            <Card className="border border-emerald-200 bg-emerald-50/5/50 p-5 shadow-sm">
+            <Card className="border border-border bg-secondary p-5 shadow-xs rounded-2xl">
               <CardContent className="p-0 space-y-3">
                 <span className="text-xs font-bold text-zinc-700 block">
                   Live URL Address Bar Preview

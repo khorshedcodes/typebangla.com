@@ -42,54 +42,57 @@ export default function BijoyClient({ initialDirection = "uniToBijoy" }: BijoyCl
   };
 
   return (
-    <main className="container max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8 fade-in">
+    <main className="container max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-10 fade-in text-foreground">
       {/* Page Header */}
-      <div className="space-y-0.5">
-        <h1 className="text-xl font-bold text-zinc-900 flex items-center gap-2">
-          <Sparkles className="text-emerald-600" size={18} />
-          <span>Unicode ↔ Bijoy Converter</span>
+      <section className="text-center space-y-3 max-w-2xl mx-auto">
+        <div className="inline-flex items-center gap-2 bg-secondary border border-border px-3.5 py-1.5 rounded-full text-xs font-bold text-foreground">
+          <Sparkles size={14} className="text-primary animate-pulse" />
+          <span>BANGLA FONT CONVERTER</span>
+        </div>
+        <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground">
+          Unicode ↔ Bijoy Converter
         </h1>
-        <p className="text-xs text-muted-foreground">
-          Convert between Unicode and Bijoy ANSI encoding effortlessly.
+        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+          ইউনিকোড বাংলা ও বিজয় এএনএসআই (SutonnyMJ) ফন্টের মধ্যে তাত্ক্ষণিক রূপান্তর।
         </p>
-      </div>
+      </section>
 
       {/* Main Translation Arena */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
         
         {/* Left Panel: Input */}
-        <Card className="border border-border bg-card shadow-sm flex flex-col justify-between">
+        <Card className="border border-border bg-card shadow-xs rounded-2xl flex flex-col justify-between">
           <CardHeader className="pb-3 border-b border-border flex flex-row items-center justify-between space-y-0">
-            <span className="text-xs font-bold text-zinc-900">
+            <span className="text-xs font-black text-foreground">
               {direction === "uniToBijoy" ? "Unicode Bangla (Input)" : "Bijoy ANSI (Input)"}
             </span>
             <Button 
               variant="outline"
               size="icon"
               onClick={toggleDirection} 
-              className="h-8 w-8 rounded-full border-zinc-200"
+              className="h-8 w-8 rounded-full border-border cursor-pointer hover:bg-secondary"
               title="Switch conversion direction"
             >
-              <ArrowRightLeft size={14} className="text-zinc-500" />
+              <ArrowRightLeft size={14} className="text-primary" />
             </Button>
           </CardHeader>
           <CardContent className="p-0 flex-1 flex flex-col justify-between">
             <textarea
-              className="w-full text-base p-5 border-0 bg-white text-zinc-900 placeholder:text-zinc-400 focus:outline-none min-h-[220px] resize-y leading-relaxed font-bangla flex-1"
+              className="w-full text-base p-5 border-0 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none min-h-[240px] resize-y leading-relaxed font-sans flex-1"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder={direction === "uniToBijoy" ? "এখানে ইউনিকোড বাংলা পেস্ট করুন..." : "এখানে বিজয় এএনএসআই (ANSI) লেখা পেস্ট করুন..."}
             />
-            <div className="p-4 flex justify-between items-center text-[10px] font-medium text-muted-foreground bg-zinc-50 border-t border-border">
-              <span>Characters: {inputText.length}</span>
+            <div className="p-4 flex justify-between items-center text-xs font-bold text-muted-foreground bg-secondary border-t border-border rounded-b-2xl">
+              <span>অক্ষর: <strong className="text-foreground">{inputText.length}</strong></span>
               {inputText && (
                 <Button 
                   variant="outline"
                   size="sm"
                   onClick={() => setInputText("")} 
-                  className="h-7 text-[10px] gap-1 border-zinc-200"
+                  className="h-7 text-xs gap-1 border-border font-bold cursor-pointer"
                 >
-                  <RotateCcw size={11} className="text-zinc-400" />
+                  <RotateCcw size={12} />
                   <span>Clear</span>
                 </Button>
               )}
@@ -98,9 +101,9 @@ export default function BijoyClient({ initialDirection = "uniToBijoy" }: BijoyCl
         </Card>
 
         {/* Right Panel: Output */}
-        <Card className="border border-border bg-card shadow-sm flex flex-col justify-between">
+        <Card className="border border-border bg-card shadow-xs rounded-2xl flex flex-col justify-between">
           <CardHeader className="pb-3 border-b border-border flex flex-row items-center justify-between space-y-0">
-            <span className="text-xs font-bold text-emerald-700">
+            <span className="text-xs font-black text-primary">
               {direction === "uniToBijoy" ? "Bijoy ANSI (Output)" : "Unicode Bangla (Output)"}
             </span>
             {outputText && (
@@ -109,8 +112,8 @@ export default function BijoyClient({ initialDirection = "uniToBijoy" }: BijoyCl
                   variant="outline"
                   size="sm"
                   onClick={handleCopy} 
-                  className={cn("gap-1.5 h-8 border-zinc-200 text-xs", {
-                    "border-emerald-200 text-emerald-700 bg-emerald-50/50": copied
+                  className={cn("gap-1.5 h-8 border-border text-xs font-bold cursor-pointer", {
+                    "border-primary text-primary bg-primary/10": copied
                   })}
                 >
                   {copied ? <Check size={12} /> : <Copy size={12} />}
@@ -120,7 +123,7 @@ export default function BijoyClient({ initialDirection = "uniToBijoy" }: BijoyCl
                   variant="outline"
                   size="sm"
                   onClick={handleDownload} 
-                  className="gap-1.5 h-8 border-zinc-200 text-xs text-zinc-650"
+                  className="gap-1.5 h-8 border-border text-xs font-bold cursor-pointer"
                 >
                   <Download size={12} />
                   <span>Download</span>
@@ -129,15 +132,15 @@ export default function BijoyClient({ initialDirection = "uniToBijoy" }: BijoyCl
             )}
           </CardHeader>
           <CardContent className="p-0 flex-1 flex flex-col justify-between">
-            <div className="p-5 font-bangla text-base min-h-[220px] bg-white leading-relaxed text-zinc-900 break-words flex-1">
+            <div className="p-5 text-base min-h-[240px] bg-transparent leading-relaxed text-foreground break-words flex-1 font-mono">
               {outputText || (
-                <span className="text-zinc-400 text-xs font-sans">
+                <span className="text-muted-foreground text-xs font-sans">
                   রূপান্তরিত লেখা এখানে দেখা যাবে...
                 </span>
               )}
             </div>
-            <div className="p-4 flex justify-between items-center text-[10px] font-medium text-muted-foreground bg-zinc-50 border-t border-border rounded-b-lg h-[46px]">
-              <span>Characters: {outputText.length}</span>
+            <div className="p-4 flex justify-between items-center text-xs font-bold text-muted-foreground bg-secondary border-t border-border rounded-b-2xl h-[46px]">
+              <span>অক্ষর: <strong className="text-foreground">{outputText.length}</strong></span>
             </div>
           </CardContent>
         </Card>
@@ -145,17 +148,15 @@ export default function BijoyClient({ initialDirection = "uniToBijoy" }: BijoyCl
       </div>
 
       {/* Info Card */}
-      <Card className="border border-border bg-card shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-bold text-zinc-900">Understanding Unicode and Bijoy</CardTitle>
-        </CardHeader>
-        <CardContent className="text-xs text-zinc-600 leading-relaxed">
-          <p>
-            <strong>Unicode</strong> is the modern global standard for displaying text on websites, smartphones, and social media.
-            <strong> Bijoy ANSI</strong> is a legacy keyboard encoding widely used in Bangladesh for desktop publishing softwares like Adobe Illustrator, Photoshop, and printing press layouts. Use this converter to bridge the gap between digital content and professional printing grids!
-          </p>
-        </CardContent>
-      </Card>
+      <section className="border border-border bg-card rounded-2xl p-6 sm:p-8 space-y-3 text-xs sm:text-sm text-muted-foreground shadow-xs">
+        <h2 className="text-base font-black text-foreground">ইউনিকোড ও বিজয় টেক্সট কনভার্টার সংক্রান্ত তথ্য</h2>
+        <p className="leading-relaxed">
+          <strong>ইউনিকোড (Unicode):</strong> আধুনিক স্মার্টফোন, ওয়েব ব্রাউজার ও সোশ্যাল মিডিয়া প্ল্যাটফর্মে বাংলা প্রদর্শনের আন্তর্জাতিক স্ট্যান্ডার্ড মানদণ্ড।
+        </p>
+        <p className="leading-relaxed">
+          <strong>বিজয় (Bijoy ANSI):</strong> অ্যাডোবি ইলাস্ট্রেটর, ফটোশপ ও প্রিন্টিং প্রেসে SutonnyMJ ফন্ট ব্যবহার করে প্রেস পাবলিশিং ও ডিজাইনের জন্য ব্যবহৃত ট্রেডিশনাল কীবোর্ড কোড পেজ।
+        </p>
+      </section>
     </main>
   );
 }
