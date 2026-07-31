@@ -178,6 +178,14 @@ export default function VoiceClient() {
         </p>
       </section>
 
+      {/* Permanent Browser Compatibility Notice */}
+      <div className="p-3.5 bg-secondary/80 border border-border rounded-2xl text-xs font-bold text-muted-foreground flex items-center gap-3 max-w-2xl mx-auto shadow-xs">
+        <Info size={18} className="text-primary shrink-0" />
+        <span>
+          <strong>ব্রাউজার সামঞ্জস্যতা তথ্য (Notice):</strong> ভয়েস টাইপিং বৈশিষ্ট্যটি <strong>Google Chrome</strong>, <strong>Microsoft Edge</strong> এবং <strong>Brave</strong> ব্রাউজারে সবচেয়ে নিখুঁত কাজ করে। ব্রাউজার ইঞ্জিনের সীমাবদ্ধতার কারণে সব ব্রাউজার বা ডিভাইসে এটি উপলব্ধ নাও হতে পারে।
+        </span>
+      </div>
+
       {/* Browser Support Check Alert */}
       {!supported && (
         <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl text-xs sm:text-sm font-bold text-amber-600 dark:text-amber-400 flex items-center gap-3 shadow-xs">
