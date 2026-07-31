@@ -100,7 +100,7 @@ const ALL_MODES: PracticeMode[] = [
     badge: "৫ মিনিট টেস্ট",
     category: "tests",
     targetWpm: "BCC Exam Standard",
-    authBenefit: "Verified Speed Certificate",
+    authBenefit: "Cloud Speed Analytics & History",
   },
   {
     href: "/practice/sentences?lang=en",
@@ -155,7 +155,7 @@ const ALL_MODES: PracticeMode[] = [
     badge: "5-Min Test",
     category: "tests",
     targetWpm: "Professional Standard",
-    authBenefit: "Verified Speed Certificate",
+    authBenefit: "Cloud Speed Analytics & History",
   },
 ];
 
@@ -176,6 +176,8 @@ export function PracticeHubClient() {
     { id: "avro", name: "Avro Phonetic" },
     { id: "unibijoy", name: "UniBijoy 52" },
     { id: "jatiya", name: "Jatiya BCC" },
+    { id: "probhat", name: "Probhat Layout" },
+    { id: "inscript", name: "Inscript Bangla" },
     { id: "english", name: "English QWERTY" },
   ];
 
@@ -301,7 +303,7 @@ export function PracticeHubClient() {
               key={i}
               className="border border-border bg-card hover:border-foreground/50 transition-all rounded-2xl shadow-xs flex flex-col justify-between group"
             >
-              <CardContent className="p-6 space-y-5">
+              <CardContent className="p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="w-11 h-11 rounded-xl bg-secondary text-foreground flex items-center justify-center border border-border group-hover:border-foreground/40 transition-all">
                     <Icon size={22} />
@@ -311,13 +313,41 @@ export function PracticeHubClient() {
                   </Badge>
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                   <h3 className="text-lg font-black text-foreground group-hover:text-primary transition-colors">{mode.title}</h3>
                   <div className="text-xs font-bold text-muted-foreground">{mode.titleBn}</div>
                   <p className="text-xs text-muted-foreground leading-relaxed pt-1">{mode.desc}</p>
                 </div>
 
-                <div className="pt-4 border-t border-border space-y-3">
+                {/* In-Card Layout Selection Pills */}
+                <div className="pt-2 border-t border-border space-y-2">
+                  <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground">
+                    <span>Layout for this drill:</span>
+                    <span className="text-primary font-black uppercase">{activeLayout}</span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-1">
+                    {LAYOUT_OPTIONS.map((layout) => (
+                      <button
+                        key={layout.id}
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setActiveLayout(layout.id);
+                        }}
+                        className={`px-1.5 py-1 rounded text-[10px] font-bold transition-all text-center border truncate cursor-pointer ${
+                          activeLayout === layout.id
+                            ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                            : "bg-secondary/60 text-muted-foreground border-border hover:bg-secondary hover:text-foreground"
+                        }`}
+                      >
+                        {layout.name.split(" ")[0]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-border space-y-3">
                   <div className="flex items-center justify-between text-[11px]">
                     <span className="font-bold text-muted-foreground flex items-center gap-1">
                       <Trophy size={13} className="text-amber-500" /> Target:
@@ -334,9 +364,10 @@ export function PracticeHubClient() {
                     </span>
                   </div>
 
-                  <Link href={mode.href} className="block pt-1">
-                    <Button className="w-full font-bold text-xs gap-2 h-10 rounded-xl shadow-xs">
-                      Start Practice <ArrowRight size={14} />
+                  <Link href={`${mode.href}${mode.href.includes("?") ? "&" : "?"}layout=${activeLayout}`} className="block pt-1">
+                    <Button className="w-full font-black text-xs gap-2 h-10 rounded-xl shadow-xs bg-primary text-primary-foreground hover:opacity-95">
+                      <span>Start in {activeLayout.toUpperCase()}</span>
+                      <ArrowRight size={14} />
                     </Button>
                   </Link>
                 </div>
