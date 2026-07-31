@@ -82,23 +82,6 @@ export default function PracticeHubPage() {
 
       {/* Main Interactive Practice Hub Client Component */}
       <PracticeHubClient />
-
-      {/* SEO FAQ ACCORDION SECTION */}
-      <section className="border border-border bg-card rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
-        <div className="flex items-center gap-2 border-b border-border pb-3">
-          <HelpCircle size={18} className="text-foreground" />
-          <h2 className="text-lg font-black text-foreground">Frequently Asked Questions (SEO Guide)</h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {FAQS.map((faq, i) => (
-            <div key={i} className="border border-border bg-secondary p-5 rounded-xl space-y-2">
-              <h3 className="text-sm font-bold text-foreground">{faq.q}</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">{faq.a}</p>
-            </div>
-          ))}
-        </div>
-      </section>
     </main>
   );
 }

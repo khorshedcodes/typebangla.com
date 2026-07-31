@@ -34,7 +34,7 @@ const ALL_MODES: PracticeMode[] = [
     badge: "প্যারাগ্রাফ",
     category: "bangla",
     targetWpm: "20+ WPM",
-    authBenefit: "Cloud History & Speed Analytics",
+    authBenefit: "100% Free Practice",
   },
   {
     href: "/practice/words?lang=bn",
@@ -45,7 +45,7 @@ const ALL_MODES: PracticeMode[] = [
     badge: "শব্দ ড্রিল",
     category: "bangla",
     targetWpm: "15-25 WPM",
-    authBenefit: "Weak-key Heatmap Tracking",
+    authBenefit: "Accuracy Focus",
   },
   {
     href: "/practice/quotes",
@@ -56,7 +56,7 @@ const ALL_MODES: PracticeMode[] = [
     badge: "সাহিত্য",
     category: "bangla",
     targetWpm: "25+ WPM",
-    authBenefit: "Personal Quote Highlights",
+    authBenefit: "Classic Literature",
   },
   {
     href: "/juktakkhor",
@@ -67,7 +67,7 @@ const ALL_MODES: PracticeMode[] = [
     badge: "যুক্তাক্ষর",
     category: "bangla",
     targetWpm: "Mastery Drill",
-    authBenefit: "Conjunct Accuracy Tracking",
+    authBenefit: "Keystroke Guide",
   },
   {
     href: "/practice/custom",
@@ -78,7 +78,7 @@ const ALL_MODES: PracticeMode[] = [
     badge: "কাস্টম বাংলা",
     category: "tools",
     targetWpm: "Custom Speed",
-    authBenefit: "Save Passages to Cloud Library",
+    authBenefit: "Paste or File Upload",
   },
   {
     href: "/tests/1min",
@@ -89,7 +89,7 @@ const ALL_MODES: PracticeMode[] = [
     badge: "১ মিনিট টেস্ট",
     category: "tests",
     targetWpm: "20 WPM Govt Standard",
-    authBenefit: "Global Leaderboard Rank",
+    authBenefit: "1-Min Sprint",
   },
   {
     href: "/tests/5min",
@@ -100,7 +100,7 @@ const ALL_MODES: PracticeMode[] = [
     badge: "৫ মিনিট টেস্ট",
     category: "tests",
     targetWpm: "BCC Exam Standard",
-    authBenefit: "Cloud Speed Analytics & History",
+    authBenefit: "BCC Exam Specs",
   },
   {
     href: "/practice/sentences?lang=en",
@@ -111,7 +111,7 @@ const ALL_MODES: PracticeMode[] = [
     badge: "Full Sentences",
     category: "english",
     targetWpm: "30+ WPM",
-    authBenefit: "Cloud History & Analytics",
+    authBenefit: "Sentence Flow",
   },
   {
     href: "/practice/words?lang=en",
@@ -122,7 +122,7 @@ const ALL_MODES: PracticeMode[] = [
     badge: "Top 1000 Words",
     category: "english",
     targetWpm: "35+ WPM",
-    authBenefit: "Weak-key Heatmap",
+    authBenefit: "1000 Common Words",
   },
   {
     href: "/practice/numbers",
@@ -133,7 +133,7 @@ const ALL_MODES: PracticeMode[] = [
     badge: "Num & Symbol",
     category: "english",
     targetWpm: "Accuracy Focus",
-    authBenefit: "Error Analytics",
+    authBenefit: "Symbol & Code Focus",
   },
   {
     href: "/tests/english",
@@ -144,7 +144,7 @@ const ALL_MODES: PracticeMode[] = [
     badge: "1-Min Test",
     category: "tests",
     targetWpm: "30-40 WPM",
-    authBenefit: "Global Leaderboard Rank",
+    authBenefit: "1-Min Sprint",
   },
   {
     href: "/tests/5min",
@@ -155,7 +155,7 @@ const ALL_MODES: PracticeMode[] = [
     badge: "5-Min Test",
     category: "tests",
     targetWpm: "Professional Standard",
-    authBenefit: "Cloud Speed Analytics & History",
+    authBenefit: "5-Min Test",
   },
 ];
 
@@ -376,100 +376,6 @@ export function PracticeHubClient() {
           );
         })}
       </div>
-
-      {/* ── AUTH FEATURE MATRIX (Without Auth vs With Auth) ── */}
-      <section className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
-        <div className="space-y-2 border-b border-border pb-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary text-xs font-bold border border-border">
-            <ShieldCheck size={14} className="text-emerald-500" />
-            <span>TYPEBANGBLA ACCESS MATRIX</span>
-          </div>
-          <h2 className="text-2xl font-black text-foreground">What We Offer: Without Auth vs With Auth</h2>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            TypeBangla believes typing practice should be 100% free and open to everyone without barriers. Logging in unlocks optional cloud synchronization and official certification.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Guest Access Box */}
-          <div className="bg-secondary/60 border border-border rounded-2xl p-6 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-background border border-border flex items-center justify-center text-foreground">
-                <Unlock size={20} className="text-emerald-500" />
-              </div>
-              <div>
-                <h3 className="text-lg font-black text-foreground">Without Auth (Guest Typists)</h3>
-                <span className="text-xs text-emerald-600 font-bold">100% Free • No Sign-up Required</span>
-              </div>
-            </div>
-
-            <ul className="space-y-2.5 text-xs text-foreground font-medium pt-2">
-              <li className="flex items-start gap-2">
-                <CheckCircle2 size={16} className="text-emerald-500 flex-shrink-0 mt-0.5" />
-                <span>Unlimited access to all Bangla & English typing drills, quotes, and word lists</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 size={16} className="text-emerald-500 flex-shrink-0 mt-0.5" />
-                <span>Full access to 1-Minute & 5-Minute Bangla/English Speed Tests</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 size={16} className="text-emerald-500 flex-shrink-0 mt-0.5" />
-                <span>Juktakkhor Master Trainer with step-by-step keystroke guides & 60s sprint</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 size={16} className="text-emerald-500 flex-shrink-0 mt-0.5" />
-                <span>Bijoy-to-Unicode converters & Custom Text practice builder</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 size={16} className="text-emerald-500 flex-shrink-0 mt-0.5" />
-                <span>Local browser history & key accuracy statistics persistence</span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Authenticated Access Box */}
-          <div className="bg-secondary/60 border border-primary/40 rounded-2xl p-6 space-y-4 relative overflow-hidden">
-            <div className="absolute top-3 right-3">
-              <Badge variant="outline" className="border-primary text-primary font-black bg-primary/10 text-[10px]">
-                PREMIUM CLOUD FEATURES
-              </Badge>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center">
-                <UserCheck size={20} />
-              </div>
-              <div>
-                <h3 className="text-lg font-black text-foreground">With Auth (Registered Accounts)</h3>
-                <span className="text-xs text-primary font-bold">Cloud Sync & Leaderboard Eligible</span>
-              </div>
-            </div>
-
-            <ul className="space-y-2.5 text-xs text-foreground font-medium pt-2">
-              <li className="flex items-start gap-2">
-                <Cloud size={16} className="text-primary flex-shrink-0 mt-0.5" />
-                <span><strong>Cloud History Synchronization:</strong> Access your WPM history & progress across any laptop or mobile device</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Trophy size={16} className="text-amber-500 flex-shrink-0 mt-0.5" />
-                <span><strong>Global & National Leaderboards:</strong> Compete with top Bangla typists on daily and weekly speed rankings</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Award size={16} className="text-emerald-500 flex-shrink-0 mt-0.5" />
-                <span><strong>Official Speed Certificates:</strong> Download verified government-standard typing certificates with unique QR codes</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Activity size={16} className="text-sky-500 flex-shrink-0 mt-0.5" />
-                <span><strong>Advanced Telemetry Analytics:</strong> Deep finger-by-finger accuracy heatmaps, fatigue detection, & weak key analysis</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <PenLine size={16} className="text-indigo-500 flex-shrink-0 mt-0.5" />
-                <span><strong>Cloud Custom Text Library:</strong> Save and organize your own practice passages in your account library</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
