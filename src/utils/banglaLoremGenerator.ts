@@ -24,8 +24,34 @@ const LOREM_WORDS = [
   "দেরুন্ত", "মোল্লিত", "আনিম", "ইদ", "এস্ত", "লাবোরুম"
 ];
 
+const REAL_BANGLA_WORDS_CLEAN = [
+  "অর্থনীতি", "পরিবহন", "পরিবেশ", "জলবায়ু", "প্রযুক্তি", "উদ্ভাবন", "যোগাযোগ", "সচেতনতা",
+  "অংশগ্রহণ", "বিশ্ববিদ্যালয়", "মহাবিদ্যালয়", "ইনস্টিটিউট", "একাডেমি", "ল্যাবরেটরি", "পরীক্ষাগার",
+  "কেন্দ্র", "লাইব্রেরি", "সংগ্রহশালা", "জাদুঘর", "গ্যালারি", "থিয়েটার", "মিলনায়তন", "হলরুম",
+  "ওয়ার্কশপ", "সিম্পোজিয়াম", "আলোচনা", "মতবিনিময়", "গোলটেবিল", "প্যানেল", "মানুষ", "বাংলাদেশ",
+  "জীবন", "সবুজ", "সুন্দর", "দেশ", "কথা", "আকাশ", "বাতাস", "পানি", "নদী", "ফুল", "মাটি",
+  "আলো", "দিন", "রাত", "স্বপ্ন", "ভালবাসা", "কাজ", "সময়", "শিক্ষা", "ভাষা", "বই", "মন",
+  "চোখ", "হাত", "মা", "বাবা", "ভাই", "বোন", "বন্ধু", "পথ", "ঘর", "গ্রাম", "শহর",
+  "প্রকৃতি", "পাখি", "বৃক্ষ", "জগৎ", "সত্য", "শান্তি", "সুখ", "আশা", "আনন্দ", "স্মৃতি",
+  "গান", "সুর", "বানী", "রূপ", "হৃদয়", "বিজ্ঞান", "অঞ্চল", "তৃষ্ণা", "অঙ্ক", "সঙ্গীত",
+  "উত্তম", "বুদ্ধি", "শ্রদ্ধা", "ব্রহ্মপুত্র", "স্পন্দন", "আকাঙ্ক্ষা", "সঙ্কট", "অঞ্জলি", "উজ্জ্বল",
+  "প্রতিনিধি", "প্রস্তাব", "সৃষ্টি", "কষ্ট", "স্পষ্ট", "প্রভাত", "শ্রাবণ", "প্রীতি", "সূর্য",
+  "চন্দ্র", "গ্রহ", "নক্ষত্র", "ব্যক্তি", "ন্যায্য", "ধর্ম", "কর্ম", "মর্ম", "পূর্ব", "স্বদেশ",
+  "স্বাধীন", "স্মরণ", "স্মৃতি", "স্বাদ", "অমৃত", "সৃজন", "সংস্কৃতি", "উন্নয়ন", "অগ্রগতি",
+  "ঐতিহ্য", "ইতিহাস", "সাহিত্য", "কবিতা", "উপন্যাস", "গল্প", "নিবন্ধ", "পত্রিকা", "সংবাদ",
+  "বার্তা", "তথ্য", "জ্ঞান", "গবেষণা", "আবিষ্কার", "চেতনা", "বিপ্লব", "মুক্তি", "সোনার", "বাংলা"
+];
+
+function filterCleanWords(rawWords: string[]): string[] {
+  if (!Array.isArray(rawWords)) return REAL_BANGLA_WORDS_CLEAN;
+  const filtered = rawWords.filter(
+    (w) => typeof w === "string" && !w.includes("_") && !/\d/.test(w) && w.trim().length > 0
+  );
+  return filtered.length > 10 ? filtered : REAL_BANGLA_WORDS_CLEAN;
+}
+
 /**
- * Generates custom Bangla typing practice text / Lorem Ipsum using 3,000 top Bangla words or classic Bangla Lorem Ipsum.
+ * Generates custom Bangla typing practice text / Lorem Ipsum using clean real Bangla words or classic Bangla Lorem Ipsum.
  */
 export function generateBanglaPracticeText(options: BanglaLoremOptions = {}): string {
   const {
@@ -41,22 +67,22 @@ export function generateBanglaPracticeText(options: BanglaLoremOptions = {}): st
   } else {
     switch (level) {
       case 1:
-        pool = BANGLA_WORDS_LEVEL_1;
+        pool = filterCleanWords(BANGLA_WORDS_LEVEL_1);
         break;
       case 2:
-        pool = BANGLA_WORDS_LEVEL_2;
+        pool = filterCleanWords(BANGLA_WORDS_LEVEL_2);
         break;
       case 3:
-        pool = BANGLA_WORDS_LEVEL_3;
+        pool = filterCleanWords(BANGLA_WORDS_LEVEL_3);
         break;
       default:
-        pool = ALL_BANGLA_WORDS;
+        pool = filterCleanWords(ALL_BANGLA_WORDS);
         break;
     }
   }
 
   if (!pool || pool.length === 0) {
-    pool = ALL_BANGLA_WORDS;
+    pool = REAL_BANGLA_WORDS_CLEAN;
   }
 
   const selectedWords: string[] = [];
