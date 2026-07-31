@@ -46,6 +46,7 @@ export default function VoiceClient() {
   const [supported, setSupported] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<ISpeechRecognition | null>(null);
+  const shouldListenRef = useRef(false);
 
   useEffect(() => {
     const SpeechRecognition = typeof window !== "undefined" && (
@@ -66,26 +67,35 @@ export default function VoiceClient() {
       setError(null);
     };
     rec.onend = () => { 
-      setIsListening(false); 
-      setInterimText(""); 
+      if (shouldListenRef.current) {
+        try {
+          rec.start();
+        } catch {
+          setIsListening(false);
+          shouldListenRef.current = false;
+        }
+      } else {
+        setIsListening(false); 
+        setInterimText("");
+      }
     };
     rec.onerror = (event: ISpeechRecognitionErrorEvent) => {
+      if (event.error === "no-speech" || event.error === "aborted") {
+        return;
+      }
+      shouldListenRef.current = false;
       setIsListening(false);
       setInterimText("");
 
       let errorMsg = "An error occurred during speech recognition.";
       if (event.error === "not-allowed") {
         errorMsg = "মাইক্রোফোনের অনুমতি দেওয়া হয়নি (Microphone Access Denied)। ব্রাউজার সেটিংসে অনুমতি দিন।";
-      } else if (event.error === "no-speech") {
-        errorMsg = "কোনো ভয়েস বা কথা শনাক্ত হয়নি। মাইক্রোফোনের কাছে স্পষ্ট ভাষায় কথা বলুন।";
       } else if (event.error === "audio-capture") {
-        errorMsg = "মাইক্রোফোন হকি বা রেকর্ডার পাওয়া যায়নি। আপনার ডিভাইস সংযোগ পরীক্ষা করুন।";
+        errorMsg = "মাইক্রোফোন বা রেকর্ডার পাওয়া যায়নি। আপনার ডিভাইস সংযোগ পরীক্ষা করুন।";
       } else if (event.error === "network") {
         errorMsg = "নেটওয়ার্ক সমস্যা দেখা দিয়েছে। আপনার ইন্টারনেট সংযোগ পরীক্ষা করুন।";
       } else if (event.error === "language-not-supported") {
         errorMsg = "নির্বাচিত ভাষাটি আপনার ব্রাউজার ইঞ্জিনে সমর্থিত নয়।";
-      } else if (event.error === "aborted") {
-        errorMsg = "ভয়েস রেকর্ডিং বন্ধ করা হয়েছে।";
       } else {
         errorMsg = `Speech recognition error: ${event.error || "unknown"}`;
       }
@@ -101,7 +111,10 @@ export default function VoiceClient() {
       setInterimText(interim);
     };
     recognitionRef.current = rec;
-    return () => { if (recognitionRef.current) recognitionRef.current.stop(); };
+    return () => { 
+      shouldListenRef.current = false;
+      if (recognitionRef.current) recognitionRef.current.stop(); 
+    };
   }, [lang]);
 
   const toggleListening = () => {
@@ -110,10 +123,24 @@ export default function VoiceClient() {
       setError("আপনার ব্রাউজারে ভয়েস টাইপিং সাপোর্ট করে না। অনুগ্রহ করে Google Chrome, Microsoft Edge, বা Brave ব্রাউজার ব্যবহার করুন।"); 
       return; 
     }
-    if (isListening) {
-      recognitionRef.current?.stop();
+    if (shouldListenRef.current) {
+      shouldListenRef.current = false;
+      setIsListening(false);
+      try {
+        recognitionRef.current?.stop();
+      } catch (e) {
+        console.error(e);
+      }
     } else {
-      recognitionRef.current?.start();
+      shouldListenRef.current = true;
+      setIsListening(true);
+      try {
+        recognitionRef.current?.start();
+      } catch (e) {
+        console.error(e);
+        shouldListenRef.current = false;
+        setIsListening(false);
+      }
     }
   };
 
