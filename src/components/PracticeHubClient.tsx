@@ -92,6 +92,17 @@ const ALL_MODES: PracticeMode[] = [
     authBenefit: "Paste or File Upload",
   },
   {
+    href: "/bangla-lorem-ipsum",
+    icon: Sparkles,
+    title: "Bangla Lorem Ipsum Generator",
+    titleBn: "বাংলা লরেম ইপসাম জেনারেটর",
+    desc: "ওয়েব ডিজাইন, ইউআই/ইউএক্স এবং মুদ্রণের জন্য ডামি বাংলা টেক্সট ও প্যারাগ্রাফ জেনারেটর।",
+    badge: "লরেম জেনারেটর",
+    category: "tools",
+    targetWpm: "Dummy Text Tool",
+    authBenefit: "Instant Generator",
+  },
+  {
     href: "/practice/sentences?lang=en",
     icon: FileText,
     title: "English Sentence Practice",
