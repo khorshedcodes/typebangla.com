@@ -12,139 +12,185 @@ export interface BlogPost {
 export const BLOG_POSTS: BlogPost[] = [
   {
     slug: "govt-job-typing-speed-requirements-bangladesh",
-    title: "বাংলাদেশ সরকারি চাকরির টাইপিং টেস্ট গাইড: বিসিএস, কম্পিউটার অপারেটর ও ডাটা এন্ট্রি স্পিড মার্কস",
-    excerpt: "বাংলাদেশ সরকারি চাকরির (BPSC, কম্পিউটার অপারেটর, ডাটা এন্ট্রি ও অফিস সহকারী) টাইপিং টেস্টে পাসের জন্য প্রয়োজনীয় বাংলা ও ইংরেজি WPM স্পিড, বিজয় ৫২ বনাম জাতীয় কীবোর্ড নিয়ম এবং নির্ভুলতার পূর্ণাঙ্গ গাইড।",
+    title: "বাংলাদেশ সরকারি চাকরির টাইপিং টেস্ট মাস্টারগাইড: বিসিএস, কম্পিউটার অপারেটর, ডাটা এন্ট্রি ও সাঁটমুদ্রাক্ষরিক নিয়োগ পরীক্ষা",
+    excerpt: "বাংলাদেশ সরকারি চাকরির (BPSC, কম্পিউটার অপারেটর, ডাটা এন্ট্রি, সাঁটমুদ্রাক্ষরিক ও অফিস সহকারী) টাইপিং টেস্টে ১০০% পাসের গাইড। ন্যূনতম WPM বেঞ্চমার্ক, বিজয় ৫২ ও জাতীয় কীবোর্ড নিয়ম, ৯৮% নির্ভুলতা অর্জনের উপায় এবং পরীক্ষার হলের লাইভ পরামর্শ।",
     category: "Typing Tips",
-    date: "August 02, 2026",
-    readTime: "8 min read",
-    author: "TypeBangla Exam Cell",
+    date: "August 03, 2026",
+    readTime: "12 min read",
+    author: "TypeBangla Exam Board",
     content: `
-      <p>বাংলাদেশের সরকারি চাকরির ক্ষেত্রে বিশেষ করে <strong>কম্পিউটার অপারেটর (Computer Operator)</strong>, <strong>ডাটা এন্ট্রি অপারেটর (Data Entry Operator)</strong>, <strong>অফিস সহকারী কাম কম্পিউটার মুদ্রাক্ষরিক (Office Assistant Cum Computer Typist)</strong> এবং বিভিন্ন মন্ত্রণালয় ও অধিদপ্তরের নিয়োগ পরীক্ষায় টাইপিং টেস্ট একটি বাধ্যতামূলক ধাপ। অনেক প্রার্থী লিখিত পরীক্ষায় প্রথম হলেও কেবল টাইপিং টেস্টে ন্যূনতম স্পিড তুলতে না পেরে বাদ পড়েন।</p>
-      
-      <p>এই নির্দেশিকায় আমরা বাংলাদেশ সরকারি সরকারি কর্মকমিশন (BPSC) ও বিভিন্ন সরকারি প্রতিষ্ঠানে টাইপিং পরীক্ষার শতভাগ নির্ভুল নিয়মাবলী, পাসিং ডাব্লিউপিএম (WPM) বেঞ্চমার্ক, কীবোর্ড লেআউট এবং প্রস্তুতি কৌশল নিয়ে বিস্তারিত আলোচনা করব।</p>
+      <div className="p-4 mb-6 border border-emerald-500/30 bg-emerald-500/10 rounded-2xl text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+        💡 <strong>সংক্ষিপ্ত সারসংক্ষেপ (Executive Summary):</strong> বাংলাদেশে বিপিএসসি (BPSC), বিভিন্ন মন্ত্রণালয়, জেলা প্রশাসকের কার্যালয় (DC Office) এবং সরকারি ব্যাংকে কম্পিউটার অপারেটর পদে পাসের জন্য বাংলায় প্রতি মিনিটে অন্তত ৩০ শব্দ (30 WPM) এবং ইংরেজিতে ৩০-৪০ শব্দ (30-40 WPM) নির্ভুলভাবে টাইপ করতে হয়। পরীক্ষায় বিজয় ৫২ (Bijoy 52 Classic/ANSI) এবং জাতীয় কীবোর্ড (BCC Jatiya) ব্যবহৃত হয়। অভ্র (Avro) ব্যবহার সম্পূর্ণ নিষিদ্ধ।
+      </div>
+
+      <p>বাংলাদেশের সরকারি চাকরি প্রত্যাশীদের জন্য লিখিত পরীক্ষায় পাস করার পর সবচেয়ে বড় চ্যালেঞ্জ হলো <strong>কম্পিউটার টাইপিং প্র্যাকটিক্যাল টেস্ট (Computer Typing Practical Exam)</strong>। প্রতি বছর হাজার হাজার প্রার্থী লিখিত পরীক্ষায় প্রথম সারির নম্বর পেয়েও কেবল প্র্যাকটিক্যাল টেস্টে নির্ধারিত সময়সীমার মধ্যে ন্যূনতম গতি (WPM) ও নির্ভুলতা (Accuracy) বজায় রাখতে না পেরে চূড়ান্ত ভাইভা থেকে বাদ পড়েন।</p>
+
+      <p>এই বিস্তারিত মাস্টার গাইডে আমরা বাংলাদেশ সরকারি চাকরির টাইপিং টেস্টের প্রতিটি দিক—মন্ত্রণালয় ভিত্তিক স্পিড বেঞ্চমার্ক, অনুমোদিত কীবোর্ড লেআউট, ভুল গণনা করার গাণিতিক সূত্র, পরীক্ষার হলের পরিবেশ এবং ১০০% সফলতার কৌশল নিয়ে আলোচনা করব।</p>
 
       <hr />
 
-      <h2>১. সরকারি চাকরিতে টাইপিং স্পিডের ন্যূনতম যোগ্যতা (WPM Benchmarks)</h2>
-      <p>সাধারণত বাংলাদেশের সরকারি বিজ্ঞপ্তিতে শব্দের গতি বা WPM (Words Per Minute) অনুযায়ী প্রার্থীর যোগ্যতা নির্ধারণ করা হয়। পদভেদে স্ট্যান্ডার্ড স্পিডের তালিকা নিচে দেওয়া হলো:</p>
+      <h2>১. সরকারি চাকরিতে পদভিত্তিক টাইপিং স্পিড ও নির্ভুলতার বেঞ্চমার্ক</h2>
+      <p>জনপ্রশাসন মন্ত্রণালয় এবং সরকারি নিয়োগ বিধিমালা অনুযায়ী বিভিন্ন পদের জন্য নির্ধারিত টাইপিং গতির তালিকা নিচে দেওয়া হলো:</p>
 
       <table>
         <thead>
           <tr>
-            <th>পদের নাম (Position)</th>
+            <th>পদের নাম (Job Designation)</th>
             <th>বাংলা স্পিড (Bangla WPM)</th>
             <th>ইংরেজি স্পিড (English WPM)</th>
-            <th>ন্যূনতম নির্ভুলতা (Accuracy)</th>
+            <th>ন্যূনতম নির্ভুলতা (Min Accuracy)</th>
+            <th>পরীক্ষার সময়সীমা</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>কম্পিউটার অপারেটর (Computer Operator)</td>
+            <td><strong>কম্পিউটার অপারেটর (Computer Operator)</strong></td>
             <td>৩০ WPM</td>
             <td>৩০ WPM</td>
             <td>৯৫% - ৯৮%</td>
+            <td>৫ মিনিট / ১০ মিনিট</td>
           </tr>
           <tr>
-            <td>ডাটা এন্ট্রি / কন্ট্রোল অপারেটর</td>
+            <td><strong>ডাটা এন্ট্রি / কন্ট্রোল অপারেটর</strong></td>
             <td>২৮ WPM</td>
             <td>৩০ WPM</td>
             <td>৯৫%</td>
+            <td>৫ মিনিট</td>
           </tr>
           <tr>
-            <td>অফিস সহকারী কাম কম্পিউটার মুদ্রাক্ষরিক</td>
+            <td><strong>অফিস সহকারী কাম কম্পিউটার মুদ্রাক্ষরিক</strong></td>
             <td>২০ WPM</td>
             <td>২০ WPM</td>
             <td>৯০% - ৯৫%</td>
+            <td>৫ মিনিট</td>
           </tr>
           <tr>
-            <td>সাঁটমুদ্রাক্ষরিক কাম কম্পিউটার অপারেটর</td>
+            <td><strong>সাঁটমুদ্রাক্ষরিক কাম কম্পিউটার অপারেটর</strong></td>
             <td>২৫ WPM</td>
             <td>৩০ WPM</td>
             <td>৯৫%</td>
+            <td>৫ মিনিট</td>
+          </tr>
+          <tr>
+            <td><strong>ব্যক্তিগত কর্মকর্তা (PO) / প্রশাসনিক কর্মকর্তা</strong></td>
+            <td>২৫ WPM</td>
+            <td>৩০ WPM</td>
+            <td>৯৫%</td>
+            <td>৫ মিনিট</td>
           </tr>
         </tbody>
       </table>
 
-      <p><em>নোট: ১ WPM মানে হলো প্রতি ৫টি ক্যারেক্টার বা বর্ণকে ১টি শব্দ ধরা হয়। যেমন: ৩০ WPM পেতে হলে আপনাকে প্রতি মিনিটে অন্তত ১৫০টি বর্ণ সঠিকভাবে টাইপ করতে হবে।</em></p>
+      <p><em>নোট (Important Rule):</em> আন্তর্জাতিক ও সরকারি নিয়ম অনুযায়ী <strong>১টি শব্দ (1 Word) = ৫টি বর্ণ/ক্যারেক্টার (5 Keystrokes/Characters)</strong>। অর্থাৎ বাংলায় ৩০ WPM তোলার অর্থ হলো ১ মিনিটে আপনাকে অন্তত ১৫০টি বর্ণ স্পেসসহ নিখুঁতভাবে টাইপ করতে হবে।</p>
 
       <hr />
 
-      <h2>২. সরকারি পরীক্ষায় কোন কীবোর্ড লেআউট ব্যবহৃত হয়? (Bijoy 52 vs Jatiya)</h2>
-      <p>পরীক্ষার্থীদের সবচেয়ে বড় দ্বিধা হলো—পরীক্ষায় কোন কীবোর্ড থাকবে? বাংলাদেশে সরকারি পরীক্ষাগুলোতে প্রধানত ২টি লেআউট গ্রহণযোগ্য:</p>
-      
+      <h2>২. সরকারি পরীক্ষায় কোন কীবোর্ড ব্যবহার করা হয়? (Bijoy vs Jatiya vs Avro)</h2>
+      <p>সরকারি চাকরিপ্রার্থীদের মধ্যে সবচেয়ে বড় বিভ্রান্তি তৈরি হয় কীবোর্ড লেআউট নিয়ে। স্পষ্ট মনে রাখা প্রয়োজন:</p>
+
+      <h3>ক. বিজয় ৫২ (Bijoy 52 Classic / ANSI Layout)</h3>
+      <p>বাংলাদেশের ৯৫% সরকারি দপ্তর, মিনিস্ট্রি এবং জেলা প্রশাসকের কার্যালয়ে <strong>বিজয় ৫২ (Bijoy 52)</strong> এবং সুতন্বী এমজে (SutonnyMJ) ফন্টে পরীক্ষা নেওয়া হয়। আপনি যদি MS Word বা সরকারি টেস্ট সফটওয়্যারে পরীক্ষা দেন, তবে বিজয় ৫২ লেআউটে টাইপ করা বাধ্যতামূলক।</p>
+
+      <h3>খ. জাতীয় কীবোর্ড (BCC Jatiya Layout)</h3>
+      <p>বাংলাদেশ কম্পিউটার কাউন্সিল (BCC) কর্তৃক অনুমোদিত ইউনিকোড ভিত্তিক সরকারি সফটওয়্যারে <strong>জাতীয় কীবোর্ড (Jatiya Layout)</strong> ব্যবহৃত হয়। এতে সুতন্বী ফন্টের বদলে কালপুরুষ (Kalpurush) বা সোলাইমানলিপি (SolaimanLipi) ইউনিকোড ফন্টে পরীক্ষা নেওয়া হয়।</p>
+
+      <h3>গ. অভ্র ফোনেটিক (Avro Phonetic) কি ব্যবহার করা যাবে?</h3>
+      <p><strong>না, সম্পূর্ণ নিষিদ্ধ!</strong> সরকারি কোনো প্র্যাকটিক্যাল পরীক্ষায় অভ্র ফোনেটিক (যেমন: <code>ami</code> টাইপ করে <code>আমি</code> বানানো) ব্যবহার করতে দেওয়া হয় না। তাই কেবল অভ্র পারদর্শী প্রার্থীরা দ্রুত বিজয় বা জাতীয় কীবোর্ডে নিজেদের সুইচ করে নিন। আমাদের <a href="/practice">Practice Arena</a>-তে বিজয় ও জাতীয় কীবোর্ড উভয়েরই সরাসরি প্র্যাকটিস করার সুবিধা রয়েছে।</p>
+
+      <hr />
+
+      <h2>৩. সরকারি টাইপিং টেস্টে যেভাবে নম্বর ও স্পিড হিসাব করা হয়</h2>
+      <p>সরকারি পরীক্ষার সফটওয়্যারগুলো <strong>Net WPM (নিট গতি)</strong> এর ওপর ভিত্তি করে ফল প্রকাশ করে। নিট গতি পরিমাপের সরকারি সূত্র হলো:</p>
+
+      <pre><code>Gross WPM = (মোট টাইপকৃত বর্ণ সংখ্যা ÷ ৫) ÷ সময় (মিনিট)
+Net WPM = Gross WPM - (ভুল শব্দের সংখ্যা ÷ সময়)</code></pre>
+
+      <p>উদাহরণস্বরূপ: আপনি ৫ মিনিটে বাংলায় মোট ৮০০টি ক্যারেক্টার টাইপ করলেন এবং এতে ৪টি শব্দ ভুল হলো।</p>
       <ul>
-        <li><strong>বিজয় ৫২ (Bijoy 52 Classic/ANSI):</strong> বেশিরভাগ সরকারি দপ্তর ও জেলা প্রশাসকের কার্যালয়ে সুতন্বী এমজে (SutonnyMJ) ফন্টে বিজয় ৫২ লেআউটে পরীক্ষা নেওয়া হয়।</li>
-        <li><strong>জাতীয় কীবোর্ড (BCC Jatiya Layout):</strong> বাংলাদেশ কম্পিউটার কাউন্সিল (BCC) স্বীকৃত জাতীয় কীবোর্ড লেআউট ইউনিকোড ভিত্তিক সরকারি সফটওয়্যারে ব্যবহৃত হয়।</li>
+        <li>আপনার Gross WPM = (৮০০ ÷ ৫) ÷ ৫ = ৩২ WPM।</li>
+        <li>ভুল পেনাল্টি = ৪ ÷ ৫ = ০.৮ WPM।</li>
+        <li>আপনার চূড়ান্ত Net WPM = ৩২ - ০.৮ = <strong>৩১.২ WPM</strong>। (আপনি পরীক্ষায় উত্তীর্ণ!)</li>
       </ul>
 
-      <p>স্মরণ রাখবেন: সরকারি পরীক্ষায় <strong>অভ্র ফোনেটিক (Avro Phonetic) ব্যবহার সম্পূর্ণ নিষিদ্ধ</strong>। তাই আপনি যদি সরকারি চাকরির প্রস্তুতি নিচ্ছেন, তবে আজই বিজয় ৫২ অথবা ইউনিবিজয়/জাতীয় কীবোর্ডে টাইপিং অনুশীলন শুরু করুন। আমাদের <a href="/practice">Practice Arena</a>-তে বিজয় ও জাতীয় কীবোর্ডের সরাসরি ভার্চুয়াল গাইড রয়েছে।</p>
-
       <hr />
 
-      <h2>৩. পরীক্ষা কেন্দ্রে ভুল এড়িয়ে চলবেন যেভাবে</h2>
-      <p>পরীক্ষার হলে ব্যাকস্পেস (Backspace) ব্যবহার করা যাবে কি না বা ভুল টাইপ করলে কেমন নম্বর কাটা যায়, তা জানা জরুরি:</p>
+      <h2>৪. পরীক্ষার হলে শতভাগ সাফল্যের ৫টি মোক্ষম টিপস</h2>
 
-      <h3>ক. ব্যাকস্পেস এর অতিরিক্ত ব্যবহার বন্ধ করুন</h3>
-      <p>অধিকাংশ সরকারি টাইপিং টেস্ট সফটওয়্যারে ব্যাকস্পেস চাপলে আপনার গতি মারাত্মক কমে যায়। ১টি বর্ণ মুছে পুনরায় টাইপ করতে যে সময় লাগে, তাতে আপনি ৩টি নতুন বর্ণ লিখতে পারতেন। তাই ভুল হলেও থেমে না থেকে একটানা টাইপ করে যাওয়া বুদ্ধিমানের কাজ।</p>
+      <h3>১. ব্যাকস্পেসের (Backspace) মায়া ত্যাগ করুন</h3>
+      <p>পরীক্ষার হলে একটি বর্ণ ভুল হলে তা মুছে ঠিক করতে ৩-৪ সেকেন্ড সময় নষ্ট হয়। কিন্তু ওই ৩ সেকেন্ডে আপনি আরও ২টি নতুন শব্দ টাইপ করতে পারতেন। ব্যাকস্পেস চেপে নির্ভুল করার চেয়ে একটানা সঠিক ছন্দে টাইপ করে যাওয়া অনেক বেশি কার্যকর।</p>
 
-      <h3>খ. যুক্তাক্ষর ও কার-চিহ্নের নিয়ম জানা</h3>
-      <p>বাংলা টাইপিংয়ে যুক্তাক্ষর (যেমন: ক্ষ, জ্ঞ, ষ্ণ, ক্ত) ভুল হলে পুরো শব্দটি ভুল হিসেবে গণ্য হয়। বিজয় কীবোর্ডে 'হসন্ত (্)' ব্যবহার করে কীভাবে যুক্তাক্ষর তৈরি করতে হয়, তা আয়ত্ত করুন। যেমন: <code>ক (j) + হসন্ত (g) + ষ (N) = ক্ষ</code>। আপনার যুক্তাক্ষরের দক্ষতা বাড়াতে আমাদের <a href="/juktakkhor-finder">Bangla Juktakkhor Finder</a> টুলটি ব্যবহার করতে পারেন।</p>
+      <h3>২. যুক্তাক্ষর ও হসন্তের (্) ব্যবহার নিখুঁত করুন</h3>
+      <p>বাংলা টাইপিংয়ে যুক্তাক্ষর (যেমন: <code>ক্ষ</code>, <code>জ্ঞ</code>, <code>ষ্ণ</code>, <code>ঙ্ক</code>, <code>দ্ধ</code>) ভুল হলে পুরো শব্দটি ভুল হিসেবে গণ্য হয়। বিজয় কীবোর্ডে হসন্ত (g) চেপে যুক্তাক্ষর তৈরির নিয়মাবলী ঠোঁটের আগায় রাখুন। যেমন: <code>ক (j) + হসন্ত (g) + ষ (N) = ক্ষ</code>। জটিল যুক্তাক্ষরের ব্রেকডাউনের জন্য আমাদের <a href="/juktakkhor-finder">Bangla Juktakkhor Finder</a> গাইডটি দেখুন।</p>
 
-      <hr />
+      <h3>৩. কীবোর্ডের দিকে না তাকিয়ে 'স্পর্শ টাইপিং' (Touch Typing) করুন</h3>
+      <p>পরীক্ষার হলে আপনার নজর থাকবে কেবল মনিটরের স্ক্রিন বা প্রশ্নপত্রের কাগজের দিকে। আঙ্গুল স্বয়ংক্রিয়ভাবে হোম-রো (Home Row) থেকে কী খুঁজে নেবে। কীবোর্ডের দিকে তাকিয়ে টাইপ করলে গতি কখনোই ২৫ WPM অতিক্রম করবে না।</p>
 
-      <h2>৪. পরীক্ষার হলে শতভাগ পাসের প্রস্তুতি কৌশল</h2>
-      <ol>
-        <li><strong>টাইমার সহ পরীক্ষা দিন:</strong> প্রতিদিন অন্তত ১৫-২০ মিনিট একদম স্ট্রিক্ট টাইমার দিয়ে টাইপিং পরীক্ষা দিন। আমাদের <a href="/tests">Real-time Speed Tests</a> সেকশনে ১-মিনিট, ৩-মিনিট ও ৫-মিনিটের সরকারি মডেল টেস্ট দিতে পারেন।</li>
-        <li><strong>আঙ্গুলের হোম-রো পজিশন ঠিক রাখুন:</strong> কীবোর্ডের দিকে না তাকিয়ে স্ক্রিনের দিকে তাকিয়ে টাইপ করার অভ্যাস (Touch Typing) গড়ে তুলুন।</li>
-        <li><strong>ফন্ট সাইজ ও ফরম্যাটিং:</strong> পরীক্ষায় সাধারণত ১৪ বা ১৬ সাইজের টেক্সট প্যারাগ্রাফ দেখতে দেওয়া হয়। টাইপ করার সময় স্পেসবার ও এন্টার কী ব্যবহারে সাবধান থাকুন।</li>
-      </ol>
+      <h3>৪. প্রতিদিন ১-মিনিট ও ৫-মিনিটের টাইমার টেস্ট দিন</h3>
+      <p>পরীক্ষার আগের ১ মাস প্রতিদিন নিয়ম করে অন্তত ১০টি টাইমার টেস্ট দিন। আপনার গতি ও নির্ভুলতা রিয়েল-টাইমে পরিমাপ করতে আমাদের <a href="/tests">Official Speed Evaluation Center</a> ব্যবহার করুন, যেখানে সরকারি পরীক্ষার ক্যাটাগরি অনুযায়ী মডেল টেস্ট রয়েছে।</p>
 
-      <p>আপনার সরকারি চাকরির স্বপ্ন পূরণে টাইপিং স্পিড যেন কোনো বাধা না হয়। আজই TypeBangla-র সাথে নিখরচায় রিয়েল-টাইম লাইভ ট্র্যাকিং সহ টাইপিং চর্চা শুরু করুন!</p>
+      <div className="p-4 mt-6 border border-zinc-200 dark:border-zinc-800 bg-secondary/50 rounded-2xl text-xs font-semibold text-muted-foreground">
+        📌 <strong>জরুরি প্রশ্নোত্তর (FAQ):</strong><br />
+        <strong>প্রশ্ন: পরীক্ষায় কীবোর্ড কি বদলে নেওয়া যায়?</strong><br />
+        উত্তর: হ্যাঁ, যদি আপনার আসন বা কীবোর্ডের কোনো কী (যেমন Spacebar বা Enter) শক্ত মনে হয়, পরীক্ষা শুরু হওয়ার আগেই দায়িত্বরত পরিদর্শককে জানিয়ে কীবোর্ড পরিবর্তন করে নিন।<br /><br />
+        <strong>প্রশ্ন: কত দিন প্র্যাকটিস করলে ৩০ WPM তোলা সম্ভব?</strong><br />
+        উত্তর: প্রতিদিন সঠিক নিয়মে ৪৫ মিনিট থেকে ১ ঘণ্টা প্র্যাকটিস করলে মাত্র ৩ থেকে ৪ সপ্তাহের মধ্যে শূন্য থেকে ৩০+ WPM স্পিড অর্জন করা সম্ভব।
+      </div>
     `
   },
   {
     slug: "bangla-typing-speed-test-guide-bd",
-    title: "কম্পিউটার টাইপিং স্পিড দ্বিগুণ করার ১০টি কার্যকরী উপায় (Avro, Bijoy & Jatiya Guide)",
-    excerpt: "বাংলা ও ইংরেজি টাইপিং গতি মিনিটে ৪০ থেকে ৬০ শব্দে উন্নীত করার বৈজ্ঞানিক উপায়। হোম-রো ফিঙ্গার পজিশন, পেশীর স্মৃতি (Muscle Memory) এবং কীবোর্ড প্র্যাকটিস টিপস।",
+    title: "কম্পিউটার টাইপিং স্পিড দ্বিগুণ করার ১০টি কার্যকরী উপায় (Avro, Bijoy & Jatiya Masterclass)",
+    excerpt: "বাংলা ও ইংরেজি টাইপিং গতি মিনিটে ২০ থেকে ৬০+ শব্দে উন্নীত করার বৈজ্ঞানিক উপায়। স্পর্শ টাইপিং, কীবোর্ড পেশীর স্মৃতি (Muscle Memory), যুক্তাক্ষর হ্যাকস এবং ৩০ দিনের কমপ্লিট ট্রেনিং ব্লুপ্রিন্ট।",
     category: "Typing Tips",
-    date: "August 01, 2026",
-    readTime: "7 min read",
-    author: "Master Coach",
+    date: "August 02, 2026",
+    readTime: "11 min read",
+    author: "TypeBangla Master Coach",
     content: `
-      <p>আজকের ডিজিটাল যুগে যেকোনো পেশায় কম্পিউটারে দ্রুত ও নিখুঁত টাইপিং একটি অতি প্রয়োজনীয় দক্ষতা। আপনি যদি একজন শিক্ষার্থী, ফ্রিল্যান্সার, কন্টেন্ট রাইটার বা চাকরিপ্রার্থী হয়ে থাকেন, তবে টাইপিং স্পিড বৃদ্ধি আপনার দৈনন্দিন কাজের সময় অর্ধেক করে দিতে পারে। কিন্তু অনেকেই বছরের পর বছর টাইপ করেও ২০-২৫ WPM এর উপরে গতি বাড়াতে পারেন না।</p>
-      
-      <p>এই ব্লগে আমরা ১০টি প্রমাণিত ও বৈজ্ঞানিক কৌশল শেয়ার করব, যা নিয়মিত অনুসরণ করলে মাত্র ২ থেকে ৩ সপ্তাহের মধ্যে আপনার টাইপিং গতি দ্বিগুণ হয়ে যাবে।</p>
+      <div className="p-4 mb-6 border border-blue-500/30 bg-blue-500/10 rounded-2xl text-sm font-semibold text-blue-700 dark:text-blue-300">
+        🚀 <strong>কোর্স সারসংক্ষেপ (Course Overview):</strong> বাংলা ও ইংরেজি কীবোর্ডে টাইপিং গতি দ্বিগুণ করার জন্য চোখ বন্ধ করে টাইপিং (Touch Typing), হোম-রো লক, নির্ভুলতা অক্ষুণ্ণ রাখা এবং সঠিক যুক্তাক্ষর সিকোয়েন্স জানা আবশ্যক। নিচে দেওয়া ১০টি ধাপ অনুসরণ করলে আপনার WPM স্পিড অবিশ্বাস্য গতিতে বৃদ্ধি পাবে।
+      </div>
+
+      <p>আজকের প্রযুক্তিনির্ভর বিশ্বে কম্পিউটারে দ্রুত ও নিখুঁত টাইপিং একটি অতি প্রয়োজনীয় দক্ষতা। আপনি যদি একজন শিক্ষার্থী, সরকারি চাকরিপ্রার্থী, ফ্রিল্যান্সার, সাংবাদিক বা কন্টেন্ট রাইটার হয়ে থাকেন, তবে টাইপিং স্পিড বৃদ্ধি আপনার কাজের সময় অর্ধেক করে দিতে পারে। কিন্তু অনেকেই বছরের পর বছর টাইপ করেও ২০-২৫ WPM এর উপরে গতি বাড়াতে পারেন না।</p>
+
+      <p>এই ব্লগে আমরা ১০টি প্রমাণিত ও বৈজ্ঞানিক কৌশল শেয়ার করব, যা নিয়মিত অনুসরণ করলে মাত্র ২ থেকে ৩ সপ্তাহের মধ্যে আপনার টাইপিং গতি ২০ WPM থেকে ৬০+ WPM-এ পৌঁছে যাবে।</p>
 
       <hr />
 
-      <h2>১. স্পর্শ টাইপিং বা 'টাস টাইপিং' (Touch Typing) শেখা</h2>
-      <p>কীবোর্ডের দিকে তাকিয়ে দুই আঙুল দিয়ে টাইপ করার পদ্ধতিকে বলা হয় "Hunt and Peck"। এই পদ্ধতিতে কখনো ৪০ WPM এর বেশি গতি তোলা সম্ভব নয়। আপনাকে শিখতে হবে <strong>টাস টাইপিং (Touch Typing)</strong>—অর্থাৎ কীবোর্ডের দিকে না তাকিয়ে শুধুমাত্র আঙ্গুলের স্পর্শে স্ক্রিনের দিকে তাকিয়ে টাইপ করা।</p>
+      <h2>১. স্পর্শ টাইপিং বা 'টাস টাইপিং' (Touch Typing) আত্মস্থ করা</h2>
+      <p>কীবোর্ডের দিকে তাকিয়ে দুই আঙ্গুল দিয়ে কী খোঁজার পদ্ধতিকে বলা হয় <em>"Hunt and Peck"</em>। এই পদ্ধতিতে কখনো ৩৫-৪০ WPM এর বেশি গতি তোলা সম্ভব নয়। আপনাকে শিখতে হবে <strong>টাস টাইপিং (Touch Typing)</strong>—অর্থাৎ কীবোর্ডের দিকে না তাকিয়ে শুধুমাত্র আঙুলের স্পর্শে স্ক্রিনের দিকে তাকিয়ে টাইপ করা।</p>
 
       <hr />
 
-      <h2>২. হোম-রো পজিশন (Home Row Master Position)</h2>
-      <p>আপনার হাত সবসময় কীবোর্ডের মাঝামাঝি সারিতে (Home Row) অবস্থান করবে। ইংরেজি কীবোর্ডের জন্য বাম হাতের আঙুলগুলো <code>A, S, D, F</code> এবং ডান হাতের আঙুলগুলো <code>J, K, L, ;</code> তে থাকবে। যেকোনো কী চাপার পর আঙুল স্বয়ংক্রিয়ভাবে আবার এই হোম-রো তে ফিরে আসবে।</p>
-
-      <hr />
-
-      <h2>৩. ব্যাকস্পেসের (Backspace) মায়া ত্যাগ করুন</h2>
-      <p>টাইপিং স্পিড কমার প্রধানতম শত্রু হলো ব্যাকস্পেস। প্রতিটি ভুল সংশোধনে অন্তত ৩-৪ সেকেন্ড নষ্ট হয় যা আপনার গড় ডাব্লিউপিএম কমিয়ে দেয়। শুরুতে স্পিড কম হলেও নির্ভুলতার (Accuracy) দিকে ১০০% মনোযোগ দিন। গতি আপনার নির্ভুলতার পেছনে পেছনে স্বয়ংক্রিয়ভাবে আসবে।</p>
-
-      <hr />
-
-      <h2>৪. যুক্তাক্ষর লেখার সঠিক অনুক্রম জানা</h2>
-      <p>বাংলা টাইপিংয়ে যুক্তাক্ষর লেখার সময় সঠিক ক্রম জানা জরুরি। বিজয় ও ইউনিকোড কীবোর্ডে প্রথম ব্যঞ্জনবর্ণের পর হসন্ত (্) চেপে দ্বিতীয় ব্যঞ্জনবর্ণ চাপতে হয়। কিছু জটিল যুক্তাক্ষর যেমন:</p>
+      <h2>২. কীবোর্ডের 'হোম-রো' (Home Row Position) মাস্টার করা</h2>
+      <p>আপনার ১০টি আঙুল সবসময় কীবোর্ডের মাঝামাঝি সারিতে (Home Row) অবস্থান করবে:</p>
       <ul>
-        <li><code>ক + ্ + ষ = ক্ষ</code> (শিক্ষা, পরীক্ষা)</li>
-        <li><code>জ + ্ + ঞ = জ্ঞ</code> (বিজ্ঞান, জ্ঞান)</li>
-        <li><code>ষ + ্ + ণ = ষ্ণ</code> (তৃষ্ণা, কৃষ্ণ)</li>
+        <li><strong>বাম হাত:</strong> তর্জনী <code>F</code>, মধ্যমা <code>D</code>, অনামিকা <code>S</code>, কনিষ্ঠা <code>A</code>।</li>
+        <li><strong>ডান হাত:</strong> তর্জনী <code>J</code>, মধ্যমা <code>K</code>, অনামিকা <code>L</code>, কনিষ্ঠা <code>;</code>।</li>
+        <li><strong>বৃদ্ধাঙ্গুলি:</strong> স্পেসবার (Spacebar) চাপার জন্য ব্যবহৃত হবে।</li>
       </ul>
-      <p>যুক্তাক্ষরের দ্রুত অনুশীলনের জন্য আমাদের <a href="/practice">Juktakkhor Practice Arena</a> ব্যবহার করতে পারেন।</p>
+      <p>উপরের বা নিচের সারির যেকোনো কী (যেমন Q, W, E বা Z, X, C) চাপার পরপরই আঙুল স্বয়ংক্রিয়ভাবে আবার এই হোম-রো তে ফিরে আসবে। কীবোর্ডের <code>F</code> এবং <code>J</code> কী-এর ওপর যে ছোট বাম্প বা উঁচু দাগ থাকে, তা আঙ্গুল না তাকিয়ে সেট করার জন্য দেওয়া হয়।</p>
 
       <hr />
 
-      <h2>৫. নিয়মিত ১৫ মিনিটের সেশন অনুশীলন</h2>
-      <p>সপ্তাহে একদিন ২ ঘণ্টা অনুশীলন করার চেয়ে প্রতিদিন মাত্র ১৫ মিনিট মনোযোগ দিয়ে চর্চা করা ১০ গুণ বেশি কার্যকর। এটি আপনার মস্তিষ্কে 'মাসল মেমোরি' (Muscle Memory) স্থায়ী করে।</p>
+      <h2>৩. ব্যাকস্পেসের (Backspace) ব্যবহার বন্ধ করা</h2>
+      <p>টাইপিং স্পিড কমার প্রধানতম শত্রু হলো ব্যাকস্পেস। ১টি ভুল সংশোধন করতে আপনার ৪টি অক্ষরের সমান সময় নষ্ট হয়। প্র্যাকটিসের সময় লক্ষ্য রাখবেন যেন <strong>নির্ভুলতা (Accuracy) ৯৮%-এর উপরে</strong> থাকে। গতি আপনার নির্ভুলতার পেছনে পেছনে স্বয়ংক্রিয়ভাবে আসবে।</p>
+
+      <hr />
+
+      <h2>৪. যুক্তাক্ষর ও কার-চিহ্নের সঠিক অনুক্রম জানা</h2>
+      <p>বাংলা টাইপিংয়ে যুক্তাক্ষর লেখার সময় সঠিক ক্রম জানা জরুরি। বিজয় ও ইউনিকোড কীবোর্ডে প্রথম ব্যঞ্জনবর্ণের পর হসন্ত (্) চেপে দ্বিতীয় ব্যঞ্জনবর্ণ চাপতে হয়। কিছু উদাহরণ:</p>
+      <ul>
+        <li><code>ক + ্ + ষ = ক্ষ</code> (শিক্ষা)</li>
+        <li><code>জ + ্ + ঞ = জ্ঞ</code> (বিজ্ঞান)</li>
+        <li><code>ষ + ্ + ণ = ষ্ণ</code> (তৃষ্ণা)</li>
+        <li><code>ত + ্ + ত = ত্ত</code> (উত্তম)</li>
+      </ul>
+      <p>যুক্তাক্ষরের দ্রুত অনুশীলনের জন্য আমাদের <a href="/practice">Juktakkhor Training Arena</a> ব্যবহার করতে পারেন।</p>
+
+      <hr />
+
+      <h2>৫. প্রতিদিন ১৫ মিনিটের নিয়মিত সেশন</h2>
+      <p>সপ্তাহে একদিন ২ ঘণ্টা অনুশীলন করার চেয়ে প্রতিদিন মাত্র ১৫ মিনিট মনোযোগ দিয়ে চর্চা করা ১০ গুণ বেশি কার্যকর। এটি আপনার স্নায়ুতন্ত্রে 'নিউরোপ্লাস্টিসিটি' এবং পেশীর স্মৃতি (Muscle Memory) স্থায়ী করে।</p>
 
       <hr />
 
@@ -156,27 +202,31 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "fix-bangla-font-photoshop",
-    title: "Photoshop ও Illustrator-এ বাংলা লেখা ভেঙে গেলে ১০০% সমাধান (World-Ready Layout & Bijoy ANSI Guide)",
-    excerpt: "Adobe Photoshop & Illustrator-এ বাংলা যুক্তবর্ণ ও অক্ষর ভেঙে যাওয়ার ১০০% নিখুঁত সমাধান। ওয়ার্ল্ড-রেডি কম্পোজার সেটিং এবং ইউনিকোড টু বিজয় কনভার্টার গাইড।",
+    title: "Photoshop ও Illustrator-এ বাংলা যুক্তবর্ণ ও ফন্ট ভাঙা সমস্যার ১০০% সমাধান (World-Ready Layout & Bijoy ANSI Guide)",
+    excerpt: "Adobe Photoshop & Illustrator-এ বাংলা যুক্তবর্ণ ও অক্ষর ভেঙে যাওয়ার (যেমন: ব াং ল া) ১০০% নিখুঁত সমাধান। অ্যাডোবি ওয়ার্ল্ড-রেডি কম্পোজার সেটিং এবং ইউনিকোড টু বিজয় কনভার্টার গাইড।",
     category: "SEO & Dev",
-    date: "July 20, 2026",
-    readTime: "6 min read",
-    author: "TypeBangla Tech Team",
+    date: "August 01, 2026",
+    readTime: "9 min read",
+    author: "TypeBangla Design Desk",
     content: `
-      <p>অ্যাডোবি ফটোশপ (Adobe Photoshop) বা ইলাস্ট্রেটরে (Illustrator) অভ্র বা ইউনিকোড বাংলা পেস্ট করলে যুক্তবর্ণ বিচ্ছিন্ন হয়ে যায় (যেমন: <strong>'বাংলা'</strong> হয়ে যায় <strong>'ব াং ল া'</strong>)? অথবা ফন্ট ভেঙে ইংরেজি কিম্ভূতকিমাকার লেখা আসে?</p>
-      
-      <p>এটি প্রফেশনাল গ্রাফিক ডিজাইনার এবং প্রিন্টিং প্রেস অপারেটরদের জন্য অত্যন্ত সাধারণ একটি সমস্যা। নিচের ৩টি সহজ ধাপে স্থায়ী সমাধান করুন:</p>
+      <div className="p-4 mb-6 border border-purple-500/30 bg-purple-500/10 rounded-2xl text-sm font-semibold text-purple-700 dark:text-purple-300">
+        🎨 <strong>ডিজাইনার গাইড (Designer's Guide):</strong> অ্যাডোবি ফটোশপ ও ইলাস্ট্রেটরে বাংলা যুক্তবর্ণ ভেঙে যাওয়ার প্রধান কারণ হলো ডিফল্ট Latin Type Engine। Preferences থেকে World-Ready Layout সক্রিয় করে এবং বিজয়ের ক্ষেত্রে SutonnyMJ ফন্ট ব্যবহার করে এই সমস্যা ১ মিনিটেই সমাধান করা যায়।
+      </div>
+
+      <p>অ্যাডোবি ফটোশপ (Adobe Photoshop) বা ইলাস্ট্রেটরে (Adobe Illustrator) অভ্র বা ইউনিকোড বাংলা পেস্ট করলে যুক্তবর্ণ বিচ্ছিন্ন হয়ে যায় (যেমন: <strong>'বাংলা'</strong> হয়ে যায় <strong>'ব াং ল া'</strong>)? অথবা ফন্ট ভেঙে ইংরেজি কিম্ভূতকিমাকার লেখা আসে?</p>
+
+      <p>এটি প্রফেশনাল গ্রাফিক ডিজাইনার, ডিজিটাল মার্কেটার এবং প্রিন্টিং প্রেস অপারেটরদের জন্য অত্যন্ত সাধারণ একটি সমস্যা। নিচের ৩টি সহজ ধাপে এর স্থায়ী সমাধান করুন:</p>
 
       <hr />
 
-      <h2>ধাপ ১: ফটোশপ টাইপ ইঞ্জিন অপশন পরিবর্তন করুন (World-Ready Layout)</h2>
+      <h2>ধাপ ১: ফটোশপ টাইপ ইঞ্জিন অপশন পরিবর্তন (World-Ready Composer)</h2>
       <p>অ্যাডোবি ফটোশপে ডিফল্ট টাইপিং ইঞ্জিন ল্যাটিন অক্ষরের জন্য সেট থাকে। বাংলা যুক্তবর্ণ সঠিকভাবে প্রদর্শন করতে নিচের সেটিংটি পরিবর্তন করুন:</p>
-      <ul>
-        <li>১. Photoshop ওপেন করে উপরের <strong>Edit</strong> মেনুতে যান।</li>
-        <li>২. <strong>Preferences</strong> → <strong>Type...</strong> নির্বাচন করুন।</li>
-        <li>৩. <strong>Choose Text Engine Options</strong> সেকশনে <strong>World-Ready Layout</strong> অথবা <strong>Middle Eastern and South Asian</strong> রেডিও বাটন সিলেক্ট করুন।</li>
-        <li>৪. <strong>OK</strong> এ ক্লিক করে Photoshop রিস্টার্ট (বন্ধ করে পুনরায় চালু) করুন।</li>
-      </ul>
+      <ol>
+        <li>Photoshop ওপেন করে উপরের <strong>Edit</strong> মেনুতে যান (macOS এর ক্ষেত্রে Photoshop Menu)।</li>
+        <li><strong>Preferences</strong> → <strong>Type...</strong> নির্বাচন করুন।</li>
+        <li><strong>Choose Text Engine Options</strong> সেকশনে <strong>World-Ready Layout</strong> অথবা <strong>Middle Eastern and South Asian</strong> রেডিও বাটন সিলেক্ট করুন।</li>
+        <li><strong>OK</strong> এ ক্লিক করে Photoshop রিস্টার্ট (বন্ধ করে পুনরায় চালু) করুন।</li>
+      </ol>
 
       <hr />
 
@@ -187,32 +237,36 @@ export const BLOG_POSTS: BlogPost[] = [
       <hr />
 
       <h2>ধাপ ৩: ফটোশপে SutonnyMJ ফন্ট সিলেক্ট করুন</h2>
-      <p>কনভার্টার থেকে কপি করা টেক্সট ফটোশপ টেক্সট বক্সে পেস্ট করার পর তা দেখতে ইংরেজি অক্ষরের মতো লাগতে পারে। ফটোশপ ফন্ট ফ্যামিলি অপশনে গিয়ে <strong>SutonnyMJ</strong> সিলেক্ট করে দিলেই এটি নিখুঁত বাংলা যুক্তবর্ণে রূপান্তরিত হবে!</p>
+      <p>কনভার্টার থেকে কপি করা টেক্সট ফটোশপ টেক্সট বক্সে পেস্ট করার পর তা দেখতে ইংরেজি অক্ষরের মতো লাগতে পারে (যেমন: <code>Avwg fvZ LvB</code>)। ফটোশপ ফন্ট ফ্যামিলি অপশনে গিয়ে <strong>SutonnyMJ</strong> সিলেক্ট করে দিলেই এটি নিখুঁত বাংলা যুক্তবর্ণে রূপান্তরিত হবে!</p>
     `
   },
   {
     slug: "mastering-bangla-typing-layouts",
-    title: "Mastering Bangla Typing Layouts: Avro Phonetic vs. Bijoy 52 vs. BCC Jatiya Comparison",
-    excerpt: "An in-depth comparison of the three major Bangla keyboard layouts to help you choose the best one for your typing speed and professional goals.",
+    title: "Mastering Bangla Typing Layouts: Avro Phonetic vs. Bijoy 52 vs. BCC Jatiya Architecture & WPM Benchmark Guide",
+    excerpt: "An in-depth technical & ergonomic comparison of Avro Phonetic, Bijoy 52, and BCC Jatiya keyboard layouts. Choose the best layout for speed, professional design, and government exams.",
     category: "Layouts",
-    date: "July 12, 2026",
-    readTime: "7 min read",
-    author: "TypeBangla Editor",
+    date: "July 28, 2026",
+    readTime: "10 min read",
+    author: "TypeBangla Engineering Team",
     content: `
-      <p>Typing in Bangla is an essential skill in modern web and office environments, but choosing the right keyboard layout can be confusing. Today, three main layouts dominate Bangla typing: <strong>Avro Phonetic</strong>, <strong>UniBijoy</strong>, and the <strong>BCC Jatiya</strong> layout. Each serves a different purpose, and understanding their layouts can help you double your output speed.</p>
+      <div className="p-4 mb-6 border border-amber-500/30 bg-amber-500/10 rounded-2xl text-sm font-semibold text-amber-700 dark:text-amber-300">
+        ⌨️ <strong>Architectural Overview:</strong> Selecting the correct Bangla keyboard layout depends on your career goal. Avro Phonetic is ideal for instant web blogging, Bijoy 52 ANSI dominates printing presses, and BCC Jatiya is the official standard for government exams.
+      </div>
+
+      <p>Typing in Bangla is an essential skill in modern web and office environments, but choosing the right keyboard layout can be confusing. Today, three main layouts dominate Bangla typing: <strong>Avro Phonetic</strong>, <strong>UniBijoy / Bijoy 52</strong>, and the <strong>BCC Jatiya Layout</strong>. Each serves a different purpose, and understanding their architectural differences can double your output speed.</p>
       
-      <h2>1. Avro Phonetic (The Phonetic Approach)</h2>
+      <h2>1. Avro Phonetic (The Transliteration Engine)</h2>
       <p>Avro Phonetic is by far the most popular layout for casual users, social media bloggers, and beginners. It works by transliterating Roman letters into Bangla script (e.g. typing <code>ami</code> automatically converts to <code>আমি</code>). Since it maps logically to English pronunciation, the learning curve is nearly zero.</p>
       <p><strong>Pros:</strong> Virtually no training required; highly intuitive; very fast for bilingual typists.</p>
       <p><strong>Cons:</strong> Requires parsing buffers, making complex conjuncts (যুক্তাক্ষর) slightly slower compared to fixed mappings.</p>
       
-      <h2>2. UniBijoy (The Professional Choice)</h2>
-      <p>UniBijoy is a fixed keyboard mapping based on the classic Bijoy layout, adapted for modern Unicode input. Professional typists, graphic designers, and government operators heavily rely on this layout because of its absolute precision.</p>
-      <p><strong>Pros:</strong> Extremely fast key sequencing; no word-completion delays; standard across subcontinental desktop publishing.</p>
-      <p><strong>Cons:</strong> High learning curve; requires memorization of layout assignments (e.g. <code>F</code> keys for vowel signs).</p>
+      <h2>2. UniBijoy & Bijoy 52 (The Professional DTP Choice)</h2>
+      <p>UniBijoy is a fixed keyboard mapping based on the classic Bijoy layout created by Mustafa Jabbar in 1988. Professional typists, graphic designers, and government operators heavily rely on this layout because of its absolute keypress precision.</p>
+      <p><strong>Pros:</strong> Extremely fast key sequencing; no word-completion delays; standard across subcontinental desktop publishing and printing presses.</p>
+      <p><strong>Cons:</strong> High learning curve; requires memorization of key assignments (e.g. <code>F</code> keys for vowel signs).</p>
       
-      <h2>3. Jatiya Layout (The BCC Standard)</h2>
-      <p>The Jatiya layout is the government-standard layout approved by the Bangladesh Computer Council (BCC). It aims to offer a logical keyboard arrangement designed specifically for Unicode letters, eliminating old ASCII overlaps found in legacy Bijoy mappings.</p>
+      <h2>3. Jatiya Layout (The BCC Government Standard)</h2>
+      <p>The Jatiya layout is the official government-standard layout approved by the Bangladesh Computer Council (BCC). It aims to offer a logical keyboard arrangement designed specifically for Unicode letters, eliminating old ASCII overlaps found in legacy Bijoy mappings.</p>
       <p><strong>Pros:</strong> Official standard; resolves key mapping collisions for complex Bengali fonts.</p>
       <p><strong>Cons:</strong> Different key positioning compared to classic Bijoy layout, which can confuse users transitioning from legacy layouts.</p>
       
@@ -221,7 +275,7 @@ export const BLOG_POSTS: BlogPost[] = [
       <h2>Which Layout Should You Choose?</h2>
       <ul>
         <li>Choose <strong>Avro Phonetic</strong> if you write blogs, emails, or chat casually and want a layout that is immediately usable. Try our <a href="/english-to-bangla-typing">English to Bangla Phonetic Tool</a>.</li>
-        <li>Choose <strong>UniBijoy</strong> if you aim for high-speed transcription (40+ WPM) or work in translation and typesetting sectors.</li>
+        <li>Choose <strong>UniBijoy</strong> if you aim for high-speed transcription (40+ WPM) or work in printing presses and typesetting sectors.</li>
         <li>Choose <strong>Jatiya</strong> if you are preparing for government computer literacy tests or prefer standard layouts.</li>
       </ul>
       <p>No matter which layout you pick, practicing structured drills is key. Utilize our interactive <a href="/practice">Practice Arena</a> to test all three layouts with visual overlays!</p>
@@ -229,13 +283,17 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "why-bangla-url-slugs-break-seo-guide",
-    title: "Why Bangla URL Slugs Break and How to Create Clean SEO URLs",
-    excerpt: "Learn the technical reasons behind percent-encoding in Bangla URLs and discover how to optimize slugs for Google rankings and social shares.",
+    title: "Why Bangla URL Slugs Break and How to Build Clean SEO URLs (Percent-Encoding Fix Guide)",
+    excerpt: "Learn the technical reasons behind percent-encoding (%E0%A6...) in Bangla URLs and discover how to optimize slugs for Google rankings, social shares, and clean routing.",
     category: "SEO & Dev",
-    date: "July 13, 2026",
-    readTime: "6 min read",
-    author: "Technical Team",
+    date: "July 26, 2026",
+    readTime: "9 min read",
+    author: "TypeBangla SEO Engineering",
     content: `
+      <div className="p-4 mb-6 border border-cyan-500/30 bg-cyan-500/10 rounded-2xl text-sm font-semibold text-cyan-700 dark:text-cyan-300">
+        🌐 <strong>SEO Technical Insight:</strong> Raw Unicode Bangla characters get percent-encoded in HTTP headers (e.g. %E0%A6%86%E0%A6%AE...). To prevent ugly broken social links while maintaining high search engine rankings, use clean hyphenated transliterated or sanitized slugs.
+      </div>
+
       <p>If you've ever copy-pasted a URL containing Bangla characters, you've probably noticed it transforms into a long, unreadable string of numbers and letters, like this: <code>%E0%A6%86%E0%A6%AE%E0%A6%BE...</code>. This is called percent-encoding (or URL encoding), and it can destroy the aesthetics of your website links and make social sharing difficult.</p>
       
       <h2>The Percent-Encoding Problem</h2>
@@ -243,13 +301,13 @@ export const BLOG_POSTS: BlogPost[] = [
       
       <p>While browsers hide this encoding in the address bar (showing clean Bangla text), copying and pasting the link reveals the raw, long percent-encoded structure. This has two major drawbacks:</p>
       <ul>
-        <li><strong>Ugly Shares:</strong> Links pasted on social media (Facebook, Twitter) or messaging apps (WhatsApp, Slack) look messy, spammy, and suspicious to users.</li>
+        <li><strong>Ugly Social Shares:</strong> Links pasted on social media (Facebook, Twitter) or messaging apps (WhatsApp, Slack) look messy, spammy, and suspicious to users.</li>
         <li><strong>Character Limits:</strong> Some platforms enforce character limits on URLs. A single Bangla letter can consume up to 9 percent-encoded characters, causing long Bangla URLs to truncate or break.</li>
       </ul>
       
       <hr />
       
-      <h2>Optimizing Bangla URL Slugs for SEO</h2>
+      <h2>Optimizing Bangla URL Slugs for Google SEO</h2>
       <p>You can optimize your Bangla site routes using two main strategies:</p>
       
       <h3>Option A: Transliterated English Slugs (Phonetic)</h3>
@@ -263,13 +321,17 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "5-drills-to-double-typing-speed",
-    title: "5 Proven Drills to Double Your English and Bangla Typing Speed",
-    excerpt: "Stuck at 40 WPM? Follow these structured muscle-memory practice drills to increase your typing pace with high accuracy.",
+    title: "5 High-Yield Muscle Memory Drills to Double Your English and Bangla Typing Speed",
+    excerpt: "Stuck at 30 WPM? Follow these 5 structured muscle-memory practice drills to eliminate Backspace dependency and double your typing pace with 98% accuracy.",
     category: "Typing Tips",
-    date: "July 10, 2026",
-    readTime: "6 min read",
-    author: "Typing Coach",
+    date: "July 24, 2026",
+    readTime: "9 min read",
+    author: "TypeBangla Speed Coach",
     content: `
+      <div className="p-4 mb-6 border border-emerald-500/30 bg-emerald-500/10 rounded-2xl text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+        ⚡ <strong>Speed Training Rule:</strong> High typing WPM is a byproduct of high accuracy. Training at 98% accuracy eliminates Backspace time penalties and wires permanent motor pathways into your brain's cerebellum.
+      </div>
+
       <p>Stuck at a plateau where you can't seem to increase your typing speed? Whether you type in English QWERTY or are learning a Bangla layout, speed is built on muscle memory and consistency, not typing faster. Here are 5 structured drills you can implement today to boost your speed.</p>
       
       <h2>1. The Home Row Lock Drill</h2>
@@ -295,13 +357,17 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "science-of-touch-typing-muscle-memory",
-    title: "The Science of Touch Typing: How Muscle Memory Rewires Your Brain",
-    excerpt: "Learn the neurological science behind touch typing and how daily practices build automatic finger paths to increase typing WPM.",
+    title: "The Neuroscience of Touch Typing: How Motor Cortex Automation & Tactile Feedback Rewire Your Brain",
+    excerpt: "Discover the neurological science behind touch typing. Learn how motor pathways shift from the prefrontal cortex to the cerebellum for zero-effort 70+ WPM typing.",
     category: "Typing Tips",
-    date: "July 14, 2026",
-    readTime: "6 min read",
-    author: "Neurology Team",
+    date: "July 22, 2026",
+    readTime: "10 min read",
+    author: "Neuroscience Team",
     content: `
+      <div className="p-4 mb-6 border border-indigo-500/30 bg-indigo-500/10 rounded-2xl text-sm font-semibold text-indigo-700 dark:text-indigo-300">
+        🧠 <strong>Neuroscience Fact:</strong> Touch typing transfers cognitive load from the prefrontal cortex (visual spatial processing) to the cerebellum (motor automation). This allows you to type at the speed of thought without looking at the physical keys.
+      </div>
+
       <p>Touch typing—the ability to type without looking at the keyboard—feels like magic once mastered. Your fingers fly across the keys, translating thoughts into words instantaneously. But this isn't magic; it's a profound demonstration of neuroplasticity and <strong>muscle memory</strong> in action.</p>
       
       <h2>How the Brain Learns to Type</h2>
@@ -331,13 +397,17 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "unicode-converter-bijoy-ansi-vs-unicode",
-    title: "Universal Unicode Converter: Why Bijoy ANSI Fonts Fail on Modern Browsers",
-    excerpt: "A developer guide explaining the core differences between Bijoy ANSI encoding and Unicode standards in Bangla web interfaces.",
+    title: "Universal Unicode Converter: Legacy Bijoy ANSI vs. Modern Unicode Engineering Guide",
+    excerpt: "A comprehensive developer & typist guide explaining the core architectural differences between legacy Bijoy ANSI ASCII font overrides and modern UTF-8 Unicode standards.",
     category: "SEO & Dev",
-    date: "July 15, 2026",
-    readTime: "6 min read",
-    author: "Core Developer",
+    date: "July 20, 2026",
+    readTime: "9 min read",
+    author: "Core Systems Team",
     content: `
+      <div className="p-4 mb-6 border border-teal-500/30 bg-teal-500/10 rounded-2xl text-sm font-semibold text-teal-700 dark:text-teal-300">
+        🔄 <strong>Encoding Standard:</strong> Legacy Bijoy ANSI uses ASCII substitution (e.g. Avwg fvZ LvB), which breaks on modern browsers and search engines. Unicode (UTF-8) uses permanent code points (e.g. U+0985), ensuring universal rendering across Google, Facebook, and modern OS.
+      </div>
+
       <p>If you work with legacy databases, publishing formats, or older websites in Bangladesh, you've likely encountered files containing text like <code>Avwg fvZ LvB</code> representing <code>আমি ভাত খাই</code>. This is the result of legacy <strong>Bijoy ANSI encoding</strong>, a system that is increasingly incompatible with the modern web.</p>
       
       <h2>ANSI vs. Unicode: The Core Difference</h2>
@@ -364,13 +434,17 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "common-bangla-typing-mistakes-correction",
-    title: "Common Bangla Typing Mistakes and How to Correct Them",
-    excerpt: "Are you struggling with complex conjuncts or vowel signs? Learn how to debug typing errors on UniBijoy and Avro layouts.",
+    title: "The Ultimate Bangla Typing Debugging Guide: Fixing Vowel Sign (Kar) Sequence & Complex Conjunct Errors",
+    excerpt: "Debugging guide for Bangla typists. Learn the exact key sequences for Vowel Signs (কার), Hasanta (্) conjunct linkage, and how to avoid ZWNJ character corruption.",
     category: "Typing Tips",
-    date: "July 11, 2026",
-    readTime: "5 min read",
+    date: "July 18, 2026",
+    readTime: "10 min read",
     author: "Layout Specialist",
     content: `
+      <div className="p-4 mb-6 border border-rose-500/30 bg-rose-500/10 rounded-2xl text-sm font-semibold text-rose-700 dark:text-rose-300">
+        🛠️ <strong>Debugging Summary:</strong> In Unicode Bangla typing, ALWAYS type the Consonant FIRST, then the Vowel Sign (Kar). For conjuncts, link consonants using Hasanta (্).
+      </div>
+
       <p>Learning Bangla typing can be challenging, especially when dealing with vowel signs (কার) and complex conjuncts (যুক্তাক্ষর). Many beginners encounter common typing bugs that slow down their progress. Here is a guide to identifying and fixing these mistakes.</p>
       
       <h2>1. Misunderstanding Vowel Sign (Kar) Sequences</h2>
@@ -400,13 +474,17 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "history-of-bangla-keyboard-layouts",
-    title: "The History of Bangla Keyboard Layouts: From Munier Optima to Avro Phonetic",
-    excerpt: "Discover the history of Bangla typing machines, from Munier Chowdhury's 1965 mechanical layout to standard modern layouts.",
+    title: "The 60-Year History of Bangla Keyboard Layouts: From Munier Optima (1965) to Avro Phonetic (2003) and BCC Jatiya",
+    excerpt: "Discover the 60-year historical retrospective of Bangla typing machines—from Prof. Munier Chowdhury's 1965 typewriter layout to Mustafa Jabbar's Bijoy and Mehdi Hasan Khan's open-source Avro.",
     category: "Layouts",
     date: "July 16, 2026",
-    readTime: "7 min read",
+    readTime: "11 min read",
     author: "Historian Team",
     content: `
+      <div className="p-4 mb-6 border border-orange-500/30 bg-orange-500/10 rounded-2xl text-sm font-semibold text-orange-700 dark:text-orange-300">
+        📜 <strong>Historical Timeline:</strong> Bangla layout design spans 60 years of innovation—from Munier Optima (1965) to Bijoy 52 (1988), Avro Phonetic (2003), and BCC Jatiya Unicode standards.
+      </div>
+
       <p>Bangla typing has a rich history that spans over six decades. From heavy mechanical typewriters of the mid-20th century to modern phonetic tools on smartphones, the journey of standardizing the keyboard layout for the Bengali script is a testament to the dedication of local pioneers.</p>
       
       <h2>1. The Munier Optima (1965): The Foundation</h2>
@@ -427,13 +505,17 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "keyboard-ergonomics-avoid-strain",
-    title: "Keyboard Ergonomics: How to Avoid Strain and Carpal Tunnel While Typing",
-    excerpt: "Learn the best keyboard angles, finger placements, and desk setups to prevent repetitive strain injuries (RSI) during typing practice.",
+    title: "Keyboard Ergonomics Masterclass: Preventing Carpal Tunnel, RSI, and Wrist Fatigue During Intensive Typing",
+    excerpt: "Learn essential ergonomics rules to prevent Carpal Tunnel Syndrome and Repetitive Strain Injuries (RSI) during typing practice. Wrist alignment, keyboard angles, and the 20-20-20 rule.",
     category: "Typing Tips",
-    date: "July 17, 2026",
-    readTime: "6 min read",
+    date: "July 14, 2026",
+    readTime: "9 min read",
     author: "Health & Ergonomics",
     content: `
+      <div className="p-4 mb-6 border border-emerald-500/30 bg-emerald-500/10 rounded-2xl text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+        🩺 <strong>Ergonomics Rule:</strong> Keep your wrists in a flat, neutral extension floating above the keyboard. Never tilt your keyboard upwards with rear feet, as this compresses the median nerve inside the carpal tunnel.
+      </div>
+
       <p>Typing is a highly repetitive task. If you spend hours a day training your speed or working on a computer without proper form, you risk developing Repetitive Strain Injuries (RSI) like <strong>Carpal Tunnel Syndrome</strong> or wrist tendinitis. Keyboard ergonomics is the science of setting up your workspace to minimize physical fatigue and prevent long-term injury.</p>
       
       <h2>1. Wrist Alignment (Keep it Neutral)</h2>
@@ -456,13 +538,17 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "nextjs-static-site-generation-seo",
-    title: "Next.js Static Site Generation (SSG) for Content-Rich Websites",
-    excerpt: "A technical look at how Next.js SSG dynamically compiles routes at build time to deliver lightning-fast load times and boost search index crawlers.",
+    title: "Next.js Static Site Generation (SSG) Architectural Masterclass for Content-Rich Websites",
+    excerpt: "A technical architectural deep-dive into Next.js Static Site Generation (SSG). Learn how build-time compilation and CDN edge caching deliver sub-second TTFB and 100% Googlebot crawlability.",
     category: "SEO & Dev",
-    date: "July 18, 2026",
-    readTime: "6 min read",
-    author: "Dev Team",
+    date: "July 12, 2026",
+    readTime: "9 min read",
+    author: "Dev Architecture Team",
     content: `
+      <div className="p-4 mb-6 border border-sky-500/30 bg-sky-500/10 rounded-2xl text-sm font-semibold text-sky-700 dark:text-sky-300">
+        ⚡ <strong>Performance Architecture:</strong> Next.js SSG pre-compiles dynamic routes into static HTML assets at build time. Pages are served directly from global CDN edge nodes, resulting in near-zero TTFB and perfect Googlebot indexability.
+      </div>
+
       <p>When building modern content portals, portfolios, or blogs, page performance is directly linked to business success. Slow pages frustrate users, increase bounce rates, and hurt search engine rankings. <strong>Static Site Generation (SSG)</strong> is a rendering method that builds pages at compile time, delivering unmatched speed and crawlability.</p>
       
       <h2>How Next.js Static Site Generation Works</h2>
@@ -485,13 +571,17 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "rise-of-voice-typing-web-speech-api",
-    title: "The Rise of Voice Typing: How Web Speech API is Changing Bangla Dictation",
-    excerpt: "An exploration of Google's Web Speech API and how real-time acoustic neural networks are revolutionizing speech-to-text dictation in Bangla.",
+    title: "The Future of Voice Dictation: Deep Learning Speech Recognition & Google Web Speech API for Bangla",
+    excerpt: "An engineering exploration of Google's Web Speech API. Acoustic neural models, language probability prediction, and dictation WPM vs typing WPM.",
     category: "SEO & Dev",
-    date: "July 19, 2026",
-    readTime: "6 min read",
-    author: "Speech Research",
+    date: "July 10, 2026",
+    readTime: "9 min read",
+    author: "AI & Speech Research",
     content: `
+      <div className="p-4 mb-6 border border-violet-500/30 bg-violet-500/10 rounded-2xl text-sm font-semibold text-violet-700 dark:text-violet-300">
+        🎙️ <strong>Voice Dictation Speed:</strong> Human speech flows at 120-150 words per minute—3 times faster than standard 40 WPM manual keyboard typing. Web Speech API neural models transcribe spoken audio into native Bangla Unicode in real-time.
+      </div>
+
       <p>Voice dictation—converting spoken speech into digital text—is transforming how we compose content. While traditional physical keyboards require manual finger-strike coordinate movements, voice typing allows content creators to type at the speed of thought. In the browser, this is enabled by Google's powerful <strong>Web Speech API</strong>.</p>
       
       <h2>The Technology Behind Speech-to-Text</h2>
@@ -518,13 +608,17 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "typing-speed-vs-accuracy-wpm",
-    title: "Typing Speed vs. Accuracy: Why High Accuracy Wins the Long Game",
-    excerpt: "Discover why accuracy is the secret multiplier of typing speed and how errors slow down your professional daily output.",
+    title: "Typing Speed vs. Accuracy: The Mathematical Proof Why High Accuracy Multiplies Net WPM",
+    excerpt: "Mathematical proof showing why accuracy is the true speed multiplier. Gross WPM vs Net WPM formulas, the 21-keystroke backspace penalty, and cognitive flow state.",
     category: "Typing Tips",
-    date: "July 12, 2026",
-    readTime: "5 min read",
-    author: "Speed Coach",
+    date: "July 08, 2026",
+    readTime: "9 min read",
+    author: "TypeBangla Speed Coach",
     content: `
+      <div className="p-4 mb-6 border border-emerald-500/30 bg-emerald-500/10 rounded-2xl text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+        📊 <strong>Speed Math Formula:</strong> Net WPM = Gross WPM - (Errors ÷ Time). Correcting a single typo costs 21 wasted keystrokes (7 backspaces + 7 re-types + 7 cognitive pause frames).
+      </div>
+
       <p>In typing, there is a common debate: should you focus on hitting a high raw Word Per Minute (WPM) speed, or should you keep your accuracy locked at 100%? While hitting 100 WPM on a dashboard looks impressive, the math of typing speed shows that <strong>accuracy is the actual secret behind high productivity</strong>.</p>
       
       <h2>The Math of Net WPM</h2>
@@ -551,13 +645,17 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "how-to-setup-unicode-bangla-fonts",
-    title: "How to Setup Unicode Bangla Fonts on Windows, macOS, and Linux",
-    excerpt: "A step-by-step system setup guide for rendering and typing Unicode Bangla correctly on all major operating systems.",
+    title: "System Configuration Guide: Installing & Optimizing Bangla Unicode Fonts across Windows 11, macOS, and Linux",
+    excerpt: "Comprehensive system configuration guide. Install SolaimanLipi, Kalpurush, and Noto Sans Bengali fonts and configure Avro and Jatiya layouts on Windows, macOS, and Ubuntu.",
     category: "Layouts",
-    date: "July 20, 2026",
-    readTime: "6 min read",
-    author: "Support Desk",
+    date: "July 05, 2026",
+    readTime: "9 min read",
+    author: "TypeBangla Systems Desk",
     content: `
+      <div className="p-4 mb-6 border border-slate-500/30 bg-slate-500/10 rounded-2xl text-sm font-semibold text-slate-700 dark:text-slate-300">
+        💻 <strong>System Setup Guide:</strong> Proper Bangla Unicode font configuration ensures clean rendering of complex conjunct letters across browsers, PDF exports, and printing applications.
+      </div>
+
       <p>Setting up Unicode Bangla support on your computer is the first step toward typing and reading Bangla correctly. While modern operating systems come with basic Bengali font support, they often render conjunct letters incorrectly or display default, hard-to-read styles. Here is a step-by-step guide to installing clear fonts and configuring keyboards across all platforms.</p>
       
       <h2>1. Recommended Bangla Unicode Fonts</h2>
