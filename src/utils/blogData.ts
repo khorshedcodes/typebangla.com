@@ -19,7 +19,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readTime: "12 min read",
     author: "TypeBangla Exam Board",
     content: `
-      <div className="p-4 mb-6 border border-emerald-500/30 bg-emerald-500/10 rounded-2xl text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+      <div class="p-4 mb-6 border border-emerald-500/30 bg-emerald-500/10 rounded-2xl text-sm font-semibold text-emerald-700 dark:text-emerald-300">
         💡 <strong>সংক্ষিপ্ত সারসংক্ষেপ (Executive Summary):</strong> বাংলাদেশে বিপিএসসি (BPSC), বিভিন্ন মন্ত্রণালয়, জেলা প্রশাসকের কার্যালয় (DC Office) এবং সরকারি ব্যাংকে কম্পিউটার অপারেটর পদে পাসের জন্য বাংলায় প্রতি মিনিটে অন্তত ৩০ শব্দ (30 WPM) এবং ইংরেজিতে ৩০-৪০ শব্দ (30-40 WPM) নির্ভুলভাবে টাইপ করতে হয়। পরীক্ষায় বিজয় ৫২ (Bijoy 52 Classic/ANSI) এবং জাতীয় কীবোর্ড (BCC Jatiya) ব্যবহৃত হয়। অভ্র (Avro) ব্যবহার সম্পূর্ণ নিষিদ্ধ।
       </div>
 
@@ -128,7 +128,7 @@ Net WPM = Gross WPM - (ভুল শব্দের সংখ্যা ÷ সম
       <h3>৪. প্রতিদিন ১-মিনিট ও ৫-মিনিটের টাইমার টেস্ট দিন</h3>
       <p>পরীক্ষার আগের ১ মাস প্রতিদিন নিয়ম করে অন্তত ১০টি টাইমার টেস্ট দিন। আপনার গতি ও নির্ভুলতা রিয়েল-টাইমে পরিমাপ করতে আমাদের <a href="/tests">Official Speed Evaluation Center</a> ব্যবহার করুন, যেখানে সরকারি পরীক্ষার ক্যাটাগরি অনুযায়ী মডেল টেস্ট রয়েছে।</p>
 
-      <div className="p-4 mt-6 border border-zinc-200 dark:border-zinc-800 bg-secondary/50 rounded-2xl text-xs font-semibold text-muted-foreground">
+      <div class="p-4 mt-6 border border-zinc-200 dark:border-zinc-800 bg-secondary/50 rounded-2xl text-xs font-semibold text-muted-foreground">
         📌 <strong>জরুরি প্রশ্নোত্তর (FAQ):</strong><br />
         <strong>প্রশ্ন: পরীক্ষায় কীবোর্ড কি বদলে নেওয়া যায়?</strong><br />
         উত্তর: হ্যাঁ, যদি আপনার আসন বা কীবোর্ডের কোনো কী (যেমন Spacebar বা Enter) শক্ত মনে হয়, পরীক্ষা শুরু হওয়ার আগেই দায়িত্বরত পরিদর্শককে জানিয়ে কীবোর্ড পরিবর্তন করে নিন।<br /><br />
@@ -146,7 +146,7 @@ Net WPM = Gross WPM - (ভুল শব্দের সংখ্যা ÷ সম
     readTime: "11 min read",
     author: "TypeBangla Master Coach",
     content: `
-      <div className="p-4 mb-6 border border-blue-500/30 bg-blue-500/10 rounded-2xl text-sm font-semibold text-blue-700 dark:text-blue-300">
+      <div class="p-4 mb-6 border border-blue-500/30 bg-blue-500/10 rounded-2xl text-sm font-semibold text-blue-700 dark:text-blue-300">
         🚀 <strong>কোর্স সারসংক্ষেপ (Course Overview):</strong> বাংলা ও ইংরেজি কীবোর্ডে টাইপিং গতি দ্বিগুণ করার জন্য চোখ বন্ধ করে টাইপিং (Touch Typing), হোম-রো লক, নির্ভুলতা অক্ষুণ্ণ রাখা এবং সঠিক যুক্তাক্ষর সিকোয়েন্স জানা আবশ্যক। নিচে দেওয়া ১০টি ধাপ অনুসরণ করলে আপনার WPM স্পিড অবিশ্বাস্য গতিতে বৃদ্ধি পাবে।
       </div>
 
@@ -209,7 +209,7 @@ Net WPM = Gross WPM - (ভুল শব্দের সংখ্যা ÷ সম
     readTime: "9 min read",
     author: "TypeBangla Design Desk",
     content: `
-      <div className="p-4 mb-6 border border-purple-500/30 bg-purple-500/10 rounded-2xl text-sm font-semibold text-purple-700 dark:text-purple-300">
+      <div class="p-4 mb-6 border border-purple-500/30 bg-purple-500/10 rounded-2xl text-sm font-semibold text-purple-700 dark:text-purple-300">
         🎨 <strong>ডিজাইনার গাইড (Designer's Guide):</strong> অ্যাডোবি ফটোশপ ও ইলাস্ট্রেটরে বাংলা যুক্তবর্ণ ভেঙে যাওয়ার প্রধান কারণ হলো ডিফল্ট Latin Type Engine। Preferences থেকে World-Ready Layout সক্রিয় করে এবং বিজয়ের ক্ষেত্রে SutonnyMJ ফন্ট ব্যবহার করে এই সমস্যা ১ মিনিটেই সমাধান করা যায়।
       </div>
 
@@ -249,7 +249,7 @@ Net WPM = Gross WPM - (ভুল শব্দের সংখ্যা ÷ সম
     readTime: "10 min read",
     author: "TypeBangla Engineering Team",
     content: `
-      <div className="p-4 mb-6 border border-amber-500/30 bg-amber-500/10 rounded-2xl text-sm font-semibold text-amber-700 dark:text-amber-300">
+      <div class="p-4 mb-6 border border-amber-500/30 bg-amber-500/10 rounded-2xl text-sm font-semibold text-amber-700 dark:text-amber-300">
         ⌨️ <strong>Architectural Overview:</strong> Selecting the correct Bangla keyboard layout depends on your career goal. Avro Phonetic is ideal for instant web blogging, Bijoy 52 ANSI dominates printing presses, and BCC Jatiya is the official standard for government exams.
       </div>
 
@@ -290,7 +290,7 @@ Net WPM = Gross WPM - (ভুল শব্দের সংখ্যা ÷ সম
     readTime: "9 min read",
     author: "TypeBangla SEO Engineering",
     content: `
-      <div className="p-4 mb-6 border border-cyan-500/30 bg-cyan-500/10 rounded-2xl text-sm font-semibold text-cyan-700 dark:text-cyan-300">
+      <div class="p-4 mb-6 border border-cyan-500/30 bg-cyan-500/10 rounded-2xl text-sm font-semibold text-cyan-700 dark:text-cyan-300">
         🌐 <strong>SEO Technical Insight:</strong> Raw Unicode Bangla characters get percent-encoded in HTTP headers (e.g. %E0%A6%86%E0%A6%AE...). To prevent ugly broken social links while maintaining high search engine rankings, use clean hyphenated transliterated or sanitized slugs.
       </div>
 
@@ -328,7 +328,7 @@ Net WPM = Gross WPM - (ভুল শব্দের সংখ্যা ÷ সম
     readTime: "9 min read",
     author: "TypeBangla Speed Coach",
     content: `
-      <div className="p-4 mb-6 border border-emerald-500/30 bg-emerald-500/10 rounded-2xl text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+      <div class="p-4 mb-6 border border-emerald-500/30 bg-emerald-500/10 rounded-2xl text-sm font-semibold text-emerald-700 dark:text-emerald-300">
         ⚡ <strong>Speed Training Rule:</strong> High typing WPM is a byproduct of high accuracy. Training at 98% accuracy eliminates Backspace time penalties and wires permanent motor pathways into your brain's cerebellum.
       </div>
 
@@ -364,7 +364,7 @@ Net WPM = Gross WPM - (ভুল শব্দের সংখ্যা ÷ সম
     readTime: "10 min read",
     author: "Neuroscience Team",
     content: `
-      <div className="p-4 mb-6 border border-indigo-500/30 bg-indigo-500/10 rounded-2xl text-sm font-semibold text-indigo-700 dark:text-indigo-300">
+      <div class="p-4 mb-6 border border-indigo-500/30 bg-indigo-500/10 rounded-2xl text-sm font-semibold text-indigo-700 dark:text-indigo-300">
         🧠 <strong>Neuroscience Fact:</strong> Touch typing transfers cognitive load from the prefrontal cortex (visual spatial processing) to the cerebellum (motor automation). This allows you to type at the speed of thought without looking at the physical keys.
       </div>
 
@@ -404,7 +404,7 @@ Net WPM = Gross WPM - (ভুল শব্দের সংখ্যা ÷ সম
     readTime: "9 min read",
     author: "Core Systems Team",
     content: `
-      <div className="p-4 mb-6 border border-teal-500/30 bg-teal-500/10 rounded-2xl text-sm font-semibold text-teal-700 dark:text-teal-300">
+      <div class="p-4 mb-6 border border-teal-500/30 bg-teal-500/10 rounded-2xl text-sm font-semibold text-teal-700 dark:text-teal-300">
         🔄 <strong>Encoding Standard:</strong> Legacy Bijoy ANSI uses ASCII substitution (e.g. Avwg fvZ LvB), which breaks on modern browsers and search engines. Unicode (UTF-8) uses permanent code points (e.g. U+0985), ensuring universal rendering across Google, Facebook, and modern OS.
       </div>
 
@@ -441,7 +441,7 @@ Net WPM = Gross WPM - (ভুল শব্দের সংখ্যা ÷ সম
     readTime: "10 min read",
     author: "Layout Specialist",
     content: `
-      <div className="p-4 mb-6 border border-rose-500/30 bg-rose-500/10 rounded-2xl text-sm font-semibold text-rose-700 dark:text-rose-300">
+      <div class="p-4 mb-6 border border-rose-500/30 bg-rose-500/10 rounded-2xl text-sm font-semibold text-rose-700 dark:text-rose-300">
         🛠️ <strong>Debugging Summary:</strong> In Unicode Bangla typing, ALWAYS type the Consonant FIRST, then the Vowel Sign (Kar). For conjuncts, link consonants using Hasanta (্).
       </div>
 
@@ -481,7 +481,7 @@ Net WPM = Gross WPM - (ভুল শব্দের সংখ্যা ÷ সম
     readTime: "11 min read",
     author: "Historian Team",
     content: `
-      <div className="p-4 mb-6 border border-orange-500/30 bg-orange-500/10 rounded-2xl text-sm font-semibold text-orange-700 dark:text-orange-300">
+      <div class="p-4 mb-6 border border-orange-500/30 bg-orange-500/10 rounded-2xl text-sm font-semibold text-orange-700 dark:text-orange-300">
         📜 <strong>Historical Timeline:</strong> Bangla layout design spans 60 years of innovation—from Munier Optima (1965) to Bijoy 52 (1988), Avro Phonetic (2003), and BCC Jatiya Unicode standards.
       </div>
 
@@ -512,7 +512,7 @@ Net WPM = Gross WPM - (ভুল শব্দের সংখ্যা ÷ সম
     readTime: "9 min read",
     author: "Health & Ergonomics",
     content: `
-      <div className="p-4 mb-6 border border-emerald-500/30 bg-emerald-500/10 rounded-2xl text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+      <div class="p-4 mb-6 border border-emerald-500/30 bg-emerald-500/10 rounded-2xl text-sm font-semibold text-emerald-700 dark:text-emerald-300">
         🩺 <strong>Ergonomics Rule:</strong> Keep your wrists in a flat, neutral extension floating above the keyboard. Never tilt your keyboard upwards with rear feet, as this compresses the median nerve inside the carpal tunnel.
       </div>
 
@@ -545,7 +545,7 @@ Net WPM = Gross WPM - (ভুল শব্দের সংখ্যা ÷ সম
     readTime: "9 min read",
     author: "Dev Architecture Team",
     content: `
-      <div className="p-4 mb-6 border border-sky-500/30 bg-sky-500/10 rounded-2xl text-sm font-semibold text-sky-700 dark:text-sky-300">
+      <div class="p-4 mb-6 border border-sky-500/30 bg-sky-500/10 rounded-2xl text-sm font-semibold text-sky-700 dark:text-sky-300">
         ⚡ <strong>Performance Architecture:</strong> Next.js SSG pre-compiles dynamic routes into static HTML assets at build time. Pages are served directly from global CDN edge nodes, resulting in near-zero TTFB and perfect Googlebot indexability.
       </div>
 
@@ -578,7 +578,7 @@ Net WPM = Gross WPM - (ভুল শব্দের সংখ্যা ÷ সম
     readTime: "9 min read",
     author: "AI & Speech Research",
     content: `
-      <div className="p-4 mb-6 border border-violet-500/30 bg-violet-500/10 rounded-2xl text-sm font-semibold text-violet-700 dark:text-violet-300">
+      <div class="p-4 mb-6 border border-violet-500/30 bg-violet-500/10 rounded-2xl text-sm font-semibold text-violet-700 dark:text-violet-300">
         🎙️ <strong>Voice Dictation Speed:</strong> Human speech flows at 120-150 words per minute—3 times faster than standard 40 WPM manual keyboard typing. Web Speech API neural models transcribe spoken audio into native Bangla Unicode in real-time.
       </div>
 
@@ -615,7 +615,7 @@ Net WPM = Gross WPM - (ভুল শব্দের সংখ্যা ÷ সম
     readTime: "9 min read",
     author: "TypeBangla Speed Coach",
     content: `
-      <div className="p-4 mb-6 border border-emerald-500/30 bg-emerald-500/10 rounded-2xl text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+      <div class="p-4 mb-6 border border-emerald-500/30 bg-emerald-500/10 rounded-2xl text-sm font-semibold text-emerald-700 dark:text-emerald-300">
         📊 <strong>Speed Math Formula:</strong> Net WPM = Gross WPM - (Errors ÷ Time). Correcting a single typo costs 21 wasted keystrokes (7 backspaces + 7 re-types + 7 cognitive pause frames).
       </div>
 
@@ -652,7 +652,7 @@ Net WPM = Gross WPM - (ভুল শব্দের সংখ্যা ÷ সম
     readTime: "9 min read",
     author: "TypeBangla Systems Desk",
     content: `
-      <div className="p-4 mb-6 border border-slate-500/30 bg-slate-500/10 rounded-2xl text-sm font-semibold text-slate-700 dark:text-slate-300">
+      <div class="p-4 mb-6 border border-slate-500/30 bg-slate-500/10 rounded-2xl text-sm font-semibold text-slate-700 dark:text-slate-300">
         💻 <strong>System Setup Guide:</strong> Proper Bangla Unicode font configuration ensures clean rendering of complex conjunct letters across browsers, PDF exports, and printing applications.
       </div>
 

@@ -41,7 +41,7 @@ export default function VoiceClient() {
   const [inputText, setInputText] = useState("");
   const [interimText, setInterimText] = useState("");
   const [isListening, setIsListening] = useState(false);
-  const [audioLevel, setAudioLevel] = useState(0);
+
   const [lang, setLang] = useState("bn-BD");
   const [copied, setCopied] = useState(false);
   const [supported, setSupported] = useState(true);
@@ -49,9 +49,7 @@ export default function VoiceClient() {
 
   const recognitionRef = useRef<ISpeechRecognition | null>(null);
   const shouldListenRef = useRef(false);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const mediaStreamRef = useRef<MediaStream | null>(null);
-  const animFrameRef = useRef<number | null>(null);
+
 
   // Initialize Web Speech Recognition
   useEffect(() => {
@@ -294,19 +292,11 @@ export default function VoiceClient() {
 
             </CardContent>
 
-            {/* Live Audio Level Meter Indicator */}
+            {/* Live Recording Indicator */}
             {isListening && (
-              <div className="px-5 pb-4 pt-1 border-t border-border flex items-center justify-between gap-4 text-xs font-bold text-muted-foreground">
-                <div className="flex items-center gap-2 text-primary">
-                  <Activity size={14} className="animate-pulse" />
-                  <span>Mic Input Level: {audioLevel}%</span>
-                </div>
-                <div className="flex-1 max-w-xs h-2 bg-secondary rounded-full overflow-hidden border border-border">
-                  <div 
-                    className="h-full bg-emerald-500 transition-all duration-75"
-                    style={{ width: `${audioLevel}%` }}
-                  />
-                </div>
+              <div className="px-5 pb-4 pt-1 border-t border-border flex items-center gap-3 text-xs font-bold text-red-500">
+                <Activity size={14} className="animate-pulse" />
+                <span className="animate-pulse">রেকর্ডিং চলছে — কথা বলুন...</span>
               </div>
             )}
           </Card>
