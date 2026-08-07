@@ -9,7 +9,7 @@ export interface BanglaLoremOptions {
   wordCount?: number;
   level?: 1 | 2 | 3 | "all";
   includePunctuation?: boolean;
-  type?: "lorem" | "natural";
+  type?: "lorem" | "natural" | "classic";
 }
 
 const AUTHENTIC_BANGLA_WORDS = [
@@ -30,7 +30,14 @@ const AUTHENTIC_BANGLA_WORDS = [
   "প্রস্তাব", "সৃষ্টি", "কষ্ট", "স্পষ্ট", "প্রভাত", "শ্রাবণ", "প্রীতি", "সূর্য", "চন্দ্র",
   "গ্রহ", "নক্ষত্র", "ব্যক্তি", "ন্যায্য", "ধর্ম", "কর্ম", "মর্ম", "পূর্ব", "স্বদেশ",
   "স্বাধীন", "স্মরণ", "স্মৃতি", "স্বাদ", "অমৃত", "সৃজন", "অগ্রগতি", "প্রজন্ম", "সমন্বয়",
-  "সক্ষমতা", "সুশাসন", "পরিকল্পনা", "বাস্তবায়ন", "কাঠামো", "সফলতা", "দূরদর্শিতা", "দক্ষতা", "পেশাদারিত্ব"
+  "সক্ষমতা", "সুশাসন", "পরিকল্পনা", "বাস্তবায়ন", "কাঠামো", "সফলতা", "দূরদর্শিতা", "দক্ষতা", "পেশাদারিত্ব",
+  "সততা", "স্বচ্ছতা", "দায়বদ্ধতা", "সহযোগিতা", "সৃজনশীলতা", "প্রেরণা", "উদ্দীপনা", "সচেষ্ট", "প্রয়াস",
+  "সংকল্প", "দৃঢ়তা", "আস্থা", "বিশ্বাস", "সৈকত", "পাহাড়", "অরণ্য", "ঝর্ণা", "সাগর", "উপকূল"
+];
+
+const CLASSIC_LOREM_BANGLA_PREFIX = [
+  "লরেম", "ইপসাম", "ডলর", "সিট", "আমেত", "কনসেক্টেটুর", "এডিপিসিং", "এলিট", "সেড", "ডো",
+  "এইউসমোড", "টেম্পোর", "ইনসিডেডুন্ট", "উট", "লাবোরে", "এত", "ডলোরে", "ম্যাগ্না", "আলিকুয়া"
 ];
 
 function filterCleanWords(rawWords: string[]): string[] {
@@ -53,7 +60,7 @@ export function generateBanglaPracticeText(options: BanglaLoremOptions = {}): st
   } = options;
 
   let pool: string[];
-  if (type === "lorem") {
+  if (type === "lorem" || type === "classic") {
     pool = AUTHENTIC_BANGLA_WORDS;
   } else {
     switch (level) {
@@ -77,9 +84,10 @@ export function generateBanglaPracticeText(options: BanglaLoremOptions = {}): st
   }
 
   const selectedWords: string[] = [];
-  
-  // If classic lorem type, start with "লরেম ইপসাম" for branding recognition
-  if (type === "lorem") {
+
+  if (type === "classic") {
+    selectedWords.push(...CLASSIC_LOREM_BANGLA_PREFIX.slice(0, Math.min(wordCount, CLASSIC_LOREM_BANGLA_PREFIX.length)));
+  } else if (type === "lorem") {
     selectedWords.push("লরেম", "ইপসাম");
   }
 
