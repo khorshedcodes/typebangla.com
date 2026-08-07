@@ -30,12 +30,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     // ── High-Intent SEO Landing Pages & Keyboards ───────────────────
     { url: `${BASE}/online-bangla-keyboard`,       lastModified: now, changeFrequency: "daily", priority: 0.95 },
-    { url: `${BASE}/learn/avro-phonetic-typing`,   lastModified: now, changeFrequency: "weekly", priority: 0.95 },
-    { url: `${BASE}/learn/bijoy-52-typing`,        lastModified: now, changeFrequency: "weekly", priority: 0.95 },
-    { url: `${BASE}/learn/jatiya-keyboard-typing`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
-    { url: `${BASE}/learn/probhat-layout-typing`,  lastModified: now, changeFrequency: "weekly", priority: 0.9  },
-    { url: `${BASE}/learn/inscript-bangla-typing`, lastModified: now, changeFrequency: "weekly", priority: 0.9  },
-    { url: `${BASE}/learn/english-touch-typing`,  lastModified: now, changeFrequency: "weekly", priority: 0.9  },
+    { url: `${BASE}/avro-phonetic-typing`,         lastModified: now, changeFrequency: "weekly", priority: 0.95 },
+    { url: `${BASE}/bijoy-52-typing`,              lastModified: now, changeFrequency: "weekly", priority: 0.95 },
+    { url: `${BASE}/jatiya-keyboard-typing`,       lastModified: now, changeFrequency: "weekly", priority: 0.95 },
+    { url: `${BASE}/probhat-layout-typing`,        lastModified: now, changeFrequency: "weekly", priority: 0.9  },
+    { url: `${BASE}/inscript-bangla-typing`,       lastModified: now, changeFrequency: "weekly", priority: 0.9  },
+    { url: `${BASE}/english-touch-typing`,        lastModified: now, changeFrequency: "weekly", priority: 0.9  },
 
     // ── Courses & Curriculum Hubs ───────────────────────────────────
     { url: `${BASE}/learn/beginner`,              lastModified: now, changeFrequency: "monthly", priority: 0.85 },

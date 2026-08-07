@@ -97,11 +97,11 @@ export default function Footer() {
         <div className="flex flex-col space-y-2.5">
           <span className="text-xs font-bold text-foreground uppercase tracking-wider">শিখুন (Learn)</span>
           <Link href="/courses" className="text-xs text-muted-foreground hover:text-foreground transition-colors">সব পাঠ্যক্রম</Link>
-          <Link href="/learn/avro-phonetic-typing" className="text-xs text-muted-foreground hover:text-foreground transition-colors">অভ্র ফোনেটিক টাইপিং</Link>
-          <Link href="/learn/bijoy-52-typing" className="text-xs text-muted-foreground hover:text-foreground transition-colors">বিজয় ৫২ / ইউনিবিজয়</Link>
-          <Link href="/learn/jatiya-keyboard-typing" className="text-xs text-muted-foreground hover:text-foreground transition-colors">জাতীয় কিবোর্ড (সরকারি)</Link>
-          <Link href="/learn/probhat-layout-typing" className="text-xs text-muted-foreground hover:text-foreground transition-colors">প্রভাত লেআউট</Link>
-          <Link href="/learn/english-touch-typing" className="text-xs text-muted-foreground hover:text-foreground transition-colors">English Touch Typing</Link>
+          <Link href="/avro-phonetic-typing" className="text-xs text-muted-foreground hover:text-foreground transition-colors">অভ্র ফোনেটিক টাইপিং</Link>
+          <Link href="/bijoy-52-typing" className="text-xs text-muted-foreground hover:text-foreground transition-colors">বিজয় ৫২ / ইউনিবিজয়</Link>
+          <Link href="/jatiya-keyboard-typing" className="text-xs text-muted-foreground hover:text-foreground transition-colors">জাতীয় কিবোর্ড (সরকারি)</Link>
+          <Link href="/probhat-layout-typing" className="text-xs text-muted-foreground hover:text-foreground transition-colors">প্রভাত লেআউট</Link>
+          <Link href="/english-touch-typing" className="text-xs text-muted-foreground hover:text-foreground transition-colors">English Touch Typing</Link>
         </div>
 
         {/* Column 2 - Practice & Exam */}
