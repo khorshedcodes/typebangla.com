@@ -176,7 +176,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const isAdmin = role === "admin" || Boolean(user?.email && user.email.toLowerCase() === "admin@typebangla.com");
+  const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@typebangla.com").toLowerCase();
+  const isAdmin = role === "admin" || Boolean(user?.email && user.email.toLowerCase() === adminEmail);
 
   return (
     <AuthContext.Provider
