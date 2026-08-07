@@ -74,6 +74,17 @@ export default function TypingArea({
   const [isFocused, setIsFocused] = useState(false);
   const [ghostPosition, setGhostPosition] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const activeCursorRef = useRef<HTMLSpanElement | null>(null);
+
+  // Auto-scroll 3-line viewport window so current typing line stays centered
+  useEffect(() => {
+    if (activeCursorRef.current) {
+      activeCursorRef.current.scrollIntoView({
+        block: "center",
+        behavior: "smooth",
+      });
+    }
+  }, [typedText.length]);
 
   useEffect(() => {
     if (isCompleted && onSessionComplete) {
@@ -183,6 +194,7 @@ export default function TypingArea({
             return (
               <span
                 key={cIdx}
+                ref={isCurrent ? activeCursorRef : undefined}
                 className={cn("relative transition-all duration-75 select-none font-medium rounded-xs", {
                   "text-muted-foreground/60": !hasTyped && !isCurrent,
                   "text-foreground font-bold": hasTyped && isCorrect,
@@ -328,7 +340,7 @@ export default function TypingArea({
           onFocus={handleFocus}
           onBlur={handleBlur}
           className={cn(
-            "border rounded-xl bg-card p-6 min-h-[140px] outline-none cursor-text transition-all leading-relaxed tracking-normal break-words whitespace-pre-wrap shadow-xs border-border text-foreground",
+            "border rounded-xl bg-card p-5 max-h-[135px] sm:max-h-[150px] overflow-hidden scroll-smooth outline-none cursor-text transition-all leading-relaxed tracking-normal break-words whitespace-pre-wrap shadow-xs border-border text-foreground",
             {
               "border-ring ring-1 ring-ring": isFocused,
               "blur-[2px]": !isFocused && !isCompleted,
