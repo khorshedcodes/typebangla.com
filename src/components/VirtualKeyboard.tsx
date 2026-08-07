@@ -281,16 +281,21 @@ export default function VirtualKeyboard({ nextChar = "", onKeyClick }: VirtualKe
     const fingerId = FINGER_MAP[key.code];
     const fingerAccentClass = !isSystemKey && fingerId ? FINGER_KEY_ACCENT[fingerId] : "";
 
+    const isShiftActive = highlightShift || pressedKeys.has("ShiftLeft") || pressedKeys.has("ShiftRight");
+
     return (
       <div
         role="button"
         tabIndex={0}
         onClick={() => {
           if (onKeyClick) {
-            const charToPass = activeLayout !== "english" && activeLayout !== "avro"
-              ? (normalLegend || key.enNormal || "")
-              : (key.enNormal || "");
-            onKeyClick(key.code, charToPass, highlightShift || pressedKeys.has("ShiftLeft") || pressedKeys.has("ShiftRight"));
+            let charToPass = "";
+            if (activeLayout !== "english" && activeLayout !== "avro") {
+              charToPass = isShiftActive ? (shiftLegend || normalLegend || "") : (normalLegend || "");
+            } else {
+              charToPass = isShiftActive ? (key.enShift || key.enNormal || "") : (key.enNormal || "");
+            }
+            onKeyClick(key.code, charToPass, isShiftActive);
           }
         }}
         style={accuracyStyle}
@@ -310,14 +315,14 @@ export default function VirtualKeyboard({ nextChar = "", onKeyClick }: VirtualKe
             <span className={`absolute top-0.5 left-1 text-[8px] sm:text-[9px] font-mono ${
               isHighlighted ? "text-primary-foreground/90 font-bold" : "text-muted-foreground"
             }`}>
-              {key.enNormal}
+              {isShiftActive && key.enShift ? key.enShift : key.enNormal}
             </span>
 
             {activeLayout !== "english" && activeLayout !== "avro" && (
               <span className={`font-bangla text-xs sm:text-sm font-semibold pt-1 ${
                 isHighlighted ? "text-primary-foreground font-black text-sm sm:text-base" : "text-foreground"
               }`}>
-                {normalLegend}
+                {isShiftActive && shiftLegend ? shiftLegend : normalLegend}
               </span>
             )}
 
@@ -325,7 +330,7 @@ export default function VirtualKeyboard({ nextChar = "", onKeyClick }: VirtualKe
               <span className={`font-mono text-xs sm:text-sm font-medium ${
                 isHighlighted ? "text-primary-foreground font-black text-sm sm:text-base" : "text-foreground"
               }`}>
-                {key.enNormal}
+                {isShiftActive && key.enShift ? key.enShift : key.enNormal}
               </span>
             )}
 
@@ -333,7 +338,7 @@ export default function VirtualKeyboard({ nextChar = "", onKeyClick }: VirtualKe
               <span className={`absolute top-0.5 right-1 text-[8px] sm:text-[9px] font-bangla ${
                 isHighlighted ? "text-primary-foreground/90 font-bold" : "text-muted-foreground"
               }`}>
-                {shiftLegend}
+                {isShiftActive ? normalLegend : shiftLegend}
               </span>
             )}
 
