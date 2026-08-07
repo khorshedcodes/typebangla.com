@@ -329,7 +329,7 @@ function ExamCenterContent() {
               <Clock size={14} className="text-foreground" />
               পরীক্ষার সময় নির্বাচন করুন
             </p>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {DURATION_OPTIONS.map((d) => (
                 <button
                   key={d.sec}

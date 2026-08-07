@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -99,6 +99,15 @@ export default function GovtExamClient() {
   const isCustomPost = selectedPost.id === "custom";
   const requiredWpm = isCustomPost ? customWpmGoal : (activeLayout === "english" ? selectedPost.wpmEn : selectedPost.wpmBn);
   const requiredAcc = selectedPost.minAcc;
+
+  // On configurator mount: default to Jatiya if a non-govt layout (avro, probhat, etc.) is active
+  useEffect(() => {
+    const govtLayouts = ["jatiya", "unibijoy", "english"];
+    if (!govtLayouts.includes(activeLayout)) {
+      setActiveLayout("jatiya");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleStartExam = () => {
     router.push(`/exam/govt/test?post=${selectedPost.id}&customWpm=${requiredWpm}&duration=${selectedDurationSec}&layout=${activeLayout}`);
