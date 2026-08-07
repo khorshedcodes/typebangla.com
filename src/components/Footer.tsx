@@ -161,9 +161,18 @@ export default function Footer() {
             <Link href="/terms" className="hover:text-foreground transition-colors">শর্তাবলী</Link>
           </div>
         </div>
-        <span className="flex items-center gap-1 font-semibold text-foreground">
-          বাংলাদেশ থেকে ভালোবাসায় তৈরি 🇧🇩
-        </span>
+        <div className="flex items-center gap-3 font-semibold text-foreground">
+          <span>বাংলাদেশ থেকে ভালোবাসায় তৈরি 🇧🇩</span>
+          <span>•</span>
+          <a
+            href="https://khorshed-alam.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-primary transition-colors text-[11px] underline underline-offset-4 decoration-border"
+          >
+            Developed by Khorshed Alam
+          </a>
+        </div>
       </div>
 
     </footer>

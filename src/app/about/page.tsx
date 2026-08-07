@@ -130,6 +130,44 @@ export default function AboutPage() {
         </div>
       </Card>
 
+      {/* 5. FOUNDER & ENGINEERING LEADERSHIP */}
+      <section className="space-y-4">
+        <div className="text-center space-y-1">
+          <Badge variant="outline" className="px-3 py-1 text-xs font-bold text-primary border-primary/30">
+            প্রতিষ্ঠাতা ও কারিগরি নেতৃত্ব
+          </Badge>
+          <h2 className="text-2xl font-black text-foreground">Founder &amp; Engineering Leadership</h2>
+        </div>
+
+        <Card className="border border-border bg-card shadow-xs rounded-3xl p-6 sm:p-8">
+          <div className="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-primary to-emerald-500 text-primary-foreground flex items-center justify-center font-black text-2xl shrink-0 shadow-md">
+              KA
+            </div>
+            <div className="space-y-2 flex-1">
+              <div className="space-y-0.5">
+                <h3 className="text-xl font-black text-foreground">Khorshed Alam</h3>
+                <p className="text-xs font-extrabold text-primary">Founder &amp; Lead Software Architect — TypeBangla</p>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                TypeBangla engine is architected and engineered by <strong className="text-foreground">Khorshed Alam</strong> with a vision to build Bangladesh&apos;s fastest, most accessible, and standard-compliant web typing instruction platform.
+              </p>
+              <div className="pt-1">
+                <a
+                  href="https://khorshed-alam.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-extrabold text-primary hover:underline"
+                >
+                  <span>Visit Portfolio Website: khorshed-alam.com</span>
+                  <Globe size={13} />
+                </a>
+              </div>
+            </div>
+          </div>
+        </Card>
+      </section>
+
       {/* 5. CTA BOTTOM */}
       <section className="border border-primary/30 bg-primary/5 rounded-3xl p-8 text-center space-y-4">
         <h2 className="text-2xl font-black text-foreground">আজই টাইপিং স্পিড টেস্ট দিন!</h2>
