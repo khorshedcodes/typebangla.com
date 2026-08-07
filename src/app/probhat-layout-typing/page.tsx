@@ -100,7 +100,7 @@ export default function ProbhatLandingPage() {
               <ArrowRight size={15} />
             </Button>
           </Link>
-          <Link href="/practice/probhat">
+          <Link href="/practice?layout=probhat">
             <Button variant="outline" className="font-bold text-xs gap-2 px-6 h-11 border-border">
               <Play size={14} />
               <span>Instant Practice Arena</span>

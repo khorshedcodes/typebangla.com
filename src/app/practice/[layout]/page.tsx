@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 
 interface Props { params: Promise<{ layout: string }>; }
 
-export default async function OldPracticeLayoutRedirect({ params }: Props) {
+export default async function PracticeLayoutRedirect({ params }: Props) {
   const { layout } = await params;
-  redirect(`/learn/${layout}`);
+  redirect(`/practice?layout=${layout}`);
 }
