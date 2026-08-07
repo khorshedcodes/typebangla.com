@@ -3,17 +3,16 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 
 // Validate required Firebase config at runtime (dev-only warning)
-const requiredEnvVars = [
-  "NEXT_PUBLIC_FIREBASE_API_KEY",
-  "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
-  "NEXT_PUBLIC_FIREBASE_PROJECT_ID",
-];
 if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
-  const missing = requiredEnvVars.filter((v) => !process.env[v]);
+  const missing: string[] = [];
+  if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) missing.push("NEXT_PUBLIC_FIREBASE_API_KEY");
+  if (!process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN) missing.push("NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN");
+  if (!process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID) missing.push("NEXT_PUBLIC_FIREBASE_PROJECT_ID");
+
   if (missing.length > 0) {
     console.warn(
       `[typebangla] Missing Firebase env vars: ${missing.join(", ")}. ` +
-      "Create a .env.local file with your Firebase project credentials."
+      "Restart your dev server ('npm run dev') if you recently updated .env.local."
     );
   }
 }
