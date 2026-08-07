@@ -15,7 +15,13 @@ import { CertificateTopUpModal } from "@/components/CertificateTopUpModal";
 import { useInstitute } from "@/context/InstituteContext";
 import { getPaymentRequests, submitPaymentRequest, updatePaymentRequestStatus } from "@/lib/firestoreService";
 
+import { notFound } from "next/navigation";
+
 export default function DevTestPlaygroundPage() {
+  if (process.env.NODE_ENV === "production") {
+    notFound();
+  }
+
   const { quota } = useInstitute();
 
   // Test State
@@ -302,7 +308,7 @@ export default function DevTestPlaygroundPage() {
             <div>
               <h2 className="text-lg font-black text-foreground flex items-center gap-2">
                 <Play className="w-5 h-5 text-primary fill-primary" />
-                <span>Full Website Automated Test Suite (8 Modules)</span>
+                <span>Full Website Automated Test Suite (10 Modules)</span>
               </h2>
               <p className="text-xs text-muted-foreground">
                 Executes unit &amp; integration test suites across Quotas, Payments, Certificates, Typing Engine, Converters, Courses, Gamification, and Auth Roles.

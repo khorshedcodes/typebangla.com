@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { UNI_BIJOY_MAP, JATIYA_MAP, PROBHAT_MAP, INSCRIPT_MAP, UNICODE_MAP, avroTransliterate } from "../utils/layouts";
+import { extendTextForDuration } from "../utils/lessons/exam/examPassages";
 
 export type KeyboardLayout = "english" | "unibijoy" | "jatiya" | "avro" | "probhat" | "inscript" | "unicode";
 export type SoundProfile = "mechanical" | "retro" | "digital";
@@ -616,6 +617,12 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       finalOutputPreview = finalTargetText.split(" ").map(w => avroTransliterate(w)).join(" ");
     }
 
+    const currentDuration = get().selectedDuration;
+    if (currentDuration > 0) {
+      const lang = inputLanguage === "latin" || get().activeLayout === "english" ? "english" : "bangla";
+      finalTargetText = extendTextForDuration(finalTargetText, currentDuration, lang);
+    }
+
     set({
       targetText: finalTargetText,
       inputLanguage,
@@ -623,7 +630,7 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       originalText: text,
       focusKeys,
       lessonType,
-      selectedDuration: 0, // Reset to standard untimed/free run
+      selectedDuration: currentDuration, // Preserve active selectedDuration for timed sessions
       isRecapTest: false, // Reset recap test flag
       typedText: "",
       phoneticBuffer: "",
@@ -1193,7 +1200,15 @@ export const useTypingStore = create<TypingState>((set, get) => ({
     });
   },
 
-  setSelectedDuration: (duration) => set({ selectedDuration: duration }),
+  setSelectedDuration: (duration) => {
+    const { targetText, originalText, inputLanguage, activeLayout } = get();
+    set({ selectedDuration: duration });
+    if (duration > 0 && (targetText || originalText)) {
+      const lang = inputLanguage === "latin" || activeLayout === "english" ? "english" : "bangla";
+      const extended = extendTextForDuration(originalText || targetText, duration, lang);
+      set({ targetText: extended });
+    }
+  },
   setSoundEnabled: (enabled) => set({ soundEnabled: enabled }),
   setSoundVolume: (volume) => set({ soundVolume: volume }),
   setSoundProfile: (profile) => set({ soundProfile: profile }),

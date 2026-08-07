@@ -7,8 +7,9 @@ export function test(name: string, fn: () => void) {
   try {
     fn();
     console.log(`  ✓ ${name}`);
-  } catch (err: any) {
-    console.error(`  ✕ ${name}: ${err.message}`);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`  ✕ ${name}: ${message}`);
     throw err;
   }
 }
@@ -25,9 +26,9 @@ export function expect<T>(actual: T) {
         throw new Error(`Expected ${actual} >= ${expected}`);
       }
     },
-    toContain(item: any) {
+    toContain(item: unknown) {
       if (typeof actual === "string") {
-        if (!actual.includes(item)) {
+        if (!actual.includes(String(item))) {
           throw new Error(`Expected string "${actual}" to contain "${item}"`);
         }
       } else if (Array.isArray(actual)) {

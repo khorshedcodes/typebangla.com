@@ -10,6 +10,7 @@ import {
   ExamPassage,
   PassageLanguage,
   getRandomPassage,
+  getPassageForDuration,
 } from "../utils/lessons/exam/examPassages";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -19,6 +20,7 @@ const DURATION_OPTIONS = [
   { sec: 60,  label: "১ মিনিট",  labelEn: "1 Min",  desc: "দ্রুত মূল্যায়ন" },
   { sec: 180, label: "৩ মিনিট",  labelEn: "3 Min",  desc: "মাঝারি টেস্ট" },
   { sec: 300, label: "৫ মিনিট",  labelEn: "5 Min",  desc: "সরকারি পরীক্ষার মান" },
+  { sec: 600, label: "১০ মিনিট", labelEn: "10 Min", desc: "পূর্ণাঙ্গ চাকরির পরীক্ষা" },
 ];
 
 const LANG_OPTIONS: { id: PassageLanguage | "all"; label: string }[] = [
@@ -63,21 +65,22 @@ function ExamCenterContent() {
       isAutoLaunch = true;
     }
 
+    const durSec = duration ? Number(duration) : selectedDuration;
     if (duration) {
-      setSelectedDuration(Number(duration));
+      setSelectedDuration(durSec);
       isAutoLaunch = true;
     }
 
-    // If launched from a test card, pick a random passage and launch directly
+    // If launched from a test card, pick a random passage for specified duration
     if (isAutoLaunch) {
-      const p = getRandomPassage(targetLang);
+      const p = getPassageForDuration(targetLang, durSec);
       queueMicrotask(() => {
         setSelectedPassage(p);
         setStep(3);
         setTargetText(p.text);
       });
     }
-  }, [searchParams, setActiveLayout, setSelectedDuration, setTargetText]);
+  }, [searchParams, setActiveLayout, setSelectedDuration, setTargetText, selectedDuration]);
 
   const [authorFilter, setAuthorFilter] = useState<string>("all");
 
@@ -95,25 +98,27 @@ function ExamCenterContent() {
   });
 
   const handlePickPassage = (p: ExamPassage) => {
-    setSelectedPassage(p);
+    const extendedP = getPassageForDuration(p.language, selectedDuration, p);
+    setSelectedPassage(extendedP);
     setStep(3);
   };
 
   const handleRandom = () => {
     const lang = langFilter === "all" ? undefined : langFilter;
-    const p = getRandomPassage(lang);
+    const p = getPassageForDuration(lang, selectedDuration);
     setSelectedPassage(p);
     setStep(3);
   };
 
   const handleStartExam = () => {
     if (!selectedPassage) return;
-    setTargetText(selectedPassage.text);
+    const extendedP = getPassageForDuration(selectedPassage.language, selectedDuration, selectedPassage);
+    setTargetText(extendedP.text);
   };
 
   const handleNewPassage = () => {
     const lang = langFilter === "all" ? undefined : langFilter;
-    const p = getRandomPassage(lang);
+    const p = getPassageForDuration(lang, selectedDuration);
     setSelectedPassage(p);
     setTargetText(p.text);
   };

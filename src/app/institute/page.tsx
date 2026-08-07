@@ -228,9 +228,9 @@ export default function InstitutePage() {
                 <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-10 h-10" />
                 </div>
-                <h3 className="text-2xl font-bold text-white">You're on the Priority List!</h3>
+                <h3 className="text-2xl font-bold text-white">You&apos;re on the Priority List!</h3>
                 <p className="text-slate-300 max-w-lg mx-auto">
-                  Thank you for submitting your institute's request. Our product team will review your feature feedback and notify you via email when Early Access opens.
+                  Thank you for submitting your institute&apos;s request. Our product team will review your feature feedback and notify you via email when Early Access opens.
                 </p>
                 <Button
                   onClick={() => setSubmittedSuccess(false)}

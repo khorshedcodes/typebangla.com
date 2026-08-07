@@ -283,6 +283,8 @@ export default function VirtualKeyboard({ nextChar = "", onKeyClick }: VirtualKe
 
     return (
       <div
+        role="button"
+        tabIndex={0}
         onClick={() => {
           if (onKeyClick) {
             const charToPass = activeLayout !== "english" && activeLayout !== "avro"
@@ -293,7 +295,7 @@ export default function VirtualKeyboard({ nextChar = "", onKeyClick }: VirtualKe
         }}
         style={accuracyStyle}
         className={cn(
-          "h-11 sm:h-12 border border-border border-t-2 bg-card text-foreground rounded-lg flex items-center justify-center relative select-none cursor-pointer hover:border-primary/80 active:scale-95 font-sans text-xs transition-all duration-100 keycap-tactile",
+          "h-11 sm:h-12 border border-border border-t-2 bg-card text-foreground rounded-lg flex items-center justify-center relative select-none cursor-pointer hover:border-primary/80 active:scale-95 font-sans text-xs transition-all duration-100 keycap-tactile touch-manipulation",
           key.classWidth || "w-11 sm:w-12",
           fingerAccentClass,
           {

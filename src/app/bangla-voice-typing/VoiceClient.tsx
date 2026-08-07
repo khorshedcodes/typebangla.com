@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -49,7 +49,6 @@ export default function VoiceClient() {
 
   const recognitionRef = useRef<ISpeechRecognition | null>(null);
   const shouldListenRef = useRef(false);
-
 
   // Initialize Web Speech Recognition
   useEffect(() => {
@@ -131,7 +130,13 @@ export default function VoiceClient() {
     recognitionRef.current = rec;
     return () => { 
       shouldListenRef.current = false;
-      if (recognitionRef.current) recognitionRef.current.stop(); 
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch {
+          // ignore stop error on cleanup
+        }
+      }
     };
   }, [lang]);
 
@@ -153,7 +158,6 @@ export default function VoiceClient() {
       shouldListenRef.current = true;
       setIsListening(true);
       try {
-        // MUST START SYNCHRONOUSLY FIRST INSIDE USER GESTURE
         recognitionRef.current?.start();
       } catch (e) {
         console.error(e);
@@ -163,11 +167,20 @@ export default function VoiceClient() {
     }
   };
 
-  const handleCopy = () => {
+  const handleCopy = async () => {
     if (!inputText) return;
-    navigator.clipboard.writeText(inputText);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(inputText);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } else {
+        setError("ক্লিপবোর্ড এপিআই সমর্থিত নয়।");
+      }
+    } catch (e) {
+      console.error("Clipboard copy failed:", e);
+      setError("টেক্সট কপি করতে ব্যর্থ হয়েছে।");
+    }
   };
 
   const handleDownload = () => {

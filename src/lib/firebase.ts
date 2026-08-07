@@ -2,13 +2,29 @@
 
 import { initializeApp, getApps, getApp } from "firebase/app";
 
+// Validate required Firebase config at runtime (dev-only warning)
+const requiredEnvVars = [
+  "NEXT_PUBLIC_FIREBASE_API_KEY",
+  "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
+  "NEXT_PUBLIC_FIREBASE_PROJECT_ID",
+];
+if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
+  const missing = requiredEnvVars.filter((v) => !process.env[v]);
+  if (missing.length > 0) {
+    console.warn(
+      `[typebangla] Missing Firebase env vars: ${missing.join(", ")}. ` +
+      "Create a .env.local file with your Firebase project credentials."
+    );
+  }
+}
+
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyA_AB3U1QSh_ikTwUr0Sh9Te8hk4NrCaXQ",
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "studio-4489913213-ea5ac.firebaseapp.com",
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "studio-4489913213-ea5ac",
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "studio-4489913213-ea5ac.firebasestorage.app",
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "438531754293",
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:438531754293:web:e064f7b5c5df95c3fc647c"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
 export function getFirebaseApp() {

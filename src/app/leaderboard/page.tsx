@@ -3,12 +3,23 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Trophy, Award, Flame, Zap, Clock, ShieldCheck, ArrowLeft, Loader2, X, ChevronRight } from "lucide-react";
+import { Trophy, ShieldCheck, ArrowLeft, X, ChevronRight, Zap } from "lucide-react";
 import { getTopLeaderboard } from "../../lib/firestoreService";
 import { useAuth } from "../../context/AuthContext";
 import { Card } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
+
+interface LeaderboardEntry {
+  rank?: number;
+  name?: string;
+  userId?: string;
+  wpm?: number;
+  netWpm?: number;
+  accuracy: number;
+  layout: string;
+  mode?: string;
+}
 
 function UserAvatar({ name }: { name: string }) {
   const initials = name
@@ -55,7 +66,7 @@ function RankBadge({ rank }: { rank: number }) {
   return <span className="w-8 h-8 inline-flex items-center justify-center text-muted-foreground font-bold text-sm">{rank}</span>;
 }
 
-const MOCK_LEADERBOARD = [
+const MOCK_LEADERBOARD: LeaderboardEntry[] = [
   { rank: 1, name: "Tanvir Hossain", wpm: 92, accuracy: 99, layout: "unibijoy", mode: "60s" },
   { rank: 2, name: "Anika Rahman", wpm: 88, accuracy: 98, layout: "jatiya", mode: "60s" },
   { rank: 3, name: "Shahadat Alam", wpm: 85, accuracy: 97, layout: "avro", mode: "30s" },
@@ -68,8 +79,7 @@ export default function LeaderboardPage() {
   const { user } = useAuth();
 
   const [selectedLayout, setSelectedLayout] = useState<string>("all");
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
+  const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [showAuthGateModal, setShowAuthGateModal] = useState<boolean>(false);
 
@@ -77,7 +87,7 @@ export default function LeaderboardPage() {
     async function loadData() {
       setLoading(true);
       const data = await getTopLeaderboard(selectedLayout, 20);
-      setLeaderboardData(data);
+      setLeaderboardData(data as LeaderboardEntry[]);
       setLoading(false);
     }
     loadData();
@@ -101,9 +111,16 @@ export default function LeaderboardPage() {
               <Trophy size={28} />
             </div>
             <div>
-              <span className="text-xs font-mono font-bold text-muted-foreground uppercase tracking-wider">Global Rankings</span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-bold text-muted-foreground uppercase tracking-wider">Global Rankings</span>
+                <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px] font-mono">
+                  🗓️ AUGUST 2026 CYCLE
+                </Badge>
+              </div>
               <h1 className="text-2xl sm:text-3xl font-black text-foreground">জাতীয় স্পিড লিডারবোর্ড</h1>
-              <p className="text-xs text-muted-foreground mt-0.5">বাংলাদেশের সেরা টাইপিস্টদের রিয়েল-টাইম র‍্যাঙ্কিং</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                প্রতি মাসের ১ তারিখে র‍্যাঙ্কিং রিফ্রেশ হয়। বিজয়ী টাইপিস্টদের স্থায়ী মেডেল প্রোফাইলে সংরক্ষিত থাকে।
+              </p>
             </div>
           </div>
           <Button
@@ -114,10 +131,10 @@ export default function LeaderboardPage() {
               }
               router.push("/exam/ranked");
             }}
-            className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 font-bold text-xs rounded-md shadow-xs h-10"
+            className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 font-bold text-xs rounded-md shadow-xs h-10 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
           >
             <Trophy size={14} />
-            ৩-মিন জাতীয় প্রতিযোগিতায় অংশ নিন
+            ৩-মিন জাতীয় প্রতিযোগিতায় অংশ নিন (ফ্রি সার্টিফিকেট)
           </Button>
         </div>
 

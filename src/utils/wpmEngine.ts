@@ -17,32 +17,35 @@ export function calculateMetrics(
   typedText: string,
   timeElapsedSeconds: number
 ): TypingMetrics {
-  if (timeElapsedSeconds <= 0 || !typedText) {
+  const safeTyped = typedText || "";
+  const safeTarget = targetText || "";
+
+  if (timeElapsedSeconds <= 0 || !safeTyped) {
     return {
       grossWpm: 0,
       netWpm: 0,
       accuracy: 100,
       cpm: 0,
       uncorrectedErrors: 0,
-      totalTypedChars: typedText.length,
+      totalTypedChars: safeTyped.length,
     };
   }
 
   const timeInMinutes = timeElapsedSeconds / 60;
-  const totalTypedChars = typedText.length;
+  const totalTypedChars = safeTyped.length;
 
   let uncorrectedErrors = 0;
-  const compareLength = Math.min(targetText.length, typedText.length);
+  const compareLength = Math.min(safeTarget.length, safeTyped.length);
 
   for (let i = 0; i < compareLength; i++) {
-    if (typedText[i] !== targetText[i]) {
+    if (safeTyped[i] !== safeTarget[i]) {
       uncorrectedErrors++;
     }
   }
 
   // Extra characters typed past target text length are counted as errors
-  if (typedText.length > targetText.length) {
-    uncorrectedErrors += typedText.length - targetText.length;
+  if (safeTyped.length > safeTarget.length) {
+    uncorrectedErrors += safeTyped.length - safeTarget.length;
   }
 
   // Standard typing WPM formula (5 characters = 1 word)

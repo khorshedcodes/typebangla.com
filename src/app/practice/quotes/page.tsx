@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://typebangla.com/practice/quotes" },
 };
 
+import QuotesClient from "./QuotesClient";
+
 export default function QuotesPracticePage() {
   return (
     <main className="container max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
@@ -20,7 +22,7 @@ export default function QuotesPracticePage() {
         <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground">বাংলা উদ্ধৃতি অনুশীলন</h1>
         <p className="text-sm text-muted-foreground">রবীন্দ্রনাথ, নজরুল ও ক্লাসিক সাহিত্যের নির্বাচিত অংশ টাইপ করুন।</p>
       </div>
-      <ExamCenter />
+      <QuotesClient />
     </main>
   );
 }

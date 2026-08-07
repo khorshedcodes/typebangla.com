@@ -79,8 +79,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 const history = JSON.parse(rawHistory);
                 if (Array.isArray(history) && history.length > 0) {
                   const { saveTypingSession } = await import("../lib/firestoreService");
-                  for (const sess of history.slice(0, 5)) {
-                    await saveTypingSession({
+                  let successCount = 0;
+                  const itemsToMigrate = history.slice(0, 5);
+                  for (const sess of itemsToMigrate) {
+                    const res = await saveTypingSession({
                       userId: currentUser.uid,
                       wpm: sess.wpm || sess.netWpm || 30,
                       netWpm: sess.wpm || sess.netWpm || 30,
@@ -92,8 +94,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                       mode: sess.mode || "practice",
                       duration: sess.duration || 60,
                     });
+                    if (res) successCount++;
                   }
-                  localStorage.removeItem("typemaster_history");
+                  if (successCount === itemsToMigrate.length) {
+                    localStorage.removeItem("typemaster_history");
+                  }
                 }
               }
             } catch (e) {

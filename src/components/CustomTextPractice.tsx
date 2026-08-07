@@ -137,6 +137,32 @@ export function CustomTextPractice() {
                 }`}
               />
 
+              {/* Quick Sample Preset Buttons */}
+              <div className="flex flex-wrap items-center gap-2 pt-2">
+                <span className="text-[11px] font-bold text-muted-foreground">অথবা নমুনা টেক্সট নির্বাচন করুন:</span>
+                <button
+                  type="button"
+                  onClick={() => setRawText("বাংলাদেশ সরকারের প্রশাসনিক ও ডিজিটাল তথ্য ব্যবস্থার আওতায় সকল কর্মকর্তা ও কর্মচারীদের কম্পিউটার পরিচালনায় মৌলিক দক্ষতা অর্জন করা আবশ্যক। ই-নথি ব্যবস্থার সঠিক প্রয়োগে কীবোর্ডের স্পর্শ টাইপিং গতি অর্জনের বিকল্প নেই। নিয়মিত অনুশীলনের মাধ্যমে সঠিক আঙুল বিন্যাস ও নির্ভুলতা অর্জন করা সম্ভব।")}
+                  className="text-xs font-bold px-2.5 py-1 rounded-md border border-border bg-secondary hover:bg-secondary/80 text-foreground transition-all"
+                >
+                  🏛️ সরকারি নোটিশ নমুনা
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRawText("আমাদের ছোট নদী চলে বাঁকে বাঁকে, বৈশাখ মাসে তার হাঁটু জল থাকে। পার হয়ে যায় গরু, পার হয় গাড়ি, দুই ধার উঁচু তার, ঢালু তার পাড়ি। চিকচিক করে বালি, কোথা নাই কাদা, একটুখানি নালা, জলের নাই গাঁদা। কলকল কলকল করিতেছে নাদ ঘোলা জল তার আদর নাই কাদ।")}
+                  className="text-xs font-bold px-2.5 py-1 rounded-md border border-border bg-secondary hover:bg-secondary/80 text-foreground transition-all"
+                >
+                  📖 সাহিত্য নমুনা
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRawText("Mastering touch typing is essential for modern professional success. Daily interactive drills increase typing speed, accuracy, and overall productivity on computer keyboards.")}
+                  className="text-xs font-bold px-2.5 py-1 rounded-md border border-border bg-secondary hover:bg-secondary/80 text-foreground transition-all"
+                >
+                  🔤 English Sample
+                </button>
+              </div>
+
               {/* Character Validation Status Badges */}
               {isTooShort && (
                 <div className="pt-1">

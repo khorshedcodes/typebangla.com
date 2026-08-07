@@ -156,7 +156,7 @@ export default function SignupPage() {
                   <Mail className="absolute left-3 top-3 text-muted-foreground" size={16} />
                   <Input
                     type="email"
-                    placeholder="you@example.com"
+                    placeholder="student@typebangla.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-9 text-xs h-10"

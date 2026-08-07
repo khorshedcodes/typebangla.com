@@ -34,3 +34,27 @@ describe("Typing Engine Formulas & Metrics", () => {
     expect(res.netWpm).toBe(0);
   });
 });
+
+describe("Duration-Aware Passage Content Sufficiency (1m, 5m, 10m, 15m)", () => {
+  const { extendTextForDuration, getPassageForDuration } = require("../src/utils/lessons/exam/examPassages");
+
+  test("1-minute test passage should provide at least 500 characters", () => {
+    const p = getPassageForDuration("bangla", 60);
+    expect(p.text.length).toBeGreaterThanOrEqual(500);
+  });
+
+  test("5-minute test passage should provide at least 2500 characters (~500 words)", () => {
+    const p = getPassageForDuration("bangla", 300);
+    expect(p.text.length).toBeGreaterThanOrEqual(2500);
+  });
+
+  test("10-minute test passage should provide at least 5000 characters (~1000 words)", () => {
+    const p = getPassageForDuration("bangla", 600);
+    expect(p.text.length).toBeGreaterThanOrEqual(5000);
+  });
+
+  test("15-minute test passage should provide at least 7500 characters (~1500 words)", () => {
+    const p = getPassageForDuration("english", 900);
+    expect(p.text.length).toBeGreaterThanOrEqual(7500);
+  });
+});

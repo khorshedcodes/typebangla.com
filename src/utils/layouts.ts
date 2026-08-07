@@ -29,7 +29,7 @@ export const UNI_BIJOY_MAP: LayoutMap = {
   Digit8: { normal: "\u09ee", shift: "\u00d7" },
   Digit9: { normal: "\u09ef", shift: "(" },
   Equal: { normal: "=", shift: "+", altgr: "\u2260" },
-  KeyA: { normal: "\u09c3", shift: "\u098b", altgr: "\u098b" },
+  KeyA: { normal: "\u09c3", shift: "\u09b0\u09cd", altgr: "\u098b" },
   KeyB: { normal: "\u09a8", shift: "\u09a3", altgr_shift: "\u09c4" },
   KeyC: { normal: "\u09c7", shift: "\u09c8", altgr: "\u098f", altgr_shift: "\u09e0" },
   KeyD: { normal: "\u09bf", shift: "\u09c0", altgr: "\u0987" },
@@ -127,77 +127,138 @@ interface TransliterationToken {
 }
 
 const phoneticTokens: TransliterationToken[] = [
-  // Corrected/Standard Avro rules (longest matches first)
-  { eng: "t``", ban: "\u09ce", type: "special" },
-  { eng: ",,", ban: "\u09cd", type: "special" },
-  { eng: "$", ban: "\u09f3", type: "special" },
-  // Bigraphs (Consonants) — longest first
-  { eng: "kh", ban: "\u0996", type: "consonant" },
-  { eng: "gh", ban: "\u0998", type: "consonant" },
-  { eng: "Ng", ban: "\u0999", type: "consonant" },
-  { eng: "NG", ban: "\u099e", type: "consonant" },
-  { eng: "ng", ban: "\u0982", type: "special" },
-  { eng: "ch", ban: "\u099b", type: "consonant" },
-  { eng: "jh", ban: "\u099d", type: "consonant" },
-  { eng: "th", ban: "\u09a5", type: "consonant" },
-  { eng: "dh", ban: "\u09a7", type: "consonant" },
-  { eng: "Th", ban: "\u09a0", type: "consonant" },
-  { eng: "Dh", ban: "\u09a2", type: "consonant" },
-  { eng: "ph", ban: "\u09ab", type: "consonant" },
-  { eng: "bh", ban: "\u09ad", type: "consonant" },
-  { eng: "Sh", ban: "\u09b7", type: "consonant" },
-  { eng: "sh", ban: "\u09b6", type: "consonant" },
-  { eng: "rr", ban: "\u09a1\u09bc", type: "special" },
-  { eng: "rh", ban: "\u09a2\u09bc", type: "special" },
-  { eng: "oy", ban: "\u09af\u09bc", type: "special" },
-  // Bigraph Vowels
-  { eng: "ou", ban: "\u0994", sign: "\u09cc", type: "vowel" },
-  { eng: "oi", ban: "\u0990", sign: "\u09c8", type: "vowel" },
-  { eng: "aa", ban: "\u0986", sign: "\u09be", type: "vowel" },
-  { eng: "ri", ban: "\u098b", sign: "\u09c3", type: "vowel" },
-  // Single Consonants
-  { eng: "k", ban: "\u0995", type: "consonant" },
-  { eng: "g", ban: "\u0997", type: "consonant" },
-  { eng: "c", ban: "\u099a", type: "consonant" },
-  { eng: "j", ban: "\u099c", type: "consonant" },
-  { eng: "t", ban: "\u09a4", type: "consonant" },
-  { eng: "T", ban: "\u099f", type: "consonant" },
-  { eng: "d", ban: "\u09a6", type: "consonant" },
-  { eng: "D", ban: "\u09a1", type: "consonant" },
-  { eng: "p", ban: "\u09aa", type: "consonant" },
-  { eng: "f", ban: "\u09ab", type: "consonant" },
-  { eng: "b", ban: "\u09ac", type: "consonant" },
-  { eng: "v", ban: "\u09ad", type: "consonant" },
-  { eng: "m", ban: "\u09ae", type: "consonant" },
+  // === 3-char tokens first (longest-match greedy) ===
+  { eng: "rri", ban: "\u098b", sign: "\u09c3", type: "vowel" }, // ঋ/ৃ
+  { eng: "kSh", ban: "\u0995\u09cd\u09b7", type: "consonant" }, // ক্ষ
+  // === 2-char consonant digraphs ===
+  { eng: "kh", ban: "\u0996", type: "consonant" },   // খ
+  { eng: "gh", ban: "\u0998", type: "consonant" },   // ঘ
+  { eng: "Ng", ban: "\u0999", type: "consonant" },   // ঙ
+  { eng: "NG", ban: "\u099e", type: "consonant" },   // ঞ
+  { eng: "ng", ban: "\u0982", type: "special" },     // ং (anusvara)
+  { eng: "ch", ban: "\u099b", type: "consonant" },   // ছ
+  { eng: "jh", ban: "\u099d", type: "consonant" },   // ঝ
+  { eng: "Th", ban: "\u09a0", type: "consonant" },   // ঠ
+  { eng: "th", ban: "\u09a5", type: "consonant" },   // থ
+  { eng: "Dh", ban: "\u09a2", type: "consonant" },   // ঢ
+  { eng: "dh", ban: "\u09a7", type: "consonant" },   // ধ
+  { eng: "ph", ban: "\u09ab", type: "consonant" },   // ফ
+  { eng: "bh", ban: "\u09ad", type: "consonant" },   // ভ
+  { eng: "Sh", ban: "\u09b7", type: "consonant" },   // ষ  (capital S + h)
+  { eng: "sh", ban: "\u09b6", type: "consonant" },   // শ  (lowercase s + h)
+  // 2-char special: rr = Reph (র্) before consonant, else রর
+  { eng: "rr", ban: "\u09b0\u09b0", type: "special" }, // রর (Reph logic in engine)
+  // 2-char vowels
+  { eng: "OI", ban: "\u0990", sign: "\u09c8", type: "vowel" }, // ঐ/ৈ  (official)
+  { eng: "OU", ban: "\u0994", sign: "\u09cc", type: "vowel" }, // ঔ/ৌ  (official)
+  { eng: "ee", ban: "\u0988", sign: "\u09c0", type: "vowel" }, // ঈ/ী
+  { eng: "oo", ban: "\u098a", sign: "\u09c2", type: "vowel" }, // ঊ/ূ
+  // === Capital 1-char consonants (special) ===
+  { eng: "Rh", ban: "\u09a2\u09bc", type: "consonant" }, // ঢ়  (2-char, before R)
+  { eng: "R", ban: "\u09a1\u09bc", type: "consonant" },  // ড়
+  { eng: "Y", ban: "\u09af\u09bc", type: "consonant" },  // য়
+  { eng: "G", ban: "\u0997", type: "consonant" },         // গ  (alias for g)
+  { eng: "J", ban: "\u099c", type: "consonant" },         // জ  (alias for j, official)
+  { eng: "S", ban: "\u09b6", type: "consonant" },         // শ  (official: S=sha, Sh=SSA per PDF)
+  { eng: "N", ban: "\u09a3", type: "consonant" },         // ণ
+  { eng: "T", ban: "\u099f", type: "consonant" },         // ট
+  { eng: "D", ban: "\u09a1", type: "consonant" },         // ড
+  // === Lowercase single consonants ===
+  { eng: "gg", ban: "\u099c\u09cd\u099e", type: "consonant" }, // জ্ঞ (official PDF: gg = জ্ঞ)
+  { eng: "k", ban: "\u0995", type: "consonant" },   // ক
+  { eng: "q", ban: "\u0995", type: "consonant" },   // ক  (alias, official)
+  { eng: "g", ban: "\u0997", type: "consonant" },   // গ
+  { eng: "c", ban: "\u099a", type: "consonant" },   // চ
+  { eng: "j", ban: "\u099c", type: "consonant" },   // জ
+  { eng: "t", ban: "\u09a4", type: "consonant" },   // ত
+  { eng: "d", ban: "\u09a6", type: "consonant" },   // দ
+  { eng: "p", ban: "\u09aa", type: "consonant" },   // প
+  { eng: "f", ban: "\u09ab", type: "consonant" },   // ফ  (alias ph)
+  { eng: "b", ban: "\u09ac", type: "consonant" },   // ব
+  { eng: "v", ban: "\u09ad", type: "consonant" },   // ভ  (alias bh)
+  { eng: "m", ban: "\u09ae", type: "consonant" },   // ম
+  { eng: "r", ban: "\u09b0", type: "consonant" },   // র
+  { eng: "l", ban: "\u09b2", type: "consonant" },   // ল
+  { eng: "s", ban: "\u09b8", type: "consonant" },   // স
+  { eng: "h", ban: "\u09b9", type: "consonant" },   // হ
+  { eng: "n", ban: "\u09a8", type: "consonant" },   // ন
+  { eng: "x", ban: "\u0995\u09cd\u09b8", type: "consonant" }, // ক্স (official)
+  // === Fola / semi-vowel tokens (context-sensitive, must come before pure vowels) ===
+  // z = য after consonant (ja-fola sign), standalone = য
   { eng: "z", ban: "\u09af", sign: "\u09cd\u09af", type: "vowel" },
-  { eng: "r", ban: "\u09b0", type: "consonant" },
-  { eng: "l", ban: "\u09b2", type: "consonant" },
-  { eng: "s", ban: "\u09b8", type: "consonant" },
-  { eng: "S", ban: "\u09b7", type: "consonant" },
-  { eng: "h", ban: "\u09b9", type: "consonant" },
-  { eng: "n", ban: "\u09a8", type: "consonant" },
-  { eng: "N", ban: "\u09a3", type: "consonant" },
+  // w = ব-ফলা after consonant, standalone = ও (official)
   { eng: "w", ban: "\u0993", sign: "\u09cd\u09ac", type: "vowel" },
+  // y = য়-ফলা after consonant, standalone = য়
   { eng: "y", ban: "\u09af\u09bc", sign: "\u09cd\u09af", type: "vowel" },
-  // Single Vowels
-  { eng: "a", ban: "\u0986", sign: "\u09be", type: "vowel" },
-  { eng: "i", ban: "\u0987", sign: "\u09bf", type: "vowel" },
-  { eng: "u", ban: "\u0989", sign: "\u09c1", type: "vowel" },
-  { eng: "e", ban: "\u098f", sign: "\u09c7", type: "vowel" },
-  { eng: "o", ban: "\u0993", sign: "\u09cb", type: "vowel" },
-  { eng: "O", ban: "\u0993", sign: "\u09cb", type: "vowel" },
-  { eng: "I", ban: "\u0988", sign: "\u09c0", type: "vowel" },
-  { eng: "U", ban: "\u098a", sign: "\u09c2", type: "vowel" },
-  { eng: "A", ban: "\u0985", sign: "", type: "vowel" },
-  // Specials
-  { eng: "+", ban: "\u09cd", type: "special" },
-  { eng: "`", ban: "", type: "special" },
-  { eng: "H", ban: "\u0983", type: "special" },
-  { eng: "^", ban: "\u0981", type: "special" },
-  { eng: "Z", ban: "\u09ce", type: "special" },
-  { eng: ".`", ban: ".", type: "special" },
-  { eng: ".", ban: "\u09e4", type: "special" },
+  // === Single vowels ===
+  { eng: "a", ban: "\u0986", sign: "\u09be", type: "vowel" },   // আ/া
+  { eng: "i", ban: "\u0987", sign: "\u09bf", type: "vowel" },   // ই/ি
+  { eng: "u", ban: "\u0989", sign: "\u09c1", type: "vowel" },   // উ/ু
+  { eng: "e", ban: "\u098f", sign: "\u09c7", type: "vowel" },   // এ/ে
+  // o = inherent অ (schwa) — silent after consonant, letter at start
+  { eng: "o", ban: "\u0985", sign: "", type: "vowel" },          // অ/inherent
+  // O (capital) = ও/ো
+  { eng: "O", ban: "\u0993", sign: "\u09cb", type: "vowel" },   // ও/ো
+  { eng: "I", ban: "\u0988", sign: "\u09c0", type: "vowel" },   // ঈ/ী
+  { eng: "U", ban: "\u098a", sign: "\u09c2", type: "vowel" },   // ঊ/ূ
+  { eng: "A", ban: "\u0985", sign: "", type: "vowel" },           // অ (explicit)
+  // === Specials ===
+  { eng: "+", ban: "\u09cd", type: "special" },     // ্ (hasanta / joiner)
+  { eng: "`", ban: "", type: "special" },            // ` (explicit schwa breaker)
+  { eng: "H", ban: "\u0983", type: "special" },     // ঃ visarga
+  { eng: ":", ban: "\u0983", type: "special" },     // ঃ visarga (alias)
+  { eng: "^", ban: "\u0981", type: "special" },     // ঁ chandrabindu
+  { eng: "Z", ban: "\u09ce", type: "special" },     // ৎ khanda-ta
+  { eng: "$", ban: "\u09f3", type: "special" },     // ৳ taka sign
+  { eng: ",,", ban: "\u09cd", type: "special" },    // ্ (hasanta shorthand)
+  { eng: "t``", ban: "\u09ce", type: "special" },   // ৎ khanda-ta shorthand
+  { eng: ".`", ban: ".", type: "special" },          // literal full-stop
+  { eng: ".", ban: "\u0964", type: "special" },     // । (Bengali danda / Dari)
 ];
+
+export const AVRO_BANGLA_LEGEND_MAP: Record<string, { normal: string; shift: string }> = {
+  KeyK: { normal: "ক", shift: "খ" },
+  KeyG: { normal: "গ", shift: "ঘ" },
+  KeyQ: { normal: "ঙ", shift: "ং" },
+  KeyC: { normal: "চ", shift: "ছ" },
+  KeyJ: { normal: "জ", shift: "ঝ" },
+  KeyT: { normal: "ত", shift: "থ" },
+  KeyD: { normal: "দ", shift: "ধ" },
+  KeyN: { normal: "ন", shift: "ণ" },
+  KeyP: { normal: "প", shift: "ফ" },
+  KeyF: { normal: "ফ", shift: "ঁ" },
+  KeyB: { normal: "ব", shift: "ভ" },
+  KeyV: { normal: "ভ", shift: "ৱ" },
+  KeyM: { normal: "ম", shift: "্ম" },
+  KeyY: { normal: "য", shift: "য়" },
+  KeyR: { normal: "র", shift: "ড়" },
+  KeyL: { normal: "ল", shift: "্ল" },
+  KeyS: { normal: "স", shift: "শ" },
+  KeyH: { normal: "হ", shift: "ঃ" },
+  KeyA: { normal: "া", shift: "আ" },
+  KeyI: { normal: "ি", shift: "ই" },
+  KeyU: { normal: "ু", shift: "উ" },
+  KeyE: { normal: "ে", shift: "এ" },
+  KeyO: { normal: "ো", shift: "ও" },
+  KeyW: { normal: "ৈ", shift: "ঐ" },
+  KeyZ: { normal: "্য", shift: "ঋ" },
+  KeyX: { normal: "্", shift: "ৎ" },
+  Period: { normal: "।", shift: ">" },
+  Comma: { normal: ",", shift: "<" },
+  Equal: { normal: "=", shift: "+" },
+  Minus: { normal: "-", shift: "_" },
+  Backslash: { normal: "\\", shift: "|" },
+  Digit1: { normal: "১", shift: "!" },
+  Digit2: { normal: "২", shift: "@" },
+  Digit3: { normal: "৩", shift: "#" },
+  Digit4: { normal: "৪", shift: "৳" },
+  Digit5: { normal: "৫", shift: "%" },
+  Digit6: { normal: "৬", shift: "^" },
+  Digit7: { normal: "৭", shift: "&" },
+  Digit8: { normal: "৮", shift: "*" },
+  Digit9: { normal: "৯", shift: "(" },
+  Digit0: { normal: "০", shift: ")" },
+};
 
 // Characters whose presence as last rendered char licenses a vowel sign (kar)
 const signLicensors = new Set([
@@ -238,15 +299,15 @@ export function avroTransliterate(input: string): string {
       const len = token.eng.length;
       if (input.substr(idx, len) === token.eng) {
         const currentToken = { ...token };
-        // 'o' before a consonant = silent vowel breaker
-        if (token.eng === "o" && nextIsConsonant(input, idx + len)) {
-          currentToken.ban = "\u0985"; // অ
-          currentToken.sign = "";
-        }
-        // 'rr' before a consonant = Reph (র + ্)
-        if (token.eng === "rr" && nextIsConsonant(input, idx + len)) {
-          currentToken.ban = "\u09b0\u09cd"; // র্
-          currentToken.type = "special";
+        // 'rr' before a consonant = Reph (র + ্); otherwise = রর (double ra)
+        if (token.eng === "rr") {
+          if (nextIsConsonant(input, idx + len)) {
+            currentToken.ban = "\u09b0\u09cd"; // র্
+            currentToken.type = "special";
+          } else {
+            currentToken.ban = "\u09b0\u09b0"; // রর
+            currentToken.type = "special";
+          }
         }
         if (currentToken.type === "consonant") {
           if (prevToken && prevToken.type === "consonant") result += "\u09cd"; // ্
@@ -278,8 +339,8 @@ export function avroTransliterate(input: string): string {
 
 // Mapped from Probhat layout findings
 export const PROBHAT_MAP: LayoutMap = {
-  Backquote: { normal: "\u200d", shift: "~" },
-  Backslash: { normal: "\u200c", shift: "\u0965" },
+  Backquote: { normal: "`", shift: "~" },
+  Backslash: { normal: "\\", shift: "\u0965" },
   BracketLeft: { normal: "\u09c7", shift: "\u09c8" },
   BracketRight: { normal: "\u09cb", shift: "\u09cc", altgr: "\u09d7" },
   Comma: { normal: ",", shift: "\u09c3" },
@@ -320,7 +381,7 @@ export const PROBHAT_MAP: LayoutMap = {
   KeyX: { normal: "\u09b6", shift: "\u09dd" },
   KeyY: { normal: "\u098f", shift: "\u0990" },
   KeyZ: { normal: "\u09df", shift: "\u09af" },
-  Minus: { normal: "-", shift: "_" },
+  Minus: { normal: "\u200c", shift: "_" },
   Period: { normal: "\u0964", shift: "\u0981", altgr: "\u09bc" },
   Quote: { normal: "'", shift: "\u0022" },
   Semicolon: { normal: ";", shift: ":" },
@@ -359,7 +420,7 @@ export const INSCRIPT_MAP: LayoutMap = {
   KeyK: { normal: "\u0995", shift: "\u0996" },
   KeyL: { normal: "\u09a4", shift: "\u09a5" },
   KeyM: { normal: "\u09b8", shift: "\u09b6" },
-  KeyN: { normal: "\u09b2", shift: "\u09cd\u09af" },
+  KeyN: { normal: "\u09b2", shift: "" },
   KeyO: { normal: "\u09a6", shift: "\u09a7" },
   KeyP: { normal: "\u099c", shift: "\u099d" },
   KeyQ: { normal: "\u09cc", shift: "\u0994", altgr: "\u09d7" },
@@ -371,7 +432,7 @@ export const INSCRIPT_MAP: LayoutMap = {
   KeyW: { normal: "\u09c8", shift: "\u0990", altgr: "\u09e3" },
   KeyX: { normal: "\u0982", shift: "\u0981", altgr: "\u09fa" },
   KeyY: { normal: "\u09ac", shift: "\u09ad" },
-  KeyZ: { normal: "\u09cd\u09b0", shift: "\u09b0\u09cd" },
+  KeyZ: { normal: "", shift: "" },
   Minus: { normal: "-", shift: "\u0983" },
   Period: { normal: ".", shift: "\u0964", altgr: "\u09bd", altgr_shift: ">" },
   Quote: { normal: "\u099f", shift: "\u09a0", altgr: "'", altgr_shift: "\u0022" },

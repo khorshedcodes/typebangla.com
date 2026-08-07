@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Clock, ShieldCheck, Trophy, Lock } from "lucide-react";
 import { useTypingStore, KeyboardLayout } from "../../../store/typingStore";
-import { getRandomPassage, PassageLanguage } from "../../../utils/lessons/exam/examPassages";
+import { getRandomPassage, getPassageForDuration, PassageLanguage } from "../../../utils/lessons/exam/examPassages";
 import ExamCenter from "../../../components/ExamCenter";
 import { Badge } from "../../../components/ui/badge";
 
@@ -79,12 +79,11 @@ export default function TestSlugClient({ testSlug }: { testSlug: string }) {
   const { setSelectedDuration, setActiveLayout, setTargetText } = useTypingStore();
 
   useEffect(() => {
-    // Auto-configure test settings
     setSelectedDuration(meta.duration);
     if (meta.layout) {
       setActiveLayout(meta.layout);
     }
-    const passage = getRandomPassage(meta.lang);
+    const passage = getPassageForDuration(meta.lang, meta.duration);
     setTargetText(passage.text);
   }, [meta, setSelectedDuration, setActiveLayout, setTargetText]);
 

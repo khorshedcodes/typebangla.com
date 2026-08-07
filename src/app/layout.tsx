@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   authors: [{ name: "typebangla team" }],
   metadataBase: new URL("https://typebangla.com"),
   alternates: {
-    canonical: "./",
+    canonical: "https://typebangla.com/",
   },
   other: {
     "geo.region": "BD",
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     description: "Interactive online tool for learning and testing English & Bangla typing speeds.",
     images: ["/images/logo/blackbg.png"],
   },
-  manifest: "/manifest.json",
+  manifest: "/manifest.webmanifest",
 };
 
 export default function RootLayout({
@@ -74,7 +74,7 @@ export default function RootLayout({
   return (
     <html lang="bn">
       <head>
-        <link rel="manifest" href="/manifest.json" />
+        <link rel="manifest" href="/manifest.webmanifest" />
         <Script
           id="sw-register"
           strategy="afterInteractive"

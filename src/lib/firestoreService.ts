@@ -37,10 +37,18 @@ export async function saveTypingSession(session: SessionData) {
     const db = await getFirebaseDb();
     if (!db) return null;
 
+    const safeWpm = Math.min(500, Math.max(0, isFinite(session.wpm) ? session.wpm : 0));
+    const safeNetWpm = Math.min(500, Math.max(0, isFinite(session.netWpm) ? session.netWpm : 0));
+    const sanitizedSession = {
+      ...session,
+      wpm: safeWpm,
+      netWpm: safeNetWpm,
+    };
+
     const firestore = await import("firebase/firestore");
     const sessionRef = firestore.doc(firestore.collection(db, "typing_sessions"));
     await firestore.setDoc(sessionRef, {
-      ...session,
+      ...sanitizedSession,
       id: sessionRef.id,
       timestamp: firestore.serverTimestamp(),
     });
@@ -51,7 +59,6 @@ export async function saveTypingSession(session: SessionData) {
 
       if (userSnap.exists()) {
         const data = userSnap.data() as UserProfile;
-        const safeNetWpm = Math.max(0, session.netWpm);
         const newHigh = Math.max(data.highWpm || 0, safeNetWpm);
         const newTotal = (data.totalSessions || 0) + 1;
         const newAvg = Math.round(((data.avgWpm || 0) * (newTotal - 1) + safeNetWpm) / Math.max(1, newTotal));
@@ -469,7 +476,7 @@ export interface InstituteV2WaitlistRecord {
   role: "owner" | "principal" | "teacher" | "student" | "other";
   expectedStudents: string;
   requestedFeatures: string;
-  createdAt?: any;
+  createdAt?: unknown;
   status: "pending" | "contacted" | "approved";
 }
 

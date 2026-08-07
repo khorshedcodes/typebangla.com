@@ -14,6 +14,14 @@ export const metadata: Metadata = {
 
 const ALL_TOOLS = [
   {
+    href: "/online-bangla-keyboard",
+    icon: Keyboard,
+    title: "Online Bangla Keyboard",
+    titleBn: "অনলাইন বাংলা কীবোর্ড (সফ্টওয়্যারহীন টাইপ)",
+    desc: "অনলাইনে সফটওয়্যার ছাড়াই বাটন ক্লিক করে বা কিবোর্ডে চাপ দিয়ে সহজ ইউনিকোড বাংলা টাইপিং।",
+    badge: "ভার্চুয়াল কীবোর্ড",
+  },
+  {
     href: "/bangla-lorem-ipsum",
     icon: FileText,
     title: "Bangla Lorem Ipsum Generator",

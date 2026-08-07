@@ -72,8 +72,6 @@ export default function TypingArea({
   } = useTypingStore();
 
   const [isFocused, setIsFocused] = useState(false);
-  const [showImportDialog, setShowImportDialog] = useState(false);
-  const [customInputText, setCustomInputText] = useState("");
   const [ghostPosition, setGhostPosition] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -361,48 +359,6 @@ export default function TypingArea({
               </kbd>
             </div>
           )}
-        </div>
-      )}
-
-      {/* Custom Text Import Modal Dialog */}
-      {showImportDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="fixed inset-0 bg-background/80 backdrop-blur-xs" onClick={() => setShowImportDialog(false)} />
-          <div className="relative z-50 w-full max-w-md bg-popover border border-border rounded-xl p-6 shadow-xl space-y-4">
-            <div className="space-y-1">
-              <h3 className="text-sm font-bold text-foreground">কাস্টম অনুশীলন টেক্সট আমদানি</h3>
-              <p className="text-[10px] text-muted-foreground">যেকোনো বাংলা বা ইংরেজি অনুচ্ছেদ পেস্ট করুন।</p>
-            </div>
-
-            <textarea
-              className="w-full h-32 border border-input rounded-md p-3 text-xs bg-background text-foreground focus:outline-none resize-none focus:ring-1 focus:ring-ring font-sans"
-              placeholder="এখানে আপনার অনুচ্ছেদ পেস্ট করুন..."
-              value={customInputText}
-              onChange={(e) => setCustomInputText(e.target.value)}
-            />
-
-            <div className="flex justify-end space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowImportDialog(false)}
-                className="border-border bg-background text-muted-foreground hover:text-foreground"
-              >
-                বাতিল
-              </Button>
-              <Button
-                size="sm"
-                disabled={!customInputText.trim()}
-                onClick={() => {
-                  setTargetText(customInputText.trim());
-                  setShowImportDialog(false);
-                  setCustomInputText("");
-                }}
-              >
-                টেক্সট প্রয়োগ করুন
-              </Button>
-            </div>
-          </div>
         </div>
       )}
     </div>

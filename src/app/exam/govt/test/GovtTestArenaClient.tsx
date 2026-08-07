@@ -13,7 +13,7 @@ import { Button } from "../../../../components/ui/button";
 import { Badge } from "../../../../components/ui/badge";
 import { Card, CardContent } from "../../../../components/ui/card";
 import { useTypingStore, KeyboardLayout } from "../../../../store/typingStore";
-import { getRandomPassage } from "../../../../utils/lessons/exam/examPassages";
+import { getRandomPassage, getPassageForDuration } from "../../../../utils/lessons/exam/examPassages";
 import { saveTypingSession } from "../../../../lib/firestoreService";
 import { useAuth } from "../../../../context/AuthContext";
 import TypingArea from "../../../../components/TypingArea";
@@ -94,7 +94,7 @@ export default function GovtTestArenaClient() {
     setActiveLayout(layoutParam);
     setSelectedDuration(durationSec);
     const lang = layoutParam === "english" ? "english" : "bangla";
-    const p = getRandomPassage(lang);
+    const p = getPassageForDuration(lang, durationSec);
     setTargetText(p.text);
     resetTest();
   }, [layoutParam, durationSec, setActiveLayout, setSelectedDuration, setTargetText, resetTest]);

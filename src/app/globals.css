@@ -116,6 +116,12 @@
   }
   input, textarea, button, select {
     font-family: inherit;
+    touch-action: manipulation;
+  }
+  button, a, [role="button"] {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
   }
 }
 

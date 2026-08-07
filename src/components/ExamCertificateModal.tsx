@@ -34,15 +34,37 @@ export function ExamCertificateModal({ isOpen, onClose, result }: ExamCertificat
 
   const { quota, deductInstituteQuota } = useInstitute();
   const isInstitute = Boolean(result?.instituteName);
+  const isRanked = result?.mode === "ranked";
+  const isIndividualCourseCert = !isInstitute && !isRanked;
 
   const checkQuotaAndProceed = (action: () => void) => {
+    // 1. National Ranked Competition Certificates are 100% FREE!
+    if (isRanked) {
+      action();
+      return;
+    }
+
+    // 2. Institute V2 Partner Certificates (Quota Based)
     if (isInstitute) {
       if (quota.remaining <= 0) {
         setShowTopUpModal(true);
         return;
       }
       deductInstituteQuota();
+      action();
+      return;
     }
+
+    // 3. Individual Course Certificates Require 50 BDT Payment
+    if (isIndividualCourseCert) {
+      const paidKey = `typemaster_cert_paid_${result?.language || "all"}_${result?.layout || "all"}`;
+      const isPaid = typeof window !== "undefined" && localStorage.getItem(paidKey) === "true";
+      if (!isPaid) {
+        setShowTopUpModal(true);
+        return;
+      }
+    }
+
     action();
   };
 
@@ -106,19 +128,21 @@ export function ExamCertificateModal({ isOpen, onClose, result }: ExamCertificat
     };
 
     // 4. Header Badge / Title
+    const currentMonthYear = new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" }).toUpperCase();
+
     if (result.mode === "ranked") {
       ctx.fillStyle = "#ca8a04";
-      ctx.roundRect?.(700, 110, 1000, 56, 12);
+      ctx.roundRect?.(600, 110, 1200, 56, 12);
       ctx.fill();
 
       ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 24px sans-serif";
+      ctx.font = "bold 22px sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText("🏆 NATIONAL RANKING COMPETITION QUALIFIED", 1200, 146);
+      ctx.fillText(`🏆 3-MINUTE NATIONAL SPEED COMPETITION — ${currentMonthYear} CYCLE`, 1200, 146);
 
       ctx.fillStyle = "#18181b";
-      ctx.font = "bold 38px sans-serif";
-      ctx.fillText("TYPEBANGLA VERIFIED CERTIFICATION", 1200, 225);
+      ctx.font = "bold 36px sans-serif";
+      ctx.fillText("TYPEBANGLA VERIFIED COMPETITION CREDENTIAL", 1200, 225);
     } else {
       ctx.fillStyle = "#ca8a04";
       ctx.font = "bold 26px sans-serif";

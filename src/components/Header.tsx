@@ -9,7 +9,6 @@ import {
 import Image from "next/image";
 import { Button } from "./ui/button";
 import { useAuth } from "../context/AuthContext";
-import { AuthModal } from "./AuthModal";
 
 import { useTypingStore } from "../store/typingStore";
 
@@ -30,8 +29,6 @@ export default function Header() {
   
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authModalMode, setAuthModalMode] = useState<"login" | "signup">("login");
 
   if (isFocusModeActive || isFocusModePage(pathname)) return null;
 
@@ -44,30 +41,49 @@ export default function Header() {
       <header className="sticky top-0 z-40 w-full border-b border-border/80 bg-background/75 backdrop-blur-xl transition-all">
         <div className="container max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 gap-4">
 
-          {/* Brand Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group shrink-0" onClick={() => setDrawerOpen(false)}>
-            <div className="relative w-8 h-8 flex items-center justify-center rounded-xl bg-secondary/80 border border-border group-hover:scale-105 transition-transform">
-              <Image
-                src="/images/logo/blackbg.png"
-                alt="typebangla logo"
-                width={28}
-                height={28}
-                className="w-7 h-7 hidden dark:block object-contain"
-                priority
-              />
-              <Image
-                src="/images/logo/whitebg_1.png"
-                alt="typebangla logo"
-                width={28}
-                height={28}
-                className="w-7 h-7 block dark:hidden object-contain"
-                priority
-              />
-            </div>
-            <span className="font-black text-lg tracking-tight text-foreground select-none group-hover:text-foreground/90">
-              typebangla<span className="text-emerald-500 font-bold">.com</span>
-            </span>
-          </Link>
+          {/* Brand Logo & Dynamic Workspace Breadcrumb */}
+          <div className="flex items-center gap-3 shrink-0">
+            <Link href="/" className="flex items-center gap-2.5 group shrink-0" onClick={() => setDrawerOpen(false)}>
+              <div className="relative w-8 h-8 flex items-center justify-center rounded-xl bg-secondary/80 border border-border group-hover:scale-105 transition-transform">
+                <Image
+                  src="/images/logo/blackbg.png"
+                  alt="typebangla logo"
+                  width={28}
+                  height={28}
+                  className="w-7 h-7 hidden dark:block object-contain"
+                  priority
+                />
+                <Image
+                  src="/images/logo/whitebg_1.png"
+                  alt="typebangla logo"
+                  width={28}
+                  height={28}
+                  className="w-7 h-7 block dark:hidden object-contain"
+                  priority
+                />
+              </div>
+              <span className="font-black text-lg tracking-tight text-foreground select-none group-hover:text-foreground/90">
+                typebangla<span className="text-emerald-500 font-bold">.com</span>
+              </span>
+            </Link>
+
+            {/* Workspace Breadcrumb Badge */}
+            {pathname === "/dashboard" && (
+              <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-extrabold">
+                Dashboard
+              </span>
+            )}
+            {pathname === "/admin" && (
+              <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 text-xs font-extrabold">
+                Admin Control Center
+              </span>
+            )}
+            {pathname === "/institute" && (
+              <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 text-xs font-extrabold">
+                Institute Portal
+              </span>
+            )}
+          </div>
 
           {/* Desktop Nav Hub Direct Links */}
           <nav className="hidden md:flex items-center gap-1.5 flex-1 justify-center">
@@ -276,12 +292,6 @@ export default function Header() {
           </div>
         </div>
       )}
-
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        initialMode={authModalMode}
-      />
     </>
   );
 }

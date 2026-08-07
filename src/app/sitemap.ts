@@ -30,7 +30,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/game`,        lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/stats`,       lastModified: now, changeFrequency: "weekly", priority: 0.6 },
 
-    // ── Dedicated SEO Landing Pages ─────────────────────────────────────
+    // ── Dedicated SEO Landing Pages & Tools ─────────────────────────────────────
+    { url: `${BASE}/online-bangla-keyboard`,       lastModified: now, changeFrequency: "daily", priority: 0.95 },
     { url: `${BASE}/learn/avro-phonetic-typing`,   lastModified: now, changeFrequency: "weekly", priority: 0.95 },
     { url: `${BASE}/learn/bijoy-52-typing`,        lastModified: now, changeFrequency: "weekly", priority: 0.95 },
     { url: `${BASE}/learn/jatiya-keyboard-typing`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },

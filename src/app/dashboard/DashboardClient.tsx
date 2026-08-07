@@ -407,12 +407,12 @@ export default function DashboardClient() {
                         <ShieldCheck size={14} className="text-emerald-500 shrink-0" />
                         <span>{cert.candidateName}</span>
                       </div>
-                      <div className="text-[10px] text-muted-foreground">
-                        {cert.layout.toUpperCase()} Layout • {cert.language}
+                      <div className="text-[10px] text-muted-foreground font-mono">
+                        {cert.layout.toUpperCase()} Layout • 3-Min Exam • {new Date().toLocaleDateString("en-US", { month: "short", year: "numeric" })} Cycle
                       </div>
                     </div>
-                    <Badge variant="outline" className="border-amber-500/40 text-amber-600 bg-amber-50 dark:bg-amber-950/40 text-[10px] font-black shrink-0">
-                      OFFICIAL CERT
+                    <Badge variant="outline" className="border-amber-500/40 text-amber-600 dark:text-amber-400 bg-amber-500/10 text-[10px] font-black shrink-0">
+                      🏆 NATIONAL RANK CERT
                     </Badge>
                   </div>
 

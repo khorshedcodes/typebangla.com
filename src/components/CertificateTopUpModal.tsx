@@ -288,13 +288,16 @@ export function CertificateTopUpModal({
 
               {/* Payment Instructions */}
               <div className="p-3.5 rounded-xl bg-secondary/50 border border-border text-xs space-y-1.5">
-                <div className="flex items-center gap-1.5 font-bold text-foreground">
-                  <ShieldCheck className="w-4 h-4 text-primary" />
-                  <span>Send {totalAmount} BDT to Official Account:</span>
+                <div className="flex items-center justify-between font-bold text-foreground">
+                  <div className="flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-primary" />
+                    <span>Send {totalAmount} BDT via {paymentMethod}:</span>
+                  </div>
+                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-mono font-bold">Auto-Verification Ready</span>
                 </div>
-                <div className="font-mono text-sm font-bold text-foreground bg-background px-3 py-1.5 rounded-lg border border-border flex items-center justify-between">
-                  <span>01700-000000</span>
-                  <span className="text-xs font-sans text-muted-foreground font-medium">Personal / Send Money</span>
+                <div className="font-mono text-sm font-bold text-foreground bg-background px-3 py-2 rounded-lg border border-border flex items-center justify-between shadow-2xs">
+                  <span className="text-primary font-black tracking-wider">{process.env.NEXT_PUBLIC_PAYMENT_PHONE || "01700-112233"}</span>
+                  <span className="text-xs font-sans text-muted-foreground font-semibold bg-secondary px-2 py-0.5 rounded border border-border">Personal / Send Money</span>
                 </div>
               </div>
 

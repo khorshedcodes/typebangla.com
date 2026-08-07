@@ -188,7 +188,7 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
               <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="email"
-                placeholder="name@example.com"
+                placeholder="student@typebangla.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="pl-9 text-xs"

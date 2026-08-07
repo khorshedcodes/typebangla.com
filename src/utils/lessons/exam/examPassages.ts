@@ -379,3 +379,54 @@ export function getRandomPassage(language?: PassageLanguage): ExamPassage {
     : ALL_EXAM_PASSAGES;
   return pool[Math.floor(Math.random() * pool.length)];
 }
+
+/**
+ * Extends target text to ensure sufficient length for a given duration (1 min, 2 min, 3 min, 5 min, 10 min, 15 min).
+ * Target character length rules:
+ *   - 30s:  ~350 characters
+ *   - 60s (1 min): ~600 characters (~120 words)
+ *   - 180s (3 min): ~1800 characters (~360 words)
+ *   - 300s (5 min): ~3000 characters (~600 words) — Full Govt 5-min Exam Paper
+ *   - 600s (10 min): ~6000 characters (~1200 words) — Full Govt 10-min Exam Paper
+ *   - 900s (15 min): ~9000 characters (~1800 words) — Extended Senior Exam Paper
+ */
+export function extendTextForDuration(
+  baseText: string,
+  durationSec: number = 60,
+  language: PassageLanguage = "bangla"
+): string {
+  if (!durationSec || durationSec <= 0) return baseText;
+
+  const targetMinLength = Math.max(350, Math.round(durationSec * 9.5));
+  let currentText = baseText;
+  const pool = getPassagesByLanguage(language);
+
+  if (!pool || pool.length === 0) return baseText;
+
+  let attempts = 0;
+  while (currentText.length < targetMinLength && attempts < 30) {
+    attempts++;
+    const nextPassage = pool[(attempts + Math.floor(Math.random() * pool.length)) % pool.length];
+    if (nextPassage && nextPassage.text) {
+      currentText += "\n\n" + nextPassage.text;
+    } else {
+      currentText += " " + baseText;
+    }
+  }
+
+  return currentText;
+}
+
+export function getPassageForDuration(
+  language?: PassageLanguage,
+  durationSec: number = 60,
+  seedPassage?: ExamPassage
+): ExamPassage {
+  const lang: PassageLanguage = language || "bangla";
+  const base = seedPassage || getRandomPassage(lang);
+  const fullText = extendTextForDuration(base.text, durationSec, lang);
+  return {
+    ...base,
+    text: fullText,
+  };
+}

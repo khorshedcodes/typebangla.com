@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://typebangla.com/practice/sentences" },
 };
 
+import SentencesClient from "./SentencesClient";
+
 export default function SentencesPracticePage() {
   return (
     <main className="container max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
@@ -20,7 +22,7 @@ export default function SentencesPracticePage() {
         <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground">বাক্য অনুশীলন</h1>
         <p className="text-sm text-muted-foreground">সম্পূর্ণ বাক্য লিখে বাক্যের গঠন ও দাড়ি/কমা সহ টাইপ শিখুন।</p>
       </div>
-      <ExamCenter />
+      <SentencesClient />
     </main>
   );
 }

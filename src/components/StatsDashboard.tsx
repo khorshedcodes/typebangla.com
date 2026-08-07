@@ -21,7 +21,7 @@ export default function StatsDashboard({ minimal = false }: { minimal?: boolean 
   useEffect(() => { loadHistory(); }, [loadHistory]);
 
   const liveWpm = elapsedTime === 0 ? 0 : Math.round((typedText.length / 5) / (elapsedTime / 60));
-  const liveAccuracy = typedText.length === 0 ? 100 : Math.round(((typedText.length - errorIndices.length) / typedText.length) * 100);
+  const liveAccuracy = typedText.length === 0 ? 100 : Math.min(100, Math.max(0, Math.round(((typedText.length - errorIndices.length) / typedText.length) * 100)));
 
   if (minimal) {
     return (

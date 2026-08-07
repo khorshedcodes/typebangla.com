@@ -20,6 +20,7 @@ import {
 } from "../../../../utils/lessons";
 import VirtualKeyboard from "../../../../components/VirtualKeyboard";
 import { ExamCertificateModal } from "../../../../components/ExamCertificateModal";
+import { CourseCompletionModal } from "../../../../components/CourseCompletionModal";
 import { useAuth } from "../../../../context/AuthContext";
 import { AuthModal } from "../../../../components/AuthModal";
 
@@ -108,6 +109,7 @@ export default function LessonPracticeClient({
   const [lessonIndex, setLessonIndex] = useState(0);
   const [inputVal, setInputVal] = useState("");
   const [showCertModal, setShowCertModal] = useState(false);
+  const [showCelebrationModal, setShowCelebrationModal] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [resultState, setResultState] = useState<{
     wpm: number;
@@ -161,6 +163,9 @@ export default function LessonPracticeClient({
     });
   }, [meta.layout, courseId, lessonId, setActiveLayout, setTargetText]);
 
+  const nextLesson = lessons[lessonIndex + 1];
+  const nextLessonUrl = nextLesson ? `/courses/${courseId}/lesson-${lessonIndex + 2}` : null;
+
   useEffect(() => {
     if (!isCompleted || !elapsedTime || !typedText || !activeLesson) return;
 
@@ -182,15 +187,16 @@ export default function LessonPracticeClient({
 
     queueMicrotask(() => {
       setResultState({ wpm: grossWpm, accuracy, passed });
+      if (passed && !nextLesson) {
+        setShowCelebrationModal(true);
+      }
     });
-  }, [isCompleted, elapsedTime, typedText, targetText, activeLesson]);
+  }, [isCompleted, elapsedTime, typedText, targetText, activeLesson, nextLesson]);
 
   if (!activeLesson) {
     return null;
   }
 
-  const nextLesson = lessons[lessonIndex + 1];
-  const nextLessonUrl = nextLesson ? `/courses/${courseId}/lesson-${lessonIndex + 2}` : null;
   const currentNextChar = targetText[typedText.length] || "";
 
   return (
@@ -366,6 +372,16 @@ export default function LessonPracticeClient({
       </div>
 
       {/* Course Completion Certificate Modal */}
+      {/* Course Completion Celebration Modal */}
+      <CourseCompletionModal
+        isOpen={showCelebrationModal}
+        onClose={() => setShowCelebrationModal(false)}
+        courseTitle={meta.title}
+        wpm={resultState?.wpm || 45}
+        accuracy={resultState?.accuracy || 95}
+        onClaimCertificate={() => setShowCertModal(true)}
+      />
+
       {showCertModal && (
         <ExamCertificateModal
           isOpen={true}

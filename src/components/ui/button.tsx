@@ -12,7 +12,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         type="button"
         className={cn(
-          "inline-flex items-center justify-center rounded-md text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50 pointer-events-auto cursor-pointer select-none active:scale-[0.98]",
+          "inline-flex items-center justify-center rounded-md text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50 pointer-events-auto cursor-pointer select-none active:scale-[0.98] touch-manipulation",
           {
             "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm border border-primary/20": variant === "default",
             "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm": variant === "destructive",

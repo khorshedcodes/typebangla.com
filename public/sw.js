@@ -5,7 +5,7 @@ const OFFLINE_URLS = [
   "/practice/test",
   "/keyboards",
   "/tools",
-  "/manifest.json"
+  "/manifest.webmanifest"
 ];
 
 // Instantly self-unregister on localhost / development environment

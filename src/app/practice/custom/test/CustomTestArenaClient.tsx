@@ -15,7 +15,7 @@ import { saveTypingSession } from "../../../../lib/firestoreService";
 import { useAuth } from "../../../../context/AuthContext";
 import TypingArea from "../../../../components/TypingArea";
 
-const DEFAULT_SAMPLE_TEXT = "বাংলাদেশের ঐতিহাসিক ঐতিহ্য ও প্রাকৃতিক রূপ সুজলা সুফলা শস্য শ্যামলা। টাইপিং দক্ষতা অর্জনের জন্য প্রতিনিয়ত অনুশীলন অতীব জরুরি।";
+const DEFAULT_SAMPLE_TEXT = "বাংলাদেশের ঐতিহাসিক ঐতিহ্য ও প্রাকৃতিক রূপ সুজলা সুফলা শস্য শ্যামলা। প্রযুক্তি ও আধুনিক শিক্ষার সমন্বয়ে আত্মনির্ভরশীল বাংলাদেশ গড়ার লক্ষ্যে টাইপিং দক্ষতা অর্জন অতীব জরুরি। প্রতিনিয়ত সঠিক নিয়মে টাচ টাইপিং অনুশীলন করলে কয়েক সপ্তাহের মধ্যে নির্ভুলতা ও গতি বহুগুণ বৃদ্ধি পায়। কম্পিউটার অপারেটিং ও প্রশাসনিক কাজের স্বচ্ছতা বাড়াতে নিয়মিত চর্চার বিকল্প নেই।";
 
 export default function CustomTestArenaClient() {
   const searchParams = useSearchParams();

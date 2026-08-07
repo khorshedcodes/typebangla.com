@@ -19,14 +19,16 @@ interface ExtendedIntl {
 }
 
 export function getGraphemeClusters(text: string): string[] {
+  if (!text) return [];
+
   const intlObj = Intl as unknown as ExtendedIntl;
   if (typeof Intl !== "undefined" && intlObj.Segmenter) {
     const segmenter = new intlObj.Segmenter("bn", { granularity: "grapheme" });
     return Array.from(segmenter.segment(text)).map((s: { segment: string }) => s.segment);
   }
 
-  // Fallback regex for Bangla grapheme clusters (base char + combining marks/kars/virama)
-  const graphemeRegex = /[\u0980-\u09FF][\u09BC-\u09CD\u09D7\u200C\u200D]*/g;
+  // Fallback regex for Bangla grapheme clusters (base char + combining marks/kars/virama, including Bangla Extended)
+  const graphemeRegex = /[\u0980-\u09FF\uA980-\uA9DF][\u09BC-\u09CD\u09D7\u200C\u200D]*/g;
   graphemeRegex.lastIndex = 0;
   const clusters: string[] = [];
   let lastIndex = 0;

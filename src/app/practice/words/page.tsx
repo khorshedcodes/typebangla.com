@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://typebangla.com/practice/words" },
 };
 
+import WordsClient from "./WordsClient";
+
 export default function WordsPracticePage() {
   return (
     <main className="container max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
@@ -20,7 +22,7 @@ export default function WordsPracticePage() {
         <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground">শব্দ অনুশীলন</h1>
         <p className="text-sm text-muted-foreground">শব্দের পর শব্দ দ্রুত টাইপ করে আঙুলের পেশীর স্মৃতি (Muscle Memory) তৈরি করুন।</p>
       </div>
-      <ExamCenter />
+      <WordsClient />
     </main>
   );
 }

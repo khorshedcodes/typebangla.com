@@ -24,10 +24,11 @@ describe("Keyboard Layout Integrity Suite (All 7 Layouts)", () => {
     expect(ALL_LAYOUTS.length).toBe(7);
   });
 
-  test("UniBijoy layout mapping should map KeyF to \u09be (kar-a) and KeyH to \u09ac (ba)", () => {
+  test("UniBijoy layout mapping should map KeyF to \u09be (kar-a), KeyH to \u09ac (ba), and KeyA shift to Reph (\u09b0\u09cd) per official .klc", () => {
     expect(UNI_BIJOY_MAP.KeyF.normal).toBe("\u09be");
     expect(UNI_BIJOY_MAP.KeyH.normal).toBe("\u09ac");
     expect(UNI_BIJOY_MAP.KeyF.shift).toBe("\u0985");
+    expect(UNI_BIJOY_MAP.KeyA.shift).toBe("\u09b0\u09cd"); // official .klc LIGATURE Shift+A → Reph (র্)
   });
 
   test("Jatiya BCC Govt layout mapping should map KeyF to \u09ac (ba) and KeyH to \u09be (kar-a)", () => {
@@ -40,11 +41,11 @@ describe("Keyboard Layout Integrity Suite (All 7 Layouts)", () => {
     expect(PROBHAT_MAP.KeyF.normal).toBe("\u09a4");
   });
 
-  test("Inscript layout mapping should map KeyF to \u09bf (kar-i), KeyN shift to ja-fola, and KeyZ to ro-fola/reph", () => {
+  test("Inscript layout mapping should map KeyF to \u09bf (kar-i), KeyN shift to empty (null in spec), and KeyZ to empty (null in spec)", () => {
     expect(INSCRIPT_MAP.KeyF.normal).toBe("\u09bf");
-    expect(INSCRIPT_MAP.KeyN.shift).toBe("\u09cd\u09af"); // ্য
-    expect(INSCRIPT_MAP.KeyZ.normal).toBe("\u09cd\u09b0"); // ্র
-    expect(INSCRIPT_MAP.KeyZ.shift).toBe("\u09b0\u09cd"); // র্
+    expect(INSCRIPT_MAP.KeyN.shift).toBe(""); // official spec: null (%%)
+    expect(INSCRIPT_MAP.KeyZ.normal).toBe(""); // official spec: null (%%)
+    expect(INSCRIPT_MAP.KeyZ.shift).toBe(""); // official spec: null (%%)
   });
 
   test("Unicode layout mapping should map KeyF to \u09be (kar-a), KeyA shift to reph, and KeyZ to ro-fola/ja-fola", () => {
@@ -54,17 +55,66 @@ describe("Keyboard Layout Integrity Suite (All 7 Layouts)", () => {
     expect(UNICODE_MAP.KeyZ.shift).toBe("\u09cd\u09af"); // ্য
   });
 
-  test("Probhat layout mapping should correctly map ZWJ, ZWNJ and Minus keys", () => {
-    expect(PROBHAT_MAP.Backquote.normal).toBe("\u200d");
-    expect(PROBHAT_MAP.Backslash.normal).toBe("\u200c");
-    expect(PROBHAT_MAP.Minus.normal).toBe("-");
+  test("Probhat layout mapping should correctly map Backquote (backtick), Backslash (\\), and Minus (ZWNJ) per official .klc", () => {
+    expect(PROBHAT_MAP.Backquote.normal).toBe("`");         // official: 0060 backtick
+    expect(PROBHAT_MAP.Backslash.normal).toBe("\\");        // official: 005c backslash
+    expect(PROBHAT_MAP.Minus.normal).toBe("\u200c");       // official: 200c ZWNJ
   });
 
-  test("Avro Phonetic engine should correctly transliterate Banglish input to Bangla including Reph", () => {
+  test("Avro Phonetic engine should correctly transliterate Banglish input to Bangla including Reph and Vowel-Kar rules", () => {
     expect(avroTransliterate("k")).toBe("ক");
     expect(avroTransliterate("kh")).toBe("খ");
     expect(avroTransliterate("g")).toBe("গ");
     expect(avroTransliterate("rrk")).toBe("র্ক");
+    expect(avroTransliterate("geet")).toBe("গীত");
+    expect(avroTransliterate("bhoot")).toBe("ভূত");
+    expect(avroTransliterate("krri")).toBe("কৃ");
+    expect(avroTransliterate("ami")).toBe("আমি");
+    expect(avroTransliterate("khai")).toBe("খাই");
+    expect(avroTransliterate("zai")).toBe("যাই");
+    expect(avroTransliterate("jai")).toBe("জাই");
+    expect(avroTransliterate("karon")).toBe("কারন");
+    expect(avroTransliterate("karoN")).toBe("কারণ");
+    expect(avroTransliterate("R")).toBe("\u09a1\u09bc");
+    expect(avroTransliterate("Rh")).toBe("\u09a2\u09bc");
+    expect(avroTransliterate("J")).toBe("জ"); // official: J = জ (alias for j)
+    expect(avroTransliterate(":")).toBe("ঃ");
+    expect(avroTransliterate("$")).toBe("৳");
+    // All 5 Primary Folas Verification
+    expect(avroTransliterate("bishw")).toBe("বিশ্ব");  // ব-ফলা (w)
+    expect(avroTransliterate("baky")).toBe("বাক্য");   // য-ফলা (y/z)
+    expect(avroTransliterate("gram")).toBe("গ্রাম");   // র-ফলা (r after consonant without vowel)
+    expect(avroTransliterate("gorom")).toBe("গরম");   // পূর্ণ র (r preceded by vowel o)
+    expect(avroTransliterate("korm")).toBe("কর্ম");   // রেফ (rr)
+    expect(avroTransliterate("smrriti")).toBe("স্মৃতি"); // ম-ফলা (m) — uses rri trigraph
+    // Verify new official tokens
+    expect(avroTransliterate("G")).toBe("গ");              // G = গ (alias for g)
+    expect(avroTransliterate("S")).toBe("শ");              // S = শ (SHA, official alias for sh)
+    expect(avroTransliterate("q")).toBe("ক");              // q = ক (alias for k)
+    expect(avroTransliterate("x")).toBe("ক্স");          // x = ক্স
+    expect(avroTransliterate("kSh")).toBe("ক্ষ");       // kSh = ক্ষ
+    expect(avroTransliterate("jNGan")).toBe("জ্ঞান"); // jNG = জ্ঞ + া + ন
+    expect(avroTransliterate("gg")).toBe("জ্ঞ");        // gg = জ্ঞ (official PDF confirmed)
+    expect(avroTransliterate("w")).toBe("ও");              // w standalone = ও (official)
+    expect(avroTransliterate("o")).toBe("অ");              // o standalone = অ (official, inherent)
+    expect(avroTransliterate("O")).toBe("ও");              // O (capital) = ও
+  });
+
+  test("Avro Phonetic engine should correctly transliterate full multi-word lines and 2-sentence passages", () => {
+    const transliterateLine = (text: string) =>
+      text.split(" ").map((w) => avroTransliterate(w)).join(" ");
+
+    // Sentence 1: "ami bangla gan gai ." -> "আমি বাংলা গান গাই ।"
+    const line1 = "ami bangla gan gai .";
+    expect(transliterateLine(line1)).toBe("আমি বাংলা গান গাই \u0964");
+
+    // Sentence 2: "korm manuSher bhalO kaj ." -> "কর্ম মানুষের ভালো কাজ ।" (Sh=ষ, O=ো)
+    const line2 = "korm manuSher bhalO kaj .";
+    expect(transliterateLine(line2)).toBe("কর্ম মানুষের ভালো কাজ \u0964");
+
+    // 2-Sentence Combined Line Passage
+    const fullPassage = `${line1} ${line2}`;
+    expect(transliterateLine(fullPassage)).toBe("আমি বাংলা গান গাই \u0964 কর্ম মানুষের ভালো কাজ \u0964");
   });
 
   test("Every layout should produce valid non-empty certificate labels", () => {
@@ -93,5 +143,55 @@ describe("Keyboard Layout Integrity Suite (All 7 Layouts)", () => {
     expect(mapInputToBangla(".", "probhat")).toBe("।");
     expect(mapInputToBangla("/", "probhat")).toBe("্");
     expect(mapInputToBangla("hello", "english")).toBe("hello");
+  });
+
+  test("mapInputToBangla should correctly process full multi-word sentences across all 7 layouts", () => {
+    // 1. English Layout
+    expect(mapInputToBangla("Typing Master is fast.", "english")).toBe("Typing Master is fast.");
+
+    // 2. Avro Layout (2 Sentences) — bhalO uses capital O for ো (official Avro: o=অ, O=ো)
+    const avroPassage = "ami bangla gan gai . korm manuSher bhalO kaj .";
+    expect(mapInputToBangla(avroPassage, "avro")).toBe("আমি বাংলা গান গাই \u0964 কর্ম মানুষের ভালো কাজ \u0964");
+
+    // 3. UniBijoy Layout
+    expect(mapInputToBangla("f h", "unibijoy")).toBe("\u09be \u09ac");
+
+    // 4. Jatiya Layout
+    expect(mapInputToBangla("f h", "jatiya")).toBe("\u09ac \u09be");
+
+    // 5. Probhat Layout
+    expect(mapInputToBangla("a f", "probhat")).toBe("\u09be \u09a4");
+
+    // 6. Inscript Layout
+    expect(mapInputToBangla("f", "inscript")).toBe("\u09bf");
+
+    // 7. Unicode Layout
+    expect(mapInputToBangla("f", "unicode")).toBe("\u09be");
+  });
+
+  test("Avro Phonetic engine should correctly process 3 full complex sentences packed with Jukttakkhor (যুক্তাক্ষর), Kar signs (কার), and Fola marks (ফলা)", () => {
+    const transliterateSentence = (sentence: string) =>
+      sentence.split(" ").map((w) => avroTransliterate(w)).join(" ");
+
+    // Complex Sentence 1 (ba-fola, ro-fola, reph, ShTh-jukttakkhor)
+    const s1 = "swadhInota amader shreShTh orjon .";
+    expect(transliterateSentence(s1)).toBe("স্বাধীনতা আমাদের শ্রেষ্ঠ অর্জন \u0964");
+
+    // Complex Sentence 2 (ma-fola, rri-kar via smrriti, jNG-jukttakkhor, ro-fola, N)
+    // Official Avro: jNG = জ্ঞ, O (capital) = ও
+    const s2 = "smrriti O bijNGan amader preroNa .";
+    expect(transliterateSentence(s2)).toBe("স্মৃতি ও বিজ্ঞান আমাদের প্রেরণা \u0964");
+
+    // Complex Sentence 3 (ch, tr-fola, nd-jukttakkhor, rri-kar via rri trigraph, Sh=ষ, ddh-jukttakkhor)
+    // chatrobrrind = ছাত্রবৃন্দ (ch+a+t+r+o+b+rri+n+d), krriShokoder = কৃষকদের (krri+Sh+o+k+o+d+e+r)
+    const s3 = "chatrobrrind krriShokoder shroddha koren .";
+    expect(transliterateSentence(s3)).toBe("ছাত্রবৃন্দ কৃষকদের শ্রদ্ধা করেন \u0964");
+
+    // Full 3-Sentence Combined Passage Execution
+    const full3SentencePassage = `${s1} ${s2} ${s3}`;
+    const transliteratedPassage = transliterateSentence(full3SentencePassage);
+    const expectedPassage = "স্বাধীনতা আমাদের শ্রেষ্ঠ অর্জন \u0964 স্মৃতি ও বিজ্ঞান আমাদের প্রেরণা \u0964 ছাত্রবৃন্দ কৃষকদের শ্রদ্ধা করেন \u0964";
+
+    expect(transliteratedPassage).toBe(expectedPassage);
   });
 });

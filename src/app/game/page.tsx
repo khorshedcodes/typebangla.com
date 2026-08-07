@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { Metadata } from "next";
 import GameClient from "./GameClient";
 
@@ -21,5 +21,9 @@ export const metadata: Metadata = {
 };
 
 export default function GamePage() {
-  return <GameClient />;
+  return (
+    <Suspense fallback={<div className="text-center py-12 text-xs font-semibold text-muted-foreground">Loading Typing Game...</div>}>
+      <GameClient />
+    </Suspense>
+  );
 }

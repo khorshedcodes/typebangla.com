@@ -31,8 +31,9 @@ export default function MixedTypingClient() {
     const blocks = [];
     const bnCount = BANGLA_SENTENCES_LEVEL_2.length;
     const enCount = ENGLISH_SENTENCES_LEVEL_2.length;
+    const targetBlockCount = Math.max(20, Math.ceil(timeDuration / 3));
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < targetBlockCount; i++) {
       const isBangla = i % 2 === 0;
       const text = isBangla
         ? BANGLA_SENTENCES_LEVEL_2[Math.floor(Math.random() * bnCount)]
@@ -151,12 +152,12 @@ export default function MixedTypingClient() {
               <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">কিবোর্ড লেআউট:</span>
               <select
                 value={activeLayout}
-                onChange={(e) => setActiveLayout(e.target.value as any)}
+                onChange={(e) => setActiveLayout(e.target.value as Parameters<typeof setActiveLayout>[0])}
                 className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="english">English QWERTY</option>
-                <option value="unijoy">Bijoy (UniBijoy)</option>
-                <option value="phonetic">Avro Phonetic</option>
+                <option value="unibijoy">Bijoy (UniBijoy)</option>
+                <option value="avro">Avro Phonetic</option>
                 <option value="jatiya">Jatiya (জাতীয়)</option>
               </select>
             </div>
