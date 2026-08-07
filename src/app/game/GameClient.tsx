@@ -651,6 +651,25 @@ export default function GameClient() {
     ? wordDeck[currentWordIndex % wordDeck.length]
     : { bangla: "বাংলা", phonetic: "bangla" };
 
+  // Compute nextChar for VirtualKeyboard shift character indicator & key highlighting
+  let nextCharForKeyboard = "";
+  if (mode === "falling") {
+    const currentTarget = words.find((w) => w.id === targetWordId);
+    if (currentTarget) {
+      const str = activeLayout === "avro" ? currentTarget.phonetic : currentTarget.text;
+      nextCharForKeyboard = str.slice(typedBuffer.length)[0] || "";
+    } else if (words.length > 0) {
+      const lowest = [...words].sort((a, b) => b.y - a.y)[0];
+      if (lowest) {
+        const str = activeLayout === "avro" ? lowest.phonetic : lowest.text;
+        nextCharForKeyboard = str[0] || "";
+      }
+    }
+  } else {
+    const targetStr = activeLayout === "avro" ? currentTargetObj.phonetic : currentTargetObj.bangla;
+    nextCharForKeyboard = targetStr.slice(typedBuffer.length)[0] || "";
+  }
+
   return (
     <main className="container max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6 fade-in text-foreground">
       {/* Top Header & Game Mode Tabs */}
@@ -984,7 +1003,7 @@ export default function GameClient() {
           ))}
         </div>
 
-        <VirtualKeyboard />
+        <VirtualKeyboard nextChar={nextCharForKeyboard} />
       </div>
     </main>
   );
