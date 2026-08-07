@@ -3,91 +3,117 @@ import { Metadata } from "next";
 import Link from "next/link";
 import {
   Keyboard, Award, Sparkles, ShieldCheck, Zap,
-  BookOpen, Users, CheckCircle2, Globe, Heart
+  BookOpen, Users, CheckCircle2, Globe, Heart, ArrowRight,
+  Check, Lock, Building, Cpu, Flame
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "About Us | TypeBangla — Bangladesh's Premier Typing Platform",
-  description: "Learn about typebangla.com — our mission to provide free, high-precision English and Bangla typing instruction, government exam preparation, and instant certificate verification.",
+  title: "About Us | TypeBangla — Bangladesh's #1 Typing & Certification Platform",
+  description: "Learn about TypeBangla (typebangla.com) — Bangladesh's leading online Bangla and English typing platform offering multi-layout practice, government job exam simulators, and verified certificate generation.",
   alternates: { canonical: "https://typebangla.com/about" },
+  openGraph: {
+    title: "About TypeBangla — Premier Bangla & English Typing Engine",
+    description: "Discover our mission to empower students, government job candidates, and professionals with instant WPM telemetry and verified certificates.",
+    url: "https://typebangla.com/about",
+  },
 };
 
 export default function AboutPage() {
   return (
-    <main className="container max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12 fade-in text-foreground">
-      {/* Hero Banner */}
+    <main className="container max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-14 fade-in text-foreground">
+      {/* 1. HERO BANNER */}
       <section className="text-center space-y-4 max-w-3xl mx-auto">
-        <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-1.5 rounded-full text-xs font-extrabold text-emerald-600 dark:text-emerald-400">
+        <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-4 py-1.5 rounded-full text-xs font-extrabold text-emerald-600 dark:text-emerald-400">
           <Sparkles size={14} className="text-emerald-500 animate-pulse" />
           <span>ABOUT TYPEBANGLA PLATFORM</span>
         </div>
-        <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground">
+        <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground leading-tight">
           Empowering Typists Across Bangladesh &amp; Beyond
         </h1>
         <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-          <strong className="text-foreground">typebangla.com</strong> ইব লার্নিং ও টাইপিং প্রযুক্তির মাধ্যমে শিক্ষার্থীদের দ্রুত ও নিখুঁতভাবে বাংলা ও ইংরেজি টাইপিং শিখতে সাহায্য করে।
+          <strong className="text-foreground">TypeBangla (typebangla.com)</strong> ই-লার্নিং ও রিয়েল-টাইম টাইপিং প্রযুক্তির সমন্বয়ে গঠিত বাংলাদেশের শীর্ষস্থানীয় অনলাইন টাইপিং প্ল্যাটফর্ম। আমরা শিক্ষার্থী, চাকরিপ্রার্থী ও পেশাজীবীদের জন্য বিনামূল্যে ও নির্ভুল টাইপিং অনুশীলনের সুযোগ তৈরি করেছি।
         </p>
       </section>
 
-      {/* Feature Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="border border-border bg-card shadow-xs rounded-2xl">
-          <CardHeader className="pb-2">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 mb-2">
-              <Keyboard size={20} />
-            </div>
-            <CardTitle className="text-base font-bold">৭টি কিবোর্ড লেআউট</CardTitle>
-          </CardHeader>
-          <CardContent className="text-xs text-muted-foreground leading-relaxed">
-            English, UniBijoy, Jatiya (BCC Govt Standard), Avro Phonetic, Probhat, Inscript, এবং Unicode—সকল স্ট্যান্ডার্ড কিবোর্ড সাপোর্ট।
-          </CardContent>
-        </Card>
+      {/* 2. STATS OVERVIEW */}
+      <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: "Speed Tests Taken", val: "500,000+", icon: Flame, color: "text-amber-500" },
+          { label: "Verified Certificates", val: "50,000+", icon: Award, color: "text-emerald-500" },
+          { label: "Keyboard Standards", val: "7 Layouts", icon: Keyboard, color: "text-primary" },
+          { label: "Partner Institutes", val: "100+ Centers", icon: Building, color: "text-teal-500" },
+        ].map((s, i) => (
+          <Card key={i} className="border border-border bg-card shadow-xs rounded-2xl p-5 text-center space-y-1">
+            <s.icon size={22} className={`mx-auto mb-1 ${s.color}`} />
+            <div className="text-2xl sm:text-3xl font-black text-foreground">{s.val}</div>
+            <div className="text-xs text-muted-foreground font-semibold">{s.label}</div>
+          </Card>
+        ))}
+      </section>
 
-        <Card className="border border-border bg-card shadow-xs rounded-2xl">
-          <CardHeader className="pb-2">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-2">
-              <Award size={20} />
-            </div>
-            <CardTitle className="text-base font-bold">অনলাইন সার্টিফিকেট</CardTitle>
-          </CardHeader>
-          <CardContent className="text-xs text-muted-foreground leading-relaxed">
-            ৮৫%+ একিউরেসিতে পরীক্ষা সম্পন্ন করে তাৎক্ষণিক ডাউনলোডযোগ্য গোল্ড ও সিলভার সম্মানজনক সনদপত্র অর্জন করুন।
-          </CardContent>
-        </Card>
+      {/* 3. CORE PILLARS GRID */}
+      <section className="space-y-6">
+        <div className="text-center space-y-2">
+          <Badge variant="outline" className="px-3 py-1 text-xs font-bold text-primary border-primary/30">
+            প্ল্যাটফর্মের মূল বৈশিষ্ট্যসমূহ
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl font-black text-foreground">Why Choose TypeBangla?</h2>
+        </div>
 
-        <Card className="border border-border bg-card shadow-xs rounded-2xl">
-          <CardHeader className="pb-2">
-            <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-500 mb-2">
-              <ShieldCheck size={20} />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="border border-border bg-card shadow-xs rounded-2xl p-6 space-y-3">
+            <div className="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+              <Keyboard size={22} />
             </div>
-            <CardTitle className="text-base font-bold">সরকারি চাকরি সিমুলেটর</CardTitle>
-          </CardHeader>
-          <CardContent className="text-xs text-muted-foreground leading-relaxed">
-            বাংলাদেশ কম্পিউটার কাউন্সিল (BCC) এবং বিভিন্ন মন্ত্রণালয়ের কম্পিউটার অপারেটর পরীক্ষার হুবহু আসল ফরম্যাটে অনুশীলন।
-          </CardContent>
-        </Card>
-      </div>
+            <h3 className="text-base font-bold text-foreground">৭টি স্ট্যান্ডার্ড কিবোর্ড লেআউট</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              English QWERTY, UniBijoy (Bijoy 52), Jatiya (BCC Govt Standard), Avro Phonetic, Probhat, Inscript, এবং Unicode—সকল লেআউট লাইভ সাপোর্ট।
+            </p>
+          </Card>
 
-      {/* Mission & Vision Section */}
+          <Card className="border border-border bg-card shadow-xs rounded-2xl p-6 space-y-3">
+            <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+              <Award size={22} />
+            </div>
+            <h3 className="text-base font-bold text-foreground">অনলাইন ভেরিফাইড সনদপত্র</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              ৮৫%+ একিউরেসিতে স্পিড টেস্ট সম্পন্ন করে তাৎক্ষণিক QR-কোড সমৃদ্ধ গোল্ড ও সিলভার মেধা সনদপত্র অর্জন করুন। ইউনিক আইডি দ্বারা সরকারি চাকরির জন্য ভেরিফাইযোগ্য।
+            </p>
+          </Card>
+
+          <Card className="border border-border bg-card shadow-xs rounded-2xl p-6 space-y-3">
+            <div className="w-11 h-11 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-500">
+              <ShieldCheck size={22} />
+            </div>
+            <h3 className="text-base font-bold text-foreground">সরকারি চাকরি সিমুলেটর (BCC)</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              বাংলাদেশ কম্পিউটার কাউন্সিল (BCC) এবং বিভিন্ন মন্ত্রণালয়ের কম্পিউটার অপারেটর পরীক্ষার হুবহু ৫ মিনিটের টেস্ট ফরম্যাটে টাইপিং অনুশীলন।
+            </p>
+          </Card>
+        </div>
+      </section>
+
+      {/* 4. MISSION & VALUES */}
       <Card className="border border-border bg-card shadow-sm rounded-3xl p-6 sm:p-10 space-y-6">
         <div className="space-y-3">
           <Badge variant="outline" className="px-3 py-1 text-xs font-bold text-primary border-primary/30">
             আমাদের লক্ষ্য (Our Mission)
           </Badge>
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
-            কেন TypeBangla বেছে নেবেন?
+            বিনামূল্যে উচ্চমানের টাইপিং শিক্ষা
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            আমাদের উদ্দেশ্য ডিজিটাল বাংলাদেশে কর্মসংস্থান, সরকারি চাকরি প্রস্তুতি, কন্টেন্ট রাইটিং এবং ডাটা এন্ট্রি পেশাজীবীদের টাইপিং দক্ষতা সহজ ও বিনামূল্যে বৃদ্ধি করা। কোনো প্রকার সফটওয়্যার ইনস্টল করা ছাড়াই ব্রাউজারেই সরাসরি টাইপ করা যায়।
+            আমাদের মূল লক্ষ্য হলো ডিজিটাল বাংলাদেশে কন্টেন্ট রাইটিং, ডেটা এন্ট্রি, সরকারি চাকরিপ্রার্থী এবং শিক্ষার্থীদের টাইপিং দক্ষতা সম্পূর্ণ বিনামূল্যে বৃদ্ধি করা। কোনো প্রকার ভারী সফটওয়্যার বা ফন্ট ইনস্টলেশন ছাড়াই যেকোনো ব্রাউজার থেকে সরাসরি টাইপিং সম্ভব।
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-foreground pt-4 border-t border-border">
           <div className="flex items-start gap-2.5">
             <CheckCircle2 className="text-emerald-500 shrink-0 mt-0.5" size={16} />
-            <span>১০০% ফ্রি এবং ব্রাউজারেই সফটওয়্যারবিহীন লাইভ টাইপিং</span>
+            <span>১০০% ফ্রি এবং ব্রাউজারেই ইনস্টলেশনবিহীন লাইভ টাইপিং</span>
           </div>
           <div className="flex items-start gap-2.5">
             <CheckCircle2 className="text-emerald-500 shrink-0 mt-0.5" size={16} />
@@ -99,19 +125,31 @@ export default function AboutPage() {
           </div>
           <div className="flex items-start gap-2.5">
             <CheckCircle2 className="text-emerald-500 shrink-0 mt-0.5" size={16} />
-            <span>QR কোড ও ইউনিক ট্র্যাকিং কোড ভিত্তিক সার্টিফিকেট ভেরিফিকেশন</span>
+            <span>ইনস্টিটিউট পোর্টাল (V2) দ্বারা বাল্ক স্টুডেন্ট সার্টিফিকেট ট্র্যাকিং</span>
           </div>
         </div>
       </Card>
 
-      {/* Footer Tagline */}
-      <div className="text-center space-y-2 pt-4 border-t border-border">
-        <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5">
-          <span>Crafted with</span>
-          <Heart size={14} className="text-rose-500 fill-rose-500" />
-          <span>for typists in Bangladesh and worldwide.</span>
+      {/* 5. CTA BOTTOM */}
+      <section className="border border-primary/30 bg-primary/5 rounded-3xl p-8 text-center space-y-4">
+        <h2 className="text-2xl font-black text-foreground">আজই টাইপিং স্পিড টেস্ট দিন!</h2>
+        <p className="text-xs text-muted-foreground max-w-xl mx-auto">
+          আপনার বর্তমান WPM গতি পরিমাপ করুন এবং বিনামূল্যে সার্টিফিকেট অর্জন করুন।
         </p>
-      </div>
+        <div className="flex justify-center gap-3 pt-2">
+          <Link href="/practice/test">
+            <Button className="font-bold text-xs gap-2 px-6 h-10 shadow-md">
+              <span>স্পিড টেস্ট শুরু করুন</span>
+              <ArrowRight size={14} />
+            </Button>
+          </Link>
+          <Link href="/contact">
+            <Button variant="outline" className="font-bold text-xs gap-2 px-5 h-10 border-border">
+              <span>যোগাযোগ ও সাপোর্ট</span>
+            </Button>
+          </Link>
+        </div>
+      </section>
     </main>
   );
 }
