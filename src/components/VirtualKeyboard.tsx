@@ -52,6 +52,26 @@ const getHighlightKeys = (char: string, layout: KeyboardLayout): { codes: string
     null;
   if (!map) return { codes: [], needsShift: false };
 
+  // 0. Independent Vowel Sequences (e.g. "ই" / Rossho I = G + D, "ঈ" = G + Shift + D) in UniBijoy, Jatiya, Unicode
+  if (layout === "unibijoy" || layout === "jatiya" || layout === "unicode") {
+    const vowelKeyMap: Record<string, { codes: string[]; needsShift: boolean }> = {
+      "\u0985": { codes: ["KeyF", "ShiftLeft", "ShiftRight"], needsShift: true },  // অ
+      "\u0986": { codes: ["KeyG", "KeyF"], needsShift: false },                  // আ
+      "\u0987": { codes: ["KeyG", "KeyD"], needsShift: false },                  // ই (Rossho I / Hrossho I)
+      "\u0988": { codes: ["KeyG", "KeyD", "ShiftLeft", "ShiftRight"], needsShift: true }, // ঈ (Dirgho I)
+      "\u0989": { codes: ["KeyG", "KeyS"], needsShift: false },                  // উ
+      "\u098a": { codes: ["KeyG", "KeyS", "ShiftLeft", "ShiftRight"], needsShift: true }, // ঊ
+      "\u098b": { codes: ["KeyG", "KeyA"], needsShift: false },                  // ঋ
+      "\u098f": { codes: ["KeyG", "KeyC"], needsShift: false },                  // এ
+      "\u0990": { codes: ["KeyG", "KeyC", "ShiftLeft", "ShiftRight"], needsShift: true }, // ঐ
+      "\u0993": { codes: ["KeyG", "KeyX"], needsShift: false },                  // ও
+      "\u0994": { codes: ["KeyG", "KeyX", "ShiftLeft", "ShiftRight"], needsShift: true }, // ঔ
+    };
+    if (vowelKeyMap[char]) {
+      return vowelKeyMap[char];
+    }
+  }
+
   // 1. Direct character match in layout table
   for (const [code, mappings] of Object.entries(map)) {
     if (mappings.normal === char) {
