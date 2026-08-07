@@ -131,16 +131,18 @@ export default function Footer() {
           <Link href="/bangla-word-counter" className="text-xs text-muted-foreground hover:text-foreground transition-colors">শব্দ ও অক্ষর গণনা</Link>
         </div>
 
-        {/* Column 4 - Platform Support */}
+        {/* Column 4 - Platform Support & Legal */}
         <div className="flex flex-col space-y-2.5">
           <span className="text-xs font-bold text-foreground uppercase tracking-wider">তথ্য ও সাপোর্ট</span>
+          <Link href="/about" className="text-xs text-muted-foreground hover:text-foreground transition-colors font-medium">আমাদের সম্পর্কে (About Us)</Link>
+          <Link href="/contact" className="text-xs text-muted-foreground hover:text-foreground transition-colors font-medium">যোগাযোগ ও সাপোর্ট (Contact)</Link>
           <Link href="/dashboard" className="text-xs text-muted-foreground hover:text-foreground transition-colors">মাই ড্যাশবোর্ড</Link>
           <Link href="/institute" className="text-xs font-extrabold text-teal-500 hover:underline transition-colors flex items-center gap-1">
             <span>ইনস্টিটিউট V2 পোর্টাল 🏫</span>
           </Link>
           <Link href="/leaderboard" className="text-xs text-muted-foreground hover:text-foreground transition-colors">লিডারবোর্ড</Link>
-          <Link href="/keyboards" className="text-xs text-muted-foreground hover:text-foreground transition-colors">কীবোর্ড ম্যাপ</Link>
-          <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground transition-colors">প্রাইভেসি পলিসি</Link>
+          <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground transition-colors">প্রাইভেসি পলিসি (Privacy)</Link>
+          <Link href="/terms" className="text-xs text-muted-foreground hover:text-foreground transition-colors">ব্যবহারের শর্তাবলী (Terms)</Link>
         </div>
       </div>
 
@@ -149,7 +151,15 @@ export default function Footer() {
         <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
           <span>© {new Date().getFullYear()} typebangla. All rights reserved.</span>
           <span className="hidden sm:block text-border">|</span>
-          <span className="font-medium text-foreground">বাংলাদেশের প্রথম প্রিমিয়াম টাইপিং ইঞ্জিন</span>
+          <div className="flex items-center gap-3 text-[11px]">
+            <Link href="/about" className="hover:text-foreground transition-colors">আমাদের সম্পর্কে</Link>
+            <span>•</span>
+            <Link href="/contact" className="hover:text-foreground transition-colors">যোগাযোগ</Link>
+            <span>•</span>
+            <Link href="/privacy" className="hover:text-foreground transition-colors">প্রাইভেসি</Link>
+            <span>•</span>
+            <Link href="/terms" className="hover:text-foreground transition-colors">শর্তাবলী</Link>
+          </div>
         </div>
         <span className="flex items-center gap-1 font-semibold text-foreground">
           বাংলাদেশ থেকে ভালোবাসায় তৈরি 🇧🇩
