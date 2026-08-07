@@ -522,7 +522,8 @@ const SYMBOL_KEY_MAP: Record<string, { code: string; shift: boolean }> = {
  * Universal Input Mapper for Interactive Components & Arenas
  * Translates raw input keystrokes to Bangla script based on active layout.
  */
-export function mapInputToBangla(rawInput: string, layout: string): string {
+export function mapInputToBangla(rawInput: string, layout: string, isShiftPressed = false): string {
+  if (!rawInput) return "";
   if (layout === "english") return rawInput;
   if (layout === "avro") return avroTransliterate(rawInput);
 
@@ -532,6 +533,14 @@ export function mapInputToBangla(rawInput: string, layout: string): string {
   else if (layout === "inscript") mapTable = INSCRIPT_MAP;
   else if (layout === "unicode") mapTable = UNICODE_MAP;
 
+  // 1. Direct Keyboard Event Code lookup (e.g. "KeyK", "Digit1", "Semicolon", "Space")
+  if (mapTable[rawInput]) {
+    const mapped = isShiftPressed ? mapTable[rawInput].shift : mapTable[rawInput].normal;
+    return mapped !== undefined ? mapped : rawInput;
+  }
+  if (rawInput === "Space") return " ";
+
+  // 2. Character string mapping (e.g. "k", "A", "hello")
   let result = "";
   for (let i = 0; i < rawInput.length; i++) {
     const char = rawInput[i];
@@ -542,16 +551,20 @@ export function mapInputToBangla(rawInput: string, layout: string): string {
     }
 
     let keyCode = "";
-    let isShift = false;
+    let isShift = isShiftPressed;
 
     if (/[a-zA-Z]/.test(char)) {
       keyCode = `Key${char.toUpperCase()}`;
-      isShift = char === char.toUpperCase() && char !== char.toLowerCase();
+      if (!isShiftPressed) {
+        isShift = char === char.toUpperCase() && char !== char.toLowerCase();
+      }
     } else if (/[0-9]/.test(char)) {
       keyCode = `Digit${char}`;
     } else if (SYMBOL_KEY_MAP[char]) {
       keyCode = SYMBOL_KEY_MAP[char].code;
-      isShift = SYMBOL_KEY_MAP[char].shift;
+      if (!isShiftPressed) {
+        isShift = SYMBOL_KEY_MAP[char].shift;
+      }
     }
 
     if (keyCode && mapTable[keyCode]) {

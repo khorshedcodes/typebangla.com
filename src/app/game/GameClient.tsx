@@ -522,7 +522,7 @@ export default function GameClient() {
         if (activeLayout === "english" || activeLayout === "avro") {
           charToAdd = e.key;
         } else {
-          charToAdd = mapInputToBangla(e.code || e.key, activeLayout);
+          charToAdd = mapInputToBangla(e.code || e.key, activeLayout, e.shiftKey);
           if (!charToAdd) charToAdd = e.key;
         }
 
