@@ -13,6 +13,7 @@ interface AuthContextType {
   sendPasswordReset: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   role: string;
+  isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -24,6 +25,7 @@ const AuthContext = createContext<AuthContextType>({
   sendPasswordReset: async () => {},
   signOut: async () => {},
   role: "student",
+  isAdmin: false,
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -174,6 +176,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const isAdmin = role === "admin" || Boolean(user?.email && (user.email === "admin@typebangla.com" || user.email.startsWith("admin")));
+
   return (
     <AuthContext.Provider
       value={{
@@ -185,6 +189,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         sendPasswordReset,
         signOut,
         role,
+        isAdmin,
       }}
     >
       {children}
