@@ -1,164 +1,65 @@
 import React from "react";
 import { Metadata } from "next";
-import Link from "next/link";
-import { RefreshCw, Mic, Hash, Target, FileText, AlignLeft, Type, ArrowRight, Wrench, Keyboard, BarChart3 } from "lucide-react";
-import { Card, CardContent } from "../../components/ui/card";
-import { Badge } from "../../components/ui/badge";
-import { Button } from "../../components/ui/button";
+import Script from "next/script";
+import ToolsClient from "./ToolsClient";
 
 export const metadata: Metadata = {
-  title: "বাংলা টেক্সট টুলস — কনভার্টার, কাউন্টার, স্লাগ জেনারেটর | TypeBangla",
-  description: "বাংলা লেখার জন্য প্রয়োজনীয় সব টুল — ইউনিকোড থেকে বিজয় রূপান্তর, ভয়েস টাইপিং, শব্দ গণনা, স্লাগ জেনারেটর ও আরও অনেক কিছু।",
+  title: "বাংলা টেক্সট ও টাইপিং টুলস — কনভার্টার, ভয়েস, কীবোর্ড ও স্লাগ জেনারেটর | TypeBangla",
+  description: "বাংলা লেখার ১৪টি প্রয়োজনীয় টুল — অনলাইন কীবোর্ড, ইউনিকোড ↔ বিজয় কনভার্টার, AI ভয়েস টাইপিং, টেক্সট টু স্পিচ, শব্দ গণনা ও SEO স্লাগ জেনারেটর।",
+  keywords: [
+    "bangla text tools",
+    "bangla typing tools",
+    "unicode to bijoy converter",
+    "bijoy to unicode converter",
+    "online bangla keyboard",
+    "bangla voice typing",
+    "bangla lorem ipsum generator",
+    "bangla word counter",
+    "typebangla tools"
+  ],
   alternates: { canonical: "https://typebangla.com/tools" },
+  openGraph: {
+    title: "14 Free Bangla Text & Typing Utilities | TypeBangla Tools",
+    description: "Convert Bijoy 52 to Unicode, perform AI voice typing, count characters, generate Bangla lorem ipsum, and practice mixed typing tests.",
+    url: "https://typebangla.com/tools",
+    type: "website",
+  }
 };
 
-const ALL_TOOLS = [
-  {
-    href: "/online-bangla-keyboard",
-    icon: Keyboard,
-    title: "Online Bangla Keyboard",
-    titleBn: "অনলাইন বাংলা কীবোর্ড (সফ্টওয়্যারহীন টাইপ)",
-    desc: "অনলাইনে সফটওয়্যার ছাড়াই বাটন ক্লিক করে বা কিবোর্ডে চাপ দিয়ে সহজ ইউনিকোড বাংলা টাইপিং।",
-    badge: "ভার্চুয়াল কীবোর্ড",
-  },
-  {
-    href: "/bangla-lorem-ipsum",
-    icon: FileText,
-    title: "Bangla Lorem Ipsum Generator",
-    titleBn: "বাংলা লরেম ইপসাম জেনারেটর",
-    desc: "ওয়েব ডিজাইন, ইউআই/ইউএক্স এবং মুদ্রণের জন্য ডামি বাংলা টেক্সট ও প্যারাগ্রাফ জেনারেটর।",
-    badge: "লরেম জেনারেটর",
-  },
-  {
-    href: "/unicode-to-bijoy-converter",
-    icon: RefreshCw,
-    title: "Unicode ↔ Bijoy Converter",
-    titleBn: "ইউনিকোড থেকে বিজয় কনভার্টার",
-    desc: "SutonnyMJ ফন্টের বিজয় টেক্সট ও ইউনিকোড ফরম্যাটের মধ্যে তাৎক্ষণিক দ্বি-মুখী রূপান্তর।",
-    badge: "কনভার্টার",
-  },
-  {
-    href: "/bangla-number-converter",
-    icon: Hash,
-    title: "Bangla Number Converter",
-    titleBn: "বাংলা সংখ্যা রূপান্তরকারী (0-9 ↔ ০-৯)",
-    desc: "ইংরেজি (0-9) ও বাংলা (০-৯) সংখ্যার মধ্যে কমা ও টাকা চিহ্নের তাৎক্ষণিক রূপান্তর।",
-    badge: "ডিজিট কনভার্টার",
-  },
-  {
-    href: "/bangla-word-counter",
-    icon: Hash,
-    title: "Word & Character Counter",
-    titleBn: "শব্দ ও অক্ষর গণনা",
-    desc: "বাংলা টেক্সটের মোট শব্দ, বর্ণ, যুক্তাক্ষর ও পড়ার সময়সীমা বিশ্লেষণ।",
-    badge: "টেক্সট এনালাইজার",
-  },
-  {
-    href: "/bangla-text-cleaner",
-    icon: Wrench,
-    title: "Bangla Text Cleaner",
-    titleBn: "বাংলা টেক্সট ক্লিনার ও স্পেস ফিক্সার",
-    desc: "একাধিক স্পেস, ভুল পাঙ্কচুয়েশন, ZWNJ ক্যারেক্টার ও HTML ট্যাগ ফিল্টার করুন।",
-    badge: "টেক্সট ফিক্সার",
-  },
-  {
-    href: "/bangla-voice-typing",
-    icon: Mic,
-    title: "Bangla Voice Typing",
-    titleBn: "ভয়েস টাইপিং (কথা থেকে লেখা)",
-    desc: "মাইক্রোফোনে বাংলায় কথা বলুন — স্বয়ংক্রিয়ভাবে নিখুঁত বাংলা টেক্সট লিখিত হবে।",
-    badge: "AI ভয়েস",
-  },
-  {
-    href: "/english-to-bangla-typing",
-    icon: Type,
-    title: "English to Bangla Typing",
-    titleBn: "ইংরেজি টু বাংলা টাইপিং (Phonetic)",
-    desc: "ইংরেজিতে টাইপ করুন (e.g. ami banglay gan gai) এবং বাংলা ইউনিকোড পান।",
-    badge: "ফোনেটিক টাইপিং",
-  },
-  {
-    href: "/bangla-text-to-speech",
-    icon: Mic,
-    title: "Bangla Text to Speech",
-    titleBn: "বাংলা টেক্সট টু স্পিচ রিডার (Voice)",
-    desc: "বাংলা লেখা পেস্ট করুন এবং স্পষ্ট ভয়েসে অডিও শুনুন।",
-    badge: "অডিও রিডার",
-  },
-  {
-    href: "/juktakkhor-finder",
-    icon: Keyboard,
-    title: "Bangla Juktakkhor Finder",
-    titleBn: "বাংলা যুক্তবর্ণ ও কী-ম্যাপিং নির্দেশিকা",
-    desc: "Avro, Bijoy 52 ও Jatiya কীবোর্ডে জটিল যুক্তাক্ষর লেখার সহজ গাইড।",
-    badge: "যুক্তবর্ণ গাইড",
-  },
-  {
-    href: "/bangla-slug-generator",
-    icon: Wrench,
-    title: "Text Cleaner & Slugger",
-    titleBn: "SEO স্লাগ জেনারেটর",
-    desc: "বাংলা শিরোনাম থেকে পরিষ্কার, SEO-বান্ধব URL স্লাগ ও টেক্সট ফিল্টার তৈরি করুন।",
-    badge: "SEO টুল",
-  },
-];
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "CollectionPage",
+      "name": "Bangla Text & Typing Tools Directory",
+      "url": "https://typebangla.com/tools",
+      "description": "Collection of 14 online utilities for Bangla typists, web designers, and candidates.",
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Are all TypeBangla text tools free to use?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, all 14 text utilities including Unicode to Bijoy conversion, voice typing, and lorem generators are 100% free without installation.",
+          },
+        },
+      ],
+    },
+  ],
+};
 
 export default function ToolsPage() {
   return (
-    <main className="container max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-12 fade-in text-foreground">
-
-      {/* Hero */}
-      <section className="text-center space-y-3 max-w-xl mx-auto">
-        <div className="inline-flex items-center gap-2 bg-secondary border border-border px-3.5 py-1.5 rounded-full text-xs font-bold text-foreground">
-          <Wrench size={14} />
-          <span>BANGLA TEXT UTILITIES</span>
-        </div>
-        <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground">
-          Bangla Text Tools
-        </h1>
-        <p className="text-sm text-muted-foreground leading-relaxed">
-          Essential converter, counting, voice, and SEO text tools for Bangla typists.
-        </p>
-      </section>
-
-      {/* Tools Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {ALL_TOOLS.map((tool, i) => {
-          const Icon = tool.icon;
-          return (
-            <Card
-              key={i}
-              className="border border-border bg-card hover:border-foreground/50 transition-all rounded-xl shadow-xs flex flex-col justify-between"
-            >
-              <CardContent className="p-6 space-y-5">
-                <div className="flex items-center justify-between">
-                  <div className="w-10 h-10 rounded-lg bg-secondary text-foreground flex items-center justify-center border border-border">
-                    <Icon size={20} />
-                  </div>
-                  <Badge variant="outline" className="border-border text-foreground font-semibold bg-secondary">
-                    {tool.badge}
-                  </Badge>
-                </div>
-
-                <div className="space-y-1">
-                  <h3 className="text-lg font-black text-foreground">{tool.title}</h3>
-                  <div className="text-xs font-bold text-muted-foreground">{tool.titleBn}</div>
-                  <p className="text-xs text-muted-foreground leading-relaxed pt-1">{tool.desc}</p>
-                </div>
-
-                <div className="pt-3 border-t border-border flex justify-end">
-                  <Link href={tool.href}>
-                    <Button size="sm" className="font-bold text-xs gap-1.5 h-9 rounded-md">
-                      Open Tool <ArrowRight size={13} />
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </section>
-
-    </main>
+    <>
+      <Script
+        id="jsonld-tools-directory"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <ToolsClient />
+    </>
   );
 }
