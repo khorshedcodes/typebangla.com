@@ -2,12 +2,13 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useTypingStore, KeyboardLayout, playTypewriterSound } from "../../store/typingStore";
 import VirtualKeyboard from "../../components/VirtualKeyboard";
 import { avroTransliterate, mapInputToBangla } from "../../utils/layouts";
 import {
-  Heart, Play, Pause, RotateCcw, Volume2, VolumeX, Award, Star, ArrowRight, X,
+  Heart, Play, Pause, RotateCcw, Volume2, VolumeX, Award, Star, ArrowRight, ArrowLeft, Home, X,
   Trophy, Gauge, Zap, Flame, Timer, Sparkles, CheckCircle2, ChevronRight, Flag
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
@@ -675,9 +676,18 @@ export default function GameClient() {
       {/* Top Header & Game Mode Tabs */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-5">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold mb-2">
-            <Sparkles size={13} />
-            <span>INTERACTIVE TYPING ARCADE</span>
+          <div className="flex items-center gap-2 mb-2">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary border border-border text-foreground hover:border-primary/60 text-xs font-bold transition-all cursor-pointer"
+            >
+              <ArrowLeft size={13} />
+              <span>Back to Home</span>
+            </Link>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold">
+              <Sparkles size={13} />
+              <span>INTERACTIVE TYPING ARCADE</span>
+            </div>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
             {mode === "race" && "🏎️ Word Race Arena"}
@@ -924,13 +934,19 @@ export default function GameClient() {
           {gameState === "paused" && (
             <div className="absolute inset-0 bg-background/95 backdrop-blur-md z-20 flex flex-col items-center justify-center p-6 text-center space-y-4">
               <h2 className="text-xl font-black text-foreground">Game Paused</h2>
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3 justify-center">
                 <Button onClick={() => setGameState("playing")} className="gap-2 font-bold h-10 px-6 cursor-pointer">
                   <Play size={14} /> Resume
                 </Button>
                 <Button variant="outline" onClick={startGame} className="gap-2 font-bold h-10 px-6 cursor-pointer">
                   <RotateCcw size={14} /> Restart
                 </Button>
+                <Link
+                  href="/"
+                  className="inline-flex items-center justify-center gap-2 bg-secondary border border-border text-foreground hover:bg-secondary/80 font-bold h-10 px-6 rounded-lg text-xs transition-colors cursor-pointer"
+                >
+                  <Home size={14} /> Home
+                </Link>
               </div>
             </div>
           )}
@@ -959,9 +975,17 @@ export default function GameClient() {
                 </div>
               </div>
 
-              <Button onClick={startGame} className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 h-11 px-8 rounded-xl font-bold text-sm shadow-md cursor-pointer">
-                <RotateCcw size={16} /> Play Again
-              </Button>
+              <div className="flex flex-wrap gap-3 justify-center">
+                <Button onClick={startGame} className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 h-11 px-8 rounded-xl font-bold text-sm shadow-md cursor-pointer">
+                  <RotateCcw size={16} /> Play Again
+                </Button>
+                <Link
+                  href="/"
+                  className="inline-flex items-center justify-center gap-2 border border-border bg-card text-foreground hover:bg-secondary h-11 px-6 rounded-xl font-bold text-sm transition-colors cursor-pointer"
+                >
+                  <Home size={16} /> Back to Home
+                </Link>
+              </div>
             </div>
           )}
         </div>
