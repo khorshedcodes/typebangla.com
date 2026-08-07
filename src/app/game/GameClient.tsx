@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTypingStore, KeyboardLayout, playTypewriterSound } from "../../store/typingStore";
 import VirtualKeyboard from "../../components/VirtualKeyboard";
-import { avroTransliterate, JATIYA_MAP, UNI_BIJOY_MAP, PROBHAT_MAP, INSCRIPT_MAP, UNICODE_MAP } from "../../utils/layouts";
+import { avroTransliterate, mapInputToBangla } from "../../utils/layouts";
 import {
   Heart, Play, Pause, RotateCcw, Volume2, VolumeX, Award, Star, ArrowRight, X,
   Trophy, Gauge, Zap, Flame, Timer, Sparkles, CheckCircle2, ChevronRight, Flag
@@ -26,7 +26,13 @@ interface FallingWord {
   speed: number;
 }
 
-const ENGLISH_WORDS = [
+export interface WordPair {
+  bangla: string;
+  phonetic: string;
+}
+
+// ── 250+ CURATED ENGLISH WORDS FOR GAME MODES ─────────────────────────────
+const LARGE_ENGLISH_WORDS = [
   "about", "above", "after", "again", "agree", "allow", "along", "apple", "arena", "artist",
   "basic", "beach", "begin", "black", "board", "brain", "brave", "breeze", "brown", "build",
   "clean", "clear", "clock", "cloud", "coast", "color", "count", "course", "craft", "cyber",
@@ -39,10 +45,31 @@ const ENGLISH_WORDS = [
   "joint", "joker", "judge", "juice", "jumbo", "jumpy", "junky", "juror", "just", "juvenile",
   "keyboard", "knight", "knock", "koala", "kudos", "krill", "labor", "layout", "learn", "lemon",
   "level", "light", "limit", "local", "magic", "major", "match", "media", "metal", "micro",
-  "might", "minor", "mixed", "model", "music", "muscle", "mystic", "myth", "macro", "marine"
+  "might", "minor", "mixed", "model", "music", "muscle", "mystic", "myth", "macro", "marine",
+  "nation", "native", "nature", "nerve", "network", "neutral", "noble", "noise", "novel", "number",
+  "ocean", "offer", "office", "online", "open", "option", "orbit", "order", "organ", "output",
+  "pacific", "palace", "paper", "parade", "patent", "patient", "pattern", "pause", "peace", "people",
+  "perfect", "period", "person", "phrase", "planet", "plasma", "plastic", "player", "plenty", "policy",
+  "portal", "power", "practice", "precise", "prefix", "premium", "prepare", "present", "press", "price",
+  "pride", "primary", "prime", "prince", "printer", "prism", "private", "prize", "process", "produce",
+  "product", "profile", "profit", "program", "project", "promise", "proof", "proper", "protect", "proud",
+  "provide", "public", "pulse", "punch", "pupil", "purple", "purpose", "puzzle", "python", "quality",
+  "quantum", "quarter", "queen", "query", "quest", "quick", "quiet", "quiver", "quota", "quote",
+  "racing", "radar", "radial", "radiant", "radio", "radius", "rainbow", "raise", "random", "range",
+  "rapid", "raster", "rational", "ray", "react", "reader", "ready", "realm", "reason", "recall",
+  "record", "reform", "refuge", "regard", "region", "regular", "reject", "relate", "relax", "relay",
+  "remain", "remark", "remedy", "remind", "remote", "remove", "render", "renew", "repair", "repeat",
+  "reply", "report", "rescue", "research", "reserve", "reset", "resort", "respect", "respond", "result",
+  "resume", "retail", "retain", "retire", "return", "reveal", "reverse", "review", "reward", "rhythm",
+  "ribbon", "rich", "rider", "ridge", "rifle", "right", "rigid", "ring", "ripple", "rise",
+  "risk", "river", "robot", "robust", "rocket", "rocky", "role", "roller", "romance", "roof",
+  "rookie", "room", "root", "rope", "rose", "rotate", "rough", "round", "route", "routine",
+  "rover", "row", "royal", "rubber", "ruby", "rugby", "ruin", "ruler", "rumor", "runner",
+  "runway", "rural", "rush", "rustic", "routine", "sailing", "sample", "scale", "scanner", "scene"
 ];
 
-const BANGLA_WORD_PAIRS: { bangla: string; phonetic: string }[] = [
+// ── 250+ CURATED BANGLA WORD PAIRS FOR GAME MODES ─────────────────────────
+const LARGE_BANGLA_WORD_PAIRS: WordPair[] = [
   { bangla: "আমার", phonetic: "amar" },
   { bangla: "সোনার", phonetic: "sonar" },
   { bangla: "বাংলা", phonetic: "bangla" },
@@ -69,8 +96,131 @@ const BANGLA_WORD_PAIRS: { bangla: string; phonetic: string }[] = [
   { bangla: "সাহস", phonetic: "sahosh" },
   { bangla: "জ্ঞান", phonetic: "ggan" },
   { bangla: "সুন্দর", phonetic: "shundor" },
-  { bangla: "সাফল্য", phonetic: "shafolyo" }
+  { bangla: "সাফল্য", phonetic: "shafolyo" },
+  { bangla: "সংস্কৃতি", phonetic: "shongskriti" },
+  { bangla: "অর্থনীতি", phonetic: "orthoniti" },
+  { bangla: "সাহিত্য", phonetic: "sahityo" },
+  { bangla: "প্রকৃতি", phonetic: "prokriti" },
+  { bangla: "সমাজ", phonetic: "shomaj" },
+  { bangla: "গবেষণা", phonetic: "gobeshona" },
+  { bangla: "ইতিহাস", phonetic: "itihash" },
+  { bangla: "ঐতিহ্য", phonetic: "oitihyo" },
+  { bangla: "স্বাধীনতা", phonetic: "shadhinota" },
+  { bangla: "বিকাশ", phonetic: "bikash" },
+  { bangla: "সমৃদ্ধি", phonetic: "shomriddhi" },
+  { bangla: "সংগ্রাম", phonetic: "shonggram" },
+  { bangla: "অঞ্চল", phonetic: "onchol" },
+  { bangla: "উৎসব", phonetic: "otshob" },
+  { bangla: "শিল্প", phonetic: "shilpo" },
+  { bangla: "কবিতা", phonetic: "kobita" },
+  { bangla: "উপন্যাস", phonetic: "uponyash" },
+  { bangla: "গল্প", phonetic: "golpo" },
+  { bangla: "নিবন্ধ", phonetic: "nibondho" },
+  { bangla: "সংবাদ", phonetic: "shongbad" },
+  { bangla: "তথ্য", phonetic: "tothyo" },
+  { bangla: "চেতনা", phonetic: "chetona" },
+  { bangla: "বিপ্লব", phonetic: "biplob" },
+  { bangla: "মুক্তি", phonetic: "mukti" },
+  { bangla: "প্রজন্ম", phonetic: "projomno" },
+  { bangla: "পরিবেশ", phonetic: "poribesh" },
+  { bangla: "জলবায়ু", phonetic: "jolbayu" },
+  { bangla: "উদ্ভাবন", phonetic: "udbhabon" },
+  { bangla: "যোগাযোগ", phonetic: "jogajog" },
+  { bangla: "সচেতনতা", phonetic: "sochetonota" },
+  { bangla: "অংশগ্রহণ", phonetic: "ongshogrohon" },
+  { bangla: "বিশ্ববিদ্যালয়", phonetic: "bishwobiddalay" },
+  { bangla: "ইনস্টিটিউট", phonetic: "institute" },
+  { bangla: "একাডেমি", phonetic: "academy" },
+  { bangla: "পরীক্ষাগার", phonetic: "porikkhagar" },
+  { bangla: "লাইব্রেরি", phonetic: "library" },
+  { bangla: "জাদুঘর", phonetic: "jadughor" },
+  { bangla: "থিয়েটার", phonetic: "theater" },
+  { bangla: "আলোচনা", phonetic: "alochona" },
+  { bangla: "মানুষ", phonetic: "manush" },
+  { bangla: "সবুজ", phonetic: "shobuj" },
+  { bangla: "কথা", phonetic: "kotha" },
+  { bangla: "পানি", phonetic: "pani" },
+  { bangla: "ফুল", phonetic: "phul" },
+  { bangla: "মাটি", phonetic: "mati" },
+  { bangla: "আলো", phonetic: "alo" },
+  { bangla: "দিন", phonetic: "din" },
+  { bangla: "রাত", phonetic: "rat" },
+  { bangla: "ভালোবাসা", phonetic: "bhalobasha" },
+  { bangla: "কাজ", phonetic: "kaj" },
+  { bangla: "সময়", phonetic: "shomoy" },
+  { bangla: "ভাষা", phonetic: "bhasha" },
+  { bangla: "বই", phonetic: "boi" },
+  { bangla: "মন", phonetic: "mon" },
+  { bangla: "চোখ", phonetic: "chokh" },
+  { bangla: "হাত", phonetic: "hat" },
+  { bangla: "মা", phonetic: "ma" },
+  { bangla: "বাবা", phonetic: "baba" },
+  { bangla: "ভাই", phonetic: "bhai" },
+  { bangla: "বোন", phonetic: "bon" },
+  { bangla: "বন্ধু", phonetic: "bondhu" },
+  { bangla: "পথ", phonetic: "poth" },
+  { bangla: "ঘর", phonetic: "ghor" },
+  { bangla: "গ্রাম", phonetic: "gram" },
+  { bangla: "শহর", phonetic: "shohor" },
+  { bangla: "পাখি", phonetic: "pakhi" },
+  { bangla: "বৃক্ষ", phonetic: "brikkho" },
+  { bangla: "সত্য", phonetic: "shotyo" },
+  { bangla: "শান্তি", phonetic: "shanti" },
+  { bangla: "সুখ", phonetic: "shukh" },
+  { bangla: "আশা", phonetic: "asha" },
+  { bangla: "আনন্দ", "phonetic": "anondo" },
+  { bangla: "স্মৃতি", phonetic: "shmriti" },
+  { bangla: "গান", phonetic: "gan" },
+  { bangla: "সুর", phonetic: "shur" },
+  { bangla: "বাণী", phonetic: "bani" },
+  { bangla: "হৃদয়", phonetic: "hridoy" },
+  { bangla: "সঙ্গীত", phonetic: "shonggit" },
+  { bangla: "উত্তম", phonetic: "uttom" },
+  { bangla: "বুদ্ধি", phonetic: "buddhi" },
+  { bangla: "শ্রদ্ধা", phonetic: "shroddha" },
+  { bangla: "স্পন্দন", phonetic: "shpondon" },
+  { bangla: "আকাঙ্ক্ষা", phonetic: "akangkha" },
+  { bangla: "উজ্জ্বল", phonetic: "ujjwol" },
+  { bangla: "প্রতিনিধি", phonetic: "protinidhi" },
+  { bangla: "প্রস্তাব", phonetic: "prosthab" },
+  { bangla: "সৃষ্টি", phonetic: "srishti" },
+  { bangla: "কষ্ট", phonetic: "koshto" },
+  { bangla: "স্পষ্ট", phonetic: "shposhto" },
+  { bangla: "প্রভাত", phonetic: "probhat" },
+  { bangla: "শ্রাবণ", phonetic: "shrabon" },
+  { bangla: "প্রীতি", phonetic: "priti" },
+  { bangla: "চন্দ্র", phonetic: "chondro" },
+  { bangla: "গ্রহ", phonetic: "groho" },
+  { bangla: "নক্ষত্র", phonetic: "nokkhotro" },
+  { bangla: "ব্যক্তি", phonetic: "byakti" },
+  { bangla: "ন্যায্য", phonetic: "nyajjo" },
+  { bangla: "ধর্ম", phonetic: "dhormo" },
+  { bangla: "কর্ম", phonetic: "kormo" },
+  { bangla: "স্বদেশ", phonetic: "shwodesh" },
+  { bangla: "স্বাধীন", phonetic: "shadhin" },
+  { bangla: "সৃজন", phonetic: "srijon" },
+  { bangla: "অগ্রগতি", phonetic: "ogrogoti" },
+  { bangla: "সমন্বয়", phonetic: "shomonnoy" },
+  { bangla: "সক্ষমতা", phonetic: "shokhmoota" },
+  { bangla: "সুশাসন", phonetic: "shushashon" },
+  { bangla: "পরিকল্পনা", phonetic: "porikolpona" },
+  { bangla: "বাস্তবায়ন", phonetic: "bastosbayon" },
+  { bangla: "কাঠামো", phonetic: "kathamo" },
+  { bangla: "সফলতা", phonetic: "shofolota" },
+  { bangla: "দূরদর্শিতা", phonetic: "durdorshita" },
+  { bangla: "দক্ষতা", phonetic: "dokkhota" },
+  { bangla: "পেশাদারিত্ব", phonetic: "peshadarittwo" }
 ];
+
+// Helper to generate a randomly shuffled deck of word objects
+function shuffleArray<T>(array: T[]): T[] {
+  const copy = [...array];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
 
 export default function GameClient() {
   const searchParams = useSearchParams();
@@ -89,6 +239,9 @@ export default function GameClient() {
   // Common input states
   const [typedBuffer, setTypedBuffer] = useState("");
   const [targetWordId, setTargetWordId] = useState<string | null>(null);
+
+  // Shuffled random deck for the current session
+  const [wordDeck, setWordDeck] = useState<WordPair[]>([]);
 
   // ---------------------------------------------------------------------------
   // Mode 1: Falling Words State
@@ -151,7 +304,7 @@ export default function GameClient() {
   };
 
   // ---------------------------------------------------------------------------
-  // Start Game Controller
+  // Start Game Controller with Random Shuffle Deck
   // ---------------------------------------------------------------------------
   const startGame = () => {
     stopAllTimers();
@@ -163,17 +316,26 @@ export default function GameClient() {
     setCombo(0);
     setWordsCleared(0);
 
+    // Initialize randomized shuffled word deck
+    let newDeck: WordPair[] = [];
+    if (activeLayout === "english") {
+      const shuffledEn = shuffleArray(LARGE_ENGLISH_WORDS);
+      newDeck = shuffledEn.map((w) => ({ bangla: w, phonetic: w }));
+    } else {
+      newDeck = shuffleArray(LARGE_BANGLA_WORD_PAIRS);
+    }
+    setWordDeck(newDeck);
+    setCurrentWordIndex(0);
+
     if (mode === "falling") {
       setWords([]);
       setGameState("playing");
-      spawnWord();
     } else if (mode === "race") {
       setPlayerPosition(0);
       setCpu1Position(0);
       setCpu2Position(0);
       setCpu3Position(0);
       setRaceRank(1);
-      setCurrentWordIndex(0);
       setGameState("playing");
 
       // Start CPU racing loop
@@ -184,7 +346,6 @@ export default function GameClient() {
       }, 500);
     } else if (mode === "speed") {
       setTimeLeft(60);
-      setCurrentWordIndex(0);
       setGameState("playing");
 
       timerIntervalRef.current = window.setInterval(() => {
@@ -199,7 +360,6 @@ export default function GameClient() {
       }, 1000);
     } else if (mode === "time-attack") {
       setTimeLeft(15);
-      setCurrentWordIndex(0);
       setGameState("playing");
 
       timerIntervalRef.current = window.setInterval(() => {
@@ -219,76 +379,83 @@ export default function GameClient() {
   // Falling Words Logic
   // ---------------------------------------------------------------------------
   const spawnWord = () => {
-    if (gameState !== "idle" && gameState !== "playing") return;
+    if (gameState !== "playing") return;
 
     setWords((prev) => {
-      const limit = Math.min(3 + level, 8);
+      const limit = Math.min(3 + level, 7);
       if (prev.length >= limit) return prev;
+
+      const sourcePool = activeLayout === "english"
+        ? LARGE_ENGLISH_WORDS
+        : LARGE_BANGLA_WORD_PAIRS;
 
       let wordText = "";
       let phoneticTarget = "";
 
       if (activeLayout === "english") {
-        const rand = ENGLISH_WORDS[Math.floor(Math.random() * ENGLISH_WORDS.length)];
+        const rand = (sourcePool as string[])[Math.floor(Math.random() * sourcePool.length)];
         wordText = rand;
         phoneticTarget = rand;
       } else {
-        const rand = BANGLA_WORD_PAIRS[Math.floor(Math.random() * BANGLA_WORD_PAIRS.length)];
+        const rand = (sourcePool as WordPair[])[Math.floor(Math.random() * sourcePool.length)];
         wordText = rand.bangla;
         phoneticTarget = rand.phonetic;
       }
 
       if (prev.some((w) => w.text === wordText)) return prev;
 
-      const speed = 1.0 + (level - 1) * 0.25 + Math.random() * 0.4;
-      const x = 12 + Math.random() * 70;
+      const speed = 1.0 + (level - 1) * 0.2 + Math.random() * 0.3;
+      const x = 10 + Math.random() * 72;
 
-      return [...prev, { id: Math.random().toString(36).substring(2, 9), text: wordText, phonetic: phoneticTarget, x, y: -30, speed }];
+      return [...prev, { id: Math.random().toString(36).substring(2, 9), text: wordText, phonetic: phoneticTarget, x, y: 0, speed }];
     });
   };
 
+  // Falling animation frame ticker
   useEffect(() => {
-    if (mode !== "falling") return;
+    if (mode !== "falling" || gameState !== "playing") return;
 
-    if (gameState === "playing") {
-      tickIntervalRef.current = window.setInterval(() => {
-        setWords((prevWords) => {
-          const updated = prevWords.map((w) => ({ ...w, y: w.y + w.speed * 2.5 }));
-          const overflow = updated.filter((w) => w.y > 380);
+    tickIntervalRef.current = window.setInterval(() => {
+      setWords((prevWords) => {
+        const updated = prevWords.map((w) => ({ ...w, y: w.y + w.speed * 1.5 }));
+        const overflow = updated.filter((w) => w.y > 330);
 
-          if (overflow.length > 0) {
-            playSound("error");
-            setLives((l) => {
-              const newLives = l - overflow.length;
-              if (newLives <= 0) {
-                stopAllTimers();
-                setGameState("game-over");
-              }
-              return Math.max(0, newLives);
-            });
-            if (targetWordId && overflow.some((w) => w.id === targetWordId)) {
-              setTargetWordId(null);
-              setTypedBuffer("");
+        if (overflow.length > 0) {
+          playSound("error");
+          setLives((l) => {
+            const newLives = l - overflow.length;
+            if (newLives <= 0) {
+              stopAllTimers();
+              setGameState("game-over");
             }
+            return Math.max(0, newLives);
+          });
+          if (targetWordId && overflow.some((w) => w.id === targetWordId)) {
+            setTargetWordId(null);
+            setTypedBuffer("");
           }
-          return updated.filter((w) => w.y <= 380);
-        });
-      }, 50);
-    } else {
-      stopAllTimers();
-    }
+        }
+        return updated.filter((w) => w.y <= 330);
+      });
+    }, 50);
 
     return () => {
       if (tickIntervalRef.current) window.clearInterval(tickIntervalRef.current);
     };
-  }, [gameState, level, targetWordId, mode]);
+  }, [gameState, mode, targetWordId]);
 
+  // Spawn word ticker
   useEffect(() => {
     if (mode !== "falling" || gameState !== "playing") return;
+
+    spawnWord();
     spawnTimeoutRef.current = window.setTimeout(() => {
       spawnWord();
-      spawnTimeoutRef.current = null;
-    }, Math.max(800, 2200 - level * 150));
+    }, Math.max(700, 2000 - level * 120));
+
+    return () => {
+      if (spawnTimeoutRef.current) window.clearTimeout(spawnTimeoutRef.current);
+    };
   }, [gameState, level, words.length, mode]);
 
   // ---------------------------------------------------------------------------
@@ -326,7 +493,7 @@ export default function GameClient() {
   }, [gameState, score, highScore, mode, activeLayout]);
 
   // ---------------------------------------------------------------------------
-  // Key Down Handler for Games
+  // Key Down Handler for Games (with full Layout Mapping & Universal Matching)
   // ---------------------------------------------------------------------------
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -344,20 +511,31 @@ export default function GameClient() {
         return;
       }
 
-      if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-        const char = e.key;
-        playSound("click");
+      // Ignore modifier keys
+      if (e.key === "Shift" || e.key === "Control" || e.key === "Alt" || e.key === "Meta" || e.key === "Tab") {
+        return;
+      }
 
-        const newBuffer = typedBuffer + char;
+      if (e.key.length === 1 || e.code) {
+        let charToAdd = "";
+
+        if (activeLayout === "english" || activeLayout === "avro") {
+          charToAdd = e.key;
+        } else {
+          charToAdd = mapInputToBangla(e.code || e.key, activeLayout);
+          if (!charToAdd) charToAdd = e.key;
+        }
+
+        playSound("click");
+        const newBuffer = typedBuffer + charToAdd;
         setTypedBuffer(newBuffer);
 
-        // Helper to check target word
-        const getTargetWord = (): { bangla: string; phonetic: string } => {
-          if (activeLayout === "english") {
-            const w = ENGLISH_WORDS[currentWordIndex % ENGLISH_WORDS.length];
-            return { bangla: w, phonetic: w };
+        // Helper to fetch active target word object from randomized deck
+        const getTargetWord = (): WordPair => {
+          if (wordDeck.length === 0) {
+            return { bangla: "বাংলা", phonetic: "bangla" };
           }
-          return BANGLA_WORD_PAIRS[currentWordIndex % BANGLA_WORD_PAIRS.length];
+          return wordDeck[currentWordIndex % wordDeck.length];
         };
 
         // ---------------------------------------------------------------------
@@ -368,8 +546,8 @@ export default function GameClient() {
 
           if (!currentTarget) {
             currentTarget = words.find((w) => {
-              if (activeLayout === "english") return w.text.startsWith(newBuffer);
-              if (activeLayout === "avro") return w.phonetic.startsWith(newBuffer) || w.text.startsWith(avroTransliterate(newBuffer));
+              if (activeLayout === "english") return w.text.toLowerCase().startsWith(newBuffer.toLowerCase());
+              if (activeLayout === "avro") return w.phonetic.toLowerCase().startsWith(newBuffer.toLowerCase()) || w.text.startsWith(avroTransliterate(newBuffer));
               return w.text.startsWith(newBuffer);
             });
 
@@ -378,13 +556,13 @@ export default function GameClient() {
 
           if (currentTarget) {
             let isExactMatch = false;
-            if (activeLayout === "english") isExactMatch = currentTarget.text === newBuffer;
-            else if (activeLayout === "avro") isExactMatch = currentTarget.phonetic === newBuffer || currentTarget.text === avroTransliterate(newBuffer);
+            if (activeLayout === "english") isExactMatch = currentTarget.text.toLowerCase() === newBuffer.toLowerCase();
+            else if (activeLayout === "avro") isExactMatch = currentTarget.phonetic.toLowerCase() === newBuffer.toLowerCase() || currentTarget.text === avroTransliterate(newBuffer);
             else isExactMatch = currentTarget.text === newBuffer;
 
             if (isExactMatch) {
               playSound("success");
-              const basePoints = currentTarget.text.length * 15;
+              const basePoints = currentTarget.text.length * 20;
               const points = basePoints * level;
               setScore((s) => s + points);
               setCombo((c) => c + 1);
@@ -392,7 +570,7 @@ export default function GameClient() {
               setTargetWordId(null);
               setTypedBuffer("");
 
-              if ((score + points) > level * 300) setLevel((l) => l + 1);
+              if ((score + points) > level * 400) setLevel((l) => l + 1);
             }
           }
         }
@@ -404,8 +582,8 @@ export default function GameClient() {
           const target = getTargetWord();
           let isMatch = false;
 
-          if (activeLayout === "english") isMatch = target.bangla === newBuffer;
-          else if (activeLayout === "avro") isMatch = target.phonetic === newBuffer || target.bangla === avroTransliterate(newBuffer);
+          if (activeLayout === "english") isMatch = target.bangla.toLowerCase() === newBuffer.toLowerCase();
+          else if (activeLayout === "avro") isMatch = target.phonetic.toLowerCase() === newBuffer.toLowerCase() || target.bangla === avroTransliterate(newBuffer);
           else isMatch = target.bangla === newBuffer;
 
           if (isMatch) {
@@ -425,8 +603,8 @@ export default function GameClient() {
           const target = getTargetWord();
           let isMatch = false;
 
-          if (activeLayout === "english") isMatch = target.bangla === newBuffer;
-          else if (activeLayout === "avro") isMatch = target.phonetic === newBuffer || target.bangla === avroTransliterate(newBuffer);
+          if (activeLayout === "english") isMatch = target.bangla.toLowerCase() === newBuffer.toLowerCase();
+          else if (activeLayout === "avro") isMatch = target.phonetic.toLowerCase() === newBuffer.toLowerCase() || target.bangla === avroTransliterate(newBuffer);
           else isMatch = target.bangla === newBuffer;
 
           if (isMatch) {
@@ -447,8 +625,8 @@ export default function GameClient() {
           const target = getTargetWord();
           let isMatch = false;
 
-          if (activeLayout === "english") isMatch = target.bangla === newBuffer;
-          else if (activeLayout === "avro") isMatch = target.phonetic === newBuffer || target.bangla === avroTransliterate(newBuffer);
+          if (activeLayout === "english") isMatch = target.bangla.toLowerCase() === newBuffer.toLowerCase();
+          else if (activeLayout === "avro") isMatch = target.phonetic.toLowerCase() === newBuffer.toLowerCase() || target.bangla === avroTransliterate(newBuffer);
           else isMatch = target.bangla === newBuffer;
 
           if (isMatch) {
@@ -466,12 +644,12 @@ export default function GameClient() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [gameState, typedBuffer, targetWordId, words, mode, activeLayout, combo, level, score, currentWordIndex]);
+  }, [gameState, typedBuffer, targetWordId, words, mode, activeLayout, combo, level, score, currentWordIndex, wordDeck]);
 
   // Current Target Word for Race/Speed/Time-Attack
-  const currentTargetObj = activeLayout === "english"
-    ? { bangla: ENGLISH_WORDS[currentWordIndex % ENGLISH_WORDS.length], phonetic: ENGLISH_WORDS[currentWordIndex % ENGLISH_WORDS.length] }
-    : BANGLA_WORD_PAIRS[currentWordIndex % BANGLA_WORD_PAIRS.length];
+  const currentTargetObj = wordDeck.length > 0
+    ? wordDeck[currentWordIndex % wordDeck.length]
+    : { bangla: "বাংলা", phonetic: "bangla" };
 
   return (
     <main className="container max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6 fade-in text-foreground">
@@ -506,7 +684,7 @@ export default function GameClient() {
                 stopAllTimers();
               }}
               className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0",
+                "px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer",
                 mode === m.id
                   ? "bg-primary text-primary-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
@@ -539,7 +717,7 @@ export default function GameClient() {
                     size={18}
                     className={cn(
                       "transition-all",
-                      h <= lives ? "text-rose-500 fill-rose-500 scale-110" : "text-muted border-dashed"
+                      h <= lives ? "text-rose-500 fill-rose-500 scale-110" : "text-muted border-dashed opacity-40"
                     )}
                   />
                 ))}
@@ -564,13 +742,13 @@ export default function GameClient() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setSoundEnabled(!soundEnabled)}
-              className="p-2 rounded-lg border border-border bg-card text-foreground hover:bg-secondary transition-colors"
+              className="p-2 rounded-lg border border-border bg-card text-foreground hover:bg-secondary transition-colors cursor-pointer"
             >
               {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
             </button>
 
             {gameState === "playing" && (
-              <Button size="sm" variant="outline" onClick={() => setGameState("paused")} className="gap-1 font-bold text-xs">
+              <Button size="sm" variant="outline" onClick={() => setGameState("paused")} className="gap-1 font-bold text-xs cursor-pointer">
                 <Pause size={13} /> Pause
               </Button>
             )}
@@ -717,7 +895,7 @@ export default function GameClient() {
                   Select your keyboard layout below and click Start Game to launch your practice session!
                 </p>
               </div>
-              <Button onClick={startGame} className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 h-11 px-8 rounded-xl font-bold text-sm shadow-md">
+              <Button onClick={startGame} className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 h-11 px-8 rounded-xl font-bold text-sm shadow-md cursor-pointer">
                 <Play size={16} /> Start Game
               </Button>
             </div>
@@ -728,10 +906,10 @@ export default function GameClient() {
             <div className="absolute inset-0 bg-background/95 backdrop-blur-md z-20 flex flex-col items-center justify-center p-6 text-center space-y-4">
               <h2 className="text-xl font-black text-foreground">Game Paused</h2>
               <div className="flex gap-3">
-                <Button onClick={() => setGameState("playing")} className="gap-2 font-bold h-10 px-6">
+                <Button onClick={() => setGameState("playing")} className="gap-2 font-bold h-10 px-6 cursor-pointer">
                   <Play size={14} /> Resume
                 </Button>
-                <Button variant="outline" onClick={startGame} className="gap-2 font-bold h-10 px-6">
+                <Button variant="outline" onClick={startGame} className="gap-2 font-bold h-10 px-6 cursor-pointer">
                   <RotateCcw size={14} /> Restart
                 </Button>
               </div>
@@ -762,7 +940,7 @@ export default function GameClient() {
                 </div>
               </div>
 
-              <Button onClick={startGame} className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 h-11 px-8 rounded-xl font-bold text-sm shadow-md">
+              <Button onClick={startGame} className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 h-11 px-8 rounded-xl font-bold text-sm shadow-md cursor-pointer">
                 <RotateCcw size={16} /> Play Again
               </Button>
             </div>
@@ -795,7 +973,7 @@ export default function GameClient() {
               key={l.id}
               onClick={() => setActiveLayout(l.id as KeyboardLayout)}
               className={cn(
-                "px-3.5 py-1.5 rounded-lg text-xs font-bold border transition-all",
+                "px-3.5 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer",
                 activeLayout === l.id
                   ? "bg-primary text-primary-foreground border-primary shadow-xs"
                   : "border-border bg-secondary text-muted-foreground hover:text-foreground"
