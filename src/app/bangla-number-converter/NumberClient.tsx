@@ -22,7 +22,10 @@ export default function NumberClient() {
   const convertNumbers = (text: string, mode: "enToBn" | "bnToEn") => {
     if (!text) return "";
     if (mode === "enToBn") {
-      return text.replace(/[0-9]/g, (w) => BANGLA_NUMBERS[parseInt(w, 10)]);
+      return text.replace(/[0-9]/g, (w) => {
+        const val = parseInt(w, 10);
+        return isNaN(val) ? w : (BANGLA_NUMBERS[val] || w);
+      });
     } else {
       return text.replace(/[০-৯]/g, (w) => {
         const idx = BANGLA_NUMBERS.indexOf(w);

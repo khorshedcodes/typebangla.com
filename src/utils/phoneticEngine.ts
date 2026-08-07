@@ -97,10 +97,12 @@ export function getPhoneticKeysForChar(char: string): string {
 /**
  * Analyzes English phonetic strings to determine the target Bangla rendering.
  */
-export function parse_phonetic_input(keystroke_buffer: string, targeted_word: string): PhoneticAnalysis {
-  const transientText = avroTransliterate(keystroke_buffer);
+export function parse_phonetic_input(keystroke_buffer = "", targeted_word = ""): PhoneticAnalysis {
+  const safeBuffer = keystroke_buffer || "";
+  const safeTarget = targeted_word || "";
+  const transientText = avroTransliterate(safeBuffer);
   
-  if (targeted_word === transientText) {
+  if (safeTarget === transientText) {
     return {
       transientText,
       matchState: "matching",
@@ -108,8 +110,8 @@ export function parse_phonetic_input(keystroke_buffer: string, targeted_word: st
     };
   }
   
-  if (targeted_word.startsWith(transientText)) {
-    const remainingTarget = targeted_word.slice(transientText.length);
+  if (safeTarget.startsWith(transientText)) {
+    const remainingTarget = safeTarget.slice(transientText.length);
     const nextChar = remainingTarget[0] || "";
     
     // Look ahead if the next characters form a conjunct

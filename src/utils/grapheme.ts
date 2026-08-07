@@ -40,6 +40,9 @@ export function getGraphemeClusters(text: string): string[] {
     }
     clusters.push(match[0]);
     lastIndex = graphemeRegex.lastIndex;
+    if (match.index === graphemeRegex.lastIndex) {
+      graphemeRegex.lastIndex++;
+    }
   }
   if (lastIndex < text.length) {
     clusters.push(...Array.from(text.slice(lastIndex)));

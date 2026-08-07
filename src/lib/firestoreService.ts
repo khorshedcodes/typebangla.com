@@ -61,7 +61,8 @@ export async function saveTypingSession(session: SessionData) {
         const data = userSnap.data() as UserProfile;
         const newHigh = Math.max(data.highWpm || 0, safeNetWpm);
         const newTotal = (data.totalSessions || 0) + 1;
-        const newAvg = Math.round(((data.avgWpm || 0) * (newTotal - 1) + safeNetWpm) / Math.max(1, newTotal));
+        const rawAvg = Math.round(((data.avgWpm || 0) * (newTotal - 1) + safeNetWpm) / Math.max(1, newTotal));
+        const newAvg = isNaN(rawAvg) ? safeNetWpm : Math.min(500, Math.max(0, rawAvg));
 
         await firestore.setDoc(
           userRef,

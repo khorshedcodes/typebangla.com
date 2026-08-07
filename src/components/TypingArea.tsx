@@ -77,7 +77,8 @@ export default function TypingArea({
 
   useEffect(() => {
     if (isCompleted && onSessionComplete) {
-      const liveWpm = elapsedTime === 0 ? 0 : Math.round((typedText.length / 5) / (elapsedTime / 60));
+      const calcWpm = elapsedTime < 1 ? 0 : Math.round((typedText.length / 5) / (elapsedTime / 60));
+      const liveWpm = Math.min(500, Math.max(0, isNaN(calcWpm) ? 0 : calcWpm));
       const liveAccuracy = typedText.length === 0 ? 100 : Math.round(((typedText.length - errorIndices.length) / typedText.length) * 100);
       onSessionComplete(liveWpm, liveAccuracy);
     }
