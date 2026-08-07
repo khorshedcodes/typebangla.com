@@ -1,18 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 120" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 470 120" width="100%" height="100%">
   <defs>
-    <linearGradient id="darkKeycapH" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="darkKeycapHT" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#18181b"/>
       <stop offset="100%" stop-color="#09090b"/>
     </linearGradient>
-    <linearGradient id="emeraldPillH" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="emeraldPillHT" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#10b981"/>
       <stop offset="100%" stop-color="#059669"/>
     </linearGradient>
   </defs>
 
-  <g id="HorizontalSvgMain">
+  <g id="HorizontalSvgTight">
     <!-- Standalone Keycap Box -->
-    <rect x="10" y="10" width="100" height="100" rx="22" fill="url(#darkKeycapH)" stroke="#27272a" stroke-width="2"/>
+    <rect x="10" y="10" width="100" height="100" rx="22" fill="url(#darkKeycapHT)" stroke="#27272a" stroke-width="2"/>
     
     <!-- Vector Bangla Letter "ত" + Cursor "|" -->
     <g transform="translate(18, 18) scale(0.108)">
@@ -22,14 +22,14 @@
     </g>
 
     <!-- Typography 'typebangla' -->
-    <text x="132" y="73" fill="#ffffff" font-family="Inter, system-ui, -apple-system, sans-serif" font-weight="900" font-size="46" letter-spacing="-1.5">
+    <text x="126" y="73" fill="#ffffff" font-family="Inter, system-ui, -apple-system, sans-serif" font-weight="900" font-size="46" letter-spacing="-1.5">
       type<tspan fill="#10b981">bangla</tspan>
     </text>
 
-    <!-- Domain Pill '.com' -->
-    <g transform="translate(530, 42)">
-      <rect x="0" y="0" width="76" height="36" rx="18" fill="url(#emeraldPillH)"/>
-      <text x="38" y="23" fill="#ffffff" font-family="Inter, system-ui, sans-serif" font-weight="900" font-size="16" text-anchor="middle">.com</text>
+    <!-- Domain Pill '.com' (Right beside 'bangla') -->
+    <g transform="translate(388, 42)">
+      <rect x="0" y="0" width="72" height="36" rx="18" fill="url(#emeraldPillHT)"/>
+      <text x="36" y="23" fill="#ffffff" font-family="Inter, system-ui, sans-serif" font-weight="900" font-size="16" text-anchor="middle">.com</text>
     </g>
   </g>
 </svg>
