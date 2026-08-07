@@ -296,7 +296,11 @@ export function CertificateTopUpModal({
                   <span className="text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-mono font-bold">Auto-Verification Ready</span>
                 </div>
                 <div className="font-mono text-sm font-bold text-foreground bg-background px-3 py-2 rounded-lg border border-border flex items-center justify-between shadow-2xs">
-                  <span className="text-primary font-black tracking-wider">{process.env.NEXT_PUBLIC_PAYMENT_PHONE || "01700-112233"}</span>
+                  <span className="text-primary font-black tracking-wider">
+                    {paymentMethod === "bKash"
+                      ? (process.env.NEXT_PUBLIC_BKASH_NUMBER || "01884089203")
+                      : (process.env.NEXT_PUBLIC_NAGAD_NUMBER || "01871898738")}
+                  </span>
                   <span className="text-xs font-sans text-muted-foreground font-semibold bg-secondary px-2 py-0.5 rounded border border-border">Personal / Send Money</span>
                 </div>
               </div>
