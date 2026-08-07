@@ -408,7 +408,7 @@ export function extendTextForDuration(
     attempts++;
     const nextPassage = pool[(attempts + Math.floor(Math.random() * pool.length)) % pool.length];
     if (nextPassage && nextPassage.text) {
-      currentText += "\n\n" + nextPassage.text;
+      currentText += " " + nextPassage.text;
     } else {
       currentText += " " + baseText;
     }

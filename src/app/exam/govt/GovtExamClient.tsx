@@ -252,6 +252,7 @@ export default function GovtExamClient() {
 
             <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
               {[
+                { sec: 60, label: "১ মিনিট" },
                 { sec: 180, label: "৩ মিনিট" },
                 { sec: 300, label: "৫ মিনিট (Standard)" },
                 { sec: 600, label: "১০ মিনিট (Extended)" },
@@ -284,21 +285,21 @@ export default function GovtExamClient() {
 
             <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
               {[
-                { id: "jatiya", label: "জাতীয় কীবোর্ড (Jatiya BCC)" },
-                { id: "unibijoy", label: "ইউনিবিজয় (UniBijoy 52)" },
-                { id: "avro", label: "অভ্র ফোনেটিক (Avro)" },
-                { id: "english", label: "English QWERTY" },
+                { id: "jatiya", label: "জাতীয় কীবোর্ড (Jatiya BCC)", note: "সরকারি মানদণ্ড" },
+                { id: "unibijoy", label: "ইউনিবিজয় (UniBijoy 52)", note: "প্রচলিত" },
+                { id: "english", label: "English QWERTY", note: null },
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveLayout(tab.id as KeyboardLayout)}
+                  title={tab.note || undefined}
                   className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all shrink-0 border ${
                     activeLayout === tab.id
                       ? "bg-primary text-primary-foreground border-primary shadow-xs"
                       : "border-border bg-secondary text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  {tab.label}
+                  {tab.label}{tab.note && <span className="ml-1 text-[9px] opacity-70">✓</span>}
                 </button>
               ))}
             </div>
@@ -322,16 +323,21 @@ export default function GovtExamClient() {
                 <div
                   key={item.id}
                   onClick={handleStartExam}
-                  className="p-3 rounded-xl border border-border bg-card hover:border-emerald-500/80 cursor-pointer transition-all flex flex-col justify-between space-y-1 shadow-xs glass-card-hover"
+                  className="p-3 rounded-xl border border-border bg-card hover:border-foreground/40 cursor-pointer transition-all flex flex-col justify-between space-y-1 shadow-xs opacity-80 hover:opacity-100"
+                  title="শীঘ্রই আসছে — বিগত বছরের আসল প্রশ্ন। এখন ক্লিক করলে স্ট্যান্ডার্ড পরীক্ষা শুরু হবে।"
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-foreground line-clamp-1">{item.title}</span>
-                    <Badge variant="outline" className="text-[9px] font-bold border-emerald-500/40 text-emerald-600 dark:text-emerald-400">Past Q</Badge>
+                    <Badge variant="outline" className="text-[9px] font-bold border-amber-500/40 text-amber-600 dark:text-amber-400">শীঘ্রই</Badge>
                   </div>
                   <span className="text-[10px] text-muted-foreground">{item.dept}</span>
                 </div>
               ))}
             </div>
+            <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+              <Info size={10} />
+              বিগত বছরের আসল প্রশ্নপত্র শীঘ্রই যোগ করা হবে। এখন ক্লিক করলে নির্বাচিত কনফিগারেশনে পরীক্ষা শুরু হবে।
+            </p>
           </div>
 
           {/* Section 4: SINGLE UNIFIED PRIMARY CTA BUTTON */}

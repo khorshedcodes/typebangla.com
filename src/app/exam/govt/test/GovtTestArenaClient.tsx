@@ -45,6 +45,12 @@ const POST_METAS: Record<string, GovtPostMeta> = {
     wpmEn: 20,
     minAcc: 90,
   },
+  "custom": {
+    titleBn: "কাস্টম গভ্ প্রিসেট (Custom Target)",
+    wpmBn: 30,
+    wpmEn: 30,
+    minAcc: 90,
+  },
 };
 
 export default function GovtTestArenaClient() {
@@ -62,6 +68,7 @@ export default function GovtTestArenaClient() {
     elapsedTime,
     updateElapsedTime,
     typedText,
+    targetText,
     errorIndices,
   } = useTypingStore();
 
@@ -79,6 +86,7 @@ export default function GovtTestArenaClient() {
   const [testResult, setTestResult] = useState<{
     wpm: number;
     accuracy: number;
+    errorCount: number;
     qualified: boolean;
     postTitle: string;
     requiredWpm: number;
@@ -121,10 +129,12 @@ export default function GovtTestArenaClient() {
 
   const handleSessionComplete = async (wpm: number, accuracy: number) => {
     const qualified = wpm >= requiredWpm && accuracy >= requiredAcc;
+    const errorCount = errorIndices.length; // capture snapshot before any reset
 
     setTestResult({
       wpm,
       accuracy,
+      errorCount,
       qualified,
       postTitle,
       requiredWpm,
@@ -139,7 +149,7 @@ export default function GovtTestArenaClient() {
         netWpm: wpm,
         accuracy,
         cpm: wpm * 5,
-        errors: 0,
+        errors: errorCount, // ✅ Fixed: was always 0
         layout: layoutParam,
         language: layoutParam === "english" ? "english" : "bangla",
         mode: "govt-exam",
@@ -196,8 +206,12 @@ export default function GovtTestArenaClient() {
             Live WPM: <strong>{liveWpm}</strong>
           </Badge>
 
-          <Badge variant="outline" className="border-border text-foreground font-bold bg-secondary text-xs py-1 px-3 gap-1">
-            <Activity size={13} className="text-emerald-500" />
+          <Badge variant="outline" className={`font-bold text-xs py-1 px-3 gap-1 ${
+            liveAccuracy >= 95 ? "border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40" :
+            liveAccuracy >= 85 ? "border-amber-500 text-amber-600 bg-amber-50 dark:bg-amber-950/40" :
+            "border-rose-500 text-rose-600 bg-rose-50 dark:bg-rose-950/40"
+          }`}>
+            <Activity size={13} />
             Accuracy: <strong>{liveAccuracy}%</strong>
           </Badge>
 
@@ -206,10 +220,17 @@ export default function GovtTestArenaClient() {
             Layout: <strong>{layoutParam.toUpperCase()}</strong>
           </Badge>
 
-          <Badge variant="outline" className={`font-black text-xs py-1 px-3 gap-1 ${isStarted && !isCompleted ? "border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 animate-pulse" : "border-border text-foreground bg-secondary"
-            }`}>
+          <Badge variant="outline" className={`font-black text-xs py-1 px-3 gap-1 ${
+            !isStarted || isCompleted
+              ? "border-border text-foreground bg-secondary"
+              : remainingSec <= 30
+              ? "border-rose-500 text-rose-600 bg-rose-50 dark:bg-rose-950/50 animate-pulse"
+              : remainingSec <= 60
+              ? "border-amber-500 text-amber-600 bg-amber-50 dark:bg-amber-950/40"
+              : "border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 animate-pulse"
+          }`}>
             <Clock size={13} />
-            Time Left: <strong>{displayMins}:{displaySecs}</strong>
+            {!isStarted ? "Ready" : isCompleted ? "Done" : `${displayMins}:${displaySecs}`}
           </Badge>
         </div>
       </div>
@@ -328,14 +349,16 @@ export default function GovtTestArenaClient() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center text-xs pt-1">
                 <div className="p-3 bg-background rounded-lg border border-border">
                   <div className="text-muted-foreground text-[11px]">Gross WPM (মোট স্পিড)</div>
-                  <div className="text-lg font-black text-foreground">{testResult.wpm + Math.round(errorIndices.length / 5)} WPM</div>
+                  <div className="text-lg font-black text-foreground">
+                    {testResult.wpm + Math.round(testResult.errorCount / 5)} WPM
+                  </div>
                 </div>
                 <div className="p-3 bg-background rounded-lg border border-border">
-                  <div className="text-rose-600 dark:text-rose-400 text-[11px] font-bold">Error Deduction (ভুল কর্তন)</div>
-                  <div className="text-lg font-black text-rose-600 dark:text-rose-400">-{errorIndices.length} Words</div>
+                  <div className="text-rose-600 dark:text-rose-400 text-[11px] font-bold">Error Deduction (ভুল অক্ষর)</div>
+                  <div className="text-lg font-black text-rose-600 dark:text-rose-400">-{testResult.errorCount} অক্ষর</div>
                 </div>
                 <div className="p-3 bg-background rounded-lg border border-primary/30">
-                  <div className="text-primary text-[11px] font-bold">Final Govt Net WPM (চূড়ান্ত নিট)</div>
+                  <div className="text-primary text-[11px] font-bold">Final Govt Net WPM (চূড়ান্ত নিট)</div>
                   <div className="text-lg font-black text-primary">{testResult.wpm} WPM</div>
                 </div>
               </div>
@@ -347,7 +370,22 @@ export default function GovtTestArenaClient() {
           </CardContent>
         </Card>
       ) : (
-        <div className="border border-border bg-card rounded-2xl p-6 shadow-xs">
+        <div className="border border-border bg-card rounded-2xl p-6 shadow-xs space-y-4">
+          {/* Typing Progress Bar */}
+          {isStarted && !isCompleted && (
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground">
+                <span>প্রগতি (Progress)</span>
+                <span>{Math.min(100, Math.round((typedText.length / targetText.length) * 100))}%</span>
+              </div>
+              <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary rounded-full transition-all duration-300"
+                  style={{ width: `${Math.min(100, (typedText.length / targetText.length) * 100)}%` }}
+                />
+              </div>
+            </div>
+          )}
           <TypingArea hideModeHeader={true} onSessionComplete={handleSessionComplete} />
         </div>
       )}
