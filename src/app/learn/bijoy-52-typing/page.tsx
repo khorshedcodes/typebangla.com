@@ -175,6 +175,47 @@ export default function LearnBijoyPage() {
         </div>
       </section>
 
+      {/* Course Curriculum & Lesson Outline Section */}
+      <section className="container max-w-5xl mx-auto px-4 sm:px-6 space-y-6">
+        <div className="border-b border-border pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+              <BookOpen size={18} className="text-primary" />
+              <span>UniBijoy (Bijoy 52) 25-Lesson Curriculum</span>
+            </h2>
+            <p className="text-xs text-muted-foreground">Step-by-step structured lessons from home row keys to full 55+ WPM typing speed.</p>
+          </div>
+          <Link href="/courses/unibijoy">
+            <Button className="font-bold text-xs gap-1.5 h-9">
+              <span>Start Course (Enroll Free)</span>
+              <ArrowRight size={13} />
+            </Button>
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          {[
+            { num: "01", title: "Home Row Basics (ফ, গ, ক, ত)", desc: "Left hand & right hand primary finger anchor keys" },
+            { num: "02", title: "Vowels & Sign Kar (া, ি, ী, ু, ূ)", desc: "Essential Bangla vowel sign placement" },
+            { num: "03", title: "Top Row Consonants (প, ফ, গ, ঘ)", desc: "Reaching upper row key positions" },
+            { num: "04", title: "Bottom Row Consonants (ন, ম, স, ব)", desc: "Lower row finger extensions & spacebar rhythm" },
+            { num: "05", title: "Link-g Rule (যুক্তাক্ষর ক্ক, ক্ত, ক্ষ)", desc: "Mastering Hasant 'g' for complex conjunct formation" },
+            { num: "06", title: "Speed & Accuracy Evaluation", desc: "5-minute timed test with live WPM & error diagnostics" },
+          ].map((item) => (
+            <Card key={item.num} className="border border-border bg-card p-4 space-y-1.5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <Badge variant="outline" className="border-primary/40 text-primary text-[10px] font-black">
+                  Lesson {item.num}
+                </Badge>
+                <span className="text-[10px] text-muted-foreground font-semibold">Free Preview</span>
+              </div>
+              <h3 className="font-bold text-xs text-foreground">{item.title}</h3>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">{item.desc}</p>
+            </Card>
+          ))}
+        </div>
+      </section>
+
       {/* FAQ Section */}
       <section className="container max-w-4xl mx-auto px-4 sm:px-6 space-y-4">
         <div className="text-center space-y-1">
