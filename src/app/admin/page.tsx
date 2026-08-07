@@ -22,7 +22,7 @@ import {
 } from "../../lib/firestoreService";
 
 export default function AdminDashboardPage() {
-  const { user, role } = useAuth();
+  const { user, role, loading, isAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState<"overview" | "waitlist" | "payments" | "users" | "exams" | "lessons">("overview");
 
   // Payment Requests State
@@ -137,6 +137,50 @@ export default function AdminDashboardPage() {
     { id: "p2", title: "NSI Data Entry Speed Exam", category: "Govt Job", duration: "5 mins", wpmTarget: 28, lang: "Bangla (Avro)" },
     { id: "p3", title: "Bank Officer English Speed Arena", category: "Banking", duration: "5 mins", wpmTarget: 40, lang: "English" },
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs text-slate-400 font-mono">Verifying Admin Credentials...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6">
+        <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center space-y-6 shadow-2xl">
+          <div className="w-16 h-16 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-full flex items-center justify-center mx-auto">
+            <ShieldAlert className="w-10 h-10" />
+          </div>
+          <div className="space-y-2">
+            <span className="px-2.5 py-0.5 rounded-full bg-rose-950 text-rose-400 border border-rose-800 text-[10px] font-extrabold uppercase tracking-wider">
+              403 Forbidden Access
+            </span>
+            <h2 className="text-2xl font-bold text-white">Access Denied</h2>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              The TypeMaster Admin Control Center is strictly restricted to authorized platform administrators. Your current account ({user?.email || "Guest"}) does not have administrator privileges.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <Link href="/login" className="w-full sm:w-auto">
+              <Button className="w-full bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-5">
+                Sign In as Admin
+              </Button>
+            </Link>
+            <Link href="/dashboard" className="w-full sm:w-auto">
+              <Button variant="outline" className="w-full border-slate-800 text-slate-300 hover:text-white text-xs font-bold px-5">
+                Return to Dashboard
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row">
