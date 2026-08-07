@@ -176,8 +176,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@typebangla.com").toLowerCase();
-  const isAdmin = role === "admin" || Boolean(user?.email && user.email.toLowerCase() === adminEmail);
+  // Pure Role-Based Authorization (Single Source of Truth from Firestore users/{uid}.role)
+  const isAdmin = role === "admin";
 
   return (
     <AuthContext.Provider
