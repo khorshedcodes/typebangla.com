@@ -6,11 +6,28 @@ import { useTypingStore, KeyboardLayout } from "../../../store/typingStore";
 import TypingArea from "../../../components/TypingArea";
 import VirtualKeyboard from "../../../components/VirtualKeyboard";
 import { getPassageForDuration } from "../../../utils/lessons/exam/examPassages";
-import { Clock, ShieldCheck, Sparkles, RefreshCw, Trophy, Zap, Award } from "lucide-react";
-import { Button } from "../../../components/ui/button";
-import { Card, CardContent } from "../../../components/ui/card";
+import { RefreshCw } from "lucide-react";
 import { Badge } from "../../../components/ui/badge";
 import { cn } from "@/utils/cn";
+
+const DURATIONS = [
+  { sec: 60,  label: "1 মিনিট",  tag: "শর্ট"    },
+  { sec: 120, label: "2 মিনিট",  tag: "কুইক"    },
+  { sec: 180, label: "3 মিনিট",  tag: "স্ট্যান্ডার্ড" },
+  { sec: 300, label: "5 মিনিট",  tag: "সরকারি"  },
+  { sec: 600, label: "10 মিনিট", tag: "বর্ধিত"  },
+  { sec: 900, label: "15 মিনিট", tag: "সিনিয়র" },
+];
+
+const KEYBOARD_LAYOUTS = [
+  { id: "avro",     label: "Avro" },
+  { id: "unibijoy", label: "UniBijoy" },
+  { id: "jatiya",   label: "Jatiya" },
+  { id: "probhat",  label: "Probhat" },
+  { id: "inscript", label: "Inscript" },
+  { id: "unicode",  label: "Unicode" },
+  { id: "english",  label: "English" },
+];
 
 export default function SpeedTestPracticeClient() {
   const searchParams = useSearchParams();
@@ -33,85 +50,83 @@ export default function SpeedTestPracticeClient() {
   }, [initialDuration, initialLayout]);
 
   return (
-    <div className="space-y-6">
-      {/* Test Preset Selection Header */}
-      <Card className="border border-border bg-card p-6 rounded-2xl shadow-xs space-y-5">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-4">
-          <div>
-            <h2 className="text-sm font-black text-foreground uppercase tracking-wider flex items-center gap-2">
-              <Clock size={16} className="text-primary" />
-              <span>১. পরীক্ষার সময় ও ভাষা নির্বাচন করুন:</span>
-            </h2>
-            <p className="text-xs text-muted-foreground mt-0.5">টাইমড স্পিড টেস্টে সঠিক গতি (WPM) ও নির্ভুলতা (Accuracy %) মূল্যায়িত হয়</p>
+    <div className="space-y-5">
+
+      {/* ── Glassmorphism Pill Toolbar ── */}
+      <div className="rounded-2xl border border-border/60 bg-card/70 backdrop-blur-md shadow-sm px-4 py-3">
+        <div className="flex flex-wrap items-center gap-x-1 gap-y-2">
+
+          {/* Group 1: Language */}
+          <div className="flex items-center gap-1">
+            {[
+              { value: "bangla" as const, label: "🇧🇩 বাংলা" },
+              { value: "english" as const, label: "🇬🇧 English" },
+            ].map((l) => (
+              <button
+                key={l.value}
+                onClick={() => { setLang(l.value); setupSpeedTest(selectedDuration || 300, l.value); }}
+                className={cn(
+                  "px-3 py-1.5 rounded-full text-xs font-bold transition-all",
+                  lang === l.value
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                )}
+              >
+                {l.label}
+              </button>
+            ))}
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => { setLang("bangla"); setupSpeedTest(selectedDuration || 300, "bangla"); }}
-              className={cn("px-3.5 py-1.5 rounded-lg text-xs font-bold border transition-all", lang === "bangla" ? "bg-primary text-primary-foreground border-primary" : "border-border bg-secondary text-muted-foreground")}
-            >
-              🇧🇩 বাংলা স্পিড টেস্ট
-            </button>
-            <button
-              onClick={() => { setLang("english"); setupSpeedTest(selectedDuration || 300, "english"); }}
-              className={cn("px-3.5 py-1.5 rounded-lg text-xs font-bold border transition-all", lang === "english" ? "bg-primary text-primary-foreground border-primary" : "border-border bg-secondary text-muted-foreground")}
-            >
-              🇬🇧 English Speed Test
-            </button>
+          {/* Divider */}
+          <span className="h-4 w-px bg-border mx-1.5 hidden sm:block" />
+
+          {/* Group 2: Duration Pills */}
+          <div className="flex items-center gap-1 flex-wrap">
+            {DURATIONS.map((d) => (
+              <button
+                key={d.sec}
+                onClick={() => setupSpeedTest(d.sec)}
+                title={d.tag}
+                className={cn(
+                  "px-3 py-1.5 rounded-full text-xs font-bold transition-all",
+                  selectedDuration === d.sec
+                    ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/50"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                )}
+              >
+                {d.label}
+              </button>
+            ))}
           </div>
-        </div>
 
-        {/* Duration Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
-          {[
-            { sec: 60, label: "১ মিনিট", tag: "শর্ট টেস্ট" },
-            { sec: 120, label: "২ মিনিট", tag: "কুইক ড্রিল" },
-            { sec: 180, label: "৩ মিনিট", tag: "স্ট্যান্ডার্ড" },
-            { sec: 300, label: "৫ মিনিট", tag: "সরকারি পরীক্ষা" },
-            { sec: 600, label: "১০ মিনিট", tag: "বর্ধিত পরীক্ষা" },
-            { sec: 900, label: "১৫ মিনিট", tag: "সিনিয়র লেভেল" },
-          ].map((d) => (
-            <button
-              key={d.sec}
-              onClick={() => setupSpeedTest(d.sec)}
-              className={cn(
-                "p-3 rounded-xl border text-center transition-all space-y-1",
-                selectedDuration === d.sec
-                  ? "bg-primary/10 border-primary text-foreground shadow-xs ring-1 ring-primary"
-                  : "border-border bg-secondary hover:border-foreground/30 text-muted-foreground"
-              )}
-            >
-              <div className="text-xs font-black text-foreground">{d.label}</div>
-              <div className="text-[10px] font-bold text-primary uppercase tracking-wider">{d.tag}</div>
-            </button>
-          ))}
-        </div>
-      </Card>
+          {/* Divider */}
+          <span className="h-4 w-px bg-border mx-1 hidden sm:block" />
 
-      {/* Typing Arena */}
+          {/* Group 3: Refresh */}
+          <button
+            onClick={() => setupSpeedTest(selectedDuration || 300)}
+            title="নতুন প্যাসেজ লোড করুন"
+            className="p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
+          >
+            <RefreshCw size={14} />
+          </button>
+
+        </div>
+      </div>
+
+      {/* ── Typing Arena ── */}
       <TypingArea />
 
-      {/* Keyboard Selector & Guide */}
-      <div className="pt-4 border-t border-border space-y-3">
+      {/* ── Keyboard Layout Selector ── */}
+      <div className="rounded-2xl border border-border/60 bg-card/70 backdrop-blur-md shadow-sm px-4 py-3 space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-black uppercase text-foreground tracking-wider">
-            কিবোর্ড লেআউট নির্বাচন:
-          </h3>
-          <Badge variant="outline" className="border-primary text-primary font-bold text-xs uppercase">
+          <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">কিবোর্ড লেআউট</span>
+          <Badge variant="outline" className="border-primary/50 text-primary font-bold text-[10px] uppercase px-2 py-0.5">
             {activeLayout}
           </Badge>
         </div>
-
-        <div className="flex flex-wrap gap-2">
-          {[
-            { id: "avro", label: "Avro Phonetic" },
-            { id: "unibijoy", label: "UniBijoy" },
-            { id: "jatiya", label: "Jatiya (BCC)" },
-            { id: "probhat", label: "Probhat" },
-            { id: "inscript", label: "Inscript" },
-            { id: "unicode", label: "Unicode" },
-            { id: "english", label: "English QWERTY" },
-          ].map((l) => (
+        <div className="flex flex-wrap gap-1.5">
+          {KEYBOARD_LAYOUTS.map((l) => (
             <button
               key={l.id}
               onClick={() => {
@@ -119,19 +134,19 @@ export default function SpeedTestPracticeClient() {
                 setupSpeedTest(selectedDuration || 300, l.id === "english" ? "english" : "bangla");
               }}
               className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-bold border transition-all",
+                "px-3 py-1.5 rounded-full text-xs font-bold transition-all",
                 activeLayout === l.id
-                  ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                  : "border-border bg-secondary text-muted-foreground hover:text-foreground"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "border border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
               )}
             >
               {l.label}
             </button>
           ))}
         </div>
-
         <VirtualKeyboard />
       </div>
+
     </div>
   );
 }

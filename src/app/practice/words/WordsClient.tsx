@@ -5,9 +5,8 @@ import { useTypingStore, KeyboardLayout } from "../../../store/typingStore";
 import TypingArea from "../../../components/TypingArea";
 import VirtualKeyboard from "../../../components/VirtualKeyboard";
 import { BANGLA_WORDS_LEVEL_1, BANGLA_WORDS_LEVEL_2, BANGLA_WORDS_LEVEL_3 } from "../../../data/banglaFrequentWords";
-import { AlignLeft, Sparkles, RefreshCw, CheckCircle2, Globe, ShieldCheck } from "lucide-react";
+import { AlignLeft, RefreshCw } from "lucide-react";
 import { Button } from "../../../components/ui/button";
-import { Card, CardContent } from "../../../components/ui/card";
 import { Badge } from "../../../components/ui/badge";
 import { cn } from "@/utils/cn";
 
@@ -35,6 +34,22 @@ const GOVT_TERMS = [
   "পরীক্ষার্থী", "স্বচ্ছতা", "দায়িত্বশীলতা", "সহকারী", "কর্মকর্তা", "অধিদপ্তর", "মহাপরিচালক"
 ];
 
+const BANGLA_CATEGORIES = [
+  { id: "frequent-bn", label: "🔥 সাধারণ শব্দ" },
+  { id: "juktakkhor", label: "🧩 যুক্তবর্ণ" },
+  { id: "govt-terms", label: "💼 সরকারি" },
+];
+
+const KEYBOARD_LAYOUTS = [
+  { id: "avro", label: "Avro" },
+  { id: "unibijoy", label: "UniBijoy" },
+  { id: "jatiya", label: "Jatiya" },
+  { id: "probhat", label: "Probhat" },
+  { id: "inscript", label: "Inscript" },
+  { id: "unicode", label: "Unicode" },
+  { id: "english", label: "English" },
+];
+
 export default function WordsClient() {
   const { activeLayout, setActiveLayout, setTargetText, resetTest } = useTypingStore();
   const [lang, setLang] = useState<"bangla" | "english">("bangla");
@@ -52,12 +67,8 @@ export default function WordsClient() {
     } else {
       pool = [...BANGLA_WORDS_LEVEL_1, ...BANGLA_WORDS_LEVEL_2, ...BANGLA_WORDS_LEVEL_3];
     }
-
     const shuffled = [...pool].sort(() => Math.random() - 0.5);
-    const selected = shuffled.slice(0, wordCount);
-    const resultText = selected.join(" ");
-
-    setTargetText(resultText);
+    setTargetText(shuffled.slice(0, wordCount).join(" "));
     resetTest();
   };
 
@@ -66,132 +77,123 @@ export default function WordsClient() {
   }, [category, lang, wordCount, activeLayout]);
 
   return (
-    <div className="space-y-6">
-      {/* Category & Controls Header */}
-      <Card className="border border-border bg-card p-6 rounded-2xl shadow-xs space-y-5">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-4">
-          <div>
-            <h2 className="text-sm font-black text-foreground uppercase tracking-wider flex items-center gap-2">
-              <AlignLeft size={16} className="text-primary" />
-              <span>১. শব্দ ক্যাটাগরি ও ভাষা নির্বাচন করুন:</span>
-            </h2>
-            <p className="text-xs text-muted-foreground mt-0.5">একক শব্দ অনুশীলনে আঙুলের অন্ধ স্পর্শ স্মৃতি (Muscle Memory) গড়ে ওঠে</p>
+    <div className="space-y-5">
+
+      {/* ── Glassmorphism Pill Toolbar ── */}
+      <div className="rounded-2xl border border-border/60 bg-card/70 backdrop-blur-md shadow-sm px-4 py-3">
+        <div className="flex flex-wrap items-center gap-x-1 gap-y-2">
+
+          {/* Group 1: Language */}
+          <div className="flex items-center gap-1">
+            {[
+              { value: "bangla" as const, label: "🇧🇩 বাংলা" },
+              { value: "english" as const, label: "🇬🇧 English" },
+            ].map((l) => (
+              <button
+                key={l.value}
+                onClick={() => { setLang(l.value); if (l.value === "english") setCategory("english-core"); else setCategory("frequent-bn"); }}
+                className={cn(
+                  "px-3 py-1.5 rounded-full text-xs font-bold transition-all",
+                  lang === l.value
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                )}
+              >
+                {l.label}
+              </button>
+            ))}
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => { setLang("bangla"); setCategory("frequent-bn"); }}
-              className={cn("px-3 py-1.5 rounded-lg text-xs font-bold border transition-all", lang === "bangla" ? "bg-primary text-primary-foreground border-primary" : "border-border bg-secondary text-muted-foreground")}
-            >
-              🇧🇩 বাংলা শব্দ
-            </button>
-            <button
-              onClick={() => { setLang("english"); setCategory("english-core"); }}
-              className={cn("px-3 py-1.5 rounded-lg text-xs font-bold border transition-all", lang === "english" ? "bg-primary text-primary-foreground border-primary" : "border-border bg-secondary text-muted-foreground")}
-            >
-              🇬🇧 English Words
-            </button>
-          </div>
-        </div>
+          {/* Divider */}
+          <span className="h-4 w-px bg-border mx-1 hidden sm:block" />
 
-        {/* Category Badges */}
-        <div className="flex flex-wrap items-center gap-2">
-          {lang === "bangla" ? (
-            <>
-              {[
-                { id: "frequent-bn", label: "🔥 উচ্চ-ফ্রিকোয়েন্সি সাধারণ শব্দ" },
-                { id: "juktakkhor", label: "🧩 যুক্তবর্ণ বিশিষ্ট শব্দ" },
-                { id: "govt-terms", label: "💼 সরকারি চাকরি ও দাপ্তরিক শব্দ" },
-              ].map((cat) => (
+          {/* Group 2: Category (Bangla only) */}
+          {lang === "bangla" && (
+            <div className="flex items-center gap-1 flex-wrap">
+              {BANGLA_CATEGORIES.map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => setCategory(cat.id as WordCategory)}
                   className={cn(
-                    "px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all",
+                    "px-3 py-1.5 rounded-full text-xs font-bold transition-all",
                     category === cat.id
-                      ? "bg-emerald-500/10 border-emerald-500 text-emerald-600 shadow-xs"
-                      : "border-border bg-secondary text-muted-foreground hover:text-foreground"
+                      ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/50"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                   )}
                 >
                   {cat.label}
                 </button>
               ))}
-            </>
-          ) : (
-            <Badge variant="outline" className="border-blue-500 text-blue-600 bg-blue-50 dark:bg-blue-950/40 text-xs font-bold py-1 px-3">
-              🔤 1,000 Most Frequent English Words
-            </Badge>
+            </div>
           )}
-        </div>
 
-        {/* Word Count Targets */}
-        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border pt-4">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-muted-foreground">শব্দ সংখ্যা:</span>
+          {/* Divider */}
+          <span className="h-4 w-px bg-border mx-1 hidden sm:block" />
+
+          {/* Group 3: Word Count */}
+          <div className="flex items-center gap-1">
+            <span className="text-[11px] text-muted-foreground font-semibold mr-1 hidden sm:block">শব্দ</span>
             {[25, 50, 100, 200].map((cnt) => (
               <button
                 key={cnt}
                 onClick={() => setWordCount(cnt)}
                 className={cn(
-                  "px-3 py-1 rounded-lg text-xs font-bold border transition-all",
+                  "px-2.5 py-1.5 rounded-full text-xs font-bold transition-all",
                   wordCount === cnt
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "border-border bg-secondary text-muted-foreground hover:text-foreground"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                 )}
               >
-                {cnt} শব্দ
+                {cnt}
               </button>
             ))}
           </div>
 
-          <Button size="sm" onClick={generateWordsStream} className="gap-1.5 font-bold text-xs">
-            <RefreshCw size={13} />
-            <span>নতুন শব্দ লোড করুন</span>
-          </Button>
-        </div>
-      </Card>
+          {/* Divider */}
+          <span className="h-4 w-px bg-border mx-1 hidden sm:block" />
 
-      {/* Interactive Typing Arena */}
+          {/* Group 4: Refresh */}
+          <button
+            onClick={generateWordsStream}
+            title="নতুন শব্দ লোড করুন"
+            className="p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
+          >
+            <RefreshCw size={14} />
+          </button>
+
+        </div>
+      </div>
+
+      {/* ── Typing Arena ── */}
       <TypingArea />
 
-      {/* Keyboard Layout Guide */}
-      <div className="pt-4 border-t border-border space-y-3">
+      {/* ── Keyboard Layout Selector ── */}
+      <div className="rounded-2xl border border-border/60 bg-card/70 backdrop-blur-md shadow-sm px-4 py-3 space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-black uppercase text-foreground tracking-wider">
-            কিবোর্ড লেআউট পরিবর্তন করুন:
-          </h3>
-          <Badge variant="outline" className="border-primary text-primary font-bold text-xs uppercase">
+          <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">কিবোর্ড লেআউট</span>
+          <Badge variant="outline" className="border-primary/50 text-primary font-bold text-[10px] uppercase px-2 py-0.5">
             {activeLayout}
           </Badge>
         </div>
-
-        <div className="flex flex-wrap gap-2">
-          {[
-            { id: "avro", label: "Avro Phonetic" },
-            { id: "unibijoy", label: "UniBijoy" },
-            { id: "jatiya", label: "Jatiya (BCC)" },
-            { id: "probhat", label: "Probhat" },
-            { id: "inscript", label: "Inscript" },
-            { id: "unicode", label: "Unicode" },
-            { id: "english", label: "English QWERTY" },
-          ].map((l) => (
+        <div className="flex flex-wrap gap-1.5">
+          {KEYBOARD_LAYOUTS.map((l) => (
             <button
               key={l.id}
               onClick={() => setActiveLayout(l.id as KeyboardLayout)}
               className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-bold border transition-all",
+                "px-3 py-1.5 rounded-full text-xs font-bold transition-all",
                 activeLayout === l.id
-                  ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                  : "border-border bg-secondary text-muted-foreground hover:text-foreground"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "border border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
               )}
             >
               {l.label}
             </button>
           ))}
         </div>
-
         <VirtualKeyboard />
       </div>
+
     </div>
   );
 }

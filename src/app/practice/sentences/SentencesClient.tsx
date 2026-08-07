@@ -6,11 +6,25 @@ import TypingArea from "../../../components/TypingArea";
 import VirtualKeyboard from "../../../components/VirtualKeyboard";
 import { BANGLA_SENTENCES_LEVEL_1, BANGLA_SENTENCES_LEVEL_2, BANGLA_SENTENCES_LEVEL_3 } from "../../../data/banglaSentences";
 import { ENGLISH_SENTENCES_LEVEL_1, ENGLISH_SENTENCES_LEVEL_2, ENGLISH_SENTENCES_LEVEL_3 } from "../../../data/englishSentences";
-import { FileText, Sparkles, RefreshCw, Layers, ArrowRight } from "lucide-react";
-import { Button } from "../../../components/ui/button";
-import { Card, CardContent } from "../../../components/ui/card";
+import { RefreshCw } from "lucide-react";
 import { Badge } from "../../../components/ui/badge";
 import { cn } from "@/utils/cn";
+
+const KEYBOARD_LAYOUTS = [
+  { id: "avro", label: "Avro" },
+  { id: "unibijoy", label: "UniBijoy" },
+  { id: "jatiya", label: "Jatiya" },
+  { id: "probhat", label: "Probhat" },
+  { id: "inscript", label: "Inscript" },
+  { id: "unicode", label: "Unicode" },
+  { id: "english", label: "English" },
+];
+
+const LEVELS = [
+  { lvl: 1 as const, label: "🟢 সহজ", desc: "৫–১০ শব্দের বাক্য" },
+  { lvl: 2 as const, label: "🟡 মধ্যম", desc: "১১–২০ শব্দের বাক্য" },
+  { lvl: 3 as const, label: "🔴 কঠিন", desc: "সরকারি ও যুক্তবর্ণ" },
+];
 
 export default function SentencesClient() {
   const { activeLayout, setActiveLayout, setTargetText, resetTest } = useTypingStore();
@@ -29,12 +43,8 @@ export default function SentencesClient() {
       else if (level === 2) pool = ENGLISH_SENTENCES_LEVEL_2;
       else pool = ENGLISH_SENTENCES_LEVEL_3;
     }
-
     const shuffled = [...pool].sort(() => Math.random() - 0.5);
-    const selected = shuffled.slice(0, sentenceCount);
-    const resultText = selected.join(" ");
-
-    setTargetText(resultText);
+    setTargetText(shuffled.slice(0, sentenceCount).join(" "));
     resetTest();
   };
 
@@ -43,125 +53,122 @@ export default function SentencesClient() {
   }, [lang, level, sentenceCount, activeLayout]);
 
   return (
-    <div className="space-y-6">
-      {/* Controls Card */}
-      <Card className="border border-border bg-card p-6 rounded-2xl shadow-xs space-y-5">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-4">
-          <div>
-            <h2 className="text-sm font-black text-foreground uppercase tracking-wider flex items-center gap-2">
-              <FileText size={16} className="text-primary" />
-              <span>১. ভাষার কন্টেন্ট ও কাঠিন্য স্তব নির্বাচন করুন:</span>
-            </h2>
-            <p className="text-xs text-muted-foreground mt-0.5">সম্পূর্ণ বাক্য টাইপ করে স্বাভাবিক ব্যাকরণ, দাড়ি-কমা ও টাইপিং ছন্দ তৈরি করুন</p>
+    <div className="space-y-5">
+
+      {/* ── Glassmorphism Pill Toolbar ── */}
+      <div className="rounded-2xl border border-border/60 bg-card/70 backdrop-blur-md shadow-sm px-4 py-3">
+        <div className="flex flex-wrap items-center gap-x-1 gap-y-2">
+
+          {/* Group 1: Language */}
+          <div className="flex items-center gap-1">
+            {[
+              { value: "bangla" as const, label: "🇧🇩 বাংলা বাক্য" },
+              { value: "english" as const, label: "🇬🇧 English" },
+            ].map((l) => (
+              <button
+                key={l.value}
+                onClick={() => setLang(l.value)}
+                className={cn(
+                  "px-3 py-1.5 rounded-full text-xs font-bold transition-all",
+                  lang === l.value
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                )}
+              >
+                {l.label}
+              </button>
+            ))}
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setLang("bangla")}
-              className={cn("px-3 py-1.5 rounded-lg text-xs font-bold border transition-all", lang === "bangla" ? "bg-primary text-primary-foreground border-primary" : "border-border bg-secondary text-muted-foreground")}
-            >
-              🇧🇩 বাংলা বাক্য
-            </button>
-            <button
-              onClick={() => setLang("english")}
-              className={cn("px-3 py-1.5 rounded-lg text-xs font-bold border transition-all", lang === "english" ? "bg-primary text-primary-foreground border-primary" : "border-border bg-secondary text-muted-foreground")}
-            >
-              🇬🇧 English Sentences
-            </button>
+          {/* Divider */}
+          <span className="h-4 w-px bg-border mx-1 hidden sm:block" />
+
+          {/* Group 2: Difficulty Level */}
+          <div className="flex items-center gap-1 flex-wrap">
+            {LEVELS.map((l) => (
+              <button
+                key={l.lvl}
+                onClick={() => setLevel(l.lvl)}
+                title={l.desc}
+                className={cn(
+                  "px-3 py-1.5 rounded-full text-xs font-bold transition-all",
+                  level === l.lvl
+                    ? "bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 ring-1 ring-indigo-500/50"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                )}
+              >
+                {l.label}
+              </button>
+            ))}
           </div>
-        </div>
 
-        {/* Level Tabs */}
-        <div className="flex flex-wrap items-center gap-3">
-          {[
-            { lvl: 1, label: "🟢 লেভেল ১: সহজ বাক্য (৫–১০ শব্দ)", desc: "দৈনন্দিন ছোট বার্তা" },
-            { lvl: 2, label: "🟡 লেভেল ২: মধ্যম বাক্য (১১–২০ শব্দ)", desc: "সাহিত্য ও পত্রিকা" },
-            { lvl: 3, label: "🔴 লেভেল ৩: কঠিন / সরকারি পরীক্ষা (২১+ শব্দ)", desc: "যুক্তবর্ণ ও প্রশাসনিক ভাষা" },
-          ].map((l) => (
-            <button
-              key={l.lvl}
-              onClick={() => setLevel(l.lvl as 1 | 2 | 3)}
-              className={cn(
-                "px-4 py-2.5 rounded-xl text-xs font-bold border transition-all text-left space-y-0.5",
-                level === l.lvl
-                  ? "bg-indigo-500/10 border-indigo-500 text-indigo-600 shadow-xs"
-                  : "border-border bg-secondary text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <div>{l.label}</div>
-              <div className="text-[10px] font-normal text-muted-foreground">{l.desc}</div>
-            </button>
-          ))}
-        </div>
+          {/* Divider */}
+          <span className="h-4 w-px bg-border mx-1 hidden sm:block" />
 
-        {/* Sentence Count & Refresh */}
-        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border pt-4">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-muted-foreground">বাক্য সংখ্যা:</span>
+          {/* Group 3: Sentence Count */}
+          <div className="flex items-center gap-1">
+            <span className="text-[11px] text-muted-foreground font-semibold mr-1 hidden sm:block">বাক্য</span>
             {[5, 10, 15, 25].map((cnt) => (
               <button
                 key={cnt}
                 onClick={() => setSentenceCount(cnt)}
                 className={cn(
-                  "px-3 py-1 rounded-lg text-xs font-bold border transition-all",
+                  "px-2.5 py-1.5 rounded-full text-xs font-bold transition-all",
                   sentenceCount === cnt
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "border-border bg-secondary text-muted-foreground hover:text-foreground"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                 )}
               >
-                {cnt} বাক্য
+                {cnt}
               </button>
             ))}
           </div>
 
-          <Button size="sm" onClick={generateSentenceStream} className="gap-1.5 font-bold text-xs">
-            <RefreshCw size={13} />
-            <span>নতুন বাক্য লোড করুন</span>
-          </Button>
-        </div>
-      </Card>
+          {/* Divider */}
+          <span className="h-4 w-px bg-border mx-1 hidden sm:block" />
 
-      {/* Typing Area */}
+          {/* Group 4: Refresh */}
+          <button
+            onClick={generateSentenceStream}
+            title="নতুন বাক্য লোড করুন"
+            className="p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
+          >
+            <RefreshCw size={14} />
+          </button>
+
+        </div>
+      </div>
+
+      {/* ── Typing Arena ── */}
       <TypingArea />
 
-      {/* Keyboard Selector & Visual Keyboard */}
-      <div className="pt-4 border-t border-border space-y-3">
+      {/* ── Keyboard Layout Selector ── */}
+      <div className="rounded-2xl border border-border/60 bg-card/70 backdrop-blur-md shadow-sm px-4 py-3 space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-black uppercase text-foreground tracking-wider">
-            কিবোর্ড লেআউট নির্বাচন:
-          </h3>
-          <Badge variant="outline" className="border-primary text-primary font-bold text-xs uppercase">
+          <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">কিবোর্ড লেআউট</span>
+          <Badge variant="outline" className="border-primary/50 text-primary font-bold text-[10px] uppercase px-2 py-0.5">
             {activeLayout}
           </Badge>
         </div>
-
-        <div className="flex flex-wrap gap-2">
-          {[
-            { id: "avro", label: "Avro Phonetic" },
-            { id: "unibijoy", label: "UniBijoy" },
-            { id: "jatiya", label: "Jatiya (BCC)" },
-            { id: "probhat", label: "Probhat" },
-            { id: "inscript", label: "Inscript" },
-            { id: "unicode", label: "Unicode" },
-            { id: "english", label: "English QWERTY" },
-          ].map((l) => (
+        <div className="flex flex-wrap gap-1.5">
+          {KEYBOARD_LAYOUTS.map((l) => (
             <button
               key={l.id}
               onClick={() => setActiveLayout(l.id as KeyboardLayout)}
               className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-bold border transition-all",
+                "px-3 py-1.5 rounded-full text-xs font-bold transition-all",
                 activeLayout === l.id
-                  ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                  : "border-border bg-secondary text-muted-foreground hover:text-foreground"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "border border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
               )}
             >
               {l.label}
             </button>
           ))}
         </div>
-
         <VirtualKeyboard />
       </div>
+
     </div>
   );
 }

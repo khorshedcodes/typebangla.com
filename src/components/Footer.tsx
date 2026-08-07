@@ -33,10 +33,10 @@ export default function Footer() {
 
   return (
     <footer className="w-full border-t border-border bg-card/80 backdrop-blur-md py-12 mt-auto text-foreground">
-      
+
       {/* Main Grid Navigation Links */}
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-2 md:grid-cols-5 gap-8">
-        
+
         {/* Brand Info & Social Icons */}
         <div className="col-span-2 md:col-span-1 flex flex-col space-y-4">
           <Link href="/" className="flex items-center gap-2 group">
@@ -162,7 +162,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="flex items-center gap-3 font-semibold text-foreground">
-          <span>বাংলাদেশ থেকে ভালোবাসায় তৈরি 🇧🇩</span>
+          <span>বাংলাদেশ থেকে ভালোবাসায় তৈরি</span>
           <span>•</span>
           <a
             href="https://khorshed-alam.com"
