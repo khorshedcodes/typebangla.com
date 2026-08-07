@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { ExamCertificateModal } from "@/components/ExamCertificateModal";
 import { CertificateTopUpModal } from "@/components/CertificateTopUpModal";
 import { useInstitute } from "@/context/InstituteContext";
+import { useAuth } from "@/context/AuthContext";
 import { getPaymentRequests, submitPaymentRequest, updatePaymentRequestStatus } from "@/lib/firestoreService";
 
 import { notFound } from "next/navigation";
@@ -22,6 +23,7 @@ export default function DevTestPlaygroundPage() {
     notFound();
   }
 
+  const { user } = useAuth();
   const { quota } = useInstitute();
 
   // Test State
@@ -94,6 +96,25 @@ export default function DevTestPlaygroundPage() {
 
     if (res) {
       addLog(`Created Test Payment Request: TxID ${txId} (25 Certs @ 500 BDT)`);
+    }
+  };
+
+  const handlePromoteSelfToAdmin = async () => {
+    if (!user) {
+      addLog("Error: You must be logged in to promote your account.");
+      return;
+    }
+    try {
+      const { getFirebaseDb } = await import("../../lib/firebase");
+      const db = await getFirebaseDb();
+      if (!db) return;
+      const firestore = await import("firebase/firestore");
+      const userRef = firestore.doc(db, "users", user.uid);
+      await firestore.setDoc(userRef, { role: "admin" }, { merge: true });
+      addLog(`Success! Promoted account (${user.email || user.uid}) to Admin role. Refresh app to apply.`);
+    } catch (err) {
+      console.error("Admin promotion error:", err);
+      addLog(`Error promoting account to admin: ${err}`);
     }
   };
 
@@ -273,6 +294,13 @@ export default function DevTestPlaygroundPage() {
                   className="w-full text-xs font-bold gap-2 h-10 bg-emerald-600 hover:bg-emerald-500 text-white"
                 >
                   <CheckCircle2 size={15} /> Simulate 1-Click TxID Submission (BKASH-TEST)
+                </Button>
+
+                <Button
+                  onClick={handlePromoteSelfToAdmin}
+                  className="w-full text-xs font-bold gap-2 h-10 bg-purple-600 hover:bg-purple-500 text-white"
+                >
+                  <ShieldCheck size={15} /> 1-Click Promote Current User to Admin
                 </Button>
               </div>
 
