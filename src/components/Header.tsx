@@ -16,6 +16,7 @@ const NAV_HUBS = [
   { id: "courses", label: "Courses", href: "/courses" },
   { id: "practice", label: "Practice", href: "/practice" },
   { id: "tests", label: "Tests", href: "/tests" },
+  { id: "game", label: "Arcade 🎮", href: "/game" },
   { id: "tools", label: "Tools", href: "/tools" },
   { id: "blog", label: "Blog", href: "/blog" },
 ];

@@ -110,6 +110,9 @@ export default function Footer() {
           <Link href="/practice/test" className="text-xs text-muted-foreground hover:text-foreground transition-colors">স্পিড টেস্ট</Link>
           <Link href="/practice/words" className="text-xs text-muted-foreground hover:text-foreground transition-colors">শব্দ অনুশীলন</Link>
           <Link href="/practice/sentences" className="text-xs text-muted-foreground hover:text-foreground transition-colors">বাক্য অনুশীলন</Link>
+          <Link href="/game" className="text-xs font-extrabold text-emerald-500 hover:underline transition-colors flex items-center gap-1">
+            <span>টাইপিং আর্কেড গেমস 🎮</span>
+          </Link>
           <Link href="/practice/custom" className="text-xs text-muted-foreground hover:text-foreground transition-colors">নিজের টেক্সট</Link>
           <Link href="/juktakkhor" className="text-xs text-muted-foreground hover:text-foreground transition-colors">যুক্তাক্ষর মাস্টার</Link>
           <Link href="/exam/govt" className="text-xs font-extrabold text-primary hover:underline transition-colors flex items-center gap-1">
