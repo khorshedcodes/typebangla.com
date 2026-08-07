@@ -315,12 +315,23 @@ export default function CoursesCatalogPage() {
                   </div>
 
                   <div className="pt-2 space-y-2">
+                    <Link href={`/courses/${course.layout}`}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setActiveLayout(course.layout)}
+                        className="w-full font-bold text-xs gap-1.5 h-9 rounded-md border-border text-foreground hover:bg-secondary"
+                      >
+                        <BookOpen size={13} /> পাঠক্রম ও লেসন দেখুন (View Details)
+                      </Button>
+                    </Link>
+
                     {isEnrolled ? (
                       <Link href={`/courses/${course.layout}`}>
                         <Button
                           size="sm"
                           onClick={() => setActiveLayout(course.layout)}
-                          className="w-full font-extrabold text-xs gap-1.5 h-10 rounded-md shadow-xs"
+                          className="w-full font-extrabold text-xs gap-1.5 h-9 rounded-md shadow-xs"
                         >
                           Continue Course →
                         </Button>
@@ -328,11 +339,10 @@ export default function CoursesCatalogPage() {
                     ) : (
                       <Button
                         size="sm"
-                        variant="outline"
                         onClick={() => handleEnroll(course)}
-                        className="w-full font-black text-xs gap-1.5 h-10 rounded-md border-primary text-primary hover:bg-primary/10"
+                        className="w-full font-black text-xs gap-1.5 h-9 rounded-md shadow-xs"
                       >
-                        <BookOpen size={14} /> কোর্সে এনরোল করুন (Enroll Now)
+                        <Sparkles size={13} /> কোর্সে এনরোল করুন (Enroll Now)
                       </Button>
                     )}
                   </div>
