@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="100%" height="100%">
+  <defs>
+    <linearGradient id="ogBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090d16"/>
+      <stop offset="50%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+    <linearGradient id="ogCard" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4a55a4"/>
+      <stop offset="100%" stop-color="#313875"/>
+    </linearGradient>
+    <linearGradient id="ogCom" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <filter id="ogGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="24" flood-color="#47c6e9" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Dark Rich Background Canvas -->
+  <rect width="1200" height="630" fill="url(#ogBg)"/>
+  
+  <!-- Subtle Background Grid Accent Lines -->
+  <g opacity="0.05" stroke="#ffffff" stroke-width="1">
+    <line x1="0" y1="100" x2="1200" y2="100"/>
+    <line x1="0" y1="200" x2="1200" y2="200"/>
+    <line x1="0" y1="300" x2="1200" y2="300"/>
+    <line x1="0" y1="400" x2="1200" y2="400"/>
+    <line x1="0" y1="500" x2="1200" y2="500"/>
+  </g>
+
+  <!-- Central Brand Logo Mark Block -->
+  <g transform="translate(180, 160)" filter="url(#ogGlow)">
+    <!-- Icon Box -->
+    <rect x="0" y="0" width="180" height="180" rx="36" fill="url(#ogCard)" stroke="#47c6e9" stroke-width="4"/>
+    <path fill="#fefdfe" d="M123,94.5 c0.2,19.9 -17.0,37.1 -37.0,36.6 -25.8,-0.4 -44.1,-28.1 -42.4,-52.4 0.04,-3.3 1.5,-6.5 4.9,-7.2 3.0,-0.8 6.5,-1.3 8.6,-0.3 1.3,0.9 1.2,2.1 1.1,4.0 -2.3,17.2 10.8,42.2 30.6,40.0 6.0,-0.7 10.9,-3.6 14.6,-8.7 4.3,-6.0 7.7,-13.0 5.1,-20.3 -2.1,-5.5 -9.3,-9.1 -14.6,-6.2 -0.7,0.6 -0.9,1.5 -1.0,2.5 0,3.0 1.5,7.3 -1.0,10.1 -2.3,2.8 -6.7,3.9 -10.7,3.0 -9.6,-2.2 -11.3,-16.2 -5.9,-23.2 6.5,-9.0 18.2,-13.2 28.7,-8.9 11.9,4.7 18.6,18.3 18.7,30.8Z"/>
+    <path fill="#fefdfe" d="M29,42 h93.3 c2.2,0 4.1,1.8 4.1,4.1 v8.3 H35.3 c-3.5,0 -6.3,-2.8 -6.3,-6.3 v-6.1Z"/>
+    <rect x="139" y="42.5" width="9" height="78" rx="2.5" fill="#47c6e9"/>
+
+    <!-- Large Wordmark 'typebangla' -->
+    <text x="220" y="125" fill="#ffffff" font-family="Inter, system-ui, sans-serif" font-weight="900" font-size="96" letter-spacing="-2">typebangla</text>
+    
+    <!-- '.com' Domain Badge -->
+    <g transform="translate(680, 52)">
+      <rect x="0" y="0" width="130" height="56" rx="28" fill="url(#ogCom)"/>
+      <text x="65" y="36" fill="#ffffff" font-family="Inter, system-ui, sans-serif" font-weight="900" font-size="28" text-anchor="middle">.com</text>
+    </g>
+  </g>
+
+  <!-- Tagline Text (Bangla & English) -->
+  <text x="600" y="420" fill="#94a3b8" font-family="system-ui, sans-serif" font-weight="700" font-size="28" text-anchor="middle">
+    বাংলাদেশের প্রিমিয়াম অনলাইন টাইপিং লার্নিং ও সরকারি পরীক্ষা স্পিড টেস্ট পোর্টাল
+  </text>
+
+  <!-- Feature Pills Footer -->
+  <g transform="translate(240, 480)">
+    <!-- Pill 1 -->
+    <rect x="0" y="0" width="220" height="44" rx="22" fill="#1e293b" stroke="#334155"/>
+    <text x="110" y="28" fill="#38bdf8" font-family="Inter, sans-serif" font-weight="800" font-size="16" text-anchor="middle">⚡ UniBijoy &amp; Avro</text>
+
+    <!-- Pill 2 -->
+    <rect x="250" y="0" width="220" height="44" rx="22" fill="#1e293b" stroke="#334155"/>
+    <text x="360" y="28" fill="#10b981" font-family="Inter, sans-serif" font-weight="800" font-size="16" text-anchor="middle">🏆 Govt Job Exams</text>
+
+    <!-- Pill 3 -->
+    <rect x="500" y="0" width="220" height="44" rx="22" fill="#1e293b" stroke="#334155"/>
+    <text x="610" y="28" fill="#c084fc" font-family="Inter, sans-serif" font-weight="800" font-size="16" text-anchor="middle">🎓 Verified PDF Certs</text>
+  </g>
+</svg>
