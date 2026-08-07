@@ -501,4 +501,42 @@ export async function submitInstituteV2Waitlist(data: Omit<InstituteV2WaitlistRe
   }
 }
 
+export async function getInstituteV2WaitlistRequests(): Promise<InstituteV2WaitlistRecord[]> {
+  if (typeof window === "undefined") return [];
+  try {
+    const db = await getFirebaseDb();
+    if (!db) return [];
+    const firestore = await import("firebase/firestore");
+    const q = firestore.query(
+      firestore.collection(db, "institute_v2_waitlist"),
+      firestore.orderBy("createdAt", "desc")
+    );
+    const snap = await firestore.getDocs(q);
+    const results: InstituteV2WaitlistRecord[] = [];
+    snap.forEach((docSnap) => {
+      results.push({ id: docSnap.id, ...docSnap.data() } as InstituteV2WaitlistRecord);
+    });
+    return results;
+  } catch (err) {
+    console.error("Error fetching Institute V2 waitlist requests:", err);
+    return [];
+  }
+}
+
+export async function updateWaitlistStatus(id: string, status: "pending" | "contacted" | "approved") {
+  if (typeof window === "undefined" || !id) return false;
+  try {
+    const db = await getFirebaseDb();
+    if (!db) return false;
+    const firestore = await import("firebase/firestore");
+    const ref = firestore.doc(db, "institute_v2_waitlist", id);
+    await firestore.updateDoc(ref, { status, updatedAt: firestore.serverTimestamp() });
+    return true;
+  } catch (err) {
+    console.error("Error updating waitlist status:", err);
+    return false;
+  }
+}
+
+
 

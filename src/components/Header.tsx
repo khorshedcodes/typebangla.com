@@ -74,7 +74,8 @@ export default function Header() {
               </span>
             )}
             {pathname === "/admin" && (
-              <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 text-xs font-extrabold">
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 text-xs font-extrabold">
+                <ShieldCheck size={13} className="text-purple-500" />
                 Admin Control Center
               </span>
             )}
