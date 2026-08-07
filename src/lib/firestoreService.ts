@@ -523,6 +523,29 @@ export async function getInstituteV2WaitlistRequests(): Promise<InstituteV2Waitl
   }
 }
 
+export async function getAllUsers(): Promise<UserProfile[]> {
+  if (typeof window === "undefined") return [];
+  try {
+    const db = await getFirebaseDb();
+    if (!db) return [];
+    const firestore = await import("firebase/firestore");
+    const q = firestore.query(
+      firestore.collection(db, "users"),
+      firestore.orderBy("createdAt", "desc"),
+      firestore.limit(50)
+    );
+    const snap = await firestore.getDocs(q);
+    const results: UserProfile[] = [];
+    snap.forEach((docSnap) => {
+      results.push({ uid: docSnap.id, ...docSnap.data() } as UserProfile);
+    });
+    return results;
+  } catch (err) {
+    console.error("Error fetching all users from Firestore:", err);
+    return [];
+  }
+}
+
 export async function updateWaitlistStatus(id: string, status: "pending" | "contacted" | "approved") {
   if (typeof window === "undefined" || !id) return false;
   try {
@@ -537,6 +560,3 @@ export async function updateWaitlistStatus(id: string, status: "pending" | "cont
     return false;
   }
 }
-
-
-

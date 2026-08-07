@@ -18,7 +18,9 @@ import {
   PaymentRequestRecord,
   getInstituteV2WaitlistRequests,
   updateWaitlistStatus,
-  InstituteV2WaitlistRecord
+  InstituteV2WaitlistRecord,
+  getAllUsers,
+  UserProfile
 } from "../../lib/firestoreService";
 
 export default function AdminDashboardPage() {
@@ -37,6 +39,10 @@ export default function AdminDashboardPage() {
   const [waitlistFilterStatus, setWaitlistFilterStatus] = useState<"all" | "pending" | "contacted" | "approved">("all");
   const [isLoadingWaitlist, setIsLoadingWaitlist] = useState<boolean>(false);
   const [waitlistSearch, setWaitlistSearch] = useState<string>("");
+
+  // Registered Users Directory State
+  const [usersList, setUsersList] = useState<UserProfile[]>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState<boolean>(false);
 
   const fetchPayments = async () => {
     setIsLoadingPayments(true);
@@ -62,10 +68,23 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const fetchUsers = async () => {
+    setIsLoadingUsers(true);
+    try {
+      const data = await getAllUsers();
+      setUsersList(data);
+    } catch (err) {
+      console.error("Error fetching users list:", err);
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+
   useEffect(() => {
     queueMicrotask(() => {
       fetchPayments();
       fetchWaitlist();
+      fetchUsers();
     });
   }, []);
 
@@ -732,7 +751,17 @@ export default function AdminDashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800">
-                  {mockUsers.map((u) => (
+                  {(usersList.length > 0
+                    ? usersList.map((u) => ({
+                        id: u.uid,
+                        name: u.displayName || "Typing Learner",
+                        email: u.email || "N/A",
+                        role: u.role || "student",
+                        avgWpm: u.avgWpm || 0,
+                        highWpm: u.highWpm || 0,
+                      }))
+                    : mockUsers
+                  ).map((u) => (
                     <tr key={u.id} className="hover:bg-slate-800/50">
                       <td className="p-3 font-bold text-white">
                         <div>{u.name}</div>
