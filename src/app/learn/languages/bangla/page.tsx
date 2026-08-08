@@ -13,42 +13,42 @@ import { Button } from "../../../../components/ui/button";
 
 export default function BanglaLanguageHubPage() {
   return (
-    <main className="container max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-16 fade-in text-[#111827]">
+    <main className="container max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-16 fade-in text-foreground">
       
       {/* ── Breadcrumb ──────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 text-xs text-[#6B7280]">
-        <Link href="/" className="hover:text-[#2563EB]">Home</Link>
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <Link href="/" className="hover:text-primary">Home</Link>
         <span>/</span>
-        <Link href="/learn" className="hover:text-[#2563EB]">Learn Hub</Link>
+        <Link href="/courses" className="hover:text-primary">Courses</Link>
         <span>/</span>
-        <span className="text-[#111827] font-bold">Bangla Typing</span>
+        <span className="text-foreground font-bold">Bangla Typing</span>
       </div>
 
       {/* ── 1. HERO SECTION ─────────────────────────────────────────────────── */}
-      <section className="border border-[#E5E7EB] bg-[#FFFFFF] rounded-3xl p-8 sm:p-12 text-center space-y-6 shadow-sm max-w-4xl mx-auto">
-        <div className="inline-flex items-center gap-2 bg-[#2563EB]/10 border border-[#2563EB]/20 px-4 py-1.5 rounded-full text-xs font-bold text-[#2563EB]">
+      <section className="border border-border bg-card rounded-3xl p-8 sm:p-12 text-center space-y-6 shadow-xs max-w-4xl mx-auto">
+        <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 px-4 py-1.5 rounded-full text-xs font-bold text-primary">
           <Keyboard size={15} />
           <span>BANGLA TYPING HUB</span>
         </div>
 
-        <h1 className="text-4xl sm:text-6xl font-black text-[#111827] tracking-tight">
-          বাংলা টাইপিং কোর্স
+        <h1 className="text-3xl sm:text-5xl font-black text-foreground tracking-tight">
+          বাংলা টাইপিং কোর্স ও গাইড
         </h1>
 
-        <p className="text-base sm:text-lg text-[#6B7280] max-w-2xl mx-auto leading-relaxed">
+        <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
           অভ্র ফোনেটিক, ইউনিবিজয় ও সরকারি বিসিসি জাতীয় কিবোর্ডে বাংলা টাইপিং মাস্টার করুন সহজ উপায়ে।
         </p>
 
-        <div className="flex flex-wrap justify-center gap-4 text-xs font-bold text-[#111827]">
+        <div className="flex flex-wrap justify-center gap-4 text-xs font-bold text-foreground">
           <span>✓ অভ্র, বিজয় ও জাতীয় সাপোর্ট</span>
           <span>✓ যুক্তাক্ষর ও জটিল বর্ণমালা</span>
           <span>✓ সরকারি চাকরির পরীক্ষা প্রস্তুতি</span>
         </div>
 
         <div className="pt-2">
-          <Link href="/learn/beginner?lang=bn">
-            <Button size="lg" className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold text-sm h-12 px-8 rounded-xl shadow-lg gap-2">
-              বাংলা শেখা শুরু করুন →
+          <Link href="/courses">
+            <Button size="lg" className="font-bold text-sm h-12 px-8 rounded-xl shadow-xs gap-2">
+              বাংলা কোর্স শুরু করুন →
             </Button>
           </Link>
         </div>
@@ -57,7 +57,7 @@ export default function BanglaLanguageHubPage() {
       {/* ── 2. KEYBOARD LAYOUT SELECTION ────────────────────────────────────── */}
       <section className="space-y-6">
         <div className="text-center space-y-1">
-          <span className="text-xs font-black text-[#2563EB] uppercase tracking-widest">কিবোর্ড নির্বাচন</span>
+          <span className="text-xs font-black text-primary uppercase tracking-widest">কিবোর্ড নির্বাচন</span>
           <h2 className="text-2xl sm:text-3xl font-black text-[#111827]">Choose Keyboard Layout</h2>
         </div>
 
