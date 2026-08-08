@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useTypingStore, KeyboardLayout } from "../../../store/typingStore";
 import TypingArea from "../../../components/TypingArea";
@@ -49,8 +50,16 @@ export default function SpeedTestPracticeClient() {
     setupSpeedTest(initialDuration, initialLayout === "english" ? "english" : "bangla");
   }, [initialDuration, initialLayout]);
 
+  const availableLayouts = lang === "english"
+    ? KEYBOARD_LAYOUTS.filter((l) => l.id === "english")
+    : KEYBOARD_LAYOUTS.filter((l) => l.id !== "english");
+
   return (
     <div className="space-y-5">
+      {/* Back to Hub Link */}
+      <Link href="/practice" className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors">
+        ← প্র্যাকটিস হাব-এ ফিরে যান
+      </Link>
 
       {/* ── Glassmorphism Pill Toolbar ── */}
       <div className="rounded-2xl border border-border/60 bg-card/70 backdrop-blur-md shadow-sm px-4 py-3">
@@ -64,7 +73,12 @@ export default function SpeedTestPracticeClient() {
             ].map((l) => (
               <button
                 key={l.value}
-                onClick={() => { setLang(l.value); setupSpeedTest(selectedDuration || 300, l.value); }}
+                onClick={() => {
+                  setLang(l.value);
+                  const nextLayout = l.value === "english" ? "english" : (activeLayout === "english" ? "avro" : activeLayout);
+                  setActiveLayout(nextLayout);
+                  setupSpeedTest(selectedDuration || 300, l.value);
+                }}
                 className={cn(
                   "px-3 py-1.5 rounded-full text-xs font-bold transition-all",
                   lang === l.value
@@ -126,7 +140,7 @@ export default function SpeedTestPracticeClient() {
           </Badge>
         </div>
         <div className="flex flex-wrap gap-1.5">
-          {KEYBOARD_LAYOUTS.map((l) => (
+          {availableLayouts.map((l) => (
             <button
               key={l.id}
               onClick={() => {

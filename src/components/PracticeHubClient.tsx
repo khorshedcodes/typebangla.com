@@ -8,6 +8,7 @@ import {
   Trophy, ShieldCheck, Sparkles, Activity, Unlock, UserCheck, Languages
 } from "lucide-react";
 import { useTypingStore, KeyboardLayout } from "../store/typingStore";
+import { useAuth } from "../context/AuthContext";
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -138,6 +139,7 @@ const ALL_MODES: PracticeMode[] = [
 ];
 
 export function PracticeHubClient() {
+  const { user } = useAuth();
   const { history, activeLayout, setActiveLayout } = useTypingStore();
   const [selectedTab, setSelectedTab] = useState<"all" | "bangla" | "english" | "tools">("all");
 
@@ -180,48 +182,27 @@ export function PracticeHubClient() {
             </p>
           </div>
 
-          {/* User Quick Telemetry Badges */}
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="bg-secondary rounded-xl px-4 py-2.5 border border-border text-center">
-              <div className="text-[10px] font-bold text-muted-foreground uppercase">Best Speed</div>
-              <div className="text-lg font-black text-foreground">{bestWpm} <span className="text-xs font-semibold text-muted-foreground">WPM</span></div>
-            </div>
+          {/* User Quick Telemetry Badges (Logged In Only) */}
+          {user && (
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="bg-secondary rounded-xl px-4 py-2.5 border border-border text-center">
+                <div className="text-[10px] font-bold text-muted-foreground uppercase">Best Speed</div>
+                <div className="text-lg font-black text-foreground">{bestWpm} <span className="text-xs font-semibold text-muted-foreground">WPM</span></div>
+              </div>
 
-            <div className="bg-secondary rounded-xl px-4 py-2.5 border border-border text-center">
-              <div className="text-[10px] font-bold text-muted-foreground uppercase">Avg Accuracy</div>
-              <div className="text-lg font-black text-foreground">{avgAccuracy}%</div>
-            </div>
+              <div className="bg-secondary rounded-xl px-4 py-2.5 border border-border text-center">
+                <div className="text-[10px] font-bold text-muted-foreground uppercase">Avg Accuracy</div>
+                <div className="text-lg font-black text-foreground">{avgAccuracy}%</div>
+              </div>
 
-            <div className="bg-secondary rounded-xl px-4 py-2.5 border border-border text-center">
-              <div className="text-[10px] font-bold text-muted-foreground uppercase">Tests Taken</div>
-              <div className="text-lg font-black text-foreground">{history ? history.length : 0}</div>
+              <div className="bg-secondary rounded-xl px-4 py-2.5 border border-border text-center">
+                <div className="text-[10px] font-bold text-muted-foreground uppercase">Tests Taken</div>
+                <div className="text-lg font-black text-foreground">{history ? history.length : 0}</div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
-
-        {/* Layout Switcher Bar */}
-        <div className="pt-4 border-t border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 relative z-10">
-          <div className="flex items-center gap-2 text-xs font-bold text-foreground">
-            <Keyboard size={16} className="text-primary" />
-            <span>Selected Keyboard Layout:</span>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            {[...BANGLA_LAYOUT_OPTIONS, ...ENGLISH_LAYOUT_OPTIONS].map((layout) => (
-              <button
-                key={layout.id}
-                onClick={() => setActiveLayout(layout.id)}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all border ${
-                  activeLayout === layout.id
-                    ? "bg-primary text-primary-foreground border-primary shadow-xs scale-105"
-                    : "bg-secondary text-muted-foreground border-border hover:text-foreground"
-                }`}
-              >
-                {layout.name}
-              </button>
-            ))}
-          </div>
-        </div>
+      </div>
 
         {/* ── GOVT JOB EXAM QUICK ACCESS BANNER ── */}
         <div className="pt-4 border-t border-border relative z-10">
@@ -248,7 +229,6 @@ export function PracticeHubClient() {
             </Link>
           </div>
         </div>
-      </div>
 
       {/* ── CATEGORY FILTER TABS ── */}
       <div className="flex items-center gap-2 flex-wrap border-b border-border pb-4">
@@ -357,9 +337,9 @@ export function PracticeHubClient() {
                     </span>
                   </div>
 
-                  <Link href={`${mode.href}${mode.href.includes("?") ? "&" : "?"}layout=${currentLayout}`} className="block pt-1">
+                  <Link href={mode.href} className="block pt-1">
                     <Button className="w-full font-black text-xs gap-2 h-10 rounded-xl shadow-xs bg-primary text-primary-foreground hover:opacity-95">
-                      <span>Start in {currentLayout.toUpperCase()}</span>
+                      <span>Start Practice</span>
                       <ArrowRight size={14} />
                     </Button>
                   </Link>

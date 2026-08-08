@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useTypingStore, KeyboardLayout } from "../../../store/typingStore";
 import TypingArea from "../../../components/TypingArea";
 import VirtualKeyboard from "../../../components/VirtualKeyboard";
@@ -42,6 +43,11 @@ export default function NumbersClient() {
 
   return (
     <div className="space-y-6">
+      {/* Back to Hub Link */}
+      <Link href="/practice" className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors">
+        ← প্র্যাকটিস হাব-এ ফিরে যান
+      </Link>
+
       {/* Controls Card */}
       <Card className="border border-border bg-card p-6 rounded-2xl shadow-xs space-y-4">
         <div className="flex items-center justify-between border-b border-border pb-3">

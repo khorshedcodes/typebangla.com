@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useTypingStore, KeyboardLayout } from "../../../store/typingStore";
 import TypingArea from "../../../components/TypingArea";
 import VirtualKeyboard from "../../../components/VirtualKeyboard";
@@ -54,6 +55,10 @@ export default function SentencesClient() {
 
   return (
     <div className="space-y-5">
+      {/* Back to Hub Link */}
+      <Link href="/practice" className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors">
+        ← প্র্যাকটিস হাব-এ ফিরে যান
+      </Link>
 
       {/* ── Glassmorphism Pill Toolbar ── */}
       <div className="rounded-2xl border border-border/60 bg-card/70 backdrop-blur-md shadow-sm px-4 py-3">

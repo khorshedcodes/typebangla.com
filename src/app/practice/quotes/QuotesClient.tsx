@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useTypingStore, KeyboardLayout } from "../../../store/typingStore";
 import TypingArea from "../../../components/TypingArea";
 import VirtualKeyboard from "../../../components/VirtualKeyboard";
-import { Quote, Sparkles, BookOpen, User, Feather, Bookmark } from "lucide-react";
+import { Quote, Sparkles, BookOpen, User, Feather, Bookmark, RefreshCw } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { Card, CardContent } from "../../../components/ui/card";
 import { Badge } from "../../../components/ui/badge";
@@ -58,7 +59,7 @@ const LITERARY_QUOTES: LiteraryQuote[] = [
     authorBn: "বঙ্গবন্ধু শেখ মুজিবুর রহমান",
     category: "bangabandhu",
     title: "৭ই মার্চের ঐতিহাসিক ভাষণ",
-    text: "রক্ত যখন দিয়েছি, রক্ত আরো দেব। এ দেশের মানুষকে মুক্ত করে ছাড়ব ইনশাল্লাহ। এবারের সংগ্রাম আমাদের মুক্তির সংগ্রাম, এবারের সংগ্রাম স্বাধীনতার সংগ্রাম।"
+    text: "এবারের সংগ্রাম আমাদের মুক্তির সংগ্রাম, এবারের সংগ্রাম স্বাধীনতার সংগ্রাম! রক্ত যখন দিয়েছি, রক্ত আরো দেব, এই দেশের মানুষকে মুক্ত করে ছাড়ব ইনশাল্লাহ!"
   },
   {
     id: "q-wisdom-1",
@@ -81,11 +82,13 @@ const LITERARY_QUOTES: LiteraryQuote[] = [
 export default function QuotesClient() {
   const { activeLayout, setActiveLayout, setTargetText, resetTest } = useTypingStore();
   const [selectedQuote, setSelectedQuote] = useState<LiteraryQuote>(LITERARY_QUOTES[0]);
+  const [showSelector, setShowSelector] = useState<boolean>(true);
 
-  const selectQuote = (quote: LiteraryQuote) => {
-    setSelectedQuote(quote);
-    setTargetText(quote.text);
+  const selectQuote = (q: LiteraryQuote) => {
+    setSelectedQuote(q);
+    setTargetText(q.text);
     resetTest();
+    setShowSelector(false);
   };
 
   useEffect(() => {
@@ -95,19 +98,41 @@ export default function QuotesClient() {
 
   return (
     <div className="space-y-6">
-      {/* Quote Selection Grid */}
-      <Card className="border border-border bg-card p-6 rounded-2xl shadow-xs space-y-4">
-        <div className="flex items-center justify-between border-b border-border pb-3">
-          <h2 className="text-sm font-black text-foreground uppercase tracking-wider flex items-center gap-2">
-            <Quote size={16} className="text-purple-600" />
-            <span>১. সাহিত্য অনুচ্ছেদ ও বিখ্যাত উক্তি নির্বাচন করুন:</span>
-          </h2>
-          <Badge variant="outline" className="border-purple-500 text-purple-600 bg-purple-50 dark:bg-purple-950/40 text-xs font-bold">
+      {/* Back to Hub Link */}
+      <Link href="/practice" className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors">
+        ← প্র্যাকটিস হাব-এ ফিরে যান
+      </Link>
+
+      {/* Quote Selection Header / Toggle Bar */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Badge className="bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30 text-xs font-bold">
             {selectedQuote.authorBn}
           </Badge>
+          <span className="text-xs font-bold text-foreground line-clamp-1">{selectedQuote.title}</span>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowSelector((prev) => !prev)}
+          className="text-xs font-bold gap-1.5 border-border"
+        >
+          <RefreshCw size={12} />
+          <span>{showSelector ? "সিলেক্টর বন্ধ করুন" : "উদ্ধৃতি পরিবর্তন করুন (Change Quote)"}</span>
+        </Button>
+      </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      {/* Quote Selection Grid */}
+      {showSelector && (
+        <Card className="border border-border bg-card p-6 rounded-2xl shadow-xs space-y-4 fade-in">
+          <div className="flex items-center justify-between border-b border-border pb-3">
+            <h2 className="text-sm font-black text-foreground uppercase tracking-wider flex items-center gap-2">
+              <Quote size={16} className="text-purple-600" />
+              <span>১. সাহিত্য অনুচ্ছেদ ও বিখ্যাত উক্তি নির্বাচন করুন:</span>
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {LITERARY_QUOTES.map((q) => (
             <button
               key={q.id}
@@ -129,6 +154,7 @@ export default function QuotesClient() {
           ))}
         </div>
       </Card>
+      )}
 
       {/* Typing Area */}
       <TypingArea />

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   FileText, Play, RefreshCw, FileUp, Sparkle, Clock, Keyboard,
@@ -52,6 +53,10 @@ export function CustomTextPractice() {
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto text-foreground fade-in">
+      {/* Back to Hub Link */}
+      <Link href="/practice" className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors">
+        ← প্র্যাকটিস হাব-এ ফিরে যান
+      </Link>
       {/* Hero Banner */}
       <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-xs relative overflow-hidden bg-grid-pattern">
         <div className="relative z-10 space-y-3">
