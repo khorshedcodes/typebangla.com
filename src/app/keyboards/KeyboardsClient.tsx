@@ -4,12 +4,12 @@ import React, { useState } from "react";
 import { useTypingStore, KeyboardLayout } from "../../store/typingStore";
 import VirtualKeyboard from "../../components/VirtualKeyboard";
 import { JATIYA_MAP, UNI_BIJOY_MAP, PROBHAT_MAP, INSCRIPT_MAP, UNICODE_MAP, avroTransliterate } from "../../utils/layouts";
-import { cn } from "../../utils/cn";
+import { cn } from "@/utils/cn";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { Keyboard, Info, RotateCcw, Sparkles } from "lucide-react";
 
-export default function LayoutsClient() {
+export default function KeyboardsClient() {
   const { activeLayout, setActiveLayout } = useTypingStore();
   const [sandboxText, setSandboxText] = useState("");
   const [avroBuffer, setAvroBuffer] = useState("");
@@ -108,7 +108,6 @@ export default function LayoutsClient() {
           setSandboxText(prev => prev + committed + mappedChar);
         }
       } else {
-        // Mapped layouts (unibijoy, jatiya, etc.)
         const map = 
           activeLayout === "unibijoy" ? UNI_BIJOY_MAP :
           activeLayout === "jatiya" ? JATIYA_MAP :

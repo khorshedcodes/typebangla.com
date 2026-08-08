@@ -128,7 +128,7 @@ export default function LayoutPracticeClient({ layout }: Props) {
           </div>
 
           <div className="flex items-center gap-1.5">
-            <Link href="/govt-job-typing-test">
+            <Link href="/exam/govt">
               <Button size="sm" variant="outline" className="h-8 px-2.5 text-xs font-bold gap-1 border-amber-200 dark:border-amber-900 text-amber-700 dark:text-amber-400 hidden sm:flex">
                 <Gauge size={13} />
                 পরীক্ষা দিন
@@ -295,7 +295,7 @@ export default function LayoutPracticeClient({ layout }: Props) {
               ) : (
                 <>
                   <Button variant="outline" onClick={resetTest} className="flex-1 text-xs">আবার করুন</Button>
-                  <Link href="/govt-job-typing-test" className="flex-1">
+                  <Link href="/exam/govt" className="flex-1">
                     <Button className="w-full text-xs bg-amber-600 hover:bg-amber-700 text-white">
                       পরীক্ষা দিন →
                     </Button>

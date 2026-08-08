@@ -1,0 +1,113 @@
+================================================================================
+                       TYPEBANGLA — WEBSITE ROUTE DIRECTORY
+                             Website: https://typebangla.com
+================================================================================
+
+--------------------------------------------------------------------------------
+1. CORE PLATFORM & ACCOUNT PAGES
+--------------------------------------------------------------------------------
+/                                  - Home Landing Page
+/about                             - About Us & Founder Leadership
+/contact                           - Contact & Multi-Channel Support Center
+/privacy                           - Privacy Policy & Payment Data Security
+/terms                             - Terms of Service & Licensing Agreement
+/login                             - User & Institute Sign In
+/signup                            - User Account Registration
+/dashboard                         - User Analytics Dashboard, WPM History & Stats
+/leaderboard                       - Global Typist Ranking & Leaderboard
+/institute                         - Institute V2 Portal & Bulk Student Certification
+/admin                             - Super Admin Control Panel & Verification Management
+/dev-test                          - Internal Developer Testing Console
+
+--------------------------------------------------------------------------------
+2. HIGH-INTENT LANDING PAGES & KEYBOARD ENGINES
+--------------------------------------------------------------------------------
+/online-bangla-keyboard            - Online Bangla Virtual Keyboard Tool
+/avro-phonetic-typing              - Avro Phonetic Typing Engine & Lessons
+/bijoy-52-typing                   - Bijoy 52 Typing Engine & Lessons
+/jatiya-keyboard-typing            - Jatiya (BCC Govt Standard) Layout Engine & Lessons
+/probhat-layout-typing             - Probhat Layout Typing Engine & Lessons
+/inscript-bangla-typing            - Inscript Bangla Layout Engine & Lessons
+/english-touch-typing              - English Touch Typing Engine & Lessons
+/bangla-english-mixed-typing-test  - Bilingual Bangla & English Mixed Speed Test
+
+--------------------------------------------------------------------------------
+3. PRACTICE HUB & TYPING ARENAS
+--------------------------------------------------------------------------------
+/practice                          - Practice Hub Overview & Category Selector
+/practice/test                     - Timed Speed Test Arena (1m, 2m, 3m, 5m, 10m, 15m)
+/practice/words                    - Word Drills (High-Frequency, Juktakkhor, Govt Terms)
+/practice/sentences                - Sentence & Paragraph Drills (Level 1, 2, 3)
+/practice/quotes                   - Bangla Literature & Poetry Quotes Practice
+/practice/numbers                  - Bangla & English Numbers and Punctuation Drills
+/practice/custom                   - Custom Text & File Upload Practice Builder
+/practice/custom/test              - Live Custom Text Practice Arena
+/practice/[layout]                 - Dynamic Layout Practice Arena (e.g. /practice/avro)
+
+--------------------------------------------------------------------------------
+4. LEARNING & CURRICULUM HUBS
+--------------------------------------------------------------------------------
+/courses                           - Courses Catalogue & Curriculum Overview
+/courses/[courseId]                - Course Details & Lesson Player (e.g. /courses/avro)
+/learn/beginner                    - Beginner Touch Typing Course
+/learn/intermediate                - Intermediate Speed Building Course
+/learn/advanced                    - Advanced Literature & Speed Sprint Course
+/learn/languages/bangla            - Bangla Master Curriculum
+/learn/languages/english           - English Touch Typing Course
+/learn/avro                        - Avro Phonetic Layout Course
+/learn/unibijoy                    - UniBijoy / Bijoy 52 Layout Course
+/learn/jatiya                      - Jatiya BCC Govt Layout Course
+/learn/probhat                     - Probhat Layout Course
+/learn/english                     - English QWERTY Layout Course
+/learn/[layout]                    - Dynamic Layout Course Route
+
+--------------------------------------------------------------------------------
+5. EXAMS & CERTIFICATION SIMULATORS
+--------------------------------------------------------------------------------
+/exam/govt                         - Government Job Exam Preparation Simulator & Hub
+/exam/govt/test                    - Live 5-Minute BCC Govt Exam Simulator Arena
+/exam/mock                         - Mock Test Arena
+/exam/ranked                       - Ranked Telemetry Exam Arena
+/tests                             - Skill Assessment Tests Catalogue
+/tests/[testSlug]                  - Dynamic Test Arena (e.g. /tests/bangla-standard-5min)
+/verify/[certificateId]            - Public QR Certificate Verification & Audit Page
+
+--------------------------------------------------------------------------------
+6. UTILITIES & CONVERTERS HUB
+--------------------------------------------------------------------------------
+/tools                             - All Tools & Utilities Hub
+/unicode-to-bijoy-converter        - Unicode to Bijoy 52 Converter
+/bijoy-to-unicode-converter        - Bijoy 52 to Unicode Converter
+/bangla-voice-typing               - Bangla Voice to Text Typing (Web Speech API)
+/bangla-text-to-speech             - Bangla Text to Speech Reader
+/bangla-word-counter               - Bangla Word & Character Counter
+/bangla-number-converter            - English to Bangla Number Converter
+/bangla-lorem-ipsum                - Bangla Lorem Ipsum Dummy Text Generator
+/bangla-text-cleaner               - Bangla Text Sanitizer & Cleaner
+/bangla-slug-generator             - Bangla URL Slug Generator
+/english-to-bangla-typing          - English-to-Bangla Phonetic Script Converter
+/juktakkhor                        - Bangla Juktakkhor Master Trainer
+/juktakkhor-finder                 - Bangla Juktakkhor Finder & Keystroke Breakdown
+
+--------------------------------------------------------------------------------
+7. KEYBOARD MAPS, GAMIFICATION & STATS
+--------------------------------------------------------------------------------
+/keyboards                         - Keyboard Maps Overview
+/keyboards/avro                    - Avro Phonetic Keyboard Layout Map
+/keyboards/unibijoy                - UniBijoy Keyboard Layout Map
+/keyboards/jatiya                  - Jatiya BCC Keyboard Layout Map
+/keyboards/probhat                 - Probhat Keyboard Layout Map
+/keyboards/inscript                - Inscript Keyboard Layout Map
+/keyboards/english                - English QWERTY Keyboard Layout Map
+/keyboards/[layout]                - Dynamic Keyboard Layout Map Route
+/game                              - Falling Words Typing Mini-Game
+
+--------------------------------------------------------------------------------
+8. BLOG & ARTICLES
+--------------------------------------------------------------------------------
+/blog                              - Blog Articles Hub
+/blog/[slug]                       - Dynamic Blog Post Page (e.g. /blog/master-avro-typing)
+
+================================================================================
+Clean Route Directory: 60+ Active Canonical Routes (0 Redirect Loops)
+================================================================================

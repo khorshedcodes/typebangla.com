@@ -189,7 +189,7 @@ export default function LandingPage() {
               diff: "Beginner Friendly",
               audience: "Recommended for Beginners & Students",
               icon: "⌨️",
-              link: "/learn/avro-phonetic-typing",
+              link: "/avro-phonetic-typing",
             },
             {
               name: "UniBijoy / Bijoy 52",
@@ -197,7 +197,7 @@ export default function LandingPage() {
               diff: "Govt Standard",
               audience: "Recommended for Office & Govt Staff",
               icon: "🏛️",
-              link: "/learn/bijoy-52-typing",
+              link: "/bijoy-52-typing",
             },
             {
               name: "Jatiya (BCC)",
@@ -205,7 +205,7 @@ export default function LandingPage() {
               diff: "Official Exam",
               audience: "Recommended for Govt Operator Applicants",
               icon: "🎖️",
-              link: "/learn/jatiya-keyboard-typing",
+              link: "/jatiya-keyboard-typing",
             },
             {
               name: "Probhat Layout",
@@ -213,7 +213,7 @@ export default function LandingPage() {
               diff: "Fixed Layout",
               audience: "Recommended for Writers & Translators",
               icon: "🌅",
-              link: "/learn/probhat-layout-typing",
+              link: "/probhat-layout-typing",
             },
             {
               name: "Inscript Bangla",
@@ -221,7 +221,7 @@ export default function LandingPage() {
               diff: "Regional Standard",
               audience: "Recommended for West Bengal & Regional Typing",
               icon: "🇮🇳",
-              link: "/learn/inscript-bangla-typing",
+              link: "/inscript-bangla-typing",
             },
             {
               name: "English QWERTY",
@@ -229,7 +229,7 @@ export default function LandingPage() {
               diff: "All-Level Practice",
               audience: "Recommended for Global Freelancers & Coders",
               icon: "🌐",
-              link: "/learn/english-touch-typing",
+              link: "/english-touch-typing",
             },
           ].map((l, i) => (
             <Card key={i} className="border border-border bg-card/80 backdrop-blur-md hover:border-emerald-500/50 transition-all rounded-2xl p-6 space-y-3 text-center shadow-xs group">
@@ -358,7 +358,7 @@ export default function LandingPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             { name: "বাংলা টাইপিং", count: "৩০+ লেসন", icon: "🇧🇩", link: "/courses" },
-            { name: "English Touch Typing", count: "২৫+ লেসন", icon: "🌐", link: "/learn/english-touch-typing" },
+            { name: "English Touch Typing", count: "২৫+ লেসন", icon: "🌐", link: "/english-touch-typing" },
             { name: "যুক্তাক্ষর মাস্টার", count: "১৫+ ড্রিলস", icon: "🔤", link: "/juktakkhor" },
             { name: "Govt Exam Simulator", count: "সরকারি সিমুলেটর", icon: "🏛️", link: "/exam/govt" },
             { name: "শব্দ অনুশীলন", count: "১০০০+ শব্দ", icon: "📝", link: "/practice/words" },

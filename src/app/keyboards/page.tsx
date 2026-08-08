@@ -1,6 +1,6 @@
 import React from "react";
 import { Metadata } from "next";
-import LayoutsClient from "../layouts/LayoutsClient";
+import KeyboardsClient from "./KeyboardsClient";
 
 export const metadata: Metadata = {
   title: "বাংলা কীবোর্ড লেআউট — অভ্র, ইউনিবিজয়, জাতীয়, প্রভাত | TypeBangla",
@@ -9,5 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function KeyboardsPage() {
-  return <LayoutsClient />;
+  return <KeyboardsClient />;
 }

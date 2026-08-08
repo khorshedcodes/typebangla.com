@@ -139,7 +139,7 @@ export default function Header() {
                       <span>Dashboard</span>
                     </Link>
                     <Link
-                      href="/stats"
+                      href="/dashboard"
                       onClick={() => setUserMenuOpen(false)}
                       className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-foreground hover:bg-secondary rounded-lg transition-colors"
                     >
