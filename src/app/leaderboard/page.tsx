@@ -79,6 +79,10 @@ export default function LeaderboardPage() {
   const { user } = useAuth();
 
   const [selectedLayout, setSelectedLayout] = useState<string>("all");
+  const [selectedTime, setSelectedTime] = useState<"daily" | "weekly" | "monthly" | "all">("all");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const pageSize = 10;
+
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [showAuthGateModal, setShowAuthGateModal] = useState<boolean>(false);
@@ -86,15 +90,25 @@ export default function LeaderboardPage() {
   useEffect(() => {
     async function loadData() {
       setLoading(true);
-      const data = await getTopLeaderboard(selectedLayout, 20);
+      const data = await getTopLeaderboard(selectedLayout, 50);
       setLeaderboardData(data as LeaderboardEntry[]);
       setLoading(false);
+      setCurrentPage(1);
     }
     loadData();
-  }, [selectedLayout]);
+  }, [selectedLayout, selectedTime]);
 
   const realData = leaderboardData.length > 0;
-  const displayData = realData ? leaderboardData : MOCK_LEADERBOARD;
+  const rawData = realData ? leaderboardData : MOCK_LEADERBOARD;
+
+  // Filter by layout if mock
+  const filteredData = rawData.filter((item) => {
+    if (selectedLayout !== "all" && item.layout !== selectedLayout) return false;
+    return true;
+  });
+
+  const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
+  const paginatedData = filteredData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <div className="min-h-screen bg-background text-foreground py-10 px-4 sm:px-6">
@@ -138,27 +152,56 @@ export default function LeaderboardPage() {
           </Button>
         </div>
 
-        {/* Layout Filters */}
-        <div className="flex items-center gap-2 border-b border-border pb-4 overflow-x-auto">
-          {[
-            { id: "all", label: "সব লেআউট" },
-            { id: "unibijoy", label: "ইউনিবিজয়" },
-            { id: "jatiya", label: "জাতীয়" },
-            { id: "avro", label: "অভ্র" },
-            { id: "english", label: "English" },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setSelectedLayout(tab.id)}
-              className={`px-4 py-2 rounded-md text-xs font-bold transition-all shrink-0 border ${
-                selectedLayout === tab.id
-                  ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                  : "border-border bg-card text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        {/* Double Filter Bar: Layouts + Time Period */}
+        <div className="space-y-3 border-b border-border pb-4">
+          {/* Layout Filters */}
+          <div className="flex items-center gap-1.5 overflow-x-auto">
+            <span className="text-xs font-bold text-muted-foreground mr-1 shrink-0">কিবোর্ড:</span>
+            {[
+              { id: "all", label: "সব লেআউট" },
+              { id: "avro", label: "অভ্র" },
+              { id: "unibijoy", label: "ইউনিবিজয়" },
+              { id: "jatiya", label: "জাতীয়" },
+              { id: "probhat", label: "প্রভাত" },
+              { id: "inscript", label: "ইনস্ক্রিপ্ট" },
+              { id: "english", label: "English" },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setSelectedLayout(tab.id)}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 border ${
+                  selectedLayout === tab.id
+                    ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                    : "border-border bg-card text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Time Filters */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pt-1">
+            <span className="text-xs font-bold text-muted-foreground mr-1 shrink-0">সময়সীমা:</span>
+            {[
+              { id: "all", label: "সর্বকালের (All-Time)" },
+              { id: "monthly", label: "এই মাসের" },
+              { id: "weekly", label: "এই সপ্তাহের" },
+              { id: "daily", label: "আজকের" },
+            ].map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setSelectedTime(t.id as any)}
+                className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all shrink-0 border ${
+                  selectedTime === t.id
+                    ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/40"
+                    : "border-border bg-card text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {!realData && !loading && (
@@ -168,66 +211,97 @@ export default function LeaderboardPage() {
           </div>
         )}
 
-        {/* Leaderboard Table */}
+        {/* Leaderboard Table with Pagination */}
         <div className="bg-card border border-border rounded-xl p-6 shadow-xs space-y-4">
           {loading ? (
             <LeaderboardSkeleton />
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="text-muted-foreground uppercase font-bold border-b border-border">
-                  <tr>
-                    <th className="p-3.5 w-16 text-center">র‍্যাংক</th>
-                    <th className="p-3.5">টাইপিস্ট</th>
-                    <th className="p-3.5">গতি (WPM)</th>
-                    <th className="p-3.5">সঠিকতা</th>
-                    <th className="p-3.5">লেআউট</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {displayData.map((item, idx) => {
-                    const rank = item.rank || idx + 1;
-                    return (
-                      <tr key={idx} className="hover:bg-secondary transition-colors">
-                        <td className="p-3.5 text-center">
-                          <RankBadge rank={rank} />
-                        </td>
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="text-muted-foreground uppercase font-bold border-b border-border">
+                    <tr>
+                      <th className="p-3.5 w-16 text-center">র‍্যাংক</th>
+                      <th className="p-3.5">টাইপিস্ট</th>
+                      <th className="p-3.5">গতি (WPM)</th>
+                      <th className="p-3.5">সঠিকতা</th>
+                      <th className="p-3.5">লেআউট</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {paginatedData.map((item, idx) => {
+                      const rank = (currentPage - 1) * pageSize + idx + 1;
+                      return (
+                        <tr key={idx} className="hover:bg-secondary transition-colors">
+                          <td className="p-3.5 text-center">
+                            <RankBadge rank={rank} />
+                          </td>
 
-                        <td className="p-3.5">
-                          <div className="flex items-center gap-2.5">
-                            <UserAvatar name={item.name || item.userId || "Anonymous"} />
-                            <span className="font-extrabold text-foreground">
-                              {item.name || item.userId || "Anonymous Learner"}
-                            </span>
-                            {rank === 1 && (
-                              <span className="text-[9px] font-bold bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
-                                চ্যাম্পিয়ন 🏆
+                          <td className="p-3.5">
+                            <div className="flex items-center gap-2.5">
+                              <UserAvatar name={item.name || item.userId || "Anonymous"} />
+                              <span className="font-extrabold text-foreground">
+                                {item.name || item.userId || "Anonymous Learner"}
                               </span>
-                            )}
-                          </div>
-                        </td>
+                              {rank === 1 && (
+                                <span className="text-[9px] font-bold bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
+                                  চ্যাম্পিয়ন 🏆
+                                </span>
+                              )}
+                            </div>
+                          </td>
 
-                        <td className="p-3.5 font-mono text-base font-black text-foreground">
-                          {item.netWpm || item.wpm} WPM
-                        </td>
+                          <td className="p-3.5 font-mono text-base font-black text-foreground">
+                            {item.netWpm || item.wpm} WPM
+                          </td>
 
-                        <td className="p-3.5 font-bold text-foreground">
-                          {item.accuracy}%
-                        </td>
+                          <td className="p-3.5 font-bold text-foreground">
+                            {item.accuracy}%
+                          </td>
 
-                        <td className="p-3.5 uppercase font-bold text-xs text-muted-foreground">
-                          {item.layout}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                          <td className="p-3.5 uppercase font-bold text-xs text-muted-foreground">
+                            {item.layout}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between pt-4 border-t border-border text-xs font-bold">
+                  <span className="text-muted-foreground">
+                    পৃষ্ঠা {currentPage} / {totalPages} (মোট {filteredData.length} জন)
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      className="text-xs h-8 px-3 border-border"
+                    >
+                      পূর্ববর্তী
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      className="text-xs h-8 px-3 border-border"
+                    >
+                      পরবর্তী
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
 
-        {!loading && displayData.length === 0 && (
+        {!loading && filteredData.length === 0 && (
           <div className="text-center py-16 space-y-4">
             <div className="text-5xl">🏅</div>
             <h3 className="text-lg font-bold text-foreground">আপনি প্রথম হতে পারেন!</h3>

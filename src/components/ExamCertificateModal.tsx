@@ -122,9 +122,19 @@ export function ExamCertificateModal({ isOpen, onClose, result }: ExamCertificat
 
     // 3. Logo Image (Full Horizontal Brand Mark)
     const logoImg = new window.Image();
-    logoImg.src = "/images/logo/logohorizontal.png";
+    logoImg.src = "/images/logo/whitebg_1.png";
     logoImg.onload = () => {
-      ctx.drawImage(logoImg, 130, 115, 340, 70);
+      ctx.drawImage(logoImg, 130, 115, 60, 60);
+      ctx.fillStyle = "#18181b";
+      ctx.font = "black 32px sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText("typebangla.com", 205, 155);
+    };
+    logoImg.onerror = () => {
+      ctx.fillStyle = "#18181b";
+      ctx.font = "black 32px sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText("typebangla.com", 130, 155);
     };
 
     // 4. Header Badge / Title
@@ -491,7 +501,7 @@ export function ExamCertificateModal({ isOpen, onClose, result }: ExamCertificat
 
   return (
     <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-popover border border-border rounded-2xl max-w-4xl w-full p-6 shadow-2xl space-y-5 my-8">
+      <div className="bg-popover border border-border rounded-2xl max-w-4xl w-full p-6 shadow-2xl space-y-5 my-8 max-h-[92vh] overflow-y-auto">
         {/* Header Bar */}
         <div className="flex items-center justify-between border-b border-border pb-4">
           <div className="flex items-center gap-2.5 text-foreground">

@@ -54,6 +54,7 @@ export default function DashboardClient() {
 
   const [certificates, setCertificates] = useState<EarnedCertificate[]>([]);
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
+  const [pendingPayment, setPendingPayment] = useState<{ count: number; trxId: string; method: string } | null>(null);
   const [showTopUpModal, setShowTopUpModal] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<"login" | "signup">("login");
@@ -64,6 +65,15 @@ export default function DashboardClient() {
         const storedCerts = localStorage.getItem("typemaster_earned_certificates");
         if (storedCerts) {
           setCertificates(JSON.parse(storedCerts));
+        }
+
+        const storedRequests = localStorage.getItem("typemaster_payment_requests");
+        if (storedRequests) {
+          const reqs = JSON.parse(storedRequests);
+          const pending = reqs.find((r: { status: string }) => r.status === "pending");
+          if (pending) {
+            setPendingPayment({ count: pending.certCount || 1, trxId: pending.transactionId, method: pending.paymentMethod });
+          }
         }
 
         const enrolledIds: string[] = JSON.parse(localStorage.getItem("typemaster_enrolled_courses") || "[]");
@@ -142,6 +152,24 @@ export default function DashboardClient() {
 
   return (
     <main className="container max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6 fade-in text-foreground">
+
+      {/* ── Pending Payment Request Alert ──────────────── */}
+      {pendingPayment && (
+        <div className="p-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 text-amber-900 dark:text-amber-300 flex items-center justify-between gap-4 text-xs font-semibold">
+          <div className="flex items-center gap-2.5">
+            <Clock size={18} className="text-amber-500 shrink-0 animate-pulse" />
+            <div>
+              <span className="font-bold block">পেমেন্ট ভেরিফিকেশন অপেক্ষমান (Payment Verification Pending)</span>
+              <span className="text-[11px] text-muted-foreground font-normal">
+                {pendingPayment.method} TrxID: <code className="font-mono font-bold text-foreground">{pendingPayment.trxId}</code> ({pendingPayment.count}টি সনদ ক্রেডিট)। ভেরিফিকেশনের পর ইনস্ট্যান্ট সার্টিফিকেট ডাউনলোড সুবিধা উন্মুক্ত হবে।
+              </span>
+            </div>
+          </div>
+          <Badge variant="outline" className="border-amber-500/40 text-amber-600 dark:text-amber-400 text-[10px] font-extrabold shrink-0 px-2 py-0.5">
+            অপেক্ষমান
+          </Badge>
+        </div>
+      )}
 
       {/* ── Page title & Profile Header ─────────────────── */}
       <div className="border border-border bg-card rounded-2xl p-6 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6 bg-grid-pattern">
