@@ -312,7 +312,15 @@ export default function GovtTestArenaClient() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
               <div className="p-4 rounded-xl bg-background border border-border space-y-1">
                 <div className="text-[10px] font-bold text-muted-foreground uppercase">Net Speed (WPM)</div>
-                <div className="text-2xl font-black text-foreground">{testResult.wpm}</div>
+                <div className={`text-2xl font-black ${
+                  testResult.wpm < 30
+                    ? "text-rose-600 dark:text-rose-400"
+                    : testResult.wpm <= 60
+                    ? "text-amber-600 dark:text-amber-400"
+                    : "text-emerald-600 dark:text-emerald-400"
+                }`}>
+                  {testResult.wpm} WPM
+                </div>
                 <div className="text-[10px] text-muted-foreground font-semibold">Required: {testResult.requiredWpm} WPM</div>
               </div>
               <div className="p-4 rounded-xl bg-background border border-border space-y-1">

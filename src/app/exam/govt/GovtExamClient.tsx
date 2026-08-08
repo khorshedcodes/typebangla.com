@@ -362,29 +362,23 @@ export default function GovtExamClient() {
         </CardContent>
       </Card>
 
-      {/* Collapsible FAQ */}
-      <div className="border border-border rounded-xl overflow-hidden bg-card shadow-xs">
-        <button
-          onClick={() => setFaqOpen(!faqOpen)}
-          className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-secondary transition-colors text-left"
-        >
-          <span className="text-xs font-extrabold text-foreground flex items-center gap-2">
-            <Info size={15} className="text-foreground" />
+      {/* Non-collapsible FAQ */}
+      <div className="border border-border rounded-xl overflow-hidden bg-card shadow-xs p-5 space-y-4">
+        <div className="flex items-center gap-2 border-b border-border pb-3">
+          <Info size={16} className="text-primary" />
+          <h3 className="text-sm font-black text-foreground uppercase tracking-wider">
             সাধারণ জিজ্ঞাসাবলী (Govt Exam FAQ)
-          </span>
-          {faqOpen ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
-        </button>
+          </h3>
+        </div>
 
-        {faqOpen && (
-          <div className="p-4 space-y-3 border-t border-border bg-secondary/50">
-            {FAQ.map((item) => (
-              <div key={item.q} className="border-b border-border pb-2.5 last:border-0 last:pb-0">
-                <h4 className="text-xs font-bold text-foreground mb-0.5">{item.q}</h4>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">{item.a}</p>
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {FAQ.map((item) => (
+            <div key={item.q} className="p-3.5 rounded-xl border border-border bg-secondary/30 space-y-1.5">
+              <h4 className="text-xs font-bold text-foreground leading-snug">{item.q}</h4>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">{item.a}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
