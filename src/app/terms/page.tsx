@@ -158,6 +158,20 @@ export default function TermsPage() {
                   Indian Script National Standard by <strong>Government of India (TDIL)</strong>.
                 </p>
               </div>
+
+              <div className="p-3.5 rounded-xl border border-border bg-secondary/30 space-y-1">
+                <span className="font-bold text-sm text-foreground">Probhat Keyboard Layout</span>
+                <p className="text-xs text-muted-foreground">
+                  Designed by <strong>Mustafa Jabbar / Open Source Bangla Community</strong>.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-xl border border-border bg-secondary/30 space-y-1">
+                <span className="font-bold text-sm text-foreground">Open-Source Fonts &amp; Libraries</span>
+                <p className="text-xs text-muted-foreground">
+                  Google Fonts (Noto Sans Bengali, Hind Siliguri, Kalpurush) and Next.js / Tailwind Open Source Community.
+                </p>
+              </div>
             </div>
           </section>
 

@@ -61,36 +61,6 @@ export default function Footer() {
           <p className="text-xs text-muted-foreground leading-relaxed">
             স্মার্ট কিবোর্ড অনুশীলন, সময়ভিত্তিক স্পিড পরীক্ষা ও অনলাইন ভেরিফিকেশন ব্যবস্থা।
           </p>
-
-          <div className="flex items-center gap-2 pt-1">
-            <a
-              href="https://facebook.com/typebangla"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Facebook"
-              className="w-8 h-8 flex items-center justify-center rounded-xl bg-secondary text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all border border-border shadow-xs"
-            >
-              <FacebookIcon />
-            </a>
-            <a
-              href="https://youtube.com/@typebangla"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="YouTube"
-              className="w-8 h-8 flex items-center justify-center rounded-xl bg-secondary text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all border border-border shadow-xs"
-            >
-              <YoutubeIcon />
-            </a>
-            <a
-              href="https://github.com/typebangla"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="GitHub"
-              className="w-8 h-8 flex items-center justify-center rounded-xl bg-secondary text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all border border-border shadow-xs"
-            >
-              <GithubIcon />
-            </a>
-          </div>
         </div>
 
         {/* Column 1 - Learn */}

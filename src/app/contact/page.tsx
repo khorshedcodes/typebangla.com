@@ -68,6 +68,18 @@ export default function ContactPage() {
               </div>
 
               <div className="flex items-start gap-3 pt-3 border-t border-border">
+                <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500 shrink-0">
+                  <Mail size={18} />
+                </div>
+                <div>
+                  <span className="font-bold text-foreground block text-sm">Developer Direct Contact</span>
+                  <a href="mailto:hello@khorshed-alam.com" className="text-muted-foreground hover:text-blue-500 transition-colors font-mono">
+                    hello@khorshed-alam.com
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 pt-3 border-t border-border">
                 <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 shrink-0">
                   <Clock size={18} />
                 </div>

@@ -41,14 +41,14 @@ export default function AboutPage() {
       {/* 2. STATS OVERVIEW */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Speed Tests Taken", val: "500,000+", icon: Flame, color: "text-amber-500" },
-          { label: "Verified Certificates", val: "50,000+", icon: Award, color: "text-emerald-500" },
-          { label: "Keyboard Standards", val: "7 Layouts", icon: Keyboard, color: "text-primary" },
-          { label: "Partner Institutes", val: "100+ Centers", icon: Building, color: "text-teal-500" },
+          { label: "Layout Engines", val: "6 Standards", icon: Keyboard, color: "text-primary" },
+          { label: "Govt Exam Benchmark", val: "30 / 40 WPM", icon: ShieldCheck, color: "text-emerald-500" },
+          { label: "Browser Engine", val: "100% Free", icon: Zap, color: "text-amber-500" },
+          { label: "Certificate Audit", val: "Instant QR", icon: Award, color: "text-teal-500" },
         ].map((s, i) => (
           <Card key={i} className="border border-border bg-card shadow-xs rounded-2xl p-5 text-center space-y-1">
             <s.icon size={22} className={`mx-auto mb-1 ${s.color}`} />
-            <div className="text-2xl sm:text-3xl font-black text-foreground">{s.val}</div>
+            <div className="text-xl sm:text-2xl font-black text-foreground">{s.val}</div>
             <div className="text-xs text-muted-foreground font-semibold">{s.label}</div>
           </Card>
         ))}
@@ -68,9 +68,9 @@ export default function AboutPage() {
             <div className="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
               <Keyboard size={22} />
             </div>
-            <h3 className="text-base font-bold text-foreground">৭টি স্ট্যান্ডার্ড কিবোর্ড লেআউট</h3>
+            <h3 className="text-base font-bold text-foreground">৬টি স্ট্যান্ডার্ড কিবোর্ড লেআউট</h3>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              English QWERTY, UniBijoy (Bijoy 52), Jatiya (BCC Govt Standard), Avro Phonetic, Probhat, Inscript, এবং Unicode—সকল লেআউট লাইভ সাপোর্ট।
+              English QWERTY, UniBijoy (Bijoy 52), Jatiya (BCC Govt Standard), Avro Phonetic, Probhat, এবং Inscript — সকল কীবোর্ড লেআউটের লাইভ সমর্থন।
             </p>
           </Card>
 
@@ -80,7 +80,7 @@ export default function AboutPage() {
             </div>
             <h3 className="text-base font-bold text-foreground">অনলাইন ভেরিফাইড সনদপত্র</h3>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              ৮৫%+ একিউরেসিতে স্পিড টেস্ট সম্পন্ন করে তাৎক্ষণিক QR-কোড সমৃদ্ধ গোল্ড ও সিলভার মেধা সনদপত্র অর্জন করুন। ইউনিক আইডি দ্বারা সরকারি চাকরির জন্য ভেরিফাইযোগ্য।
+              ৮৫%+ একিউরেসিতে স্পিড টেস্ট সম্পন্ন করে তাৎক্ষণিক QR-কোড সমৃদ্ধ গোল্ড ও সিলভার মেধা সনদপত্র অর্জন করুন। ইউনিক আইডি দ্বারা সহজেই অনলাইন ভেরিফাইযোগ্য।
             </p>
           </Card>
 
@@ -100,13 +100,13 @@ export default function AboutPage() {
       <Card className="border border-border bg-card shadow-sm rounded-3xl p-6 sm:p-10 space-y-6">
         <div className="space-y-3">
           <Badge variant="outline" className="px-3 py-1 text-xs font-bold text-primary border-primary/30">
-            আমাদের লক্ষ্য (Our Mission)
+            আমাদের লক্ষ্য (Our Vision)
           </Badge>
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
-            বিনামূল্যে উচ্চমানের টাইপিং শিক্ষা
+            সহজ ও বাধা মুক্ত টাইপিং প্ল্যাটফর্ম
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            আমাদের মূল লক্ষ্য হলো ডিজিটাল বাংলাদেশে কন্টেন্ট রাইটিং, ডেটা এন্ট্রি, সরকারি চাকরিপ্রার্থী এবং শিক্ষার্থীদের টাইপিং দক্ষতা সম্পূর্ণ বিনামূল্যে বৃদ্ধি করা। কোনো প্রকার ভারী সফটওয়্যার বা ফন্ট ইনস্টলেশন ছাড়াই যেকোনো ব্রাউজার থেকে সরাসরি টাইপিং সম্ভব।
+            আমাদের মূল ভিশন হলো প্রতিটি বাংলাভাষী ব্যবহারকারীর জন্য একটি অত্যন্ত সহজ, ব্রাউজার-ভিত্তিক এবং কোনো ইনস্টলেশন ঝামেলা ছাড়া টাইপিং শেখার অনলাইন প্ল্যাটফর্ম গড়ে তোলা। যেকোনো ব্রাউজার ও ডিভাইস থেকে সম্পূর্ণ বিনামূল্যে টাইপিং স্পিড বাড়ানো ও যাচাই করাই আমাদের লক্ষ্য।
           </p>
         </div>
 
@@ -125,7 +125,7 @@ export default function AboutPage() {
           </div>
           <div className="flex items-start gap-2.5">
             <CheckCircle2 className="text-emerald-500 shrink-0 mt-0.5" size={16} />
-            <span>ইনস্টিটিউট পোর্টাল (V2) দ্বারা বাল্ক স্টুডেন্ট সার্টিফিকেট ট্র্যাকিং</span>
+            <span>অনলাইন কিউআর ভেরিফাইড সনদপত্র সুবিধা</span>
           </div>
         </div>
       </Card>
@@ -136,7 +136,7 @@ export default function AboutPage() {
           <Badge variant="outline" className="px-3 py-1 text-xs font-bold text-primary border-primary/30">
             প্রতিষ্ঠাতা ও কারিগরি নেতৃত্ব
           </Badge>
-          <h2 className="text-2xl font-black text-foreground">Founder &amp; Engineering Leadership</h2>
+          <h2 className="text-2xl font-black text-foreground">Founder &amp; Lead Engineer</h2>
         </div>
 
         <Card className="border border-border bg-card shadow-xs rounded-3xl p-6 sm:p-8">
@@ -147,10 +147,13 @@ export default function AboutPage() {
             <div className="space-y-2 flex-1">
               <div className="space-y-0.5">
                 <h3 className="text-xl font-black text-foreground">Khorshed Alam</h3>
-                <p className="text-xs font-extrabold text-primary">Founder &amp; Lead Software Architect — TypeBangla</p>
+                <p className="text-xs font-extrabold text-primary">Founder &amp; Lead Developer — TypeBangla</p>
+                <p className="text-[11px] font-semibold text-muted-foreground">
+                  Maintenance Engineer (Electrical) &amp; CSE Student at Uttara University
+                </p>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                TypeBangla engine is architected and engineered by <strong className="text-foreground">Khorshed Alam</strong> with a vision to build Bangladesh&apos;s fastest, most accessible, and standard-compliant web typing instruction platform.
+                TypeBangla engine is architected and engineered by <strong className="text-foreground">Khorshed Alam</strong> with a vision to build Bangladesh&apos;s fastest, most accessible, and zero-barrier web typing instruction platform.
               </p>
               <div className="pt-1">
                 <a

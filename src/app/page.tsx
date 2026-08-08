@@ -13,10 +13,10 @@ import { avroTransliterate, mapInputToBangla } from "../utils/layouts";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { HeroKeyboardVisualizer } from "../components/HeroKeyboardVisualizer";
-import { AutoTypingSimulation } from "../components/AutoTypingSimulation";
 
 import { HeroMultiLayoutArena } from "../components/home/HeroMultiLayoutArena";
-import { HeroTypewriter, GovtSpeedGaugeWidget, FaqItem } from "../components/home/LandingSections";
+import { HeroTypewriter, FaqItem } from "../components/home/LandingSections";
+import { BLOG_POSTS } from "../utils/blogData";
 
 // ── MAIN LANDING PAGE COMPONENT (CRO OPTIMIZED MASTER PROMPT) ────────────────
 export default function LandingPage() {
@@ -125,9 +125,9 @@ export default function LandingPage() {
         {/* Hero Typewriter Animation */}
         <HeroTypewriter />
 
-        {/* Auto-Typing Simulation & Interactive Typing Arena */}
+        {/* Interactive Typing Arena */}
         <div className="pt-4">
-          <AutoTypingSimulation manualComponent={<HeroMultiLayoutArena />} />
+          <HeroMultiLayoutArena />
         </div>
       </section>
 
@@ -151,25 +151,23 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 3. GOVT JOB & CAREER SPEED GAUGE SECTION ──────────────────────── */}
+      {/* ── 3. GOVT JOB & CAREER SPEED CTA CARD ────────────────────────────── */}
       <section className="container max-w-5xl mx-auto px-4 sm:px-6">
-        <div className="border border-border bg-card/80 backdrop-blur-md rounded-2xl p-6 sm:p-10 shadow-lg relative overflow-hidden space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-6">
-            <div className="space-y-1">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-500 rounded-full text-xs font-bold border border-emerald-500/20">
-                <ShieldCheck size={14} /> সরকারি চাকরি ও ক্যারিয়ার স্পিড মানদণ্ড
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-foreground">Why Typing Speed Matters For Your Career</h2>
+        <div className="border border-border bg-gradient-to-r from-emerald-500/10 via-card to-card backdrop-blur-md rounded-3xl p-8 sm:p-10 shadow-md flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="space-y-2 text-center sm:text-left">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-500 rounded-full text-xs font-bold border border-emerald-500/20">
+              <ShieldCheck size={14} /> সরকারি চাকরি ও ব্যাংক নিয়োগ পরীক্ষা
             </div>
-            <Link href="/exam/govt">
-              <Button size="sm" className="font-bold text-xs gap-2">
-                গভঃ এক্সাম সিমুলেটর <ArrowRight size={14} />
-              </Button>
-            </Link>
+            <h2 className="text-2xl sm:text-3xl font-black text-foreground">বিসিসি সরকারি চাকরি টাইপিং টেস্ট সিমুলেটর</h2>
+            <p className="text-xs sm:text-sm text-muted-foreground max-w-xl">
+              মন্ত্রণালয় ও ব্যাংক নিয়োগ পরীক্ষার হুবহু ৫ মিনিটের টেস্ট ফরম্যাটে ৩০ WPM বাংলা (জাতীয়/বিজয়) ও ৪০ WPM ইংরেজি পরীক্ষার অনুশীলন করুন।
+            </p>
           </div>
-
-          {/* Interactive Govt Speed Gauge Slider Widget */}
-          <GovtSpeedGaugeWidget />
+          <Link href="/exam/govt" className="shrink-0">
+            <Button size="lg" className="font-black text-xs sm:text-sm h-12 px-6 rounded-2xl gap-2 shadow-md bg-emerald-600 hover:bg-emerald-700 text-white border-none">
+              <span>সিমুলেটরে টেস্ট দিন ➔</span>
+            </Button>
+          </Link>
         </div>
       </section>
 
@@ -263,23 +261,24 @@ export default function LandingPage() {
             <p className="text-sm text-muted-foreground">শিক্ষানবিস থেকে দক্ষ টাইপিস্ট হওয়ার সুস্পষ্ট ৬টি ধাপ।</p>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
             {[
               { step: "01", title: "Beginner", desc: "কীবোর্ড ও আঙুল বিন্যাস" },
               { step: "02", title: "Home Row", desc: "হোম রো টাচ টাইপিং" },
               { step: "03", title: "Words", desc: "শব্দ ও যুক্তাক্ষর চর্চা" },
               { step: "04", title: "Sentences", desc: "পূর্ণ বাক্য ও অনুচ্ছেদ" },
-              { step: "05", title: "Speed Test", desc: "১৫-৬০ সেকেন্ড গতি পরীক্ষা" },
-              { step: "06", title: "Certificate", desc: "যাচাইকৃত সনদ লাভ" },
+              { step: "05", title: "Numbers", desc: "সংখ্যা ও প্রতীক ড্রিল" },
+              { step: "06", title: "Speed Test", desc: "১৫-৬০ সেকেন্ড গতি পরীক্ষা" },
+              { step: "07", title: "Certificate", desc: "যাচাইকৃত সনদ লাভ" },
             ].map((path, idx) => (
               <React.Fragment key={idx}>
-                <div className="border border-border bg-card p-5 rounded-2xl text-center w-36 shadow-xs hover:border-emerald-500/50 hover:scale-105 transition-all">
+                <div className="border border-border bg-card p-4 rounded-2xl text-center w-32 shadow-xs hover:border-emerald-500/50 hover:scale-105 transition-all">
                   <span className="text-xs font-black text-emerald-500 block mb-1">{path.step}</span>
-                  <h4 className="font-extrabold text-sm text-foreground">{path.title}</h4>
-                  <p className="text-[10px] text-muted-foreground mt-1">{path.desc}</p>
+                  <h4 className="font-extrabold text-xs text-foreground">{path.title}</h4>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{path.desc}</p>
                 </div>
-                {idx < 5 && (
-                  <ArrowRight size={18} className="text-muted-foreground hidden md:block shrink-0" />
+                {idx < 6 && (
+                  <ArrowRight size={16} className="text-muted-foreground hidden lg:block shrink-0" />
                 )}
               </React.Fragment>
             ))}
@@ -363,7 +362,7 @@ export default function LandingPage() {
             { name: "Govt Exam Simulator", count: "সরকারি সিমুলেটর", icon: "🏛️", link: "/exam/govt" },
             { name: "শব্দ অনুশীলন", count: "১০০০+ শব্দ", icon: "📝", link: "/practice/words" },
             { name: "বাক্য অনুশীলন", count: "৫০০+ বাক্য", icon: "💬", link: "/practice/sentences" },
-            { name: "সংখ্যা ও প্রতীক", count: "নুমেরিক কীবোর্ড", icon: "🔢", link: "/practice/custom" },
+            { name: "সংখ্যা ও প্রতীক", count: "নুমেরিক কীবোর্ড", icon: "🔢", link: "/practice/numbers" },
             { name: "কাস্টম টেক্সট", count: "নিজের লেখা টাইপ", icon: "⚙️", link: "/practice/custom" },
           ].map((c, i) => (
             <Link key={i} href={c.link} className="border border-border bg-card/80 p-5 rounded-2xl text-center hover:border-emerald-500/50 hover:bg-secondary/50 transition-all shadow-xs space-y-2 group">
@@ -444,12 +443,12 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
             <div className="space-y-2">
               <div className="flex items-center justify-center sm:justify-start gap-2">
-                <span className="text-xs font-extrabold text-teal-400 uppercase tracking-widest">স্কুল, কোচিং ও ইনস্টিটিউট পোর্টাল 🏫</span>
-                <Badge className="bg-amber-500 text-slate-950 font-bold text-[10px]">V2 COMING SOON</Badge>
+                <span className="text-xs font-extrabold text-teal-400 uppercase tracking-widest">ইনস্টিটিউট, স্কুল ও কোচিং সেন্টার পোর্টাল 🏫</span>
+                <Badge className="bg-amber-500 text-slate-950 font-bold text-[10px]">ভার্সন ২.০</Badge>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-white">For Schools, Universities & Coaching Centers</h2>
+              <h2 className="text-2xl sm:text-3xl font-black text-white">কম্পিউটার প্রশিক্ষণ কেন্দ্র ও প্রতিষ্ঠানের জন্য</h2>
               <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
-                মাল্টি-টিচার অ্যাডমিন প্যানেল, অ্যান্টি-চিট প্রক্টরড এক্সাম ইঞ্জিন এবং স্বয়ংক্রিয় রেজাল্ট সার্টিফিকেট নিয়ে আসছে <strong className="text-teal-400">Institute OS V2</strong>।
+                মাল্টি-টিচার শিক্ষক প্যানেল, প্রক্টরড টাইপিং পরীক্ষা ইঞ্জিন এবং অনলাইন ভেরিফাইড সনদ প্রদানের জন্য চালু হচ্ছে <strong className="text-teal-400">ইনস্টিটিউট পোর্টাল V2</strong>।
               </p>
             </div>
             <Link href="/institute">
@@ -471,28 +470,17 @@ export default function LandingPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            {
-              title: "কিভাবে টাইপিং স্পিড ৩ গুণ বাড়াবেন?",
-              desc: "টাচ টাইপিংয়ের মৌলিক নীতি ও দৈনিক ২০ মিনিটের কার্যকর অনুশীলন রুটিন।",
-              link: "/blog",
-            },
-            {
-              title: "অভ্র বনাম বিজয়: সরকারি চাকরির জন্য কোনটি শিখবেন?",
-              desc: "বিসিসি অনুমোদিত জাতীয় কীবোর্ড ও বিজয় কীবোর্ডের মধ্যে তুলনামূলক বিশ্লেষণ।",
-              link: "/blog",
-            },
-            {
-              title: "সরকারি কম্পিউটার অপারেটর টাইপিং পরীক্ষার সম্পূর্ণ প্রস্তুতি",
-              desc: "৩০ WPM বাংলা ও ৪০ WPM ইংরেজি টাইপিংয়ে পাস করার টেকনিক ও নিয়মাবলী।",
-              link: "/blog",
-            },
-          ].map((b, i) => (
-            <Card key={i} className="border border-border bg-card/80 backdrop-blur-md rounded-2xl p-6 space-y-3 shadow-xs hover:border-emerald-500/50 transition-all">
-              <h3 className="font-extrabold text-sm text-foreground leading-snug">{b.title}</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">{b.desc}</p>
-              <Link href={b.link} className="inline-block text-xs font-bold text-emerald-500 hover:underline pt-2">
-                পড়ুন →
+          {BLOG_POSTS.slice(0, 3).map((post) => (
+            <Card key={post.slug} className="border border-border bg-card/80 backdrop-blur-md rounded-2xl p-6 space-y-3 shadow-xs hover:border-emerald-500/50 transition-all flex flex-col justify-between">
+              <div className="space-y-2">
+                <Badge variant="outline" className="text-[10px] font-bold text-emerald-600 border-emerald-500/30">
+                  {post.category}
+                </Badge>
+                <h3 className="font-extrabold text-sm text-foreground leading-snug line-clamp-2">{post.title}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">{post.excerpt}</p>
+              </div>
+              <Link href={`/blog/${post.slug}`} className="inline-block text-xs font-bold text-emerald-500 hover:underline pt-2">
+                সম্পূর্ণ পড়ুন →
               </Link>
             </Card>
           ))}

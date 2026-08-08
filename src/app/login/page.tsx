@@ -37,7 +37,13 @@ const GoogleIcon = () => (
 
 export default function LoginPage() {
   const router = useRouter();
-  const { signInWithGoogle, signInWithEmail, sendPasswordReset } = useAuth();
+  const { user, loading, signInWithGoogle, signInWithEmail, sendPasswordReset } = useAuth();
+
+  React.useEffect(() => {
+    if (!loading && user) {
+      router.replace("/dashboard");
+    }
+  }, [user, loading, router]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

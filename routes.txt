@@ -7,107 +7,395 @@
 1. CORE PLATFORM & ACCOUNT PAGES
 --------------------------------------------------------------------------------
 /                                  - Home Landing Page
+Todo
+ - remove automated typing and the wpa section .
+ - govt exam simulator make it a cta ( currently slider and all looks odd)
+ - In roadmap add the numbers lesson if we have 
+ - numaric also took to custom page in Category
+ - improve earn certificate section.the currect sonod preview show a modal with false data improve it with our certicate veriy with example.
+ - in institute portal the current text used is not bangla.
+ - blog posts are not from our blog posts 
+ - remove social link from footer for now
 /about                             - About Us & Founder Leadership
+Todo 
+ - improve about page . remove false data of institute and so on .
+ - explain my vision is to create a easy to get platform for bangla typist 
+ - you can improve my section and state me as a working Mintance engineer(electrical) and cse Student at uttara univeristy
+
 /contact                           - Contact & Multi-Channel Support Center
+ Todo
+ - check for improvement and make sure form submit working
+ - you may add Developer contact ( hello@khorshed-alam.com)
+
 /privacy                           - Privacy Policy & Payment Data Security
+Todo
+ - Create more relevant text.
 /terms                             - Terms of Service & Licensing Agreement
+Todo
+- give credit to all resource and person i used or mentioned.
+
 /login                             - User & Institute Sign In
+ - make sure logged user can't access this page
 /signup                            - User Account Registration
+ - make sure logged user can't access this page
 /dashboard                         - User Analytics Dashboard, WPM History & Stats
+ - Make sure it feels like a user own space . provide something good and valueable.
+ - don't show header or footer ( maybe custom header footer for logged in user)
+ - make sure to show certicate download pending if payment is pending
+
 /leaderboard                       - Global Typist Ranking & Leaderboard
+ Todo
+ - add all keyboard layout 
+ - add filter of keyboard layout . also filter by time period(daily,weekly,monthly,yearly) 
+ - keep logic to handle large list ( pagination or some strategy)
+
 /institute                         - Institute V2 Portal & Bulk Student Certification
+ Todo 
+  - Polish it ( question is the theme go with our theme?)
+
 /admin                             - Super Admin Control Panel & Verification Management
+Todo 
+- Make sure everyting is working 
+- all logic should be valid
 /dev-test                          - Internal Developer Testing Console
+Todo 
+ - Dev test modal is oveflowing 
+ - logo used in certicate looks odd the white type is blend in background.
 
 --------------------------------------------------------------------------------
 2. HIGH-INTENT LANDING PAGES & KEYBOARD ENGINES
 --------------------------------------------------------------------------------
 /online-bangla-keyboard            - Online Bangla Virtual Keyboard Tool
+Todo
+ - make it a standalone page
+ - improve it 
+ - Question ( rather then floting keyboard . should we put it inside textinput?)
+ - Keyboard is not working ( avro selection show english ,and bkspace and other from floting not working)
+ -
 /avro-phonetic-typing              - Avro Phonetic Typing Engine & Lessons
 /bijoy-52-typing                   - Bijoy 52 Typing Engine & Lessons
 /jatiya-keyboard-typing            - Jatiya (BCC Govt Standard) Layout Engine & Lessons
 /probhat-layout-typing             - Probhat Layout Typing Engine & Lessons
 /inscript-bangla-typing            - Inscript Bangla Layout Engine & Lessons
 /english-touch-typing              - English Touch Typing Engine & Lessons
+Todo
+- Question ( should it be touch keyword? or just english typing)
 /bangla-english-mixed-typing-test  - Bilingual Bangla & English Mixed Speed Test
+Todo 
+- this page doesn't follow our theme 
+- its not connected from anywhere 
+- if english and bangla text are mixed how will we used keyboardmap ? 
+- this page looks too much destraced not like our other prectice page
 
 --------------------------------------------------------------------------------
 3. PRACTICE HUB & TYPING ARENAS
 --------------------------------------------------------------------------------
 /practice                          - Practice Hub Overview & Category Selector
+Todo 
+ -  The top card there is no need of best speed , wpa and all ( it will show if user is logged in and if he has any record)
+ - remove the active layout from top card 
+ - and currently each prectice card changing of layout change all card layout ( make it specific to the card? is it better right?)
+ - In card do we need meta data like targeted wpa and free access and so on . remove that ( and maybe you can add note to let user know what to do)
+ - seperate english and bangla card
+
+
 /practice/test                     - Timed Speed Test Arena (1m, 2m, 3m, 5m, 10m, 15m)
+Todo
+ - this page exits but from where its linked not sure .
+ - improve the page , polish it 
+ - there is no back to practice-hub button 
+ - also there is bangla and english selction option but should show or clickable only the avialble keyboard for that language 
+ - Timer wpa not working 
+ - Under the wpa there is  a section that doesn't need .  
+ - if its prectice then keyboard should show the key to press i mean highlight the key to press. 
+ - or pharaps just show hint what to press in english ( shift + h) ( only in prectice)
+
 /practice/words                    - Word Drills (High-Frequency, Juktakkhor, Govt Terms)
+Todo
+- as we say words prectice should we give a words at a time to prectice? 
+- and this page also have to do same todo as /prectice/test
+- as we have card of each language ( should we remove the top language selection row?).
+- as this is not time based test ( just words drill) should there be timer ? 
+- 
+
 /practice/sentences                - Sentence & Paragraph Drills (Level 1, 2, 3)
-/practice/quotes                   - Bangla Literature & Poetry Quotes Practice
+ Todo 
+ - same as words route 
+ - remove top bar
+ - remove timer
+ - provide one sentence at a time.
+
+/practice/quotes            - Bangla Literature & Poetry Quotes Practice
+ Todo
+ - This page will have two section first user select quotes then quotes hide and only prectice Arena . 
+ - change button to select new Literature 
+ - page need to polish like others
+ - no back to prectice 
+
 /practice/numbers                  - Bangla & English Numbers and Punctuation Drills
+Todo 
+- No back to home 
+- if come from english then show only english numbers and symbols 
+- if come from bangla then show only bangla numbers and symbols
+- remove top bar of selection ( do it underneth logic with continuous until user press stop ? )
+- 
 /practice/custom                   - Custom Text & File Upload Practice Builder
+Todo
+- page need to polish 
+- the layout selction is not looks good.
+- make suere the setting user selecting here is effective to custom Arena
+
 /practice/custom/test              - Live Custom Text Practice Arena
+Todo
+- same as other prectice /test page todo 
+- make sure prectice/custom setting has effect hare 
+- and should we rename it ? is it confusing between test and prectice?
+
 /practice/[layout]                 - Dynamic Layout Practice Arena (e.g. /practice/avro)
+Todo 
+- remove this as this doesnt has much effect
 
 --------------------------------------------------------------------------------
 4. LEARNING & CURRICULUM HUBS
 --------------------------------------------------------------------------------
 /courses                           - Courses Catalogue & Curriculum Overview
+Todo 
+- Make sure its responsive 
+
 /courses/[courseId]                - Course Details & Lesson Player (e.g. /courses/avro)
+Todo 
+- if user is not logged in show enroll. 
+- if logged in check  then show start and course Completion 
+
 /learn/beginner                    - Beginner Touch Typing Course
+ Todo 
+  - remove this route, add inside /courses/beginner/lesson/[lessonId]
+
 /learn/intermediate                - Intermediate Speed Building Course
+Todo 
+  - remove this route, add inside /courses/intermediate/lesson/[lessonId]
+
 /learn/advanced                    - Advanced Literature & Speed Sprint Course
+Todo 
+  - remove this route, add inside /courses/advanced/lesson/[lessonId]
+
 /learn/languages/bangla            - Bangla Master Curriculum
+Todo 
+  - transfrom this to a standalone seo page to capture long tail keywords related to bangla typing and courses.
+  - and inside that show courses (make sure this page is mobile friendly)
+
 /learn/languages/english           - English Touch Typing Course
+Todo 
+  - transfrom this to a standalone seo page to capture long tail keywords related to english typing and courses.
+  - and inside that show courses (make sure this page is mobile friendly)
+
 /learn/avro                        - Avro Phonetic Layout Course
+ Todo 
+ - remove it 
 /learn/unibijoy                    - UniBijoy / Bijoy 52 Layout Course
+Todo
+- remove it
 /learn/jatiya                      - Jatiya BCC Govt Layout Course
+ Todo 
+ - remove it 
 /learn/probhat                     - Probhat Layout Course
+Todo
+- remove it 
+
 /learn/english                     - English QWERTY Layout Course
+todo 
+-remove it 
+
 /learn/[layout]                    - Dynamic Layout Course Route
+Todo 
+-remove it
 
 --------------------------------------------------------------------------------
 5. EXAMS & CERTIFICATION SIMULATORS
 --------------------------------------------------------------------------------
 /exam/govt                         - Government Job Exam Preparation Simulator & Hub
+Todo
+- remove the previous year question 
+- improve page 
+- and make faq section improve dont make it collupsable
+
 /exam/govt/test                    - Live 5-Minute BCC Govt Exam Simulator Arena
+Todo 
+- make sure it works fine just like a real exam 
+- in result page ( if score is less then 30 show red, 30-60 yellow, 60-100 green) and show a message with that color
+- make sure if english layout is selection prectice is english.
+
 /exam/mock                         - Mock Test Arena
+Todo 
+ - rename this with custom and feature custom prectice( if any test taker want to use our site to test) 
+  - connect it to the site 
+
 /exam/ranked                       - Ranked Telemetry Exam Arena
+Todo 
+- improve the ui and logic and make it competitive ( add some kind of badge or level system )
+
 /tests                             - Skill Assessment Tests Catalogue
+Todo 
+  - remove the card of national leaderboard from  english and bangla . as we have bigger card on top.
+  - remove the bottom 1m cta
+  - Jatiya BCC Govt Exam Simulator remove this also and put a cta bottom realted to this 
+
 /tests/[testSlug]                  - Dynamic Test Arena (e.g. /tests/bangla-standard-5min)
+Todo
+ - before th passage remove the row ( back arrow, test name )
+ - remove exit test and instead of that show "try another test" button.
+
 /verify/[certificateId]            - Public QR Certificate Verification & Audit Page
+Todo 
+- imporve the page ui 
+- Question ( should we keep the main header)
 
 --------------------------------------------------------------------------------
 6. UTILITIES & CONVERTERS HUB
 --------------------------------------------------------------------------------
 /tools                             - All Tools & Utilities Hub
+Todo 
+- Bilingual Mixed Typing Test remove this from here
+- improve the ui
+
 /unicode-to-bijoy-converter        - Unicode to Bijoy 52 Converter
+Todo
+ - imporve ui 
+ - target long tail seo words
+ - make sure tools is working 
+ 
 /bijoy-to-unicode-converter        - Bijoy 52 to Unicode Converter
+Todo 
+  - imporve ui 
+  - target long tail seo words
+  - make sure tools is working 
+
 /bangla-voice-typing               - Bangla Voice to Text Typing (Web Speech API)
+Todo 
+  - imporve ui 
+  - target long tail seo words
+  - make sure tools is working 
+
 /bangla-text-to-speech             - Bangla Text to Speech Reader
+Todo 
+  - imporve ui 
+  - target long tail seo words
+  - make sure tools is working 
+
 /bangla-word-counter               - Bangla Word & Character Counter
+Todo 
+  - imporve ui 
+  - target long tail seo words
+  - make sure tools is working 
+
 /bangla-number-converter            - English to Bangla Number Converter
+Todo 
+  - imporve ui 
+  - target long tail seo words
+  - make sure tools is working 
+
 /bangla-lorem-ipsum                - Bangla Lorem Ipsum Dummy Text Generator
+Todo 
+  - imporve ui 
+  - target long tail seo words
+  - make sure tools is working 
+
 /bangla-text-cleaner               - Bangla Text Sanitizer & Cleaner
+Todo 
+  - imporve ui 
+  - target long tail seo words
+  - make sure tools is working 
+
 /bangla-slug-generator             - Bangla URL Slug Generator
+Todo 
+  - imporve ui 
+  - target long tail seo words
+  - make sure tools is working 
+
 /english-to-bangla-typing          - English-to-Bangla Phonetic Script Converter
+Todo 
+  - the floting keyboard on first make sure to collupsable if user want they can add
+  - imporve ui 
+  - target long tail seo words
+  - make sure tools is working 
+
 /juktakkhor                        - Bangla Juktakkhor Master Trainer
+Todo 
+  - imporve ui 
+  - target long tail seo words
+  - remove keyboard selection in top
+
 /juktakkhor-finder                 - Bangla Juktakkhor Finder & Keystroke Breakdown
+Todo
+ - imporve ui 
+ - target long tail seo words
+ 
 
 --------------------------------------------------------------------------------
 7. KEYBOARD MAPS, GAMIFICATION & STATS
 --------------------------------------------------------------------------------
 /keyboards                         - Keyboard Maps Overview
+Todo 
+ - imporve ui 
+ - target long tail seo words
+ - shift is not working
+
 /keyboards/avro                    - Avro Phonetic Keyboard Layout Map
+Todo 
+ - imporve ui 
+ - target long tail seo words
+ - shift is not working
+
 /keyboards/unibijoy                - UniBijoy Keyboard Layout Map
+Todo 
+ - imporve ui 
+ - target long tail seo words
+ - shift is not working
+
 /keyboards/jatiya                  - Jatiya BCC Keyboard Layout Map
+Todo 
+ - imporve ui 
+ - target long tail seo words
+ - shift is not working
+
 /keyboards/probhat                 - Probhat Keyboard Layout Map
+Todo 
+ - imporve ui 
+ - target long tail seo words
+ - shift is not working
+
 /keyboards/inscript                - Inscript Keyboard Layout Map
+Todo 
+ - imporve ui 
+ - target long tail seo words
+ - shift is not working
+
 /keyboards/english                - English QWERTY Keyboard Layout Map
+Todo 
+ - imporve ui 
+ - target long tail seo words
+ - shift is not working
 /keyboards/[layout]                - Dynamic Keyboard Layout Map Route
+Todo 
+ - if we have all manual page remove it 
+
 /game                              - Falling Words Typing Mini-Game
+Todo 
+ - imporve ui and target keywords
 
 --------------------------------------------------------------------------------
 8. BLOG & ARTICLES
 --------------------------------------------------------------------------------
 /blog                              - Blog Articles Hub
-/blog/[slug]                       - Dynamic Blog Post Page (e.g. /blog/master-avro-typing)
+Todo
+ - imporve ui
+ - make realworld target post ( that actully help for banglalis)
 
-================================================================================
-Clean Route Directory: 60+ Active Canonical Routes (0 Redirect Loops)
-================================================================================
+/blog/[slug]                       - Dynamic Blog Post Page (e.g. /blog/master-avro-typing)
+todo
+ - imporve ui
+
+
+Ovaral todo
+ - use emojis in manyplace might cause trobule in diffrent devices ?
+ - hydration errors in mulitple pages
