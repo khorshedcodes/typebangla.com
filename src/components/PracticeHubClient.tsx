@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   Clock, AlignLeft, FileText, Quote, Binary, PenLine,
   ArrowRight, Zap, Keyboard, Award, CheckCircle2, Cloud,
-  Trophy, ShieldCheck, Sparkles, Activity, Unlock, UserCheck
+  Trophy, ShieldCheck, Sparkles, Activity, Unlock, UserCheck, Languages
 } from "lucide-react";
 import { useTypingStore, KeyboardLayout } from "../store/typingStore";
 import { Card, CardContent } from "./ui/card";
@@ -111,7 +111,18 @@ const ALL_MODES: PracticeMode[] = [
     badge: "Top 1000 Words",
     category: "english",
     targetWpm: "35+ WPM",
-    authBenefit: "1000 Common Words",
+    authBenefit: "Vocabulary Drills",
+  },
+  {
+    href: "/bangla-english-mixed-typing-test",
+    icon: Languages,
+    title: "Bangla-English Mixed Test",
+    titleBn: "বাংলা-ইংরেজি দ্বিমুখী মিক্সড টেস্ট",
+    desc: "BPSC ও ব্যাংক পরীক্ষার জন্য একটি টেস্টেই বাংলা ও ইংরেজি মিক্সড টাইপিং প্র্যাকটিস।",
+    badge: "Bilingual Test",
+    category: "tests",
+    targetWpm: "Bilingual Standard",
+    authBenefit: "Exam Readiness",
   },
   {
     href: "/practice/numbers?lang=en",

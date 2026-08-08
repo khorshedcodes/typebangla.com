@@ -24,17 +24,81 @@ export default function OnlineKeyboardClient() {
   const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
   const charCount = text.length;
 
-  const handleVirtualKeyClick = (_code: string, char: string) => {
+  const [avroBuffer, setAvroBuffer] = useState("");
+
+  const handleVirtualKeyClick = (code: string, char: string) => {
+    if (code === "Backspace" || char === "Backspace") {
+      if (selectedLayout === "avro" && avroBuffer) {
+        setAvroBuffer((prev) => prev.slice(0, -1));
+      } else {
+        setText((prev) => prev.slice(0, -1));
+      }
+      if (textareaRef.current) textareaRef.current.focus();
+      return;
+    }
+
+    if (code === "Space" || char === "Space") {
+      if (selectedLayout === "avro" && avroBuffer) {
+        const ban = avroTransliterate(avroBuffer);
+        setText((prev) => prev + ban + " ");
+        setAvroBuffer("");
+      } else {
+        setText((prev) => prev + " ");
+      }
+      if (textareaRef.current) textareaRef.current.focus();
+      return;
+    }
+
     if (!char) return;
-    setText((prev) => prev + char);
+    if (selectedLayout === "avro" && /[a-zA-Z]/i.test(char)) {
+      setAvroBuffer((prev) => prev + char);
+    } else {
+      let committed = "";
+      if (selectedLayout === "avro" && avroBuffer) {
+        committed = avroTransliterate(avroBuffer);
+        setAvroBuffer("");
+      }
+      setText((prev) => prev + committed + char);
+    }
     if (textareaRef.current) textareaRef.current.focus();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (selectedLayout === "avro") return; // Let Avro IME or standard input process
+    if (e.code === "Backspace") {
+      if (selectedLayout === "avro" && avroBuffer) {
+        setAvroBuffer((prev) => prev.slice(0, -1));
+        e.preventDefault();
+      }
+      return;
+    }
+
+    if (e.code === "Space") {
+      if (selectedLayout === "avro" && avroBuffer) {
+        const ban = avroTransliterate(avroBuffer);
+        setText((prev) => prev + ban + " ");
+        setAvroBuffer("");
+        e.preventDefault();
+      }
+      return;
+    }
+
+    if (selectedLayout === "avro" && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      if (/[a-zA-Z]/i.test(e.key)) {
+        e.preventDefault();
+        setAvroBuffer((prev) => prev + e.key);
+      } else {
+        if (avroBuffer) {
+          e.preventDefault();
+          const committed = avroTransliterate(avroBuffer);
+          setAvroBuffer("");
+          setText((prev) => prev + committed + e.key);
+        }
+      }
+      return;
+    }
 
     // For fixed layout conversion (UniBijoy / Jatiya / Probhat)
-    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    if (selectedLayout !== "avro" && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
       const converted = mapInputToBangla(e.key, selectedLayout);
       if (converted && converted !== e.key) {
         e.preventDefault();
@@ -136,14 +200,21 @@ export default function OnlineKeyboardClient() {
 
         <CardContent className="p-4 sm:p-6 space-y-4">
           {/* Text Area Input */}
-          <textarea
-            ref={textareaRef}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="এখানে ক্লিক করে সরাসরি টাইপ করুন অথবা নিচের ভার্চুয়াল কীবোর্ড বাটনগুলোতে চাপ দিন..."
-            className="w-full h-44 sm:h-56 p-4 rounded-xl border border-border bg-background text-foreground font-bangla text-base sm:text-lg leading-relaxed focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none font-medium"
-          />
+          <div className="relative">
+            <textarea
+              ref={textareaRef}
+              value={text + (selectedLayout === "avro" ? avroBuffer : "")}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="এখানে ক্লিক করে সরাসরি টাইপ করুন অথবা নিচের ভার্চুয়াল কীবোর্ড বাটনগুলোতে চাপ দিন..."
+              className="w-full h-44 sm:h-56 p-4 rounded-xl border border-border bg-background text-foreground font-bangla text-base sm:text-lg leading-relaxed focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none font-medium"
+            />
+            {selectedLayout === "avro" && avroBuffer && (
+              <div className="absolute right-4 bottom-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 px-3 py-1 rounded-lg text-xs font-mono font-bold shadow-xs">
+                ফোনেটিক বাফার: <span>{avroBuffer}</span> ➔ {avroTransliterate(avroBuffer)}
+              </div>
+            )}
+          </div>
 
           {/* Editor Action Controls */}
           <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border">

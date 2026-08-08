@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { useTypingStore } from "../../store/typingStore";
 import VirtualKeyboard from "../../components/VirtualKeyboard";
 import { BANGLA_SENTENCES_LEVEL_2 } from "../../data/banglaSentences";
@@ -108,30 +109,35 @@ export default function MixedTypingClient() {
   const netWpm = Math.max(0, Math.round(grossWpm * (accuracy / 100)));
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background text-foreground py-10 px-4 sm:px-6 lg:px-8 fade-in">
       <div className="max-w-4xl mx-auto space-y-8">
         
+        {/* Top Back Link */}
+        <Link href="/practice" className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors">
+          ← প্র্যাকটিস হাব-এ ফিরে যান
+        </Link>
+
         {/* Header Section */}
         <div className="text-center space-y-3">
-          <Badge className="bg-indigo-500/10 text-indigo-400 border-indigo-500/20 px-3 py-1 text-sm rounded-full inline-flex items-center gap-1.5">
-            <Languages className="w-4 h-4" /> দ্বিমুখী টাইপিং টেস্ট (Bilingual Practice)
+          <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 px-3 py-1 text-xs rounded-full inline-flex items-center gap-1.5 font-bold">
+            <Languages className="w-4 h-4 text-emerald-500" /> দ্বিমুখী টাইপিং টেস্ট (Bilingual Practice)
           </Badge>
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">
+          <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground">
             বাংলা-ইংরেজি মিক্সড টাইপিং টেস্ট
           </h1>
-          <p className="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-xs sm:text-sm max-w-2xl mx-auto leading-relaxed">
             সরকারি চাকরি (BPSC, ব্যাংক, সচিবালয়) নিয়োগ পরীক্ষার জন্য একটি টেস্টেই বাংলা ও ইংরেজি উভয় ভাষার টাইপিং গতি প্র্যাকটিস করুন।
           </p>
         </div>
 
         {/* Test Settings Bar */}
-        <Card className="bg-slate-900/80 border-slate-800 backdrop-blur-md">
+        <Card className="bg-card border border-border shadow-xs">
           <CardContent className="p-4 flex flex-wrap items-center justify-between gap-4">
             
             {/* Duration Buttons */}
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                <Timer className="w-4 h-4 text-indigo-400" /> সময়কাল:
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                <Timer className="w-4 h-4 text-emerald-500" /> সময়কাল:
               </span>
               {[60, 180, 300].map((dur) => (
                 <Button
@@ -140,7 +146,7 @@ export default function MixedTypingClient() {
                   disabled={isActive}
                   size="sm"
                   variant={timeDuration === dur ? "default" : "outline"}
-                  className={timeDuration === dur ? "bg-indigo-600 hover:bg-indigo-500" : "border-slate-700 text-slate-300 hover:bg-slate-800"}
+                  className={timeDuration === dur ? "bg-primary text-primary-foreground font-bold text-xs" : "border-border text-muted-foreground text-xs font-semibold"}
                 >
                   {dur / 60} মিনিট
                 </Button>
@@ -149,54 +155,54 @@ export default function MixedTypingClient() {
 
             {/* Layout Selector */}
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">কিবোর্ড লেআউট:</span>
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">বাংলা লেআউট:</span>
               <select
                 value={activeLayout}
                 onChange={(e) => setActiveLayout(e.target.value as Parameters<typeof setActiveLayout>[0])}
-                className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="bg-background border border-border rounded-lg px-3 py-1.5 text-foreground text-xs font-bold focus:outline-none focus:ring-1 focus:ring-primary"
               >
-                <option value="english">English QWERTY</option>
-                <option value="unibijoy">Bijoy (UniBijoy)</option>
-                <option value="avro">Avro Phonetic</option>
-                <option value="jatiya">Jatiya (জাতীয়)</option>
+                <option value="avro">Avro Phonetic (অভ্র)</option>
+                <option value="unibijoy">Bijoy (ইউনিবিজয়)</option>
+                <option value="jatiya">Jatiya (জাতীয় BCC)</option>
+                <option value="probhat">Probhat (প্রভাত)</option>
               </select>
             </div>
 
             {/* Restart Button */}
-            <Button onClick={generateMixedPassage} size="sm" variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800">
-              <RotateCcw className="w-4 h-4 mr-1.5" /> রিসেট
+            <Button onClick={generateMixedPassage} size="sm" variant="outline" className="border-border text-foreground font-bold text-xs">
+              <RotateCcw className="w-3.5 h-3.5 mr-1.5" /> রিসেট
             </Button>
           </CardContent>
         </Card>
 
         {/* Live Scorecard Metrics */}
         <div className="grid grid-cols-3 gap-4 text-center">
-          <Card className="bg-slate-900 border-slate-800 p-4">
-            <div className="text-xs text-slate-400 font-semibold uppercase tracking-wider">অবশিষ্ট সময়</div>
-            <div className="text-3xl font-extrabold text-indigo-400 mt-1">{timeLeft} সে.</div>
+          <Card className="bg-card border border-border p-4 shadow-xs">
+            <div className="text-xs text-muted-foreground font-bold uppercase tracking-wider">অবশিষ্ট সময়</div>
+            <div className="text-2xl sm:text-3xl font-black text-emerald-500 mt-1">{timeLeft} সে.</div>
           </Card>
 
-          <Card className="bg-slate-900 border-slate-800 p-4">
-            <div className="text-xs text-slate-400 font-semibold uppercase tracking-wider">স্পিড (Net WPM)</div>
-            <div className="text-3xl font-extrabold text-purple-400 mt-1">{netWpm}</div>
+          <Card className="bg-card border border-border p-4 shadow-xs">
+            <div className="text-xs text-muted-foreground font-bold uppercase tracking-wider">স্পিড (Net WPM)</div>
+            <div className="text-2xl sm:text-3xl font-black text-primary mt-1">{netWpm}</div>
           </Card>
 
-          <Card className="bg-slate-900 border-slate-800 p-4">
-            <div className="text-xs text-slate-400 font-semibold uppercase tracking-wider">নির্ভুলতা (Accuracy)</div>
-            <div className="text-3xl font-extrabold text-pink-400 mt-1">{accuracy}%</div>
+          <Card className="bg-card border border-border p-4 shadow-xs">
+            <div className="text-xs text-muted-foreground font-bold uppercase tracking-wider">নির্ভুলতা (Accuracy)</div>
+            <div className="text-2xl sm:text-3xl font-black text-amber-500 mt-1">{accuracy}%</div>
           </Card>
         </div>
 
         {/* Typing Arena */}
         {!isFinished ? (
-          <Card className="bg-slate-900 border-slate-800 p-6 space-y-6 shadow-2xl relative">
+          <Card className="bg-card border border-border p-6 space-y-6 shadow-md relative">
             
             {/* Language Target Indicator Badge */}
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div className="flex items-center justify-between border-b border-border pb-3">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-slate-400">বর্তমান ভাষা:</span>
-                <Badge className={currentBlock.lang === "bangla" ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" : "bg-blue-500/20 text-blue-300 border-blue-500/30"}>
-                  {currentBlock.lang === "bangla" ? "বাংলা (Bangla)" : "English"}
+                <span className="text-xs font-semibold text-muted-foreground">বর্তমান প্যাসেজ ভাষা:</span>
+                <Badge className={currentBlock.lang === "bangla" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-xs font-bold" : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30 text-xs font-bold"}>
+                  {currentBlock.lang === "bangla" ? `🇧🇩 বাংলা (${activeLayout.toUpperCase()})` : "🇬🇧 English (QWERTY)"}
                 </Badge>
               </div>
               <span className="text-xs text-slate-500 font-mono">

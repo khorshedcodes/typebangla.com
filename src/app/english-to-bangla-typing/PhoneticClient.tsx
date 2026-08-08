@@ -368,6 +368,26 @@ export default function PhoneticClient() {
           </div>
         )}
 
+        {/* Collapsible Clickable Virtual Keyboard Section */}
+        <section className="space-y-3 pt-4 border-t border-border">
+          <div className="flex items-center gap-2">
+            <Keyboard className="text-emerald-500" size={18} />
+            <h2 className="text-base font-black text-foreground">ভাসমান ও সরাসরি ক্লিকযোগ্য বাংলা কিবোর্ড (Virtual Keyboard Guide)</h2>
+          </div>
+          <FloatingBanglaKeyboard
+            onKeyClick={(_code, char) => {
+              if (!char) return;
+              if (char === "Backspace") {
+                setInputText((prev: string) => prev.slice(0, -1));
+              } else if (char === "Space") {
+                setInputText((prev: string) => prev + " ");
+              } else {
+                setInputText((prev: string) => prev + char);
+              }
+            }}
+          />
+        </section>
+
         {/* Tips and Conjunct Usage Box */}
         <Card className="border border-border bg-card shadow-xs rounded-2xl mt-6">
           <CardHeader className="pb-2">
