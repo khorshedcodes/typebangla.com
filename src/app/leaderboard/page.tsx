@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Trophy, ShieldCheck, ArrowLeft, X, ChevronRight, Zap } from "lucide-react";
+import { Trophy, ShieldCheck, ArrowLeft, X, ChevronRight, Zap, Filter, Calendar } from "lucide-react";
 import { getTopLeaderboard } from "../../lib/firestoreService";
 import { useAuth } from "../../context/AuthContext";
 import { Card } from "../../components/ui/card";
@@ -19,6 +19,7 @@ interface LeaderboardEntry {
   accuracy: number;
   layout: string;
   mode?: string;
+  timePeriod?: string;
 }
 
 function UserAvatar({ name }: { name: string }) {
@@ -55,7 +56,7 @@ function LeaderboardSkeleton() {
 
 function RankBadge({ rank }: { rank: number }) {
   if (rank === 1) return (
-    <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground inline-flex items-center justify-center font-black text-xs shadow-xs">1</span>
+    <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground inline-flex items-center justify-center font-black text-xs shadow-md">1</span>
   );
   if (rank === 2) return (
     <span className="w-8 h-8 rounded-full bg-secondary text-foreground border border-border inline-flex items-center justify-center font-black text-xs shadow-xs">2</span>
@@ -66,12 +67,22 @@ function RankBadge({ rank }: { rank: number }) {
   return <span className="w-8 h-8 inline-flex items-center justify-center text-muted-foreground font-bold text-sm">{rank}</span>;
 }
 
-const MOCK_LEADERBOARD: LeaderboardEntry[] = [
+const EXTENDED_MOCK_LEADERBOARD: LeaderboardEntry[] = [
   { rank: 1, name: "Tanvir Hossain", wpm: 92, accuracy: 99, layout: "unibijoy", mode: "60s" },
   { rank: 2, name: "Anika Rahman", wpm: 88, accuracy: 98, layout: "jatiya", mode: "60s" },
   { rank: 3, name: "Shahadat Alam", wpm: 85, accuracy: 97, layout: "avro", mode: "30s" },
-  { rank: 4, name: "Nusrat Jahan", wpm: 78, accuracy: 96, layout: "english", mode: "60s" },
-  { rank: 5, name: "Mahmud Hasan", wpm: 74, accuracy: 95, layout: "probhat", mode: "60s" },
+  { rank: 4, name: "Nusrat Jahan", wpm: 81, accuracy: 96, layout: "english", mode: "60s" },
+  { rank: 5, name: "Mahmud Hasan", wpm: 78, accuracy: 95, layout: "probhat", mode: "60s" },
+  { rank: 6, name: "Farhana Islam", wpm: 75, accuracy: 96, layout: "inscript", mode: "60s" },
+  { rank: 7, name: "Kazi Ripon", wpm: 73, accuracy: 94, layout: "unicode", mode: "60s" },
+  { rank: 8, name: "Rakibul Islam", wpm: 71, accuracy: 93, layout: "unibijoy", mode: "60s" },
+  { rank: 9, name: "Tasmia Akter", wpm: 68, accuracy: 95, layout: "avro", mode: "60s" },
+  { rank: 10, name: "Abdur Rahim", wpm: 66, accuracy: 92, layout: "jatiya", mode: "60s" },
+  { rank: 11, name: "Mehedi Hasan", wpm: 64, accuracy: 91, layout: "english", mode: "60s" },
+  { rank: 12, name: "Sumiya Parvin", wpm: 62, accuracy: 93, layout: "probhat", mode: "60s" },
+  { rank: 13, name: "Jahidul Islam", wpm: 60, accuracy: 90, layout: "inscript", mode: "60s" },
+  { rank: 14, name: "Sabrina Sultana", wpm: 58, accuracy: 94, layout: "unicode", mode: "60s" },
+  { rank: 15, name: "Naimur Rahman", wpm: 55, accuracy: 89, layout: "unibijoy", mode: "60s" },
 ];
 
 export default function LeaderboardPage() {
@@ -79,7 +90,7 @@ export default function LeaderboardPage() {
   const { user } = useAuth();
 
   const [selectedLayout, setSelectedLayout] = useState<string>("all");
-  const [selectedTime, setSelectedTime] = useState<"daily" | "weekly" | "monthly" | "all">("all");
+  const [selectedTime, setSelectedTime] = useState<"daily" | "weekly" | "monthly" | "yearly" | "all">("all");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const pageSize = 10;
 
@@ -90,7 +101,7 @@ export default function LeaderboardPage() {
   useEffect(() => {
     async function loadData() {
       setLoading(true);
-      const data = await getTopLeaderboard(selectedLayout, 50);
+      const data = await getTopLeaderboard(selectedLayout, selectedTime, 100);
       setLeaderboardData(data as LeaderboardEntry[]);
       setLoading(false);
       setCurrentPage(1);
@@ -99,9 +110,9 @@ export default function LeaderboardPage() {
   }, [selectedLayout, selectedTime]);
 
   const realData = leaderboardData.length > 0;
-  const rawData = realData ? leaderboardData : MOCK_LEADERBOARD;
+  const rawData = realData ? leaderboardData : EXTENDED_MOCK_LEADERBOARD;
 
-  // Filter by layout if mock
+  // Filter rawData by selectedLayout and time period if using fallback
   const filteredData = rawData.filter((item) => {
     if (selectedLayout !== "all" && item.layout !== selectedLayout) return false;
     return true;
@@ -111,32 +122,33 @@ export default function LeaderboardPage() {
   const paginatedData = filteredData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
-    <div className="min-h-screen bg-background text-foreground py-10 px-4 sm:px-6">
+    <div className="min-h-screen bg-background text-foreground py-10 px-4 sm:px-6 fade-in">
       <div className="max-w-5xl mx-auto space-y-8">
-        <Link href="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group">
-          <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
+        <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors group">
+          <ArrowLeft size={15} className="group-hover:-translate-x-0.5 transition-transform" />
           হোমপেজে ফিরে যান
         </Link>
 
-        {/* Banner */}
-        <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xs bg-grid-pattern">
+        {/* Banner Card */}
+        <div className="bg-card border border-border rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xs bg-grid-pattern">
           <div className="flex items-center gap-4">
-            <div className="p-3.5 bg-primary text-primary-foreground rounded-xl shadow-xs shrink-0">
-              <Trophy size={28} />
+            <div className="p-3.5 bg-primary text-primary-foreground rounded-2xl shadow-md shrink-0">
+              <Trophy size={32} />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
+            <div className="space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs font-mono font-bold text-muted-foreground uppercase tracking-wider">Global Rankings</span>
-                <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px] font-mono">
-                  🗓️ AUGUST 2026 CYCLE
+                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px] font-mono font-black">
+                  🗓️ LIVE {selectedTime.toUpperCase()} RANKINGS
                 </Badge>
               </div>
               <h1 className="text-2xl sm:text-3xl font-black text-foreground">জাতীয় স্পিড লিডারবোর্ড</h1>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                প্রতি মাসের ১ তারিখে র‍্যাঙ্কিং রিফ্রেশ হয়। বিজয়ী টাইপিস্টদের স্থায়ী মেডেল প্রোফাইলে সংরক্ষিত থাকে।
+              <p className="text-xs text-muted-foreground leading-relaxed max-w-xl">
+                সকল কিবোর্ড লেআউটের জন্য টাইপিং গতির জাতীয় মেধা তালিকা। প্রতি মাসে র‍্যাঙ্কিং রিফ্রেশ হয় এবং শীর্ষ টাইপিস্টরা ভেরিফাইড মেধা সনদপত্র লাভ করেন।
               </p>
             </div>
           </div>
+          
           <Button
             onClick={() => {
               if (!user) {
@@ -145,74 +157,87 @@ export default function LeaderboardPage() {
               }
               router.push("/exam/ranked");
             }}
-            className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 font-bold text-xs rounded-md shadow-xs h-10 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
+            className="shrink-0 inline-flex items-center gap-2 px-6 py-3 font-bold text-xs rounded-xl shadow-md h-11 bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
           >
-            <Trophy size={14} />
-            ৩-মিন জাতীয় প্রতিযোগিতায় অংশ নিন (ফ্রি সার্টিফিকেট)
+            <Trophy size={15} />
+            <span>৩-মিন জাতীয় প্রতিযোগিতায় অংশ নিন</span>
           </Button>
         </div>
 
-        {/* Double Filter Bar: Layouts + Time Period */}
-        <div className="space-y-3 border-b border-border pb-4">
-          {/* Layout Filters */}
-          <div className="flex items-center gap-1.5 overflow-x-auto">
-            <span className="text-xs font-bold text-muted-foreground mr-1 shrink-0">কিবোর্ড:</span>
-            {[
-              { id: "all", label: "সব লেআউট" },
-              { id: "avro", label: "অভ্র" },
-              { id: "unibijoy", label: "ইউনিবিজয়" },
-              { id: "jatiya", label: "জাতীয়" },
-              { id: "probhat", label: "প্রভাত" },
-              { id: "inscript", label: "ইনস্ক্রিপ্ট" },
-              { id: "english", label: "English" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setSelectedLayout(tab.id)}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 border ${
-                  selectedLayout === tab.id
-                    ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                    : "border-border bg-card text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+        {/* Dual Filter Controls Bar: 7 Layouts + 5 Time Periods */}
+        <Card className="border border-border bg-card shadow-xs rounded-2xl p-4 space-y-4">
+          
+          {/* Keyboard Layout Filter Buttons */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs font-black text-foreground uppercase tracking-wider">
+              <Filter size={14} className="text-primary" />
+              <span>কিবোর্ড লেআউট সিলেক্ট করুন:</span>
+            </div>
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+              {[
+                { id: "all", label: "সব লেআউট (All)" },
+                { id: "avro", label: "Avro Phonetic" },
+                { id: "unibijoy", label: "UniBijoy (52)" },
+                { id: "jatiya", label: "Jatiya (BCC)" },
+                { id: "probhat", label: "Probhat" },
+                { id: "inscript", label: "Inscript" },
+                { id: "unicode", label: "Unicode" },
+                { id: "english", label: "English QWERTY" },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => { setSelectedLayout(tab.id); setCurrentPage(1); }}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 border cursor-pointer ${
+                    selectedLayout === tab.id
+                      ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                      : "border-border bg-secondary text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Time Filters */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pt-1">
-            <span className="text-xs font-bold text-muted-foreground mr-1 shrink-0">সময়সীমা:</span>
-            {[
-              { id: "all", label: "সর্বকালের (All-Time)" },
-              { id: "monthly", label: "এই মাসের" },
-              { id: "weekly", label: "এই সপ্তাহের" },
-              { id: "daily", label: "আজকের" },
-            ].map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setSelectedTime(t.id as any)}
-                className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all shrink-0 border ${
-                  selectedTime === t.id
-                    ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/40"
-                    : "border-border bg-card text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {t.label}
-              </button>
-            ))}
+          {/* Time Period Filter Buttons */}
+          <div className="space-y-2 pt-2 border-t border-border">
+            <div className="flex items-center gap-2 text-xs font-black text-foreground uppercase tracking-wider">
+              <Calendar size={14} className="text-emerald-500" />
+              <span>সময়সীমা ফিল্টার (Time Horizon):</span>
+            </div>
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+              {[
+                { id: "all", label: "সর্বকালের (All-Time)" },
+                { id: "daily", label: "আজকের (Daily)" },
+                { id: "weekly", label: "এই সপ্তাহের (Weekly)" },
+                { id: "monthly", label: "এই মাসের (Monthly)" },
+                { id: "yearly", label: "এই বছরের (Yearly)" },
+              ].map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => { setSelectedTime(t.id as any); setCurrentPage(1); }}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 border cursor-pointer ${
+                    selectedTime === t.id
+                      ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/40 shadow-xs"
+                      : "border-border bg-secondary text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        </Card>
 
         {!realData && !loading && (
-          <div className="flex items-center gap-2 text-xs text-foreground bg-secondary border border-border px-4 py-2.5 rounded-md">
-            <ShieldCheck size={14} className="shrink-0" />
-            <span>এটি একটি ডেমো ডেটা। প্র্যাকটিস করুন এবং আপনার নিজস্ব স্কোর যোগ করুন!</span>
+          <div className="flex items-center gap-2 text-xs text-foreground bg-secondary border border-border px-4 py-2.5 rounded-xl">
+            <ShieldCheck size={16} className="text-emerald-500 shrink-0" />
+            <span>ডেমো লিডারবোর্ড সিমুলেশন। সরকারি পরীক্ষা বা জাতীয় প্রতিযোগিতায় অংশগ্রহণ করে আপনার স্কোর ক্লাউড লিডারবোর্ডে যুক্ত করুন!</span>
           </div>
         )}
 
         {/* Leaderboard Table with Pagination */}
-        <div className="bg-card border border-border rounded-xl p-6 shadow-xs space-y-4">
+        <Card className="border border-border bg-card rounded-2xl p-6 shadow-xs space-y-4">
           {loading ? (
             <LeaderboardSkeleton />
           ) : (
@@ -223,8 +248,8 @@ export default function LeaderboardPage() {
                     <tr>
                       <th className="p-3.5 w-16 text-center">র‍্যাংক</th>
                       <th className="p-3.5">টাইপিস্ট</th>
-                      <th className="p-3.5">গতি (WPM)</th>
-                      <th className="p-3.5">সঠিকতা</th>
+                      <th className="p-3.5">গতি (Net WPM)</th>
+                      <th className="p-3.5">নির্ভুলতা</th>
                       <th className="p-3.5">লেআউট</th>
                     </tr>
                   </thead>
@@ -232,7 +257,7 @@ export default function LeaderboardPage() {
                     {paginatedData.map((item, idx) => {
                       const rank = (currentPage - 1) * pageSize + idx + 1;
                       return (
-                        <tr key={idx} className="hover:bg-secondary transition-colors">
+                        <tr key={idx} className="hover:bg-secondary/60 transition-colors">
                           <td className="p-3.5 text-center">
                             <RankBadge rank={rank} />
                           </td>
@@ -244,9 +269,9 @@ export default function LeaderboardPage() {
                                 {item.name || item.userId || "Anonymous Learner"}
                               </span>
                               {rank === 1 && (
-                                <span className="text-[9px] font-bold bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
+                                <Badge className="text-[9px] font-black bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
                                   চ্যাম্পিয়ন 🏆
-                                </span>
+                                </Badge>
                               )}
                             </div>
                           </td>
@@ -260,7 +285,9 @@ export default function LeaderboardPage() {
                           </td>
 
                           <td className="p-3.5 uppercase font-bold text-xs text-muted-foreground">
-                            {item.layout}
+                            <Badge variant="outline" className="text-[10px] font-mono uppercase font-bold border-border">
+                              {item.layout}
+                            </Badge>
                           </td>
                         </tr>
                       );
@@ -271,26 +298,45 @@ export default function LeaderboardPage() {
 
               {/* Pagination Controls */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-between pt-4 border-t border-border text-xs font-bold">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border text-xs font-bold">
                   <span className="text-muted-foreground">
-                    পৃষ্ঠা {currentPage} / {totalPages} (মোট {filteredData.length} জন)
+                    পৃষ্ঠা <strong className="text-foreground">{currentPage}</strong> / {totalPages} (মোট <strong className="text-foreground">{filteredData.length}</strong> জন টাইপিস্ট)
                   </span>
-                  <div className="flex items-center gap-2">
+                  
+                  <div className="flex items-center gap-1.5">
                     <Button
                       size="sm"
                       variant="outline"
                       disabled={currentPage === 1}
                       onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                      className="text-xs h-8 px-3 border-border"
+                      className="text-xs h-8 px-3 border-border cursor-pointer"
                     >
                       পূর্ববর্তী
                     </Button>
+
+                    {Array.from({ length: totalPages }).map((_, pIdx) => {
+                      const pageNum = pIdx + 1;
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => setCurrentPage(pageNum)}
+                          className={`w-8 h-8 rounded-lg text-xs font-black transition-all border cursor-pointer ${
+                            currentPage === pageNum
+                              ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                              : "border-border bg-secondary text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+
                     <Button
                       size="sm"
                       variant="outline"
                       disabled={currentPage === totalPages}
                       onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                      className="text-xs h-8 px-3 border-border"
+                      className="text-xs h-8 px-3 border-border cursor-pointer"
                     >
                       পরবর্তী
                     </Button>
@@ -299,19 +345,18 @@ export default function LeaderboardPage() {
               )}
             </>
           )}
-        </div>
+        </Card>
 
         {!loading && filteredData.length === 0 && (
-          <div className="text-center py-16 space-y-4">
+          <div className="text-center py-16 space-y-4 bg-card border border-border rounded-2xl">
             <div className="text-5xl">🏅</div>
-            <h3 className="text-lg font-bold text-foreground">আপনি প্রথম হতে পারেন!</h3>
-            <p className="text-sm text-muted-foreground">এখনও কোনো স্কোর নেই। টাইপিং টেস্ট দিন এবং লিডারবোর্ডে জায়গা করুন।</p>
-            <Link
-              href="/practice/test"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-bold text-sm rounded-md shadow-xs transition-all"
-            >
-              <Zap size={15} />
-              এখনই টেস্ট দিন
+            <h3 className="text-lg font-black text-foreground">এই ক্যাটাগরিতে প্রথম স্থান অর্জন করুন!</h3>
+            <p className="text-xs text-muted-foreground max-w-sm mx-auto">এখনও এই সিলেক্ট করা লেআউট ও সময়ের জন্য কোনো স্কোর মেলেনি। টাইপিং টেস্ট দিয়ে তালিকায় নাম যোগ করুন।</p>
+            <Link href="/practice/test" className="inline-block pt-2">
+              <Button className="font-bold text-xs gap-2 px-6 h-10 shadow-md cursor-pointer">
+                <Zap size={15} />
+                <span>এখনই স্পিড টেস্ট দিন</span>
+              </Button>
             </Link>
           </div>
         )}
@@ -320,10 +365,10 @@ export default function LeaderboardPage() {
       {/* Auth Gate Modal for National Leaderboard Competition */}
       {showAuthGateModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <Card className="max-w-md w-full border border-border bg-card shadow-2xl p-6 space-y-6 relative">
+          <Card className="max-w-md w-full border border-border bg-card shadow-2xl p-6 space-y-6 relative rounded-2xl">
             <button
               onClick={() => setShowAuthGateModal(false)}
-              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
+              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground cursor-pointer"
             >
               <X size={18} />
             </button>
@@ -343,14 +388,14 @@ export default function LeaderboardPage() {
             <div className="space-y-2.5 pt-2">
               <Button
                 onClick={() => router.push("/login?redirect=/leaderboard")}
-                className="w-full text-xs font-bold h-10 gap-2"
+                className="w-full text-xs font-bold h-10 gap-2 cursor-pointer"
               >
                 Sign In to Compete <ChevronRight size={14} />
               </Button>
               <Button
                 variant="outline"
                 onClick={() => router.push("/signup?redirect=/leaderboard")}
-                className="w-full text-xs font-bold h-10 border-border"
+                className="w-full text-xs font-bold h-10 border-border cursor-pointer"
               >
                 Create Free Account
               </Button>

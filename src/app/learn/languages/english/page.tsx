@@ -1,193 +1,178 @@
-"use client";
-
 import React from "react";
+import { Metadata } from "next";
 import Link from "next/link";
 import {
-  BookOpen, GraduationCap, Trophy, CheckCircle2,
-  ArrowRight, Star, Clock, Award, ShieldCheck,
-  ChevronRight, FileText, Code, Briefcase, Globe,
-  HelpCircle, Sparkles, Check, Play, Keyboard
+  Globe, Sparkles, BookOpen, CheckCircle2, ArrowRight,
+  ShieldCheck, Trophy, Keyboard, Award, HelpCircle
 } from "lucide-react";
-import { Card, CardContent } from "../../../../components/ui/card";
-import { Button } from "../../../../components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+
+export const metadata: Metadata = {
+  title: "English QWERTY Touch Typing Course & Speed Lessons | TypeBangla",
+  description: "Master English QWERTY touch typing with speed drills, home row finger placement guide, 70+ WPM speed target, and real-time accuracy telemetry.",
+  alternates: { canonical: "https://typebangla.com/learn/languages/english" },
+  openGraph: {
+    title: "English Touch Typing Master Class | TypeBangla",
+    description: "Learn touch typing on standard QWERTY keyboard with interactive lessons and WPM speed drills.",
+    url: "https://typebangla.com/learn/languages/english",
+    type: "website",
+  },
+};
+
+const JSON_LD_DATA = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Course",
+      "name": "English QWERTY Full Touch Typing Course",
+      "description": "Comprehensive touch-typing course covering home row finger placement, top row, bottom row, numbers, and speed building drills for 70+ WPM.",
+      "provider": {
+        "@type": "Organization",
+        "name": "TypeBangla",
+        "sameAs": "https://typebangla.com"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How long does it take to learn touch typing in English?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "With 15–20 minutes of daily practice on TypeBangla, most learners achieve 40+ WPM touch typing speed within 2 to 3 weeks."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the recommended WPM speed for professional work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Standard professional typing speed ranges from 40 to 60 WPM, while advanced data entry and software engineering benefit from 70+ WPM."
+          }
+        }
+      ]
+    }
+  ]
+};
 
 export default function EnglishLanguageHubPage() {
   return (
-    <main className="container max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-16 fade-in text-[#111827]">
-      
-      {/* ── Breadcrumb ──────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 text-xs text-[#6B7280]">
-        <Link href="/" className="hover:text-[#2563EB]">Home</Link>
+    <main className="container max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-12 fade-in text-foreground">
+      {/* Schema.org Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD_DATA) }}
+      />
+
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <Link href="/" className="hover:text-primary transition-colors">Home</Link>
         <span>/</span>
-        <Link href="/learn" className="hover:text-[#2563EB]">Learn Hub</Link>
+        <Link href="/courses" className="hover:text-primary transition-colors">Courses</Link>
         <span>/</span>
-        <span className="text-[#111827] font-bold">English Typing</span>
+        <span className="text-foreground font-bold">English Touch Typing</span>
       </div>
 
-      {/* ── 1. HERO SECTION ─────────────────────────────────────────────────── */}
-      <section className="border border-[#E5E7EB] bg-[#FFFFFF] rounded-3xl p-8 sm:p-12 text-center space-y-6 shadow-sm max-w-4xl mx-auto">
-        <div className="inline-flex items-center gap-2 bg-[#2563EB]/10 border border-[#2563EB]/20 px-4 py-1.5 rounded-full text-xs font-bold text-[#2563EB]">
+      {/* Hero Section */}
+      <section className="border border-border bg-card rounded-3xl p-8 sm:p-12 text-center space-y-6 shadow-xs max-w-4xl mx-auto bg-grid-pattern">
+        <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 px-4 py-1.5 rounded-full text-xs font-bold text-primary">
           <Globe size={15} />
           <span>ENGLISH QWERTY TOUCH TYPING</span>
         </div>
 
-        <h1 className="text-4xl sm:text-6xl font-black text-[#111827] tracking-tight">
-          English Typing Course
+        <h1 className="text-3xl sm:text-5xl font-black text-foreground tracking-tight">
+          English Touch Typing Master Course
         </h1>
 
-        <p className="text-base sm:text-lg text-[#6B7280] max-w-2xl mx-auto leading-relaxed">
-          Master touch typing on the standard QWERTY keyboard with speed, 98%+ accuracy, and practical confidence.
+        <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          Master touch typing on standard QWERTY keyboards with proper finger placement, top row, bottom row, numbers, and 70+ WPM speed target drills.
         </p>
 
-        <div className="flex flex-wrap justify-center gap-4 text-xs font-bold text-[#111827]">
-          <span>✓ Learn proper finger placement</span>
-          <span>✓ Improve speed & accuracy</span>
-          <span>✓ Practice real English texts</span>
+        <div className="flex flex-wrap justify-center gap-4 text-xs font-bold text-foreground pt-2">
+          <span className="flex items-center gap-1.5 bg-secondary border border-border px-3 py-1.5 rounded-full">
+            <CheckCircle2 size={13} className="text-emerald-500" /> Home Row &amp; Finger Placement Guide
+          </span>
+          <span className="flex items-center gap-1.5 bg-secondary border border-border px-3 py-1.5 rounded-full">
+            <CheckCircle2 size={13} className="text-emerald-500" /> 20+ Interactive Progressive Lessons
+          </span>
+          <span className="flex items-center gap-1.5 bg-secondary border border-border px-3 py-1.5 rounded-full">
+            <CheckCircle2 size={13} className="text-emerald-500" /> Real-time WPM &amp; Accuracy Telemetry
+          </span>
         </div>
 
-        <div className="pt-2">
-          <Link href="/learn/beginner?lang=en">
-            <Button size="lg" className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold text-sm h-12 px-8 rounded-xl shadow-lg gap-2">
-              Start Learning English →
+        <div className="pt-4 flex items-center justify-center gap-3 flex-wrap">
+          <Link href="/courses/english">
+            <Button size="lg" className="font-black text-sm h-12 px-8 rounded-xl shadow-xs gap-2 cursor-pointer">
+              <span>Start English Course →</span>
+              <ArrowRight size={16} />
+            </Button>
+          </Link>
+          <Link href="/english-touch-typing">
+            <Button variant="outline" size="lg" className="font-bold text-sm h-12 px-8 rounded-xl border-border cursor-pointer">
+              <span>Live Speed Arena</span>
             </Button>
           </Link>
         </div>
       </section>
 
-      {/* ── 2. WHY LEARN ENGLISH TYPING? ────────────────────────────────────── */}
-      <section className="space-y-6">
-        <div className="text-center space-y-1">
-          <span className="text-xs font-black text-[#2563EB] uppercase tracking-widest">কেন ইংরেজি টাইপিং?</span>
-          <h2 className="text-2xl sm:text-3xl font-black text-[#111827]">Why Learn English Typing?</h2>
-        </div>
+      {/* Feature Highlights Grid */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="border border-border bg-card rounded-2xl shadow-xs p-6 space-y-3">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-lg">
+            ⌨️
+          </div>
+          <h3 className="font-black text-base text-foreground">Home Row Mastery</h3>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Position your fingers on ASDF and JKL; keys. Build automatic muscle memory for fast, error-free touch typing.
+          </p>
+        </Card>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 text-center">
-          {[
-            { label: "Coding & Dev", icon: Code },
-            { label: "Office Work", icon: Briefcase },
-            { label: "Freelancing", icon: Globe },
-            { label: "Email Writing", icon: FileText },
-            { label: "Academic Essays", icon: GraduationCap },
-            { label: "Remote Jobs", icon: ShieldCheck },
-          ].map((item, idx) => (
-            <Card key={idx} className="border border-[#E5E7EB] bg-[#FFFFFF] shadow-sm rounded-2xl">
-              <CardContent className="p-4 space-y-2">
-                <div className="w-10 h-10 rounded-xl bg-[#2563EB]/10 text-[#2563EB] flex items-center justify-center mx-auto">
-                  <item.icon size={20} />
-                </div>
-                <div className="text-xs font-bold text-[#111827]">{item.label}</div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <Card className="border border-border bg-card rounded-2xl shadow-xs p-6 space-y-3">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-lg">
+            ⚡
+          </div>
+          <h3 className="font-black text-base text-foreground">Speed Drills &amp; Sprinters</h3>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Target 40 WPM to 70+ WPM with high-frequency vocabulary, sentence drills, and paragraph sprint tests.
+          </p>
+        </Card>
+
+        <Card className="border border-border bg-card rounded-2xl shadow-xs p-6 space-y-3">
+          <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-lg">
+            🏆
+          </div>
+          <h3 className="font-black text-base text-foreground">Verified Course Certificate</h3>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Complete all 20 lessons to unlock your official downloadable typing certificate with QR verification code.
+          </p>
+        </Card>
       </section>
 
-      {/* ── 3. COURSE ROADMAP ───────────────────────────────────────────────── */}
-      <section className="space-y-6">
-        <div className="text-center space-y-1">
-          <span className="text-xs font-black text-[#2563EB] uppercase tracking-widest">শেখার ধাপসমূহ</span>
-          <h2 className="text-2xl sm:text-3xl font-black text-[#111827]">English Course Roadmap</h2>
-        </div>
+      {/* FAQ Section */}
+      <section className="border border-border bg-card rounded-3xl p-8 shadow-xs space-y-6">
+        <h2 className="text-2xl font-black text-foreground flex items-center gap-2">
+          <HelpCircle size={20} className="text-primary" />
+          <span>Frequently Asked Questions (FAQ)</span>
+        </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="border border-[#E5E7EB] bg-[#FFFFFF] rounded-3xl p-6 space-y-4 hover:border-[#2563EB] transition-all">
-            <div className="text-3xl">🌱</div>
-            <h3 className="text-lg font-black">Beginner Course</h3>
-            <p className="text-xs text-[#6B7280]">Learn finger placement, Home Row (ASDF JKL;), Top & Bottom rows.</p>
-            <Link href="/learn/beginner?lang=en" className="block pt-2">
-              <Button className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold h-10 rounded-xl">
-                Start Beginner (ASDF JKL;) →
-              </Button>
-            </Link>
-          </Card>
-
-          <Card className="border border-[#E5E7EB] bg-[#FFFFFF] rounded-3xl p-6 space-y-4 hover:border-[#2563EB] transition-all">
-            <div className="text-3xl">🚀</div>
-            <h3 className="text-lg font-black">Intermediate Course</h3>
-            <p className="text-xs text-[#6B7280]">Build speed, punctuation, emails, business documents, and 95%+ accuracy.</p>
-            <Link href="/learn/intermediate?lang=en" className="block pt-2">
-              <Button className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold h-10 rounded-xl">
-                Start Intermediate (25–50 WPM) →
-              </Button>
-            </Link>
-          </Card>
-
-          <Card className="border border-[#E5E7EB] bg-[#FFFFFF] rounded-3xl p-6 space-y-4 hover:border-[#2563EB] transition-all">
-            <div className="text-3xl">🏆</div>
-            <h3 className="text-lg font-black">Professional Mastery</h3>
-            <p className="text-xs text-[#6B7280]">Master 60–90+ WPM, technical coding symbols, and career specializations.</p>
-            <Link href="/learn/advanced?lang=en" className="block pt-2">
-              <Button className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold h-10 rounded-xl">
-                Unlock Professional (60–90+ WPM) →
-              </Button>
-            </Link>
-          </Card>
-        </div>
-      </section>
-
-      {/* ── 4. QWERTY KEYBOARD ILLUSTRATION ──────────────────────────────────── */}
-      <section className="border border-[#E5E7EB] bg-[#F3F4F6] rounded-3xl p-8 text-center space-y-6">
-        <div className="space-y-1">
-          <span className="text-xs font-black text-[#2563EB] uppercase tracking-widest">কিবোর্ড লেআউট</span>
-          <h2 className="text-2xl font-black text-[#111827]">Standard QWERTY Layout</h2>
-        </div>
-
-        <div className="border border-[#E5E7EB] bg-[#FFFFFF] p-6 rounded-2xl max-w-3xl mx-auto font-mono text-sm space-y-2 shadow-inner">
-          <div className="flex justify-center gap-1.5 text-[#6B7280]">
-            {["Q","W","E","R","T","Y","U","I","O","P"].map((k) => (
-              <span key={k} className="w-9 h-10 border border-[#E5E7EB] bg-[#F3F4F6] rounded-lg flex items-center justify-center font-bold text-[#111827]">{k}</span>
-            ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+          <div className="space-y-2 p-5 rounded-2xl bg-secondary/50 border border-border">
+            <h3 className="font-bold text-sm text-foreground">How long does it take to reach 50+ WPM?</h3>
+            <p className="text-muted-foreground leading-relaxed">
+              With 15–20 minutes of daily practice on TypeBangla, most learners reach 50+ WPM in 2 to 3 weeks.
+            </p>
           </div>
-          <div className="flex justify-center gap-1.5">
-            {["A","S","D","F","G","H","J","K","L",";"].map((k) => (
-              <span key={k} className={`w-9 h-10 border border-[#E5E7EB] rounded-lg flex items-center justify-center font-bold ${["F","J"].includes(k) ? "bg-[#2563EB] text-white ring-2 ring-[#2563EB]" : "bg-[#F3F4F6] text-[#111827]"}`}>{k}</span>
-            ))}
-          </div>
-          <div className="flex justify-center gap-1.5 text-[#6B7280]">
-            {["Z","X","C","V","B","N","M",",","."].map((k) => (
-              <span key={k} className="w-9 h-10 border border-[#E5E7EB] bg-[#F3F4F6] rounded-lg flex items-center justify-center font-bold text-[#111827]">{k}</span>
-            ))}
+          <div className="space-y-2 p-5 rounded-2xl bg-secondary/50 border border-border">
+            <h3 className="font-bold text-sm text-foreground">Is the course suitable for complete beginners?</h3>
+            <p className="text-muted-foreground leading-relaxed">
+              Yes! The course begins with step-by-step home row key placement and unlocks lessons sequentially.
+            </p>
           </div>
         </div>
       </section>
-
-      {/* ── 5. CAREER BENEFITS ──────────────────────────────────────────────── */}
-      <section className="space-y-6">
-        <div className="text-center space-y-1">
-          <span className="text-xs font-extrabold text-[#2563EB] uppercase tracking-widest">ক্যারিয়ার সুবিধা</span>
-          <h2 className="text-2xl sm:text-3xl font-black text-[#111827]">Why English Typing Matters in Careers</h2>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-xs font-bold text-[#111827]">
-          {[
-            "✔ Software Development & Coding",
-            "✔ Data Entry & Analytics",
-            "✔ Content Writing & Blogging",
-            "✔ Customer Support & Communication",
-            "✔ Global Remote Jobs & Upwork",
-            "✔ University Higher Education",
-          ].map((b, i) => (
-            <div key={i} className="border border-[#E5E7EB] bg-[#FFFFFF] p-4 rounded-2xl flex items-center gap-2 shadow-sm">
-              <CheckCircle2 size={16} className="text-[#2563EB] shrink-0" />
-              <span>{b}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── 6. FINAL CTA ────────────────────────────────────────────────────── */}
-      <section className="border border-[#E5E7EB] bg-[#2563EB] text-white rounded-3xl p-10 text-center space-y-6 shadow-xl">
-        <h2 className="text-3xl sm:text-4xl font-black">Start Your English Typing Journey</h2>
-        <p className="text-sm text-white/90 max-w-xl mx-auto">
-          Learn touch typing from scratch or boost your WPM score for free.
-        </p>
-        <Link href="/learn/beginner?lang=en" className="inline-block pt-2">
-          <Button size="lg" className="bg-[#FFFFFF] hover:bg-[#F3F4F6] text-[#2563EB] font-bold text-sm h-12 px-8 rounded-xl shadow-lg">
-            Start Beginner English Course →
-          </Button>
-        </Link>
-      </section>
-
     </main>
   );
 }

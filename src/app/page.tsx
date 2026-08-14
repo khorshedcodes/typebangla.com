@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight, CheckCircle2, Award, Zap, BookOpen,
@@ -8,17 +8,11 @@ import {
   ShieldCheck, Star, RefreshCw, Flame, Target, Compass
 } from "lucide-react";
 import { Card, CardContent } from "../components/ui/card";
-import { getClusterRanges } from "../utils/grapheme";
-import { avroTransliterate, mapInputToBangla } from "../utils/layouts";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
-import { HeroKeyboardVisualizer } from "../components/HeroKeyboardVisualizer";
-
-import { HeroMultiLayoutArena } from "../components/home/HeroMultiLayoutArena";
-import { HeroTypewriter, FaqItem } from "../components/home/LandingSections";
+import { FaqItem } from "../components/home/LandingSections";
 import { BLOG_POSTS } from "../utils/blogData";
 
-// ── MAIN LANDING PAGE COMPONENT (CRO OPTIMIZED MASTER PROMPT) ────────────────
 export default function LandingPage() {
   const [showCertModal, setShowCertModal] = useState(false);
 
@@ -64,17 +58,16 @@ export default function LandingPage() {
 
   return (
     <main className="w-full bg-background text-foreground space-y-24 pb-24 overflow-hidden">
-      
+
       {/* Schema.org FAQ Structured Data script */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-
-      {/* ── 1. HERO SECTION (CRO CONVERSION ENGINE) ───────────────────────── */}
+      {/* ── 1. HERO SECTION ────────────────────────────────────────────── */}
       <section className="container max-w-6xl mx-auto px-4 sm:px-6 text-center space-y-8 relative pt-4">
-        
+
         {/* Deep Ambient Background Radial Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-gradient-to-tr from-emerald-500/15 via-emerald-500/5 to-transparent blur-[120px] pointer-events-none -z-10 rounded-full" />
 
@@ -115,19 +108,11 @@ export default function LandingPage() {
               <span>Start Learning Free →</span>
             </Button>
           </Link>
-          <Link href="/practice/test" className="w-full sm:w-auto">
+          <Link href="/practice" className="w-full sm:w-auto">
             <Button size="lg" variant="outline" className="w-full sm:w-auto h-14 px-8 text-base font-bold rounded-2xl border-border hover:bg-secondary">
               Try Typing Test
             </Button>
           </Link>
-        </div>
-
-        {/* Hero Typewriter Animation */}
-        <HeroTypewriter />
-
-        {/* Interactive Typing Arena */}
-        <div className="pt-4">
-          <HeroMultiLayoutArena />
         </div>
       </section>
 
@@ -171,7 +156,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 4. KEYBOARD LAYOUT CARDS WITH METADATA (ITEM #5) ───────────────── */}
+      {/* ── 4. KEYBOARD LAYOUT CARDS WITH METADATA ─────────────────────────── */}
       <section className="container max-w-5xl mx-auto px-4 sm:px-6 space-y-10">
         <div className="text-center space-y-2">
           <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">কীবোর্ড সমর্থক</span>
@@ -252,7 +237,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 5. TIMELINE LEARNING ROADMAP (DUOLINGO STYLE - ITEM #6) ─────────── */}
+      {/* ── 5. TIMELINE LEARNING ROADMAP ─────────────────────────────────────── */}
       <section className="bg-secondary/40 py-16 border-y border-border">
         <div className="container max-w-5xl mx-auto px-4 sm:px-6 space-y-12 text-center">
           <div className="space-y-2">
@@ -286,7 +271,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 6. OUTCOME PROGRESSION ("WHAT WILL YOU ACHIEVE?" ITEM #7) ───────── */}
+      {/* ── 6. OUTCOME PROGRESSION ───────────────────────────────────────────── */}
       <section className="container max-w-5xl mx-auto px-4 sm:px-6 space-y-10">
         <div className="text-center space-y-2">
           <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">ফলাফল ও অগ্রগতি</span>
@@ -313,9 +298,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-
-
-      {/* ── 8. TYPING GAMES PREVIEW (ITEM #9) ─────────────────────────────── */}
+      {/* ── 7. TYPING GAMES PREVIEW ──────────────────────────────────────────── */}
       <section className="container max-w-5xl mx-auto px-4 sm:px-6 space-y-10">
         <div className="text-center space-y-2">
           <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">গেমিফাইড লার্নিং</span>
@@ -346,7 +329,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 9. FULL 8 PRACTICE CATEGORIES GRID (ITEM #10) ──────────────────── */}
+      {/* ── 8. PRACTICE CATEGORIES GRID ─────────────────────────────────────── */}
       <section className="container max-w-5xl mx-auto px-4 sm:px-6 space-y-10">
         <div className="text-center space-y-2">
           <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">অনুশীলন বিভাগ</span>
@@ -374,13 +357,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 10. CERTIFICATE ACTION SUITE (ITEM #11) ───────────────────────── */}
+      {/* ── 9. CERTIFICATE ACTION SUITE ──────────────────────────────────────── */}
       <section className="container max-w-5xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         <div className="space-y-4">
           <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">যাচাইকৃত সনদ</span>
           <h2 className="text-2xl sm:text-4xl font-black text-foreground">Earn Official Digital Typing Certificates</h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            স্পিড টেস্ট বা সরকারি পরীক্ষা সিমুলেটর সম্পন্ন করে অর্জন করুন অনলাইন যাচাইযোগ্য ডিজিটাল টাইপিং সার্টিফিকেট।
+            কোর্স বা পরীক্ষা সিমুলেটর সম্পন্ন করে অর্জন করুন অনলাইন যাচাইযোগ্য ডিজিটাল টাইপিং সার্টিফিকেট।
           </p>
           <div className="space-y-2 text-xs font-bold text-foreground">
             <div className="flex items-center gap-2"><CheckCircle2 size={16} className="text-emerald-500" /> ইউনিক সার্টিফিকেট আইডি কোড (TB-XXXXXX)</div>
@@ -389,25 +372,27 @@ export default function LandingPage() {
           </div>
 
           <div className="flex flex-wrap gap-3 pt-2">
-            <Link href="/practice/test">
+            <Link href="/courses">
               <Button className="font-bold text-xs h-10 px-6 rounded-xl shadow-xs">
-                সনদ অর্জন করতে টেস্ট দিন
+                সনদ অর্জন করতে কোর্সসমূহ দেখুন →
               </Button>
             </Link>
-            <Button
-              variant="outline"
-              onClick={() => setShowCertModal(true)}
-              className="font-bold text-xs h-10 px-5 rounded-xl border-border"
-            >
-              সনদ অ্যাকশন প্রিভিউ 👁️
-            </Button>
+            <Link href="/verify/TM-DEMO-2026" target="_blank">
+              <Button
+                variant="outline"
+                className="font-bold text-xs h-10 px-5 rounded-xl border-border gap-1"
+              >
+                সনদ ভেরিফিকেশন উদাহরণ 👁️
+              </Button>
+            </Link>
           </div>
         </div>
 
         {/* Holographic Certificate Card */}
-        <div
-          onClick={() => setShowCertModal(true)}
-          className="border border-emerald-500/30 bg-card/90 backdrop-blur-md rounded-2xl p-8 shadow-xl space-y-6 text-center relative overflow-hidden cursor-pointer hover:border-emerald-500/60 transition-all group"
+        <Link
+          href="/verify/TM-DEMO-2026"
+          target="_blank"
+          className="border border-emerald-500/30 bg-card/90 backdrop-blur-md rounded-2xl p-8 shadow-xl space-y-6 text-center relative overflow-hidden cursor-pointer hover:border-emerald-500/60 transition-all group block"
         >
           <div className="absolute top-3 right-3 px-2.5 py-0.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full text-[10px] font-bold">
             GOLD HONORS BADGE 🎖️
@@ -431,20 +416,20 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="pt-2 flex justify-between items-center text-[9px] text-muted-foreground border-t border-border">
-            <span>ID: TB-2026-8841</span>
+            <span>ID: TM-DEMO-2026</span>
             <span className="text-emerald-500 font-bold">VERIFIED CERTIFICATE ✓</span>
           </div>
-        </div>
+        </Link>
       </section>
 
-      {/* ── 11. INSTITUTE & ENTERPRISE PORTAL (ITEM #12) ───────────────────── */}
+      {/* ── 10. INSTITUTE & ENTERPRISE PORTAL (VERSION 2.0) ────────────────── */}
       <section className="container max-w-5xl mx-auto px-4 sm:px-6">
         <div className="border border-teal-500/30 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 rounded-2xl p-8 sm:p-10 shadow-lg space-y-6 text-center sm:text-left text-slate-100">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
             <div className="space-y-2">
               <div className="flex items-center justify-center sm:justify-start gap-2">
                 <span className="text-xs font-extrabold text-teal-400 uppercase tracking-widest">ইনস্টিটিউট, স্কুল ও কোচিং সেন্টার পোর্টাল 🏫</span>
-                <Badge className="bg-amber-500 text-slate-950 font-bold text-[10px]">ভার্সন ২.০</Badge>
+                <Badge className="bg-amber-500 text-slate-950 font-bold text-[10px]">VERSION 2.0</Badge>
               </div>
               <h2 className="text-2xl sm:text-3xl font-black text-white">কম্পিউটার প্রশিক্ষণ কেন্দ্র ও প্রতিষ্ঠানের জন্য</h2>
               <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
@@ -453,15 +438,14 @@ export default function LandingPage() {
             </div>
             <Link href="/institute">
               <Button size="lg" className="font-extrabold text-xs h-12 px-6 rounded-xl shadow-lg shrink-0 gap-2 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 border-none">
-                <span>V2 ಅರ್লি এক্সেস ও ওয়েটলিস্ট ➔</span>
-                <ArrowRight size={14} />
+                <span>Institute V2 Portal &amp; Early Access ➔</span>
               </Button>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ── 12. SEO BLOG GUIDES PREVIEW (ITEM #13) ─────────────────────────── */}
+      {/* ── 11. SEO BLOG GUIDES PREVIEW ─────────────────────────────────────── */}
       <section className="container max-w-5xl mx-auto px-4 sm:px-6 space-y-10">
         <div className="text-center space-y-2">
           <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">ব্লগ ও গাইডলাইন</span>
@@ -487,7 +471,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 13. EXPANDED STRUCTURED FAQ (ITEM #14 & #21) ──────────────────── */}
+      {/* ── 12. EXPANDED STRUCTURED FAQ ─────────────────────────────────────── */}
       <section className="container max-w-4xl mx-auto px-4 sm:px-6 space-y-8">
         <div className="text-center space-y-2">
           <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">প্রশ্নোত্তর</span>
@@ -519,7 +503,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 14. HIGH-CONVERSION FINAL CTA BANNER (ITEM #15) ───────────────── */}
+      {/* ── 13. HIGH-CONVERSION FINAL CTA BANNER ─────────────────────────────── */}
       <section className="container max-w-4xl mx-auto px-4 sm:px-6">
         <div className="border border-border bg-primary text-primary-foreground rounded-3xl p-10 sm:p-14 text-center space-y-6 shadow-2xl">
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight">Ready to Type Faster?</h2>
@@ -536,7 +520,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Mobile Sticky Bottom CTA Bar (Item #17) */}
+      {/* Mobile Sticky Bottom CTA Bar */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 p-3 bg-card/95 backdrop-blur-md border-t border-border z-40 flex items-center justify-between gap-2 shadow-2xl">
         <div className="space-y-0.5">
           <span className="text-[10px] font-bold text-muted-foreground block">টাইপিং স্পিড বাড়ান</span>
@@ -549,52 +533,6 @@ export default function LandingPage() {
         </Link>
       </div>
 
-      {/* Certificate Modal & Action Suite Preview */}
-      {showCertModal && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-card border border-border p-6 sm:p-8 rounded-3xl max-w-md w-full space-y-5 text-center shadow-2xl relative animate-in zoom-in-95 duration-150">
-            <button
-              onClick={() => setShowCertModal(false)}
-              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground font-bold text-xs"
-            >
-              ✕ বন্ধ করুন
-            </button>
-            <div className="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto text-xl border border-emerald-500/20">
-              🏆
-            </div>
-            <h3 className="text-lg font-black">যাচাইকৃত টাইপিং সার্টিফিকেট</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              স্পিড টেস্ট সম্পন্ন করার সাথে সাথেই আপনার কিবোর্ড স্পিড ও একিউরেসি সহ অনলাইন সনদের ভেরিফিকেশন আইডি জেনারেট হয়।
-            </p>
-            <div className="p-4 bg-secondary/50 rounded-xl text-left text-xs font-mono space-y-1.5 border border-border">
-              <div><strong>সনদ আইডি:</strong> TM-VERIFIED-9912</div>
-              <div><strong>স্ট্যাটাস:</strong> 🟢 Verified (অনলাইন যাচাইকৃত)</div>
-              <div><strong>পরীক্ষার্থী:</strong> আরিফুল ইসলাম</div>
-              <div><strong>স্কোর:</strong> ৭৫ WPM | ৯৮% Accuracy</div>
-            </div>
-
-            {/* Certificate Action Suite Buttons */}
-            <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
-              <Button size="sm" className="font-bold text-[11px] gap-1">
-                📄 Download PDF
-              </Button>
-              <Button size="sm" variant="outline" className="font-bold text-[11px] border-border gap-1">
-                🔍 Verify ID
-              </Button>
-              <Button size="sm" variant="secondary" className="font-bold text-[11px] gap-1">
-                🔗 LinkedIn
-              </Button>
-              <Button size="sm" variant="secondary" className="font-bold text-[11px] gap-1">
-                🌐 Facebook
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
     </main>
   );
 }
-
-
-

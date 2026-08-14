@@ -120,22 +120,33 @@ export function ExamCertificateModal({ isOpen, onClose, result }: ExamCertificat
     drawCornerDiamond(92, 1608);
     drawCornerDiamond(2308, 1608);
 
-    // 3. Logo Image (Full Horizontal Brand Mark)
+    // 3. Logo Image (Full High-Contrast Emblem Badge)
+    ctx.save();
+    ctx.fillStyle = "#18181b";
+    ctx.roundRect?.(120, 105, 310, 70, 14);
+    ctx.fill();
+
+    ctx.strokeStyle = "#ca8a04";
+    ctx.lineWidth = 2;
+    ctx.roundRect?.(120, 105, 310, 70, 14);
+    ctx.stroke();
+
     const logoImg = new window.Image();
-    logoImg.src = "/images/logo/whitebg_1.png";
+    logoImg.src = "/images/logo/blackbg.png";
     logoImg.onload = () => {
-      ctx.drawImage(logoImg, 130, 115, 60, 60);
-      ctx.fillStyle = "#18181b";
-      ctx.font = "black 32px sans-serif";
+      ctx.drawImage(logoImg, 132, 115, 50, 50);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 26px sans-serif";
       ctx.textAlign = "left";
-      ctx.fillText("typebangla.com", 205, 155);
+      ctx.fillText("typebangla.com", 192, 148);
     };
     logoImg.onerror = () => {
-      ctx.fillStyle = "#18181b";
-      ctx.font = "black 32px sans-serif";
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 26px sans-serif";
       ctx.textAlign = "left";
-      ctx.fillText("typebangla.com", 130, 155);
+      ctx.fillText("typebangla.com", 140, 148);
     };
+    ctx.restore();
 
     // 4. Header Badge / Title
     const currentMonthYear = new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" }).toUpperCase();
@@ -500,8 +511,8 @@ export function ExamCertificateModal({ isOpen, onClose, result }: ExamCertificat
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-popover border border-border rounded-2xl max-w-4xl w-full p-6 shadow-2xl space-y-5 my-8 max-h-[92vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-hidden">
+      <div className="bg-popover border border-border rounded-3xl max-w-4xl w-full p-5 sm:p-6 shadow-2xl flex flex-col max-h-[92vh] space-y-4 my-auto">
         {/* Header Bar */}
         <div className="flex items-center justify-between border-b border-border pb-4">
           <div className="flex items-center gap-2.5 text-foreground">

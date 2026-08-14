@@ -7,6 +7,7 @@ import { useTypingStore, KeyboardLayout } from "../../../store/typingStore";
 import { getRandomPassage, getPassageForDuration, PassageLanguage } from "../../../utils/lessons/exam/examPassages";
 import ExamCenter from "../../../components/ExamCenter";
 import { Badge } from "../../../components/ui/badge";
+import { Button } from "../../../components/ui/button";
 
 interface SlugMeta {
   slug: string;
@@ -89,10 +90,12 @@ export default function TestSlugClient({ testSlug }: { testSlug: string }) {
 
   return (
     <main className="container max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6 fade-in text-foreground">
-      {/* Header Bar */}
+      {/* Top Controls Bar */}
       <div className="flex items-center justify-between border-b border-border pb-4">
-        <Link href="/tests" className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors">
-          <ArrowLeft size={14} /> Back to Tests Hub
+        <Link href="/tests">
+          <Button variant="outline" size="sm" className="text-xs font-bold gap-1.5 border-border cursor-pointer hover:bg-secondary">
+            <ArrowLeft size={14} /> Try Another Test
+          </Button>
         </Link>
 
         <div className="flex items-center gap-2">
@@ -107,12 +110,6 @@ export default function TestSlugClient({ testSlug }: { testSlug: string }) {
             <span>Duration: <strong>{meta.duration}s</strong></span>
           </Badge>
         </div>
-      </div>
-
-      {/* Page Title */}
-      <div className="text-center space-y-1">
-        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">{meta.title}</h1>
-        <p className="text-xs font-bold text-muted-foreground">{meta.titleBn}</p>
       </div>
 
       {/* Exam Center Launcher */}

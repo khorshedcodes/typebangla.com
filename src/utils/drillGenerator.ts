@@ -101,6 +101,20 @@ export function generateDrillText(focusKeys: string, length = 280): string {
       }
       return result.join(" ");
     }
+
+    // Case 4: General Bangla keys (numbers, punctuation, symbols)
+    const result: string[] = [];
+    let currentLen = 0;
+    while (currentLen < length) {
+      const wordLen = Math.floor(Math.random() * 3) + 2;
+      let word = "";
+      for (let i = 0; i < wordLen; i++) {
+        word += keys[Math.floor(Math.random() * keys.length)];
+      }
+      result.push(word);
+      currentLen += word.length + 1;
+    }
+    return result.join(" ");
   } else {
     // English layout generator
     // Case 1: Alternating drills for 1 or 2 keys (e.g., Lesson 1: "f d")

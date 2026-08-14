@@ -67,7 +67,7 @@ const BANGLA_PHONETIC_GUIDE: { [key: string]: string } = {
   "ৎ": "t`",
   "ং": "ng",
   "ঃ": "H",
-  "ঁ": "Ng",
+  "ঁ": "^",
   "্": "", // Hasanta is automatic in Avro for double-consonants, or typed explicitly as `,,` or similar
 };
 
@@ -85,7 +85,7 @@ export function getPhoneticKeysForChar(char: string): string {
   // Handle common conjunct components
   // For complex ligatures (e.g. ক্ষ -> ক + ষ which is kSh)
   if (char === "ক্ষ") return "kSh";
-  if (char === "জ্ঞ") return "GG";
+  if (char === "জ্ঞ") return "gg";
   if (char === "ঞ্চ") return "NGc";
   if (char === "ঞ্জ") return "NGj";
   if (char === "ক্ত") return "kt";

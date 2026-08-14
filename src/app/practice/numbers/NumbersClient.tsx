@@ -1,137 +1,146 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useTypingStore, KeyboardLayout } from "../../../store/typingStore";
 import TypingArea from "../../../components/TypingArea";
 import VirtualKeyboard from "../../../components/VirtualKeyboard";
-import { Binary, Sparkles, RefreshCw, Hash, Percent, DollarSign } from "lucide-react";
+import { Binary, Sparkles, RefreshCw, Hash, Percent, Keyboard as KeyboardIcon, StopCircle } from "lucide-react";
 import { Button } from "../../../components/ui/button";
-import { Card, CardContent } from "../../../components/ui/card";
+import { Card } from "../../../components/ui/card";
 import { Badge } from "../../../components/ui/badge";
 import { cn } from "@/utils/cn";
 
-export type NumberDrillType = "bangla-digits" | "english-digits" | "currency-dates" | "symbols-punct";
+const BANGLA_NUMBERS_POOL = [
+  "১২৩৪৫", "৬৭৮৯০", "১৯৭১", "২০২৪", "৫০০", "৭৫০০", "১০০০০০", "০১৭১১", "০১৮১২",
+  "২৪/০৭/২০২৪", "৫০%", "২০০ টাকা", "৫০০০ বিডিটি", "১২+৩৮=৫০", "৳৫০০", "১০০০ টাকা", "১০০% নির্ভুল"
+];
 
-const BANGLA_NUMBERS_POOL = ["১২৩৪৫", "৬৭৮৯০", "১৯৭১", "২০২৪", "৫০০", "৭৫০০", "১০০০০০", "০১৭১১", "০১৮১২", "২৪/০৭/২০২৪", "৫০%", "২০০ টাকা", "৫০০০ বিডিটি"];
-const ENGLISH_NUMBERS_POOL = ["12345", "67890", "1971", "2024", "500", "7500", "100000", "01711", "01812", "24/07/2024", "50%", "$250", "5000 BDT"];
-const CURRENCY_DATES_POOL = ["100 BDT", "৫০০ টাকা", "10/12/2024", "৫০% ছাড়", "$150.50", "VAT 15%", "Ref# 987654", "Serial: 2024-88"];
-const SYMBOLS_POOL = ["(10 + 20) = 30", "email@domain.com", "#1 Typing!", "100% Accuracy!", "https://typebangla.com", "{key: 'value'}", "[2024]"];
+const ENGLISH_NUMBERS_POOL = [
+  "12345", "67890", "1971", "2024", "500", "7500", "100000", "01711", "01812",
+  "24/07/2024", "50%", "$250", "5000 BDT", "12+38=50", "$500", "100% Accuracy!", "@typebangla", "#coding"
+];
+
+const BANGLA_LAYOUTS = [
+  { id: "avro",     label: "Avro Phonetic (অভ্র)" },
+  { id: "unibijoy", label: "UniBijoy (ইউনিবিজয়)" },
+  { id: "jatiya",   label: "Jatiya BCC (জাতীয়)" },
+  { id: "probhat",  label: "Probhat (প্রভাত)" },
+  { id: "inscript", label: "Inscript (ইনস্ক্রিপ্ট)" },
+  { id: "unicode",  label: "Unicode (ইউনিকোড)" },
+];
+
+const ENGLISH_LAYOUTS = [
+  { id: "english",  label: "English QWERTY" },
+];
 
 export default function NumbersClient() {
-  const { activeLayout, setActiveLayout, setTargetText, resetTest } = useTypingStore();
-  const [drillType, setDrillType] = useState<NumberDrillType>("bangla-digits");
+  const searchParams = useSearchParams();
+  const langParam = searchParams.get("lang");
+  const isEnglishMode = langParam === "en";
 
-  const generateNumberStream = () => {
-    let pool: string[] = [];
-    if (drillType === "bangla-digits") pool = BANGLA_NUMBERS_POOL;
-    else if (drillType === "english-digits") pool = ENGLISH_NUMBERS_POOL;
-    else if (drillType === "currency-dates") pool = CURRENCY_DATES_POOL;
-    else pool = SYMBOLS_POOL;
+  const {
+    activeLayout,
+    setActiveLayout,
+    setSelectedDuration,
+    setTargetText,
+    resetTest,
+    targetText,
+    typedText
+  } = useTypingStore();
 
+  const generateContinuousNumberStream = () => {
+    // Untimed continuous stream practice (selectedDuration = 0)
+    setSelectedDuration(0);
+
+    const pool = isEnglishMode ? ENGLISH_NUMBERS_POOL : BANGLA_NUMBERS_POOL;
     const shuffled = [...pool].sort(() => Math.random() - 0.5);
-    const repeated = [...shuffled, ...shuffled, ...shuffled];
-    const text = repeated.join(" ");
+    const stream = [...shuffled, ...shuffled, ...shuffled].join(" ");
 
-    setTargetText(text);
+    setTargetText(stream);
     resetTest();
   };
 
   useEffect(() => {
-    generateNumberStream();
-  }, [drillType, activeLayout]);
+    if (isEnglishMode) {
+      setActiveLayout("english");
+    } else if (activeLayout === "english") {
+      setActiveLayout("avro");
+    }
+    generateContinuousNumberStream();
+  }, [langParam]);
+
+  const currentAvailableLayouts = isEnglishMode ? ENGLISH_LAYOUTS : BANGLA_LAYOUTS;
+  const nextTargetChar = targetText ? targetText[typedText.length] || "" : "";
 
   return (
-    <div className="space-y-6">
-      {/* Back to Hub Link */}
-      <Link href="/practice" className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors">
-        ← প্র্যাকটিস হাব-এ ফিরে যান
-      </Link>
-
-      {/* Controls Card */}
-      <Card className="border border-border bg-card p-6 rounded-2xl shadow-xs space-y-4">
-        <div className="flex items-center justify-between border-b border-border pb-3">
-          <h2 className="text-sm font-black text-foreground uppercase tracking-wider flex items-center gap-2">
-            <Binary size={16} className="text-amber-500" />
-            <span>১. সংখ্যা ও পাঙ্কচুয়েশন ড্রিল নির্বাচন করুন:</span>
-          </h2>
-          <Badge variant="outline" className="border-amber-500 text-amber-600 bg-amber-50 dark:bg-amber-950/40 text-xs font-bold">
-            নুমেরিক কীবোর্ড দক্ষতা
+    <div className="space-y-6 fade-in">
+      {/* Header Bar */}
+      <Card className="rounded-2xl border border-border bg-card shadow-xs p-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Badge className="bg-primary/10 text-primary border-primary/30 text-xs font-mono font-bold">
+            {isEnglishMode ? "ENGLISH NUMBERS & SYMBOLS" : "বাংলা সংখ্যা ও চিহ্ন অনুশীলন"}
           </Badge>
+          <span className="text-xs text-muted-foreground font-semibold">
+            {isEnglishMode ? "Continuous QWERTY Digits & Programming Symbols" : "ক্রমাগত সংখ্যা ও পাঙ্কচুয়েশন ড্রিল"}
+          </span>
         </div>
 
-        <div className="flex flex-wrap gap-3">
-          {[
-            { id: "bangla-digits", label: "🔢 বাংলা সংখ্যা (১, ২, ৩...)", desc: "০-৯ বাংলা গাণিতিক ডিজিট" },
-            { id: "english-digits", label: "🔢 English Digits (1, 2, 3...)", desc: "0-9 Numeric Keypad" },
-            { id: "currency-dates", label: "💰 টাকা, তারিখ ও পার্সেন্টেজ", desc: "টাকা, BDT, %, /, -" },
-            { id: "symbols-punct", label: "🔣 বিশেষ প্রতীক ও ব্র্যাকেট", desc: "(! @ # $ % ^ & * () _ +)" },
-          ].map((d) => (
-            <button
-              key={d.id}
-              onClick={() => setDrillType(d.id as NumberDrillType)}
-              className={cn(
-                "px-4 py-2.5 rounded-xl text-xs font-bold border transition-all text-left space-y-0.5",
-                drillType === d.id
-                  ? "bg-amber-500/10 border-amber-500 text-amber-600 shadow-xs ring-1 ring-amber-500"
-                  : "border-border bg-secondary text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <div>{d.label}</div>
-              <div className="text-[10px] font-normal text-muted-foreground">{d.desc}</div>
-            </button>
-          ))}
-        </div>
-
-        <div className="flex justify-end pt-2 border-t border-border">
-          <Button size="sm" onClick={generateNumberStream} className="gap-1.5 font-bold text-xs">
-            <RefreshCw size={13} />
-            <span>নতুন ডিজিট স্ট্রিম লোড করুন</span>
-          </Button>
-        </div>
+        <Button
+          onClick={generateContinuousNumberStream}
+          variant="outline"
+          size="sm"
+          className="text-xs font-bold gap-1.5 border-border cursor-pointer"
+        >
+          <RefreshCw size={13} />
+          <span>রিফ্রেশ (Refresh Stream)</span>
+        </Button>
       </Card>
 
-      {/* Typing Area */}
-      <TypingArea />
+      {/* Typing Engine Arena */}
+      <TypingArea hideModeHeader={true} />
 
-      {/* Visual Keyboard Guide */}
-      <div className="pt-4 border-t border-border space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xs font-black uppercase text-foreground tracking-wider">
-            কিবোর্ড লেআউট নির্বাচন:
-          </h3>
-          <Badge variant="outline" className="border-primary text-primary font-bold text-xs uppercase">
-            {activeLayout}
-          </Badge>
+      {/* Virtual Keyboard & Target Key Highlight */}
+      <Card className="rounded-2xl border border-border bg-card shadow-xs p-4 sm:p-6 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+          <div className="flex items-center gap-2 text-foreground">
+            <KeyboardIcon size={18} className="text-primary" />
+            <span className="text-xs sm:text-sm font-black text-foreground">অন-স্ক্রিন কীবোর্ড গাইড (Virtual Keyboard Guide)</span>
+          </div>
+
+          {/* Language-Aware Layout Selection Buttons */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase mr-1">লেআউট:</span>
+            {currentAvailableLayouts.map((l) => (
+              <button
+                key={l.id}
+                onClick={() => setActiveLayout(l.id as KeyboardLayout)}
+                className={cn(
+                  "px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border cursor-pointer",
+                  activeLayout === l.id
+                    ? "bg-primary text-primary-foreground border-primary shadow-xs font-black"
+                    : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
+                )}
+              >
+                {l.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {[
-            { id: "avro", label: "Avro Phonetic" },
-            { id: "unibijoy", label: "UniBijoy" },
-            { id: "jatiya", label: "Jatiya (BCC)" },
-            { id: "probhat", label: "Probhat" },
-            { id: "inscript", label: "Inscript" },
-            { id: "unicode", label: "Unicode" },
-            { id: "english", label: "English QWERTY" },
-          ].map((l) => (
-            <button
-              key={l.id}
-              onClick={() => setActiveLayout(l.id as KeyboardLayout)}
-              className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-bold border transition-all",
-                activeLayout === l.id
-                  ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                  : "border-border bg-secondary text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {l.label}
-            </button>
-          ))}
-        </div>
+        {/* Target Next Key Hint Display */}
+        {nextTargetChar && (
+          <div className="bg-primary/10 border border-primary/20 p-2.5 rounded-xl text-xs font-bold text-primary flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <Sparkles size={14} className="animate-pulse" />
+              <span>পরবর্তী বর্ণ (Target Key): <code className="bg-background text-foreground px-2 py-0.5 rounded border border-border font-bangla text-sm font-black">{nextTargetChar === " " ? "Spacebar (স্পেস)" : nextTargetChar}</code></span>
+            </span>
+            <span className="text-[10px] text-muted-foreground font-mono uppercase">Highlight Enabled</span>
+          </div>
+        )}
 
-        <VirtualKeyboard />
-      </div>
+        <VirtualKeyboard activeLayout={activeLayout} nextChar={nextTargetChar} />
+      </Card>
     </div>
   );
 }

@@ -72,7 +72,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="bn">
+    <html lang="bn" suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.webmanifest" />
         <Script
@@ -132,7 +132,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="flex flex-col min-h-screen bg-background text-foreground font-sans">
+      <body className="flex flex-col min-h-screen bg-background text-foreground font-sans" suppressHydrationWarning>
         <ClientProviders>
           <Header />
           <div className="flex-1">

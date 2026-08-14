@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Sparkles, CheckCircle2, ChevronRight, RotateCcw, Keyboard, Award, Info, Flame, Zap, Clock, Trophy, MousePointerClick } from "lucide-react";
 import { useTypingStore, playTypewriterSound, KeyboardLayout } from "../store/typingStore";
-import { UNI_BIJOY_MAP, JATIYA_MAP, PROBHAT_MAP, INSCRIPT_MAP, UNICODE_MAP, avroTransliterate } from "../utils/layouts";
+import { UNI_BIJOY_MAP, JATIYA_MAP, PROBHAT_MAP, INSCRIPT_MAP, UNICODE_MAP, avroTransliterate, mapInputToBangla } from "../utils/layouts";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -146,8 +146,11 @@ export function JuktakkhorTrainer() {
     if (activeLayout === "avro") {
       const transliterated = avroTransliterate(val);
       checkAndAdvance(transliterated);
-    } else {
+    } else if (activeLayout === "english") {
       checkAndAdvance(val);
+    } else {
+      const converted = mapInputToBangla(val, activeLayout);
+      checkAndAdvance(converted || val);
     }
   };
 
@@ -316,29 +319,6 @@ export function JuktakkhorTrainer() {
               <span>Auto-Advance: <strong>{autoAdvance ? "ON" : "OFF"}</strong></span>
             </button>
           )}
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-bold text-muted-foreground flex items-center gap-1.5 mr-1">
-            <Keyboard size={14} className="text-primary" /> Layout:
-          </span>
-          {[
-            { id: "avro", name: "Avro" },
-            { id: "unibijoy", name: "UniBijoy" },
-            { id: "jatiya", name: "Jatiya" },
-          ].map((l) => (
-            <button
-              key={l.id}
-              onClick={() => setActiveLayout(l.id as KeyboardLayout)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all border ${
-                activeLayout === l.id
-                  ? "bg-primary text-primary-foreground border-primary shadow-xs scale-105"
-                  : "bg-card text-muted-foreground border-border hover:text-foreground"
-              }`}
-            >
-              {l.name}
-            </button>
-          ))}
         </div>
       </div>
 

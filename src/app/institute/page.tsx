@@ -7,7 +7,7 @@ import {
   Award, CheckCircle2, ArrowRight, BarChart2,
   ShieldCheck, Sparkles, Send, MessageSquare,
   Clock, FileSpreadsheet, Lock, ExternalLink,
-  Laptop, Check, AlertCircle
+  Laptop, Check, AlertCircle, Phone, Mail
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
@@ -19,7 +19,7 @@ const V2_FEATURES = [
   {
     icon: Users,
     title: "Multi-Teacher Admin Roles",
-    titleBn: "মাল্টি-টিচার অ্যাডমিন রোলস",
+    titleBn: "মাল্টি-টিচার অ্যাডমিন প্যানেল",
     desc: "Assign separate teacher permissions, manage multi-branch campuses, and control class-level access control.",
     tag: "Enterprise"
   },
@@ -32,7 +32,7 @@ const V2_FEATURES = [
   },
   {
     icon: ShieldCheck,
-    title: "Anti-Cheat Exam System",
+    title: "Anti-Cheat Exam Engine",
     titleBn: "অ্যান্টি-চিট এক্সাম সিস্টেম",
     desc: "Proctored typing exam sessions with tab-switch logging, copy-paste prevention, and real-time live monitoring.",
     tag: "Security"
@@ -40,14 +40,14 @@ const V2_FEATURES = [
   {
     icon: Award,
     title: "Automated PDF Certificates",
-    titleBn: "অটোমেটেড পিডিএফ সার্টিফিকেট",
+    titleBn: "অটোমেটেড কিউআর সার্টিফিকেট",
     desc: "Instant verifiable QR-coded PDF speed certificates issued automatically upon assignment or exam completion.",
     tag: "Verification"
   },
   {
     icon: BarChart2,
     title: "Deep Performance Analytics",
-    titleBn: "অ্যাডভান্সড পারফরম্যান্স অ্যানালিটিক্স",
+    titleBn: "পারফরম্যান্স অ্যানালিটিক্স হিটম্যাপ",
     desc: "Heatmaps, error analysis by key, speed growth charts, and exportable gradebooks for institutional reporting.",
     tag: "Analytics"
   },
@@ -72,7 +72,7 @@ export default function InstitutePage() {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submittedSuccess, setSubmittedSuccess] = useState(false);
+  const [submittedRefId, setSubmittedRefId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -88,7 +88,7 @@ export default function InstitutePage() {
     try {
       const res = await submitInstituteV2Waitlist(formData);
       if (res) {
-        setSubmittedSuccess(true);
+        setSubmittedRefId("INST-V2-" + Math.random().toString(36).substring(2, 8).toUpperCase());
       } else {
         setErrorMessage("Failed to submit waitlist application. Please try again.");
       }
@@ -101,52 +101,51 @@ export default function InstitutePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-teal-500 selection:text-slate-950">
-      {/* Background Glow Overlay */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-40 -left-40 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl"></div>
+    <div className="min-h-screen bg-background text-foreground transition-colors selection:bg-primary/20 selection:text-foreground">
+      {/* Background Glow & Grid */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden opacity-40">
+        <div className="absolute -top-40 -left-40 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
         <div className="absolute top-1/3 -right-40 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 left-1/3 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"></div>
       </div>
 
       {/* Main Container */}
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-24 space-y-20">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-24 space-y-16">
 
         {/* Hero Section */}
-        <section className="text-center space-y-8 max-w-4xl mx-auto pt-6">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-sm font-medium animate-pulse">
-            <Sparkles className="w-4 h-4 text-teal-400" />
-            <span>Institute OS V2 is Coming Soon</span>
-            <Badge className="bg-teal-500 text-slate-950 hover:bg-teal-400 font-bold ml-1">v2.0 Early Access</Badge>
+        <section className="text-center space-y-6 max-w-4xl mx-auto pt-4">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs sm:text-sm font-bold">
+            <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+            <span>TypeBangla Institute OS V2.0</span>
+            <Badge className="bg-primary text-primary-foreground font-black ml-1 text-[10px]">Early Access</Badge>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-tight">
-            The Next Generation Platform for <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-teal-400 via-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-foreground leading-tight">
+            The Next Generation OS for <br className="hidden sm:inline" />
+            <span className="bg-gradient-to-r from-primary via-emerald-500 to-teal-500 bg-clip-text text-transparent">
               Typing Academies & Institutions
             </span>
           </h1>
 
-          <p className="text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-            আমরা টাইপমাস্টার ইন্সটিটিউট প্ল্যাটফর্মকে সম্পূর্ণ নতুনভাবে সাজাচ্ছি! 
-            মাল্টি-টিচার অ্যাডমিন প্যানেল, অ্যান্টি-চিট এক্সাম ইঞ্জিন, বাল্ক সিএসভি রস্টার এবং অটোজেনারেটেড ভেরিফায়েড সার্টিফিকেট নিয়ে আসছে 
-            <strong className="text-teal-400 font-semibold"> TypeMaster Institute V2</strong>।
+          <p className="text-sm sm:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            আমরা টাইপমাস্টার ইন্সটিটিউট পোর্টালকে সম্পূর্ণ নতুনভাবে সাজাচ্ছি! 
+            মাল্টি-টিচার অ্যাডমিন প্যানেল, অ্যান্টি-চিট প্রক্টরড এক্সাম ইঞ্জিন, বাল্ক সিএসভি রস্টার এবং অটোজেনারেটেড কিউআর ভেরিফায়েড সার্টিফিকেট নিয়ে আসছে 
+            <strong className="text-foreground font-bold"> TypeBangla Institute V2</strong>।
           </p>
 
-          <div className="flex flex-wrap justify-center items-center gap-4 pt-2">
+          <div className="flex flex-wrap justify-center items-center gap-3 pt-2">
             <a
               href="#waitlist-form"
-              className="px-8 py-4 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 text-slate-950 font-bold text-lg hover:from-teal-400 hover:to-emerald-400 transition-all shadow-lg shadow-teal-500/25 flex items-center gap-2"
+              className="px-8 py-3.5 rounded-xl bg-primary text-primary-foreground font-extrabold text-sm hover:bg-primary/90 transition-all shadow-md flex items-center gap-2 cursor-pointer"
               id="cta-join-waitlist"
             >
-              Join V2 Early Access Waitlist <ArrowRight className="w-5 h-5" />
+              <span>ইন্সটিটিউট ভলিউম অ্যাকাউন্ট আবেদন</span> <ArrowRight className="w-4 h-4" />
             </a>
             <a
               href="#features-showcase"
-              className="px-6 py-4 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 font-medium hover:bg-slate-800 hover:text-white transition-all flex items-center gap-2"
+              className="px-6 py-3.5 rounded-xl bg-secondary border border-border text-foreground font-bold text-sm hover:bg-secondary/80 transition-all flex items-center gap-2 cursor-pointer"
               id="cta-explore-features"
             >
-              Explore Planned Features <Sparkles className="w-4 h-4 text-teal-400" />
+              <span>ফিচারসমূহ দেখুন</span> <Sparkles className="w-4 h-4 text-primary" />
             </a>
           </div>
         </section>
@@ -156,48 +155,50 @@ export default function InstitutePage() {
           {[
             { label: "Planned Capacity", val: "50,000+ Students", desc: "Scalable Infrastructure" },
             { label: "Security Standard", val: "Anti-Cheat 2.0", desc: "Proctored Exam Modes" },
-            { label: "Certificate Engine", val: "QR Verified", desc: "Instant PDF Generation" },
-            { label: "Layout Support", val: "Avro, Bijoy, Eng", desc: "Full Govt Exam Specs" },
+            { label: "Certificate Engine", val: "QR Verified PDF", desc: "Instant Generation" },
+            { label: "Layout Specs", val: "7 Standard Layouts", desc: "Full Govt Exam Specs" },
           ].map((item, idx) => (
-            <Card key={idx} className="bg-slate-900/60 border-slate-800/80 backdrop-blur-sm p-6 text-center">
-              <div className="text-2xl sm:text-3xl font-extrabold text-teal-400">{item.val}</div>
-              <div className="text-sm font-semibold text-slate-200 mt-1">{item.label}</div>
-              <div className="text-xs text-slate-400 mt-0.5">{item.desc}</div>
+            <Card key={idx} className="bg-card border-border p-5 text-center shadow-xs rounded-2xl">
+              <div className="text-xl sm:text-2xl font-black text-primary">{item.val}</div>
+              <div className="text-xs font-extrabold text-foreground mt-1">{item.label}</div>
+              <div className="text-[11px] text-muted-foreground mt-0.5">{item.desc}</div>
             </Card>
           ))}
         </section>
 
         {/* Feature Grid Showcase */}
-        <section id="features-showcase" className="space-y-10">
-          <div className="text-center space-y-3">
-            <Badge className="bg-slate-800 text-teal-400 border-slate-700">Sneak Peek</Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white">Powering Next-Gen Typing Education</h2>
-            <p className="text-slate-400 max-w-2xl mx-auto">
-              Key features currently being crafted in our active development branch for Institute V2 launch.
+        <section id="features-showcase" className="space-y-8">
+          <div className="text-center space-y-2">
+            <Badge variant="outline" className="text-xs font-bold text-primary border-primary/30 bg-primary/10">
+              SNEAK PEEK & ROADMAP
+            </Badge>
+            <h2 className="text-2xl sm:text-4xl font-black text-foreground">Powering Next-Gen Institutional Education</h2>
+            <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl mx-auto">
+              Key enterprise features currently being crafted in our active development branch for Institute V2 release.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {V2_FEATURES.map((feat, idx) => {
               const Icon = feat.icon;
               return (
-                <Card key={idx} className="bg-slate-900/70 border-slate-800 hover:border-teal-500/40 transition-all duration-300 group hover:-translate-y-1">
+                <Card key={idx} className="bg-card border-border hover:border-primary/40 transition-all duration-300 group hover:-translate-y-1 rounded-2xl shadow-xs">
                   <CardContent className="p-6 space-y-4">
                     <div className="flex justify-between items-start">
-                      <div className="p-3 rounded-xl bg-teal-500/10 text-teal-400 group-hover:bg-teal-500 group-hover:text-slate-950 transition-colors">
+                      <div className="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                         <Icon className="w-6 h-6" />
                       </div>
-                      <Badge variant="outline" className="border-slate-700 text-slate-400 text-xs">
+                      <Badge variant="outline" className="border-border text-muted-foreground text-[10px] font-mono">
                         {feat.tag}
                       </Badge>
                     </div>
 
-                    <div>
-                      <h3 className="text-xl font-bold text-white group-hover:text-teal-400 transition-colors">
+                    <div className="space-y-1">
+                      <h3 className="text-lg font-black text-foreground group-hover:text-primary transition-colors">
                         {feat.title}
                       </h3>
-                      <div className="text-xs font-medium text-teal-500/80 mb-2">{feat.titleBn}</div>
-                      <p className="text-sm text-slate-400 leading-relaxed">
+                      <div className="text-xs font-bold text-primary">{feat.titleBn}</div>
+                      <p className="text-xs text-muted-foreground leading-relaxed pt-1">
                         {feat.desc}
                       </p>
                     </div>
@@ -209,167 +210,170 @@ export default function InstitutePage() {
         </section>
 
         {/* Interactive Waitlist & Feature Request Form */}
-        <section id="waitlist-form" className="max-w-4xl mx-auto bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-            <Building2 className="w-64 h-64 text-teal-400" />
-          </div>
-
+        <section id="waitlist-form" className="max-w-4xl mx-auto bg-card border border-border rounded-3xl p-6 sm:p-10 shadow-sm relative overflow-hidden bg-grid-pattern">
           <div className="relative space-y-8">
             <div className="text-center space-y-2">
-              <Badge className="bg-teal-500/10 text-teal-400 border-teal-500/20">Early Access & Input</Badge>
-              <h2 className="text-2xl sm:text-4xl font-bold text-white">Join the Institute V2 Priority Access</h2>
-              <p className="text-slate-400 max-w-xl mx-auto">
-                Be the first academy or school to test Institute V2 upon release. Tell us what features your institution needs most!
+              <Badge variant="outline" className="text-xs font-bold text-primary border-primary/30 bg-primary/10">
+                PRIORITY ACCESS & FEEDBACK
+              </Badge>
+              <h2 className="text-2xl sm:text-3xl font-black text-foreground">ইন্সটিটিউট ভলিউম অ্যাকাউন্ট ও আর্লি অ্যাক্সেস</h2>
+              <p className="text-xs sm:text-sm text-muted-foreground max-w-xl mx-auto">
+                আপনার কম্পিউটার প্রশিক্ষণ কেন্দ্র, একাডেমি বা স্কুলের শিক্ষার্থীদের জন্য ইনস্টিটিউট অ্যাকাউন্ট প্যানেলে আর্লি অ্যাক্সেস নিশ্চিত করুন।
               </p>
             </div>
 
-            {submittedSuccess ? (
-              <div className="bg-emerald-950/40 border border-emerald-500/30 rounded-2xl p-8 text-center space-y-4 animate-in fade-in zoom-in duration-300">
-                <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto">
+            {submittedRefId ? (
+              <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-8 text-center space-y-4 animate-in fade-in zoom-in duration-300">
+                <div className="w-16 h-16 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-10 h-10" />
                 </div>
-                <h3 className="text-2xl font-bold text-white">You&apos;re on the Priority List!</h3>
-                <p className="text-slate-300 max-w-lg mx-auto">
-                  Thank you for submitting your institute&apos;s request. Our product team will review your feature feedback and notify you via email when Early Access opens.
-                </p>
+                <div className="space-y-1">
+                  <Badge variant="outline" className="border-emerald-500/50 text-emerald-600 dark:text-emerald-400 font-mono text-xs">
+                    REF ID: {submittedRefId}
+                  </Badge>
+                  <h3 className="text-2xl font-black text-foreground">আবেদন সফলভাবে গৃহীত হয়েছে!</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
+                    ধন্যবাদ! আপনার ইন্সটিটিউটের তথ্য এবং ফিডব্যাক আমাদের ফায়ারস্টোর ডাটাবেসে সংরক্ষিত হয়েছে। আর্লি অ্যাক্সেস চালু হওয়া মাত্র আমাদের টিম সরাসরি আপনার ইমেইলে নোটিফিকেশন পাঠাবে।
+                  </p>
+                </div>
                 <Button
-                  onClick={() => setSubmittedSuccess(false)}
+                  onClick={() => setSubmittedRefId(null)}
                   variant="outline"
-                  className="border-emerald-500/30 text-emerald-400 hover:bg-emerald-950/60 mt-4"
+                  className="border-emerald-500/40 text-emerald-600 dark:text-emerald-400 font-bold text-xs h-10 px-6 cursor-pointer"
                 >
-                  Submit Another Response
+                  নতুন প্রতিক্রিয়া প্রদান করুন
                 </Button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 {errorMessage && (
-                  <div className="p-4 rounded-xl bg-red-950/40 border border-red-500/30 text-red-400 text-sm flex items-center gap-2">
-                    <AlertCircle className="w-5 h-5 shrink-0" />
+                  <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-xs flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
                     <span>{errorMessage}</span>
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                      Institute / Academy Name *
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      ইন্সটিটিউট / একাডেমির নাম *
                     </label>
                     <Input
                       id="input-institute-name"
-                      placeholder="e.g. Dhaka IT & Typing Academy"
+                      placeholder="যেমন: ঢাকা আইটি ও টাইপিং একাডেমি"
                       value={formData.instituteName}
                       onChange={(e) => setFormData({ ...formData, instituteName: e.target.value })}
-                      className="bg-slate-900 border-slate-800 text-slate-100 focus:border-teal-500 h-12"
+                      className="bg-secondary border-border text-foreground h-11 text-xs"
                       required
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                      Your Full Name *
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      যোগাযোগকারীর নাম *
                     </label>
                     <Input
                       id="input-contact-name"
-                      placeholder="e.g. Tanvir Hossain"
+                      placeholder="যেমন: তানভীর হোসেন"
                       value={formData.contactName}
                       onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
-                      className="bg-slate-900 border-slate-800 text-slate-100 focus:border-teal-500 h-12"
+                      className="bg-secondary border-border text-foreground h-11 text-xs"
                       required
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                      Work Email *
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      অফিসিয়াল ইমেইল অ্যাড্রেস *
                     </label>
                     <Input
                       id="input-email"
                       type="email"
-                      placeholder="e.g. admin@academy.com"
+                      placeholder="যেমন: admin@academy.com"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="bg-slate-900 border-slate-800 text-slate-100 focus:border-teal-500 h-12"
+                      className="bg-secondary border-border text-foreground h-11 text-xs"
                       required
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                      Phone / WhatsApp Number
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      ফোন / হোয়াটসঅ্যাপ নম্বর
                     </label>
                     <Input
                       id="input-phone"
-                      placeholder="e.g. +880 1700-000000"
+                      placeholder="যেমন: +880 1700-000000"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="bg-slate-900 border-slate-800 text-slate-100 focus:border-teal-500 h-12"
+                      className="bg-secondary border-border text-foreground h-11 text-xs"
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                      Your Role
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      আপনার দায়িত্ব/পদবী
                     </label>
                     <select
                       id="select-role"
                       value={formData.role}
                       onChange={(e: any) => setFormData({ ...formData, role: e.target.value })}
-                      className="w-full bg-slate-900 border border-slate-800 text-slate-100 focus:border-teal-500 rounded-md px-3 h-12 text-sm focus:outline-none"
+                      className="w-full bg-secondary border border-border text-foreground rounded-md px-3 h-11 text-xs focus:outline-none"
                     >
-                      <option value="owner">Institute Owner / Director</option>
-                      <option value="principal">Principal / Headmaster</option>
-                      <option value="teacher">Typing Instructor / Teacher</option>
-                      <option value="student">Student / Candidate</option>
-                      <option value="other">Other</option>
+                      <option value="owner">ইন্সটিটিউট ডিরেক্টর / অনার</option>
+                      <option value="principal">প্রিন্সিপাল / প্রধান শিক্ষক</option>
+                      <option value="teacher">টাইপিং ট্রেইনার / ইনস্ট্রাক্টর</option>
+                      <option value="student">শিক্ষার্থী / পরীক্ষার্থী</option>
+                      <option value="other">অন্যান্য</option>
                     </select>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                      Expected Student Count
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      আনুমানিক শিক্ষার্থী সংখ্যা
                     </label>
                     <select
                       id="select-students"
                       value={formData.expectedStudents}
                       onChange={(e) => setFormData({ ...formData, expectedStudents: e.target.value })}
-                      className="w-full bg-slate-900 border border-slate-800 text-slate-100 focus:border-teal-500 rounded-md px-3 h-12 text-sm focus:outline-none"
+                      className="w-full bg-secondary border border-border text-foreground rounded-md px-3 h-11 text-xs focus:outline-none"
                     >
-                      <option value="< 50">Under 50 Students</option>
-                      <option value="50-200">50 – 200 Students</option>
-                      <option value="200-1000">200 – 1,000 Students</option>
-                      <option value="1000+">1,000+ Students</option>
+                      <option value="< 50">৫০ জনের নিচে</option>
+                      <option value="50-200">৫০ – ২০০ জন শিক্ষার্থী</option>
+                      <option value="200-1000">২০০ – ১,০০০ জন শিক্ষার্থী</option>
+                      <option value="1000+">১,০০০+ জন শিক্ষার্থী</option>
                     </select>
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                    What features do you need most for your Institute? (Feature Requests & Suggestions)
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    আপনার ইন্সটিটিউটের জন্য কোনো বিশেষ ফিচার প্রয়োজন? (পরামর্শ ও মতামত)
                   </label>
                   <textarea
                     id="textarea-features"
-                    rows={4}
-                    placeholder="Tell us about your custom exam needs, grading criteria, certificate designs, or any specific workflow..."
+                    rows={3}
+                    placeholder="যেমন: সরকারি চাকরির নির্দিষ্ট প্যাসেজ আপলোড, কাস্টম লোগো প্রিন্টেড সার্টিফিকেট, বা রেজাল্ট গ্রেডিং ক্রাইটেরিয়া..."
                     value={formData.requestedFeatures}
                     onChange={(e) => setFormData({ ...formData, requestedFeatures: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-800 text-slate-100 focus:border-teal-500 rounded-md p-3 text-sm focus:outline-none resize-y"
+                    className="w-full bg-secondary border border-border text-foreground rounded-md p-3 text-xs focus:outline-none resize-y"
                   ></textarea>
                 </div>
 
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full h-14 bg-gradient-to-r from-teal-500 to-emerald-500 text-slate-950 font-bold text-lg hover:from-teal-400 hover:to-emerald-400 transition-all shadow-lg shadow-teal-500/20"
+                  className="w-full h-12 font-bold text-sm shadow-md cursor-pointer"
                   id="btn-submit-waitlist"
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
-                      <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div>
-                      Submitting Request...
+                      <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin"></div>
+                      আবেদন জমা হচ্ছে...
                     </span>
                   ) : (
                     <span className="flex items-center gap-2">
-                      <Send className="w-5 h-5" /> Submit & Lock Early Access
+                      <Send className="w-4 h-4" /> আবেদন জমা দিন ও স্থান সুনিশ্চিত করুন
                     </span>
                   )}
                 </Button>
@@ -379,37 +383,37 @@ export default function InstitutePage() {
         </section>
 
         {/* FAQ Section */}
-        <section className="max-w-4xl mx-auto space-y-8">
-          <div className="text-center space-y-2">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white">Frequently Asked Questions</h2>
-            <p className="text-slate-400">Everything you need to know about TypeMaster Institute V2</p>
+        <section className="max-w-4xl mx-auto space-y-6">
+          <div className="text-center space-y-1">
+            <h2 className="text-2xl sm:text-3xl font-black text-foreground">সাধারণ জিজ্ঞাসা (FAQ)</h2>
+            <p className="text-xs text-muted-foreground">TypeBangla Institute OS V2 সম্পর্কে প্রয়োজনীয় তথ্য</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
               {
-                q: "When will Institute V2 launch?",
-                a: "Institute V2 is actively under development on our V2 release branch. Early Access rollout for registered waitlist institutes will begin in Q3."
+                q: "ইন্সটিটিউট V2 কখন চালু হবে?",
+                a: "Institute V2 আমাদের ডেভলপমেন্ট ট্র্যাকে সচল রয়েছে। অপেক্ষমান তালিকার ইন্সটিটিউটগুলোর জন্য অগ্রাধিকার ভিত্তিতে রিলিজ দেওয়া হচ্ছে।"
               },
               {
-                q: "What happens to existing V1 Institute data?",
-                a: "All existing V1 classes, students, and certificates will automatically be migrated smoothly without any data loss."
+                q: "পূর্বের ইন্সটিটিউটের ডাটা সংরক্ষিত থাকবে?",
+                a: "হ্যাঁ, সমস্ত বিদ্যমান ক্লাসরুম, শিক্ষার্থী তালিকা এবং অর্জিত সার্টিফিকেট ফাইল স্বয়ংক্রিয়ভাবে মাইগ্রেট হয়ে যাবে।"
               },
               {
-                q: "Can I request custom features for my academy?",
-                a: "Yes! Use the interest form above to tell us what features your academy needs, and our product team will evaluate incorporating it before final launch."
+                q: "কাস্টম ফিচার বা লোগো যুক্ত করা সম্ভব?",
+                a: "অবশ্যই। আবেদন ফর্মে আপনার পছন্দমতো কাস্টম লোগো এবং সার্টিফায়েড ফরম্যাট উল্লেখ করলে আমাদের টিম তা যুক্ত করবে।"
               },
               {
-                q: "Will V2 support custom government exam passages?",
-                a: "Absolutely. Institute V2 includes a dedicated Passage & Exam Builder tailored for BPSC, Bank, Secretariat, and Custom recruitment standards."
+                q: "সরকারি চাকরির প্যাসেজ কাস্টমাইজ করা যাবে?",
+                a: "হ্যাঁ, বিপিএসসি, ব্যাংক ও বিভিন্ন সরকারি নিয়োগ পরীক্ষার প্যাসেজ আপলোড করে সময়সীমা নির্ধারণের পূর্ণ সুবিধা থাকবে।"
               }
             ].map((faq, idx) => (
-              <Card key={idx} className="bg-slate-900/60 border-slate-800 p-6 space-y-2">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4 text-teal-400 shrink-0" />
+              <Card key={idx} className="bg-card border-border p-5 space-y-2 shadow-xs rounded-2xl">
+                <h3 className="text-sm font-extrabold text-foreground flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4 text-primary shrink-0" />
                   {faq.q}
                 </h3>
-                <p className="text-sm text-slate-400 leading-relaxed">
+                <p className="text-xs text-muted-foreground leading-relaxed">
                   {faq.a}
                 </p>
               </Card>

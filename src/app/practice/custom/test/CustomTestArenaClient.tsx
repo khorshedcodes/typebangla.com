@@ -4,8 +4,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
-  ArrowLeft, Target, Keyboard, Clock, CheckCircle2, AlertTriangle,
-  RotateCcw, Share2, Check, Award, LayoutDashboard, Zap, Activity, FileText
+  ArrowLeft, Target, Keyboard as KeyboardIcon, Clock, CheckCircle2, AlertTriangle,
+  RotateCcw, Share2, Check, Award, LayoutDashboard, Zap, Activity, FileText, Sparkles
 } from "lucide-react";
 import { Button } from "../../../../components/ui/button";
 import { Badge } from "../../../../components/ui/badge";
@@ -14,8 +14,23 @@ import { useTypingStore, KeyboardLayout } from "../../../../store/typingStore";
 import { saveTypingSession } from "../../../../lib/firestoreService";
 import { useAuth } from "../../../../context/AuthContext";
 import TypingArea from "../../../../components/TypingArea";
+import VirtualKeyboard from "../../../../components/VirtualKeyboard";
+import { cn } from "@/utils/cn";
 
 const DEFAULT_SAMPLE_TEXT = "বাংলাদেশের ঐতিহাসিক ঐতিহ্য ও প্রাকৃতিক রূপ সুজলা সুফলা শস্য শ্যামলা। প্রযুক্তি ও আধুনিক শিক্ষার সমন্বয়ে আত্মনির্ভরশীল বাংলাদেশ গড়ার লক্ষ্যে টাইপিং দক্ষতা অর্জন অতীব জরুরি। প্রতিনিয়ত সঠিক নিয়মে টাচ টাইপিং অনুশীলন করলে কয়েক সপ্তাহের মধ্যে নির্ভুলতা ও গতি বহুগুণ বৃদ্ধি পায়। কম্পিউটার অপারেটিং ও প্রশাসনিক কাজের স্বচ্ছতা বাড়াতে নিয়মিত চর্চার বিকল্প নেই।";
+
+const BANGLA_LAYOUTS = [
+  { id: "avro",     label: "Avro Phonetic (অভ্র)" },
+  { id: "unibijoy", label: "UniBijoy (ইউনিবিজয়)" },
+  { id: "jatiya",   label: "Jatiya BCC (জাতীয়)" },
+  { id: "probhat",  label: "Probhat (প্রভাত)" },
+  { id: "inscript", label: "Inscript (ইনস্ক্রিপ্ট)" },
+  { id: "unicode",  label: "Unicode (ইউনিকোড)" },
+];
+
+const ENGLISH_LAYOUTS = [
+  { id: "english",  label: "English QWERTY" },
+];
 
 export default function CustomTestArenaClient() {
   const searchParams = useSearchParams();
@@ -32,6 +47,7 @@ export default function CustomTestArenaClient() {
     elapsedTime,
     updateElapsedTime,
     typedText,
+    targetText,
     errorIndices,
   } = useTypingStore();
 
@@ -51,15 +67,26 @@ export default function CustomTestArenaClient() {
   // Sync setup & custom text from sessionStorage on mount
   useEffect(() => {
     let customText = DEFAULT_SAMPLE_TEXT;
+    let customDuration = durationSec;
+    let customLayout = layoutParam;
+
     if (typeof window !== "undefined") {
       const storedText = sessionStorage.getItem("typemaster_custom_text");
       if (storedText) {
         customText = storedText;
       }
+      const storedDuration = sessionStorage.getItem("typemaster_custom_duration");
+      if (storedDuration) {
+        customDuration = parseInt(storedDuration, 10);
+      }
+      const storedLayout = sessionStorage.getItem("typemaster_custom_layout") as KeyboardLayout;
+      if (storedLayout) {
+        customLayout = storedLayout;
+      }
     }
 
-    setActiveLayout(layoutParam);
-    setSelectedDuration(durationSec);
+    setActiveLayout(customLayout);
+    setSelectedDuration(customDuration);
     setTargetText(customText);
     resetTest();
   }, [layoutParam, durationSec, setActiveLayout, setSelectedDuration, setTargetText, resetTest]);
@@ -102,8 +129,8 @@ export default function CustomTestArenaClient() {
       accuracy,
       cpm: wpm * 5,
       errors: 0,
-      layout: layoutParam,
-      language: layoutParam === "english" ? "english" : "bangla",
+      layout: activeLayout,
+      language: activeLayout === "english" ? "english" : "bangla",
       mode: "custom-practice",
       duration: durationSec,
     });
@@ -124,6 +151,9 @@ export default function CustomTestArenaClient() {
     }
   };
 
+  const currentAvailableLayouts = activeLayout === "english" ? ENGLISH_LAYOUTS : BANGLA_LAYOUTS;
+  const nextTargetChar = targetText ? targetText[typedText.length] || "" : "";
+
   return (
     <div className="space-y-6 fade-in text-foreground">
 
@@ -131,7 +161,7 @@ export default function CustomTestArenaClient() {
       <div className="border border-border bg-card rounded-2xl p-4 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Link href="/practice/custom">
-            <Button variant="outline" size="sm" className="text-xs font-bold gap-1.5 h-9 border-border">
+            <Button variant="outline" size="sm" className="text-xs font-bold gap-1.5 h-9 border-border cursor-pointer">
               <ArrowLeft size={14} /> Setup Portal
             </Button>
           </Link>
@@ -160,8 +190,8 @@ export default function CustomTestArenaClient() {
           </Badge>
 
           <Badge variant="outline" className="border-border text-foreground font-bold bg-secondary text-xs py-1 px-3 gap-1">
-            <Keyboard size={12} className="text-primary" />
-            Layout: <strong>{layoutParam.toUpperCase()}</strong>
+            <KeyboardIcon size={12} className="text-primary" />
+            Layout: <strong>{activeLayout.toUpperCase()}</strong>
           </Badge>
 
           {durationSec > 0 ? (
@@ -220,23 +250,23 @@ export default function CustomTestArenaClient() {
               </div>
 
               <div className="flex flex-wrap items-center justify-center lg:justify-end gap-2 w-full lg:w-auto">
-                <Button variant="outline" size="sm" onClick={handleRestart} className="text-xs font-bold gap-1.5 h-9 border-border">
+                <Button variant="outline" size="sm" onClick={handleRestart} className="text-xs font-bold gap-1.5 h-9 border-border cursor-pointer">
                   <RotateCcw size={13} /> Retake Practice
                 </Button>
 
-                <Button variant="outline" size="sm" onClick={handleShareResult} className="text-xs font-bold gap-1.5 h-9 border-border">
+                <Button variant="outline" size="sm" onClick={handleShareResult} className="text-xs font-bold gap-1.5 h-9 border-border cursor-pointer">
                   {copied ? <Check size={13} className="text-emerald-500" /> : <Share2 size={13} />}
                   {copied ? "Copied!" : "Share Result"}
                 </Button>
 
                 <Link href="/practice/custom">
-                  <Button variant="outline" size="sm" className="text-xs font-bold gap-1.5 h-9 border-border">
+                  <Button variant="outline" size="sm" className="text-xs font-bold gap-1.5 h-9 border-border cursor-pointer">
                     <FileText size={13} /> Load Different Text
                   </Button>
                 </Link>
 
                 <Link href="/dashboard">
-                  <Button variant="secondary" size="sm" className="text-xs font-bold gap-1.5 h-9 border border-border">
+                  <Button variant="secondary" size="sm" className="text-xs font-bold gap-1.5 h-9 border border-border cursor-pointer">
                     <LayoutDashboard size={13} /> Dashboard
                   </Button>
                 </Link>
@@ -262,15 +292,59 @@ export default function CustomTestArenaClient() {
               </div>
               <div className="p-4 rounded-xl bg-background border border-border space-y-1">
                 <div className="text-[10px] font-bold text-muted-foreground uppercase">Layout Keymap</div>
-                <div className="text-2xl font-black text-foreground uppercase">{layoutParam}</div>
+                <div className="text-2xl font-black text-foreground uppercase">{activeLayout}</div>
                 <div className="text-[10px] text-muted-foreground font-semibold">Active Layout</div>
               </div>
             </div>
           </CardContent>
         </Card>
       ) : (
-        <div className="border border-border bg-card rounded-2xl p-6 shadow-xs">
-          <TypingArea hideModeHeader={true} onSessionComplete={handleSessionComplete} />
+        <div className="space-y-6">
+          <Card className="border border-border bg-card rounded-2xl p-6 shadow-xs">
+            <TypingArea hideModeHeader={true} onSessionComplete={handleSessionComplete} />
+          </Card>
+
+          {/* Virtual Keyboard Guide & Target Key Highlight */}
+          <Card className="rounded-2xl border border-border bg-card shadow-xs p-4 sm:p-6 space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+              <div className="flex items-center gap-2 text-foreground">
+                <KeyboardIcon size={18} className="text-primary" />
+                <span className="text-xs sm:text-sm font-black text-foreground">অন-স্ক্রিন কীবোর্ড গাইড (Virtual Keyboard Guide)</span>
+              </div>
+
+              {/* Layout Buttons */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase mr-1">লেআউট:</span>
+                {currentAvailableLayouts.map((l) => (
+                  <button
+                    key={l.id}
+                    onClick={() => setActiveLayout(l.id as KeyboardLayout)}
+                    className={cn(
+                      "px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border cursor-pointer",
+                      activeLayout === l.id
+                        ? "bg-primary text-primary-foreground border-primary shadow-xs font-black"
+                        : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    )}
+                  >
+                    {l.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Target Next Key Hint Display */}
+            {nextTargetChar && (
+              <div className="bg-primary/10 border border-primary/20 p-2.5 rounded-xl text-xs font-bold text-primary flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Sparkles size={14} className="animate-pulse" />
+                  <span>পরবর্তী বর্ণ (Target Key): <code className="bg-background text-foreground px-2 py-0.5 rounded border border-border font-bangla text-sm font-black">{nextTargetChar === " " ? "Spacebar (স্পেস)" : nextTargetChar}</code></span>
+                </span>
+                <span className="text-[10px] text-muted-foreground font-mono uppercase">Highlight Enabled</span>
+              </div>
+            )}
+
+            <VirtualKeyboard activeLayout={activeLayout} nextChar={nextTargetChar} />
+          </Card>
         </div>
       )}
     </div>

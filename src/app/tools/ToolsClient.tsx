@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   RefreshCw, Mic, Hash, FileText, Wrench, Type,
   ArrowRight, Keyboard, Volume2, Search, Sparkles,
-  Layers, CheckCircle2, SlidersHorizontal, BookOpen, Award, LucideIcon
+  Layers, CheckCircle2, SlidersHorizontal, BookOpen, Award, LucideIcon, Languages
 } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
@@ -158,16 +158,6 @@ export const TOOLS_DIRECTORY: ToolItem[] = [
     desc: "বাংলা শিরোনাম থেকে পরিষ্কার, SEO-বান্ধব URL স্লাগ ও টেক্সট ফিল্টার তৈরি করুন।",
     badge: "SEO টুল",
     category: "converters",
-  },
-  {
-    id: "mixed-typing-test",
-    href: "/bangla-english-mixed-typing-test",
-    icon: Award,
-    title: "Bilingual Mixed Typing Test",
-    titleBn: "বাংলা-ইংরেজি মিক্সড টাইপিং পরীক্ষা",
-    desc: "সরকারি চাকরির পরীক্ষার (BPSC, Bank, Secretariat) জন্য দ্বৈভাষিক টাইপিং মক টেস্ট।",
-    badge: "পরীক্ষা সিমুলেটর",
-    category: "keyboards",
   },
 ];
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ShieldCheck, Trophy, Award, FileText, ArrowRight, Sparkles, CheckCircle2, Zap, Keyboard } from "lucide-react";
+import { Clock, ShieldCheck, Trophy, Award, FileText, ArrowRight, Sparkles, CheckCircle2, Zap, Keyboard, Building2 } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
@@ -13,24 +13,6 @@ export const metadata: Metadata = {
 };
 
 const BANGLA_TESTS = [
-  {
-    href: "/exam/ranked",
-    icon: Trophy,
-    title: "3-Min National Ranked Challenge",
-    titleBn: "জাতীয় র‍্যাঙ্কড কম্পিটিশন টেস্ট",
-    desc: "অফিসিয়াল লিডারবোর্ড র‍্যাঙ্কিংয়ের জন্য ৩ মিনিটের প্রতিযোগিতা। ন্যূনতম ৮৫% অ্যাকুরেসি প্রয়োজন।",
-    badge: "Official Ranked",
-    stats: "180 Sec • Leaderboard Qualifier",
-  },
-  {
-    href: "/tests/govt",
-    icon: ShieldCheck,
-    title: "Jatiya BCC Govt Exam Simulator",
-    titleBn: "জাতীয় কীবোর্ড সরকারি পরীক্ষা",
-    desc: "বাংলাদেশ কম্পিউটার কাউন্সিল (BCC) ও মন্ত্রণালয় নিয়োগ পরীক্ষার রিয়েল সিমুলেটর।",
-    badge: "Govt Standard",
-    stats: "BCC 20 WPM Criteria",
-  },
   // Avro
   {
     href: "/tests/1min?layout=avro",
@@ -156,20 +138,11 @@ const ENGLISH_TESTS = [
     badge: "QWERTY 5-Min",
     stats: "300 Sec • Official",
   },
-  {
-    href: "/leaderboard",
-    icon: Trophy,
-    title: "National Leaderboard",
-    titleBn: "জাতীয় স্পিড লিডারবোর্ড",
-    desc: "বাংলাদেশের সেরা টাইপিস্টদের রিয়েল-টাইম জাতীয় র‍্যাঙ্কিং।",
-    badge: "Rankings",
-    stats: "Real-time Leaderboard",
-  },
 ];
 
 export default function TestsHubPage() {
   return (
-    <main className="container max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-16 fade-in text-foreground">
+    <main className="container max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-12 fade-in text-foreground">
       {/* Hero Header */}
       <section className="text-center space-y-4 max-w-3xl mx-auto">
         <div className="inline-flex items-center gap-2 bg-secondary border border-border px-3.5 py-1.5 rounded-full text-xs font-bold text-foreground">
@@ -209,12 +182,12 @@ export default function TestsHubPage() {
 
           <div className="flex flex-col sm:flex-row lg:flex-col gap-3 w-full lg:w-auto shrink-0">
             <Link href="/exam/ranked" className="w-full">
-              <Button size="lg" className="w-full font-black text-sm gap-2 h-12 shadow-sm">
+              <Button size="lg" className="w-full font-black text-sm gap-2 h-12 shadow-sm cursor-pointer">
                 <Trophy size={16} /> Enter Competition Now
               </Button>
             </Link>
             <Link href="/leaderboard" className="w-full">
-              <Button size="lg" variant="outline" className="w-full font-bold text-xs gap-2 h-11 border-border">
+              <Button size="lg" variant="outline" className="w-full font-bold text-xs gap-2 h-11 border-border cursor-pointer">
                 View Leaderboard <ArrowRight size={14} />
               </Button>
             </Link>
@@ -259,7 +232,7 @@ export default function TestsHubPage() {
                   <div className="pt-3 border-t border-border flex items-center justify-between">
                     <span className="text-[11px] font-bold text-muted-foreground">{card.stats}</span>
                     <Link href={card.href}>
-                      <Button size="sm" className="font-bold text-xs gap-1.5 h-9 rounded-md">
+                      <Button size="sm" className="font-bold text-xs gap-1.5 h-9 rounded-md cursor-pointer">
                         Start Test <ArrowRight size={13} />
                       </Button>
                     </Link>
@@ -308,7 +281,7 @@ export default function TestsHubPage() {
                   <div className="pt-3 border-t border-border flex items-center justify-between">
                     <span className="text-[11px] font-bold text-muted-foreground">{card.stats}</span>
                     <Link href={card.href}>
-                      <Button size="sm" className="font-bold text-xs gap-1.5 h-9 rounded-md">
+                      <Button size="sm" className="font-bold text-xs gap-1.5 h-9 rounded-md cursor-pointer">
                         Start Test <ArrowRight size={13} />
                       </Button>
                     </Link>
@@ -320,19 +293,27 @@ export default function TestsHubPage() {
         </div>
       </section>
 
-      {/* Footer Banner */}
-      <section className="border border-border bg-primary text-primary-foreground rounded-2xl p-8 text-center space-y-4 shadow-sm">
-        <h2 className="text-2xl font-black">Ready to test your typing WPM?</h2>
-        <p className="text-xs text-primary-foreground/80 max-w-lg mx-auto leading-relaxed">
-          Take a 1-minute or 5-minute timed speed test across Avro, UniBijoy, Jatiya, Probhat, Inscript, or English QWERTY layouts and evaluate your net typing speed.
-        </p>
-        <div className="pt-2">
-          <Link href="/tests/1min">
-            <Button variant="secondary" className="font-extrabold text-xs h-11 px-7 rounded-xl">
-              Start 1-Min Speed Test Now →
-            </Button>
-          </Link>
+      {/* ── DEDICATED BOTTOM FEATURE: JATIYA BCC GOVT EXAM SIMULATOR ── */}
+      <section className="border border-primary/30 bg-primary/5 rounded-3xl p-8 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="space-y-2 max-w-2xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-black">
+            <Building2 size={14} />
+            <span>OFFICIAL GOVT EXAM SIMULATOR</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-black text-foreground">
+            Jatiya BCC Government Job Typing Exam Simulator
+          </h2>
+          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+            Preparing for Ministry, Computer Operator, or Bank recruitment typing exams? Practice under official Bangladesh Computer Council (BCC) 5-minute timed exam room conditions with verified scorecards.
+          </p>
         </div>
+
+        <Link href="/exam/govt" className="shrink-0 w-full md:w-auto">
+          <Button size="lg" className="w-full md:w-auto font-black text-sm gap-2 h-12 px-8 shadow-sm cursor-pointer">
+            <span>Launch Govt Exam Simulator</span>
+            <ArrowRight size={16} />
+          </Button>
+        </Link>
       </section>
     </main>
   );

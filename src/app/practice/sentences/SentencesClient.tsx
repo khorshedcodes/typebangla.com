@@ -2,40 +2,63 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useTypingStore, KeyboardLayout } from "../../../store/typingStore";
 import TypingArea from "../../../components/TypingArea";
 import VirtualKeyboard from "../../../components/VirtualKeyboard";
 import { BANGLA_SENTENCES_LEVEL_1, BANGLA_SENTENCES_LEVEL_2, BANGLA_SENTENCES_LEVEL_3 } from "../../../data/banglaSentences";
 import { ENGLISH_SENTENCES_LEVEL_1, ENGLISH_SENTENCES_LEVEL_2, ENGLISH_SENTENCES_LEVEL_3 } from "../../../data/englishSentences";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, ArrowLeft, Keyboard as KeyboardIcon, Sparkles, CheckCircle2, ChevronRight } from "lucide-react";
+import { Button } from "../../../components/ui/button";
 import { Badge } from "../../../components/ui/badge";
+import { Card } from "../../../components/ui/card";
 import { cn } from "@/utils/cn";
 
-const KEYBOARD_LAYOUTS = [
-  { id: "avro", label: "Avro" },
-  { id: "unibijoy", label: "UniBijoy" },
-  { id: "jatiya", label: "Jatiya" },
-  { id: "probhat", label: "Probhat" },
-  { id: "inscript", label: "Inscript" },
-  { id: "unicode", label: "Unicode" },
-  { id: "english", label: "English" },
+const LEVELS = [
+  { lvl: 1 as const, label: "🟢 সহজ (Level 1)", desc: "৫–১০ শব্দের বাক্য" },
+  { lvl: 2 as const, label: "🟡 মধ্যম (Level 2)", desc: "১১–২০ শব্দের বাক্য" },
+  { lvl: 3 as const, label: "🔴 কঠিন (Level 3)", desc: "সরকারি ও যুক্তবর্ণ" },
 ];
 
-const LEVELS = [
-  { lvl: 1 as const, label: "🟢 সহজ", desc: "৫–১০ শব্দের বাক্য" },
-  { lvl: 2 as const, label: "🟡 মধ্যম", desc: "১১–২০ শব্দের বাক্য" },
-  { lvl: 3 as const, label: "🔴 কঠিন", desc: "সরকারি ও যুক্তবর্ণ" },
+const BANGLA_LAYOUTS = [
+  { id: "avro",     label: "Avro Phonetic (অভ্র)" },
+  { id: "unibijoy", label: "UniBijoy (ইউনিবিজয়)" },
+  { id: "jatiya",   label: "Jatiya BCC (জাতীয়)" },
+  { id: "probhat",  label: "Probhat (প্রভাত)" },
+  { id: "inscript", label: "Inscript (ইনস্ক্রিপ্ট)" },
+  { id: "unicode",  label: "Unicode (ইউনিকোড)" },
+];
+
+const ENGLISH_LAYOUTS = [
+  { id: "english",  label: "English QWERTY" },
 ];
 
 export default function SentencesClient() {
-  const { activeLayout, setActiveLayout, setTargetText, resetTest } = useTypingStore();
-  const [lang, setLang] = useState<"bangla" | "english">("bangla");
-  const [level, setLevel] = useState<1 | 2 | 3>(1);
-  const [sentenceCount, setSentenceCount] = useState<number>(10);
+  const searchParams = useSearchParams();
+  const langParam = searchParams.get("lang");
+  const isEnglishMode = langParam === "en";
 
-  const generateSentenceStream = () => {
+  const {
+    activeLayout,
+    setActiveLayout,
+    setSelectedDuration,
+    setTargetText,
+    resetTest,
+    targetText,
+    typedText,
+    isCompleted
+  } = useTypingStore();
+
+  const [level, setLevel] = useState<1 | 2 | 3>(1);
+  const [sentenceList, setSentenceList] = useState<string[]>([]);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
+
+  const loadSentenceSet = () => {
+    // Sentence Drills are untimed practice (selectedDuration = 0)
+    setSelectedDuration(0);
+
     let pool: string[] = [];
-    if (lang === "bangla") {
+    if (!isEnglishMode) {
       if (level === 1) pool = BANGLA_SENTENCES_LEVEL_1;
       else if (level === 2) pool = BANGLA_SENTENCES_LEVEL_2;
       else pool = BANGLA_SENTENCES_LEVEL_3;
@@ -44,62 +67,68 @@ export default function SentencesClient() {
       else if (level === 2) pool = ENGLISH_SENTENCES_LEVEL_2;
       else pool = ENGLISH_SENTENCES_LEVEL_3;
     }
-    const shuffled = [...pool].sort(() => Math.random() - 0.5);
-    setTargetText(shuffled.slice(0, sentenceCount).join(" "));
+    const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 10);
+    setSentenceList(shuffled);
+    setCurrentIndex(0);
+    if (shuffled.length > 0) {
+      setTargetText(shuffled[0]);
+    }
     resetTest();
   };
 
   useEffect(() => {
-    generateSentenceStream();
-  }, [lang, level, sentenceCount, activeLayout]);
+    if (isEnglishMode) {
+      setActiveLayout("english");
+    } else if (activeLayout === "english") {
+      setActiveLayout("avro");
+    }
+    loadSentenceSet();
+  }, [langParam, level]);
+
+  // Auto-advance to next sentence when current sentence is completed
+  useEffect(() => {
+    if (isCompleted && sentenceList.length > 0) {
+      if (currentIndex < sentenceList.length - 1) {
+        const nextIdx = currentIndex + 1;
+        setCurrentIndex(nextIdx);
+        setTargetText(sentenceList[nextIdx]);
+        resetTest();
+      }
+    }
+  }, [isCompleted, currentIndex, sentenceList]);
+
+  const currentAvailableLayouts = isEnglishMode ? ENGLISH_LAYOUTS : BANGLA_LAYOUTS;
+  const nextTargetChar = targetText ? targetText[typedText.length] || "" : "";
 
   return (
-    <div className="space-y-5">
-      {/* Back to Hub Link */}
-      <Link href="/practice" className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors">
-        ← প্র্যাকটিস হাব-এ ফিরে যান
-      </Link>
+    <div className="space-y-6">
+      {/* Back to Hub Link & Progress Badge */}
+      <div className="flex items-center justify-between border-b border-border pb-3">
+        <Link href="/practice" className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft size={14} /> প্র্যাকটিস হাব-এ ফিরে যান (Back to Practice Hub)
+        </Link>
+        <Badge variant="outline" className="text-xs font-mono font-bold border-primary/30 text-primary uppercase">
+          SENTENCE DRILL: {currentIndex + 1} OF {sentenceList.length || 10}
+        </Badge>
+      </div>
 
-      {/* ── Glassmorphism Pill Toolbar ── */}
-      <div className="rounded-2xl border border-border/60 bg-card/70 backdrop-blur-md shadow-sm px-4 py-3">
-        <div className="flex flex-wrap items-center gap-x-1 gap-y-2">
+      {/* ── Toolbar: Level Selector & Refresh ── */}
+      <Card className="rounded-2xl border border-border bg-card shadow-xs p-4 space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
 
-          {/* Group 1: Language */}
-          <div className="flex items-center gap-1">
-            {[
-              { value: "bangla" as const, label: "🇧🇩 বাংলা বাক্য" },
-              { value: "english" as const, label: "🇬🇧 English" },
-            ].map((l) => (
-              <button
-                key={l.value}
-                onClick={() => setLang(l.value)}
-                className={cn(
-                  "px-3 py-1.5 rounded-full text-xs font-bold transition-all",
-                  lang === l.value
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                )}
-              >
-                {l.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Divider */}
-          <span className="h-4 w-px bg-border mx-1 hidden sm:block" />
-
-          {/* Group 2: Difficulty Level */}
-          <div className="flex items-center gap-1 flex-wrap">
+          {/* Difficulty Level Selector */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">লেভেল (Level):</span>
             {LEVELS.map((l) => (
               <button
                 key={l.lvl}
                 onClick={() => setLevel(l.lvl)}
                 title={l.desc}
                 className={cn(
-                  "px-3 py-1.5 rounded-full text-xs font-bold transition-all",
+                  "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border",
                   level === l.lvl
-                    ? "bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 ring-1 ring-indigo-500/50"
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    ? "bg-primary text-primary-foreground border-primary shadow-xs font-black"
+                    : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
                 )}
               >
                 {l.label}
@@ -107,72 +136,65 @@ export default function SentencesClient() {
             ))}
           </div>
 
-          {/* Divider */}
-          <span className="h-4 w-px bg-border mx-1 hidden sm:block" />
+          {/* Action Controls: Next / Refresh */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={loadSentenceSet}
+              title="নতুন সেট লোড করুন"
+              className="px-3 py-1.5 rounded-xl text-xs font-bold border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <RefreshCw size={13} />
+              <span>নতুন সেট</span>
+            </button>
+          </div>
 
-          {/* Group 3: Sentence Count */}
-          <div className="flex items-center gap-1">
-            <span className="text-[11px] text-muted-foreground font-semibold mr-1 hidden sm:block">বাক্য</span>
-            {[5, 10, 15, 25].map((cnt) => (
+        </div>
+      </Card>
+
+      {/* ── Typing Arena (1 Sentence at a Time) ── */}
+      <TypingArea hideModeHeader={true} />
+
+      {/* ── Virtual Keyboard & Target Key Highlight ── */}
+      <Card className="rounded-2xl border border-border bg-card shadow-xs p-4 sm:p-6 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+          <div className="flex items-center gap-2 text-foreground">
+            <KeyboardIcon size={18} className="text-primary" />
+            <span className="text-xs sm:text-sm font-black text-foreground">অন-স্ক্রিন কীবোর্ড গাইড (Virtual Keyboard Guide)</span>
+          </div>
+
+          {/* Language-Aware Layout Selection Buttons */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase mr-1">লেআউট:</span>
+            {currentAvailableLayouts.map((l) => (
               <button
-                key={cnt}
-                onClick={() => setSentenceCount(cnt)}
+                key={l.id}
+                onClick={() => setActiveLayout(l.id as KeyboardLayout)}
                 className={cn(
-                  "px-2.5 py-1.5 rounded-full text-xs font-bold transition-all",
-                  sentenceCount === cnt
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  "px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border cursor-pointer",
+                  activeLayout === l.id
+                    ? "bg-primary text-primary-foreground border-primary shadow-xs font-black"
+                    : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
                 )}
               >
-                {cnt}
+                {l.label}
               </button>
             ))}
           </div>
-
-          {/* Divider */}
-          <span className="h-4 w-px bg-border mx-1 hidden sm:block" />
-
-          {/* Group 4: Refresh */}
-          <button
-            onClick={generateSentenceStream}
-            title="নতুন বাক্য লোড করুন"
-            className="p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
-          >
-            <RefreshCw size={14} />
-          </button>
-
         </div>
-      </div>
 
-      {/* ── Typing Arena ── */}
-      <TypingArea />
+        {/* Target Next Key Hint Display */}
+        {nextTargetChar && (
+          <div className="bg-primary/10 border border-primary/20 p-2.5 rounded-xl text-xs font-bold text-primary flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <Sparkles size={14} className="animate-pulse" />
+              <span>পরবর্তী বর্ণ (Target Key): <code className="bg-background text-foreground px-2 py-0.5 rounded border border-border font-bangla text-sm font-black">{nextTargetChar === " " ? "Spacebar (স্পেস)" : nextTargetChar}</code></span>
+            </span>
+            <span className="text-[10px] text-muted-foreground font-mono uppercase">Highlight Enabled</span>
+          </div>
+        )}
 
-      {/* ── Keyboard Layout Selector ── */}
-      <div className="rounded-2xl border border-border/60 bg-card/70 backdrop-blur-md shadow-sm px-4 py-3 space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">কিবোর্ড লেআউট</span>
-          <Badge variant="outline" className="border-primary/50 text-primary font-bold text-[10px] uppercase px-2 py-0.5">
-            {activeLayout}
-          </Badge>
-        </div>
-        <div className="flex flex-wrap gap-1.5">
-          {KEYBOARD_LAYOUTS.map((l) => (
-            <button
-              key={l.id}
-              onClick={() => setActiveLayout(l.id as KeyboardLayout)}
-              className={cn(
-                "px-3 py-1.5 rounded-full text-xs font-bold transition-all",
-                activeLayout === l.id
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "border border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
-              )}
-            >
-              {l.label}
-            </button>
-          ))}
-        </div>
-        <VirtualKeyboard />
-      </div>
+        <VirtualKeyboard activeLayout={activeLayout} nextChar={nextTargetChar} />
+      </Card>
 
     </div>
   );

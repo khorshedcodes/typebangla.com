@@ -1,11 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import { useTypingStore, KeyboardLayout } from "../../../store/typingStore";
 import TypingArea from "../../../components/TypingArea";
 import VirtualKeyboard from "../../../components/VirtualKeyboard";
-import { Quote, Sparkles, BookOpen, User, Feather, Bookmark, RefreshCw } from "lucide-react";
+import { Quote, Sparkles, BookOpen, User, Feather, Bookmark, RefreshCw, Keyboard as KeyboardIcon } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { Card, CardContent } from "../../../components/ui/card";
 import { Badge } from "../../../components/ui/badge";
@@ -79,124 +78,167 @@ const LITERARY_QUOTES: LiteraryQuote[] = [
   }
 ];
 
+const BANGLA_LAYOUTS = [
+  { id: "avro",     label: "Avro Phonetic (অভ্র)" },
+  { id: "unibijoy", label: "UniBijoy (ইউনিবিজয়)" },
+  { id: "jatiya",   label: "Jatiya BCC (জাতীয়)" },
+  { id: "probhat",  label: "Probhat (প্রভাত)" },
+  { id: "inscript", label: "Inscript (ইনস্ক্রিপ্ট)" },
+  { id: "unicode",  label: "Unicode (ইউনিকোড)" },
+];
+
+const ENGLISH_LAYOUTS = [
+  { id: "english",  label: "English QWERTY" },
+];
+
 export default function QuotesClient() {
-  const { activeLayout, setActiveLayout, setTargetText, resetTest } = useTypingStore();
-  const [selectedQuote, setSelectedQuote] = useState<LiteraryQuote>(LITERARY_QUOTES[0]);
+  const {
+    activeLayout,
+    setActiveLayout,
+    setSelectedDuration,
+    setTargetText,
+    resetTest,
+    targetText,
+    typedText
+  } = useTypingStore();
+
+  const [selectedQuote, setSelectedQuote] = useState<LiteraryQuote | null>(null);
   const [showSelector, setShowSelector] = useState<boolean>(true);
 
-  const selectQuote = (q: LiteraryQuote) => {
+  const isEnglishQuote = selectedQuote?.category === "english-classic";
+
+  const handleSelectQuote = (q: LiteraryQuote) => {
     setSelectedQuote(q);
+    setSelectedDuration(0); // Untimed Literary Quote Practice
+    if (q.category === "english-classic") {
+      setActiveLayout("english");
+    } else if (activeLayout === "english") {
+      setActiveLayout("avro");
+    }
     setTargetText(q.text);
     resetTest();
-    setShowSelector(false);
+    setShowSelector(false); // Hide selector cards upon picking quote
   };
 
   useEffect(() => {
-    setTargetText(selectedQuote.text);
-    resetTest();
+    if (selectedQuote) {
+      setTargetText(selectedQuote.text);
+      resetTest();
+    }
   }, [selectedQuote, activeLayout]);
+
+  const currentAvailableLayouts = isEnglishQuote ? ENGLISH_LAYOUTS : BANGLA_LAYOUTS;
+  const nextTargetChar = targetText ? targetText[typedText.length] || "" : "";
 
   return (
     <div className="space-y-6">
-      {/* Back to Hub Link */}
-      <Link href="/practice" className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors">
-        ← প্র্যাকটিস হাব-এ ফিরে যান
-      </Link>
-
-      {/* Quote Selection Header / Toggle Bar */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Badge className="bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30 text-xs font-bold">
-            {selectedQuote.authorBn}
-          </Badge>
-          <span className="text-xs font-bold text-foreground line-clamp-1">{selectedQuote.title}</span>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowSelector((prev) => !prev)}
-          className="text-xs font-bold gap-1.5 border-border"
-        >
-          <RefreshCw size={12} />
-          <span>{showSelector ? "সিলেক্টর বন্ধ করুন" : "উদ্ধৃতি পরিবর্তন করুন (Change Quote)"}</span>
-        </Button>
-      </div>
-
-      {/* Quote Selection Grid */}
-      {showSelector && (
-        <Card className="border border-border bg-card p-6 rounded-2xl shadow-xs space-y-4 fade-in">
-          <div className="flex items-center justify-between border-b border-border pb-3">
-            <h2 className="text-sm font-black text-foreground uppercase tracking-wider flex items-center gap-2">
-              <Quote size={16} className="text-purple-600" />
-              <span>১. সাহিত্য অনুচ্ছেদ ও বিখ্যাত উক্তি নির্বাচন করুন:</span>
-            </h2>
+      {/* ── PHASE 1: Quote Selection Grid ── */}
+      {showSelector ? (
+        <Card className="border-2 border-primary/40 bg-card p-6 rounded-3xl shadow-lg space-y-6 fade-in">
+          <div className="flex items-center justify-between border-b border-border pb-4">
+            <div className="space-y-1">
+              <Badge className="bg-primary/10 text-primary border-primary/30 text-xs font-mono font-bold">
+                LITERATURE SELECTION PHASE
+              </Badge>
+              <h2 className="text-xl sm:text-2xl font-black text-foreground flex items-center gap-2">
+                <Quote size={20} className="text-primary" />
+                <span>অনবদ্য বাংলা ও ইংরেজি সাহিত্য উক্তি নির্বাচন করুন:</span>
+              </h2>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {LITERARY_QUOTES.map((q) => (
-            <button
-              key={q.id}
-              onClick={() => selectQuote(q)}
-              className={cn(
-                "p-4 rounded-xl text-left border transition-all space-y-1.5",
-                selectedQuote.id === q.id
-                  ? "bg-purple-500/10 border-purple-500 text-foreground shadow-xs ring-1 ring-purple-500"
-                  : "border-border bg-secondary hover:border-foreground/40 text-muted-foreground"
-              )}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-black text-purple-600 uppercase tracking-wider">{q.authorBn}</span>
-                <Feather size={12} className="text-purple-500" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {LITERARY_QUOTES.map((q) => (
+              <button
+                key={q.id}
+                onClick={() => handleSelectQuote(q)}
+                className="p-5 rounded-2xl text-left border border-border bg-secondary/50 hover:border-primary hover:bg-primary/5 transition-all space-y-2.5 cursor-pointer group shadow-xs"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-primary uppercase tracking-wider">{q.authorBn}</span>
+                  <Feather size={14} className="text-primary group-hover:scale-110 transition-transform" />
+                </div>
+                <h3 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">{q.title}</h3>
+                <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed font-bangla">{q.text}</p>
+                <div className="pt-2 text-[11px] font-bold text-primary flex items-center gap-1">
+                  <span>অনুশীলন শুরু করুন ➔</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </Card>
+      ) : (
+        /* ── PHASE 2: Practice Arena & Quote Switch Bar ── */
+        <div className="space-y-6 fade-in">
+          {/* Quote Header Bar & Change Button */}
+          <Card className="rounded-2xl border border-border bg-card shadow-xs p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Badge className="bg-primary/10 text-primary border-primary/30 text-xs font-bold">
+                  {selectedQuote?.authorBn}
+                </Badge>
+                <span className="text-xs font-black text-foreground">{selectedQuote?.title}</span>
               </div>
-              <h3 className="text-xs font-bold text-foreground line-clamp-1">{q.title}</h3>
-              <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">{q.text}</p>
-            </button>
-          ))}
-        </div>
-      </Card>
-      )}
+              <p className="text-xs text-muted-foreground line-clamp-1 italic font-bangla max-w-xl">
+                &quot;{selectedQuote?.text}&quot;
+              </p>
+            </div>
 
-      {/* Typing Area */}
-      <TypingArea />
-
-      {/* Keyboard Selector & Visual Keyboard */}
-      <div className="pt-4 border-t border-border space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xs font-black uppercase text-foreground tracking-wider">
-            কিবোর্ড লেআউট পরিবর্তন করুন:
-          </h3>
-          <Badge variant="outline" className="border-primary text-primary font-bold text-xs uppercase">
-            {activeLayout}
-          </Badge>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          {[
-            { id: "avro", label: "Avro Phonetic" },
-            { id: "unibijoy", label: "UniBijoy" },
-            { id: "jatiya", label: "Jatiya (BCC)" },
-            { id: "probhat", label: "Probhat" },
-            { id: "inscript", label: "Inscript" },
-            { id: "unicode", label: "Unicode" },
-            { id: "english", label: "English QWERTY" },
-          ].map((l) => (
-            <button
-              key={l.id}
-              onClick={() => setActiveLayout(l.id as KeyboardLayout)}
-              className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-bold border transition-all",
-                activeLayout === l.id
-                  ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                  : "border-border bg-secondary text-muted-foreground hover:text-foreground"
-              )}
+            <Button
+              onClick={() => setShowSelector(true)}
+              className="font-bold text-xs gap-2 h-10 px-4 bg-primary text-primary-foreground shadow-sm cursor-pointer shrink-0"
             >
-              {l.label}
-            </button>
-          ))}
-        </div>
+              <BookOpen size={15} />
+              <span>📚 নতুন সাহিত্য নির্বাচন করুন</span>
+            </Button>
+          </Card>
 
-        <VirtualKeyboard />
-      </div>
+          {/* Typing Engine Arena */}
+          <TypingArea hideModeHeader={true} />
+
+          {/* Virtual Keyboard & Target Key Highlight */}
+          <Card className="rounded-2xl border border-border bg-card shadow-xs p-4 sm:p-6 space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+              <div className="flex items-center gap-2 text-foreground">
+                <KeyboardIcon size={18} className="text-primary" />
+                <span className="text-xs sm:text-sm font-black text-foreground">অন-স্ক্রিন কীবোর্ড গাইড (Virtual Keyboard Guide)</span>
+              </div>
+
+              {/* Language-Aware Layout Selection Buttons */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase mr-1">লেআউট:</span>
+                {currentAvailableLayouts.map((l) => (
+                  <button
+                    key={l.id}
+                    onClick={() => setActiveLayout(l.id as KeyboardLayout)}
+                    className={cn(
+                      "px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border cursor-pointer",
+                      activeLayout === l.id
+                        ? "bg-primary text-primary-foreground border-primary shadow-xs font-black"
+                        : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    )}
+                  >
+                    {l.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Target Next Key Hint Display */}
+            {nextTargetChar && (
+              <div className="bg-primary/10 border border-primary/20 p-2.5 rounded-xl text-xs font-bold text-primary flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Sparkles size={14} className="animate-pulse" />
+                  <span>পরবর্তী বর্ণ (Target Key): <code className="bg-background text-foreground px-2 py-0.5 rounded border border-border font-bangla text-sm font-black">{nextTargetChar === " " ? "Spacebar (স্পেস)" : nextTargetChar}</code></span>
+                </span>
+                <span className="text-[10px] text-muted-foreground font-mono uppercase">Highlight Enabled</span>
+              </div>
+            )}
+
+            <VirtualKeyboard activeLayout={activeLayout} nextChar={nextTargetChar} />
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

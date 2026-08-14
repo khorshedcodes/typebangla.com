@@ -87,7 +87,7 @@ export async function saveTypingSession(session: SessionData) {
 }
 
 // ── Leaderboards ─────────────────────────────────────────────────────────────
-export async function getTopLeaderboard(layout = "all", limitCount = 10) {
+export async function getTopLeaderboard(layout = "all", timePeriod = "all", limitCount = 100) {
   if (typeof window === "undefined") return [];
   try {
     const db = await getFirebaseDb();
@@ -95,13 +95,30 @@ export async function getTopLeaderboard(layout = "all", limitCount = 10) {
 
     const firestore = await import("firebase/firestore");
     const sessionsRef = firestore.collection(db, "typing_sessions");
-    let q;
+    const constraints: any[] = [];
+
     if (layout !== "all") {
-      q = firestore.query(sessionsRef, firestore.where("layout", "==", layout), firestore.orderBy("netWpm", "desc"), firestore.limit(limitCount));
-    } else {
-      q = firestore.query(sessionsRef, firestore.orderBy("netWpm", "desc"), firestore.limit(limitCount));
+      constraints.push(firestore.where("layout", "==", layout));
     }
 
+    if (timePeriod !== "all") {
+      const now = Date.now();
+      let msAgo = 0;
+      if (timePeriod === "daily") msAgo = 24 * 60 * 60 * 1000;
+      else if (timePeriod === "weekly") msAgo = 7 * 24 * 60 * 60 * 1000;
+      else if (timePeriod === "monthly") msAgo = 30 * 24 * 60 * 60 * 1000;
+      else if (timePeriod === "yearly") msAgo = 365 * 24 * 60 * 60 * 1000;
+
+      if (msAgo > 0) {
+        const sinceDate = new Date(now - msAgo);
+        constraints.push(firestore.where("timestamp", ">=", sinceDate));
+      }
+    }
+
+    constraints.push(firestore.orderBy("netWpm", "desc"));
+    constraints.push(firestore.limit(limitCount));
+
+    const q = firestore.query(sessionsRef, ...constraints);
     const snapshot = await firestore.getDocs(q);
     return snapshot.docs.map((doc) => doc.data());
   } catch (error) {
@@ -291,11 +308,16 @@ export async function getPaymentRequests(): Promise<PaymentRequestRecord[]> {
     const cached = localStorage.getItem("typemaster_payment_requests");
     const localList: PaymentRequestRecord[] = cached ? JSON.parse(cached) : [];
     
-    // Combine local and Firestore items unique by ID
+    // Combine local and Firestore items unique by ID, preferring updated status over pending
     const combinedMap = new Map<string, PaymentRequestRecord>();
     [...firestoreList, ...localList].forEach((item) => {
-      if (item.id && !combinedMap.has(item.id)) {
-        combinedMap.set(item.id, item);
+      if (item.id) {
+        const existing = combinedMap.get(item.id);
+        if (!existing) {
+          combinedMap.set(item.id, item);
+        } else if (existing.status === "pending" && item.status !== "pending") {
+          combinedMap.set(item.id, item);
+        }
       }
     });
 
@@ -309,7 +331,8 @@ export async function updatePaymentRequestStatus(
   requestId: string,
   status: "approved" | "rejected",
   instituteId?: string,
-  certCount?: number
+  certCount?: number,
+  userId?: string
 ): Promise<boolean> {
   if (typeof window === "undefined") return false;
   try {
@@ -319,11 +342,21 @@ export async function updatePaymentRequestStatus(
       const ref = firestore.doc(db, "payment_requests", requestId);
       await firestore.updateDoc(ref, { status });
 
-      if (status === "approved" && instituteId && certCount) {
-        const instRef = firestore.doc(db, "institutes", instituteId);
-        await firestore.updateDoc(instRef, {
-          certificateQuota: firestore.increment(certCount),
-        });
+      if (status === "approved" && certCount) {
+        if (instituteId) {
+          const instRef = firestore.doc(db, "institutes", instituteId);
+          await firestore.updateDoc(instRef, {
+            certificateQuota: firestore.increment(certCount),
+          });
+        }
+        if (userId) {
+          const userRef = firestore.doc(db, "users", userId);
+          await firestore.setDoc(
+            userRef,
+            { certificateQuota: firestore.increment(certCount) },
+            { merge: true }
+          );
+        }
       }
     }
   } catch (err) {
@@ -558,6 +591,67 @@ export async function updateWaitlistStatus(id: string, status: "pending" | "cont
     return true;
   } catch (err) {
     console.error("Error updating waitlist status:", err);
+    return false;
+  }
+}
+
+export interface ContactMessage {
+  name: string;
+  email: string;
+  category: string;
+  subject: string;
+  message: string;
+}
+
+export async function saveContactMessage(msg: ContactMessage) {
+  const refId = "MSG-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+  if (typeof window === "undefined") return { success: false, refId };
+  try {
+    const db = await getFirebaseDb();
+    if (db) {
+      const firestore = await import("firebase/firestore");
+      const docRef = firestore.doc(firestore.collection(db, "contact_messages"));
+      await firestore.setDoc(docRef, {
+        ...msg,
+        refId,
+        id: docRef.id,
+        status: "unread",
+        timestamp: firestore.serverTimestamp(),
+        createdAt: new Date().toISOString(),
+      });
+    }
+    // Backup in local storage
+    const stored = JSON.parse(localStorage.getItem("typemaster_contact_messages") || "[]");
+    stored.unshift({ ...msg, refId, createdAt: new Date().toISOString() });
+    localStorage.setItem("typemaster_contact_messages", JSON.stringify(stored.slice(0, 50)));
+    return { success: true, refId };
+  } catch (err) {
+    console.error("Error saving contact message:", err);
+    return { success: true, refId };
+  }
+}
+
+export async function seedDemoCertificates() {
+  if (typeof window === "undefined") return false;
+  try {
+    const db = await getFirebaseDb();
+    if (!db) return false;
+    const firestore = await import("firebase/firestore");
+    const demoCert = {
+      certificateId: "TM-DEMO-2026",
+      studentName: "Khorshed Alam",
+      studentEmail: "hello@khorshed-alam.com",
+      wpm: 55,
+      accuracy: 98,
+      mode: "Govt Exam Simulator",
+      issueDate: new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
+      timestamp: firestore.serverTimestamp(),
+    };
+    const ref = firestore.doc(db, "certificates", "TM-DEMO-2026");
+    await firestore.setDoc(ref, demoCert);
+    return true;
+  } catch (err) {
+    console.error("Error seeding demo certificate:", err);
     return false;
   }
 }

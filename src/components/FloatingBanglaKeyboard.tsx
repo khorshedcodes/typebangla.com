@@ -186,7 +186,9 @@ export default function FloatingBanglaKeyboard({ onKeyClick, className }: Floati
         return;
       }
       if (onKeyClick) {
-        const charToPass = (isShiftActive ? key.enShift : key.enNormal) || "";
+        const charToPass = isSystemKey
+          ? key.code
+          : ((isShiftActive ? key.enShift : key.enNormal) || "");
         onKeyClick(key.code, charToPass, isShiftActive);
       }
     };

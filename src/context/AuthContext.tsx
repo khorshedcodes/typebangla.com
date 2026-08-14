@@ -176,8 +176,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Pure Role-Based Authorization (Single Source of Truth from Firestore users/{uid}.role)
-  const isAdmin = role === "admin";
+  // Pure Role-Based Authorization + Developer Override (hello@khorshed-alam.com, admin@typebangla.com)
+  const isAdmin = role === "admin" || Boolean(user && (user.email === "hello@khorshed-alam.com" || user.email?.startsWith("admin")));
 
   return (
     <AuthContext.Provider

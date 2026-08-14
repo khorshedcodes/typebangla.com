@@ -114,7 +114,7 @@ export function CertificateTopUpModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm fade-in">
-      <div className="relative w-full max-w-lg bg-card text-card-foreground border border-border rounded-2xl shadow-xl overflow-hidden">
+      <div className="relative w-full max-w-lg bg-card text-card-foreground border border-border rounded-2xl shadow-xl overflow-hidden max-h-[92vh] flex flex-col my-auto">
         
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-muted/40">

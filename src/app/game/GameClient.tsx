@@ -240,6 +240,7 @@ export default function GameClient() {
   // Common input states
   const [typedBuffer, setTypedBuffer] = useState("");
   const [targetWordId, setTargetWordId] = useState<string | null>(null);
+  const [hasError, setHasError] = useState(false);
 
   // Shuffled random deck for the current session
   const [wordDeck, setWordDeck] = useState<WordPair[]>([]);
@@ -311,6 +312,7 @@ export default function GameClient() {
     stopAllTimers();
     setTypedBuffer("");
     setTargetWordId(null);
+    setHasError(false);
     setScore(0);
     setLevel(1);
     setLives(3);
@@ -505,31 +507,55 @@ export default function GameClient() {
         return;
       }
 
+      // Allow switching falling words target using Tab or Space when buffer is empty
+      if ((e.key === "Tab" || (e.key === " " && typedBuffer.length === 0)) && mode === "falling") {
+        e.preventDefault();
+        setWords((currentWords) => {
+          if (currentWords.length === 0) return currentWords;
+          const sortedByY = [...currentWords].sort((a, b) => b.y - a.y);
+          const currentIndex = sortedByY.findIndex((w) => w.id === targetWordId);
+          const nextWord = sortedByY[(currentIndex + 1) % sortedByY.length];
+          if (nextWord) {
+            setTargetWordId(nextWord.id);
+            setTypedBuffer("");
+            playSound("click");
+          }
+          return currentWords;
+        });
+        return;
+      }
+
       if (e.key === "Backspace") {
         e.preventDefault();
-        setTypedBuffer((prev) => prev.slice(0, -1));
+        setTypedBuffer((prev) => {
+          const nextBuf = prev.slice(0, -1);
+          // Re-evaluate error status on backspace
+          if (nextBuf.length === 0) {
+            setHasError(false);
+          }
+          return nextBuf;
+        });
         playSound("click");
         return;
       }
 
       // Ignore modifier keys
-      if (e.key === "Shift" || e.key === "Control" || e.key === "Alt" || e.key === "Meta" || e.key === "Tab") {
+      if (e.key === "Shift" || e.key === "Control" || e.key === "Alt" || e.key === "Meta") {
         return;
       }
 
-      if (e.key.length === 1 || e.code) {
+      if ((e.key.length === 1 || e.code) && !e.ctrlKey && !e.altKey && !e.metaKey) {
         let charToAdd = "";
 
         if (activeLayout === "english" || activeLayout === "avro") {
+          if (e.key.length !== 1) return;
           charToAdd = e.key;
         } else {
           charToAdd = mapInputToBangla(e.code || e.key, activeLayout, e.shiftKey);
-          if (!charToAdd) charToAdd = e.key;
+          if (!charToAdd || charToAdd.length > 1) return;
         }
 
-        playSound("click");
         const newBuffer = typedBuffer + charToAdd;
-        setTypedBuffer(newBuffer);
 
         // Helper to fetch active target word object from randomized deck
         const getTargetWord = (): WordPair => {
@@ -540,7 +566,7 @@ export default function GameClient() {
         };
 
         // ---------------------------------------------------------------------
-        // FALLING MODE KEY MATCHING
+        // FALLING MODE KEY MATCHING & ERROR CHECKING
         // ---------------------------------------------------------------------
         if (mode === "falling") {
           let currentTarget = words.find((w) => w.id === targetWordId);
@@ -556,6 +582,20 @@ export default function GameClient() {
           }
 
           if (currentTarget) {
+            const targetStr = activeLayout === "english" ? currentTarget.text : activeLayout === "avro" ? currentTarget.phonetic : currentTarget.text;
+            const isPrefix = activeLayout === "english" || activeLayout === "avro"
+              ? targetStr.toLowerCase().startsWith(newBuffer.toLowerCase())
+              : targetStr.startsWith(newBuffer);
+
+            if (!isPrefix) {
+              setHasError(true);
+              setCombo(0);
+              playSound("error");
+            } else {
+              setHasError(false);
+              playSound("click");
+            }
+
             let isExactMatch = false;
             if (activeLayout === "english") isExactMatch = currentTarget.text.toLowerCase() === newBuffer.toLowerCase();
             else if (activeLayout === "avro") isExactMatch = currentTarget.phonetic.toLowerCase() === newBuffer.toLowerCase() || currentTarget.text === avroTransliterate(newBuffer);
@@ -570,19 +610,41 @@ export default function GameClient() {
               setWords((prev) => prev.filter((w) => w.id !== currentTarget!.id));
               setTargetWordId(null);
               setTypedBuffer("");
+              setHasError(false);
 
               if ((score + points) > level * 400) setLevel((l) => l + 1);
+            } else {
+              setTypedBuffer(newBuffer);
             }
+          } else {
+            // No matching word prefix found in falling words
+            setHasError(true);
+            setCombo(0);
+            playSound("error");
+            setTypedBuffer(newBuffer);
           }
         }
 
         // ---------------------------------------------------------------------
-        // RACE MODE KEY MATCHING
+        // RACE MODE KEY MATCHING & ERROR CHECKING
         // ---------------------------------------------------------------------
         else if (mode === "race") {
           const target = getTargetWord();
-          let isMatch = false;
+          const targetStr = activeLayout === "english" ? target.bangla : activeLayout === "avro" ? target.phonetic : target.bangla;
+          const isPrefix = activeLayout === "english" || activeLayout === "avro"
+            ? targetStr.toLowerCase().startsWith(newBuffer.toLowerCase())
+            : targetStr.startsWith(newBuffer);
 
+          if (!isPrefix) {
+            setHasError(true);
+            setCombo(0);
+            playSound("error");
+          } else {
+            setHasError(false);
+            playSound("click");
+          }
+
+          let isMatch = false;
           if (activeLayout === "english") isMatch = target.bangla.toLowerCase() === newBuffer.toLowerCase();
           else if (activeLayout === "avro") isMatch = target.phonetic.toLowerCase() === newBuffer.toLowerCase() || target.bangla === avroTransliterate(newBuffer);
           else isMatch = target.bangla === newBuffer;
@@ -594,16 +656,32 @@ export default function GameClient() {
             setCombo((c) => c + 1);
             setCurrentWordIndex((idx) => idx + 1);
             setTypedBuffer("");
+            setHasError(false);
+          } else {
+            setTypedBuffer(newBuffer);
           }
         }
 
         // ---------------------------------------------------------------------
-        // SPEED CHALLENGE MODE KEY MATCHING
+        // SPEED CHALLENGE MODE KEY MATCHING & ERROR CHECKING
         // ---------------------------------------------------------------------
         else if (mode === "speed") {
           const target = getTargetWord();
-          let isMatch = false;
+          const targetStr = activeLayout === "english" ? target.bangla : activeLayout === "avro" ? target.phonetic : target.bangla;
+          const isPrefix = activeLayout === "english" || activeLayout === "avro"
+            ? targetStr.toLowerCase().startsWith(newBuffer.toLowerCase())
+            : targetStr.startsWith(newBuffer);
 
+          if (!isPrefix) {
+            setHasError(true);
+            setCombo(0);
+            playSound("error");
+          } else {
+            setHasError(false);
+            playSound("click");
+          }
+
+          let isMatch = false;
           if (activeLayout === "english") isMatch = target.bangla.toLowerCase() === newBuffer.toLowerCase();
           else if (activeLayout === "avro") isMatch = target.phonetic.toLowerCase() === newBuffer.toLowerCase() || target.bangla === avroTransliterate(newBuffer);
           else isMatch = target.bangla === newBuffer;
@@ -616,16 +694,32 @@ export default function GameClient() {
             setWordsCleared((w) => w + 1);
             setCurrentWordIndex((idx) => idx + 1);
             setTypedBuffer("");
+            setHasError(false);
+          } else {
+            setTypedBuffer(newBuffer);
           }
         }
 
         // ---------------------------------------------------------------------
-        // TIME ATTACK SURVIVAL MODE KEY MATCHING
+        // TIME ATTACK SURVIVAL MODE KEY MATCHING & ERROR CHECKING
         // ---------------------------------------------------------------------
         else if (mode === "time-attack") {
           const target = getTargetWord();
-          let isMatch = false;
+          const targetStr = activeLayout === "english" ? target.bangla : activeLayout === "avro" ? target.phonetic : target.bangla;
+          const isPrefix = activeLayout === "english" || activeLayout === "avro"
+            ? targetStr.toLowerCase().startsWith(newBuffer.toLowerCase())
+            : targetStr.startsWith(newBuffer);
 
+          if (!isPrefix) {
+            setHasError(true);
+            setCombo(0);
+            playSound("error");
+          } else {
+            setHasError(false);
+            playSound("click");
+          }
+
+          let isMatch = false;
           if (activeLayout === "english") isMatch = target.bangla.toLowerCase() === newBuffer.toLowerCase();
           else if (activeLayout === "avro") isMatch = target.phonetic.toLowerCase() === newBuffer.toLowerCase() || target.bangla === avroTransliterate(newBuffer);
           else isMatch = target.bangla === newBuffer;
@@ -638,6 +732,9 @@ export default function GameClient() {
             setWordsCleared((w) => w + 1);
             setCurrentWordIndex((idx) => idx + 1);
             setTypedBuffer("");
+            setHasError(false);
+          } else {
+            setTypedBuffer(newBuffer);
           }
         }
       }
@@ -652,23 +749,34 @@ export default function GameClient() {
     ? wordDeck[currentWordIndex % wordDeck.length]
     : { bangla: "বাংলা", phonetic: "bangla" };
 
-  // Compute nextChar for VirtualKeyboard shift character indicator & key highlighting
+  // Compute nextChar for VirtualKeyboard: LOCK TO VALID MATCHING PREFIX LENGTH
   let nextCharForKeyboard = "";
+  let activeTargetString = "";
+
   if (mode === "falling") {
     const currentTarget = words.find((w) => w.id === targetWordId);
     if (currentTarget) {
-      const str = activeLayout === "avro" ? currentTarget.phonetic : currentTarget.text;
-      nextCharForKeyboard = str.slice(typedBuffer.length)[0] || "";
+      activeTargetString = activeLayout === "avro" ? currentTarget.phonetic : currentTarget.text;
     } else if (words.length > 0) {
       const lowest = [...words].sort((a, b) => b.y - a.y)[0];
       if (lowest) {
-        const str = activeLayout === "avro" ? lowest.phonetic : lowest.text;
-        nextCharForKeyboard = str[0] || "";
+        activeTargetString = activeLayout === "avro" ? lowest.phonetic : lowest.text;
       }
     }
   } else {
-    const targetStr = activeLayout === "avro" ? currentTargetObj.phonetic : currentTargetObj.bangla;
-    nextCharForKeyboard = targetStr.slice(typedBuffer.length)[0] || "";
+    activeTargetString = activeLayout === "avro" ? currentTargetObj.phonetic : currentTargetObj.bangla;
+  }
+
+  if (activeTargetString) {
+    let validLen = 0;
+    while (
+      validLen < typedBuffer.length &&
+      validLen < activeTargetString.length &&
+      activeTargetString[validLen].toLowerCase() === typedBuffer[validLen].toLowerCase()
+    ) {
+      validLen++;
+    }
+    nextCharForKeyboard = activeTargetString[validLen] || "";
   }
 
   return (
@@ -837,48 +945,96 @@ export default function GameClient() {
 
           {/* 🌠 MODE 2: FALLING WORDS ARENA */}
           {mode === "falling" && (
-            <div className="w-full h-[360px] relative border border-border/50 rounded-xl bg-background overflow-hidden">
-              {words.map((w) => {
-                const isTargeted = targetWordId === w.id;
-                let highlighted = "";
-                let remaining = w.text;
+            <div className="w-full flex flex-col space-y-2">
+              <div className="w-full h-[360px] relative border border-border/50 rounded-xl bg-background overflow-hidden">
+                {(() => {
+                  const lowestWordId = words.length > 0
+                    ? [...words].sort((a, b) => b.y - a.y)[0]?.id
+                    : null;
 
-                if (isTargeted) {
-                  if (activeLayout === "english") {
-                    highlighted = w.text.slice(0, typedBuffer.length);
-                    remaining = w.text.slice(typedBuffer.length);
-                  } else if (activeLayout === "avro") {
-                    highlighted = w.phonetic.slice(0, typedBuffer.length);
-                    remaining = w.phonetic.slice(typedBuffer.length);
-                  } else {
-                    highlighted = w.text.slice(0, typedBuffer.length);
-                    remaining = w.text.slice(typedBuffer.length);
-                  }
-                }
+                  return words.map((w) => {
+                    const isTargeted = targetWordId === w.id;
+                    const isLowest = !targetWordId && lowestWordId === w.id;
 
-                return (
-                  <div
-                    key={w.id}
-                    className={cn(
-                      "absolute px-3 py-1.5 rounded-xl font-bold text-sm shadow-md transition-transform border",
-                      isTargeted
-                        ? "bg-emerald-500/20 border-emerald-500 text-emerald-600 scale-110 z-10"
-                        : "bg-card border-border text-foreground"
-                    )}
-                    style={{ left: `${w.x}%`, top: `${w.y}px` }}
-                  >
-                    {isTargeted ? (
-                      <div>
-                        <span className="text-emerald-500 font-black">{highlighted}</span>
-                        <span>{remaining}</span>
+                    let highlighted = "";
+                    let remaining = w.text;
+
+                    if (isTargeted) {
+                      if (activeLayout === "english") {
+                        highlighted = w.text.slice(0, typedBuffer.length);
+                        remaining = w.text.slice(typedBuffer.length);
+                      } else if (activeLayout === "avro") {
+                        highlighted = w.phonetic.slice(0, typedBuffer.length);
+                        remaining = w.phonetic.slice(typedBuffer.length);
+                      } else {
+                        highlighted = w.text.slice(0, typedBuffer.length);
+                        remaining = w.text.slice(typedBuffer.length);
+                      }
+                    }
+
+                    return (
+                      <div
+                        key={w.id}
+                        onClick={() => {
+                          setTargetWordId(w.id);
+                          setTypedBuffer("");
+                          playSound("click");
+                        }}
+                        className={cn(
+                          "absolute px-3 py-1.5 rounded-xl font-bold text-sm shadow-md transition-all border cursor-pointer select-none flex flex-col items-center",
+                          isTargeted
+                            ? "bg-emerald-500/20 border-emerald-500 text-emerald-600 dark:text-emerald-400 scale-110 z-20 shadow-emerald-500/20 shadow-lg ring-2 ring-emerald-500"
+                            : isLowest
+                            ? "bg-amber-500/20 border-amber-500 text-amber-600 dark:text-amber-400 z-10 animate-pulse ring-1 ring-amber-500"
+                            : "bg-card border-border text-foreground hover:border-primary/50"
+                        )}
+                        style={{ left: `${w.x}%`, top: `${w.y}px` }}
+                      >
+                        {/* Target / Danger Badge Indicator */}
+                        {isTargeted ? (
+                          <span className="text-[9px] font-black uppercase text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
+                            🎯 TARGET
+                          </span>
+                        ) : isLowest ? (
+                          <span className="text-[9px] font-black uppercase text-amber-600 dark:text-amber-400 flex items-center gap-0.5">
+                            ⚠️ DANGER (LOWEST)
+                          </span>
+                        ) : null}
+
+                        {/* Word Text Display */}
+                        {isTargeted ? (
+                          <div className="text-base font-black">
+                            <span className="text-emerald-500 underline decoration-2">{highlighted}</span>
+                            <span>{remaining}</span>
+                          </div>
+                        ) : (
+                          <span className="text-base font-black">{w.text}</span>
+                        )}
+
+                        {/* Avro Phonetic Hint */}
+                        {activeLayout === "avro" && (
+                          <span className="text-[10px] font-mono text-primary font-bold">
+                            {w.phonetic}
+                          </span>
+                        )}
                       </div>
-                    ) : (
-                      <span>{w.text}</span>
-                    )}
-                  </div>
-                );
-              })}
-              <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-rose-500/80 animate-pulse" />
+                    );
+                  });
+                })()}
+
+                <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-rose-500/80 animate-pulse" />
+              </div>
+
+              {/* Word Focus Switching Helper Bar */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-2 px-2 text-[11px] text-muted-foreground font-semibold">
+                <span>💡 <strong>টিপস:</strong> টাইপ শুরু করুন অথবা <code>Tab</code> / <code>Space</code> চাপুন অথবা শব্দের ওপর ক্লিক করে টার্গেট কীবোর্ড ফোকাস পরিবর্তন করুন।</span>
+                <div className="flex items-center gap-1.5">
+                  <span>ফোকাসড বাফার:</span>
+                  <strong className={cn("font-mono px-2.5 py-0.5 rounded-lg transition-all", hasError ? "bg-rose-500/20 text-rose-500 border border-rose-500/60 font-black animate-pulse" : "text-primary bg-secondary border border-border")}>
+                    {typedBuffer || "..."} {hasError && " 🛑 (Wrong key! Backspace)"}
+                  </strong>
+                </div>
+              </div>
             </div>
           )}
 
@@ -902,8 +1058,8 @@ export default function GameClient() {
                     </div>
                   )}
 
-                  <div className="text-base font-mono text-emerald-500 font-bold bg-secondary/80 py-2 rounded-xl border border-border">
-                    Typed: {typedBuffer || "Start typing..."}
+                  <div className={cn("text-base font-mono font-bold py-2 px-4 rounded-xl border transition-all", hasError ? "bg-rose-500/20 border-rose-500 text-rose-500 animate-pulse" : "bg-secondary/80 border-border text-emerald-500")}>
+                    Typed: {typedBuffer || "Start typing..."} {hasError && " 🛑 (Wrong key! Backspace)"}
                   </div>
                 </div>
               )}

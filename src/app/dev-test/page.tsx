@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ExamCertificateModal } from "@/components/ExamCertificateModal";
 import { CertificateTopUpModal } from "@/components/CertificateTopUpModal";
+import { GovtExamResultCard } from "@/components/GovtExamResultCard";
 import { useInstitute } from "@/context/InstituteContext";
 import { useAuth } from "@/context/AuthContext";
 import { getPaymentRequests, submitPaymentRequest, updatePaymentRequestStatus } from "@/lib/firestoreService";
@@ -36,6 +37,11 @@ export default function DevTestPlaygroundPage() {
   // Automated Full-Website Test Suite State
   const [testResults, setTestResults] = useState<{ name: string; status: "passed" | "failed"; details: string }[]>([]);
   const [isRunningSuite, setIsRunningSuite] = useState(false);
+
+  // Govt Result Page Simulator State
+  const [simWpm, setSimWpm] = useState<number>(45);
+  const [simAcc, setSimAcc] = useState<number>(96);
+  const [simPostTitle, setSimPostTitle] = useState<string>("Computer Operator (কম্পিউটার অপারেটর)");
 
   const runFullWebsiteTests = async () => {
     setIsRunningSuite(true);
@@ -65,7 +71,7 @@ export default function DevTestPlaygroundPage() {
     setTestLog((prev) => [`[${new Date().toLocaleTimeString()}] ${msg}`, ...prev.slice(0, 15)]);
   };
 
-  const launchTestCert = (layout: string, mode?: "ranked" | "practice" | "institute", instName?: string) => {
+  const launchTestCert = (layout: string, mode?: "ranked" | "practice" | "institute" | "govt-exam" | "course", instName?: string) => {
     setCertResult({
       wpm: Math.floor(35 + Math.random() * 30),
       accuracy: Math.floor(92 + Math.random() * 7),
@@ -329,6 +335,100 @@ export default function DevTestPlaygroundPage() {
           </Card>
 
         </div>
+
+        {/* 🏛️ Govt Exam Result Page Live Simulator & Color Card Test */}
+        <Card className="border border-border bg-card p-6 rounded-2xl shadow-xs space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
+            <div>
+              <h2 className="text-lg font-black text-foreground flex items-center gap-2">
+                <Award className="w-5 h-5 text-amber-500" />
+                <span>Government Exam Result Page Simulator (WPM Tier Testing)</span>
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Simulate the result page for any WPM score to verify 3-tier colors (Red &lt; 30 WPM, Yellow 30-60 WPM, Green 60+ WPM) &amp; messages.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setSimWpm(20)}
+                className={`text-xs font-bold ${simWpm < 30 ? "bg-rose-500 text-white" : ""}`}
+              >
+                Set 20 WPM (Red)
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setSimWpm(45)}
+                className={`text-xs font-bold ${simWpm >= 30 && simWpm < 60 ? "bg-amber-500 text-slate-950" : ""}`}
+              >
+                Set 45 WPM (Yellow)
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setSimWpm(75)}
+                className={`text-xs font-bold ${simWpm >= 60 ? "bg-emerald-600 text-white" : ""}`}
+              >
+                Set 75 WPM (Green)
+              </Button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-muted-foreground">Custom WPM Score: ({simWpm} WPM)</label>
+              <input
+                type="range"
+                min="10"
+                max="100"
+                value={simWpm}
+                onChange={(e) => setSimWpm(parseInt(e.target.value, 10))}
+                className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-muted-foreground">Custom Accuracy: ({simAcc}%)</label>
+              <input
+                type="range"
+                min="50"
+                max="100"
+                value={simAcc}
+                onChange={(e) => setSimAcc(parseInt(e.target.value, 10))}
+                className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-muted-foreground">Post Title Preset</label>
+              <select
+                value={simPostTitle}
+                onChange={(e) => setSimPostTitle(e.target.value)}
+                className="w-full px-3 py-1.5 rounded-lg border border-border bg-background text-xs font-bold text-foreground"
+              >
+                <option value="Computer Operator (কম্পিউটার অপারেটর)">Computer Operator (30 WPM / 95% Acc)</option>
+                <option value="Data Entry Operator (ডেটা এন্ট্রি অপারেটর)">Data Entry Operator (28 WPM / 95% Acc)</option>
+                <option value="Office Assistant Typist (অফিস সহকারী)">Office Assistant Typist (20 WPM / 90% Acc)</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Live Rendered Result Card */}
+          <GovtExamResultCard
+            result={{
+              wpm: simWpm,
+              accuracy: simAcc,
+              errorCount: Math.round((100 - simAcc) / 2),
+              qualified: simWpm >= 30 && simAcc >= 90,
+              postTitle: simPostTitle,
+              requiredWpm: 30,
+              requiredAcc: 95,
+            }}
+            onRetake={() => addLog(`Retake clicked on Simulator card (${simWpm} WPM)`)}
+            onShare={() => addLog(`Share clicked on Simulator card (${simWpm} WPM)`)}
+            onGetCertificate={() => launchTestCert("jatiya", "govt-exam", "Government Computer Operator Test")}
+          />
+        </Card>
 
         {/* Full-Website Automated Test Suite Card */}
         <Card className="border border-border bg-card p-6 rounded-2xl shadow-xs space-y-4">

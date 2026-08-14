@@ -1,158 +1,239 @@
-"use client";
-
 import React from "react";
+import { Metadata } from "next";
 import Link from "next/link";
 import {
-  BookOpen, GraduationCap, Trophy, CheckCircle2,
-  ArrowRight, Star, Clock, Award, ShieldCheck,
-  ChevronRight, FileText, Code, Briefcase, Globe,
-  HelpCircle, Sparkles, Check, Play, Keyboard
+  Keyboard, Sparkles, BookOpen, CheckCircle2, ArrowRight,
+  ShieldCheck, Trophy, Globe, Award, HelpCircle
 } from "lucide-react";
-import { Card, CardContent } from "../../../../components/ui/card";
-import { Button } from "../../../../components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+
+export const metadata: Metadata = {
+  title: "বাংলা টাইপিং মাস্টার কোর্স ও কিবোর্ড গাইড — অভ্র, বিজয় ও জাতীয় কীবোর্ড | TypeBangla",
+  description: "বিনামূল্যে বাংলা টাইপিং শিখুন। অভ্র ফোনেটিক (Avro), ইউনিবিজয় (UniBijoy) এবং সরকারি চাকরির জন্য বিএসসি জাতীয় (Jatiya BCC) কীবোর্ড মাস্টার করার সম্পূর্ণ টিউটোরিয়াল ও অনুশীলন।",
+  alternates: { canonical: "https://typebangla.com/learn/languages/bangla" },
+  openGraph: {
+    title: "বাংলা কীবোর্ড টাইপিং কোর্স ও গাইড | TypeBangla",
+    description: "অভ্র, বিজয় এবং জাতীয় কীবোর্ডে দ্রুত বাংলা টাইপ করার সবচেয়ে সহজ নিয়ম ও ফ্রি অনলাইন কোর্স।",
+    url: "https://typebangla.com/learn/languages/bangla",
+    type: "website",
+  },
+};
+
+const JSON_LD_DATA = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Course",
+      "name": "Bangla Touch Typing Master Class (Avro, UniBijoy, Jatiya)",
+      "description": "Complete guide and interactive lessons for mastering Bangla keyboard layouts including Avro Phonetic, UniBijoy 52, and Jatiya BCC Govt standard.",
+      "provider": {
+        "@type": "Organization",
+        "name": "TypeBangla",
+        "sameAs": "https://typebangla.com"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "সরকারি চাকরির জন্য কোন বাংলা কীবোর্ড শেখা প্রয়োজন?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "বাংলাদেশ সরকারি চাকরির পরীক্ষা (বিএসসি ও বিভিন্ন মন্ত্রণালয়) এবং সরকারি ই-নথি কাজের জন্য জাতীয় (Jatiya BCC) বা ইউনিবিজয় কীবোর্ড বাধ্যতামূলক।"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "অভ্র ফোনেটিক ও বিজয়ের মধ্যে পার্থক্য কী?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "অভ্র ফোনেটিক হলো ইংরেজিতে টাইপ করে বাংলা লেখার মাধ্যম (যেমন: 'ami' ➔ 'আমি')। অন্যদিকে বিজয় হলো ফিক্সড কীবোর্ড লেআউট যেখানে প্রতিটি কী-তে নির্দিষ্ট বাংলা বর্ণ বসানো থাকে।"
+          }
+        }
+      ]
+    }
+  ]
+};
+
+const BANGLA_LAYOUT_CARDS = [
+  {
+    id: "avro",
+    title: "অভ্র ফোনেটিক (Avro Phonetic)",
+    badge: "সবচেয়ে জনপ্রিয়",
+    desc: "ইংরেজি অক্ষর দিয়ে ফোনেটিক নিয়মে সহজে বাংলা লিখুন। কীবোর্ড মুখস্থ করার প্রয়োজন নেই।",
+    link: "/avro-phonetic-typing",
+    courseLink: "/courses/avro",
+    lessons: "২৫টি লেসন",
+    speed: "৩৫–৬০ WPM",
+    icon: "⚡",
+  },
+  {
+    id: "unibijoy",
+    title: "ইউনিবিজয় (UniBijoy / Bijoy 52)",
+    badge: "প্রেস ও অফিসিয়াল",
+    desc: "প্রথাগত বিজয় কীবোর্ড যা বইমেলা, পত্রিকা ও অফিসিয়াল টাইপিং কাজের জন্য স্বীকৃত।",
+    link: "/bijoy-52-typing",
+    courseLink: "/courses/unibijoy",
+    lessons: "২৫টি লেসন",
+    speed: "৩০–৫৫ WPM",
+    icon: "📰",
+  },
+  {
+    id: "jatiya",
+    title: "জাতীয় কীবোর্ড (Jatiya BCC Govt)",
+    badge: "সরকারি চাকরি বাধ্যতামূলক",
+    desc: "বাংলাদেশ কম্পিউটার কাউন্সিল (BCC) কর্তৃক অনুমোদিত সরকারি নিয়োগ পরীক্ষার অফিসিয়াল স্ট্যান্ডার্ড।",
+    link: "/jatiya-keyboard-typing",
+    courseLink: "/courses/jatiya",
+    lessons: "২৫টি লেসন",
+    speed: "৩০–৫০ WPM",
+    icon: "🏛️",
+  },
+  {
+    id: "probhat",
+    title: "প্রভাত কীবোর্ড (Probhat Layout)",
+    badge: "সহজ ফিক্সড ম্যাপিং",
+    desc: "উচ্চারণভিত্তিক সহজ ফিক্সড কিবোর্ড ম্যাপিং যা খুব দ্রুত আয়ত্ত করা যায়।",
+    link: "/probhat-layout-typing",
+    courseLink: "/courses/probhat",
+    lessons: "২০টি লেসন",
+    speed: "২৫–৪৫ WPM",
+    icon: "🌅",
+  },
+];
 
 export default function BanglaLanguageHubPage() {
   return (
-    <main className="container max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-16 fade-in text-foreground">
-      
-      {/* ── Breadcrumb ──────────────────────────────────────────────────────── */}
+    <main className="container max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-12 fade-in text-foreground">
+      {/* Schema.org Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD_DATA) }}
+      />
+
+      {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <Link href="/" className="hover:text-primary">Home</Link>
+        <Link href="/" className="hover:text-primary transition-colors">Home</Link>
         <span>/</span>
-        <Link href="/courses" className="hover:text-primary">Courses</Link>
+        <Link href="/courses" className="hover:text-primary transition-colors">Courses</Link>
         <span>/</span>
-        <span className="text-foreground font-bold">Bangla Typing</span>
+        <span className="text-foreground font-bold">Bangla Master Curriculum</span>
       </div>
 
-      {/* ── 1. HERO SECTION ─────────────────────────────────────────────────── */}
-      <section className="border border-border bg-card rounded-3xl p-8 sm:p-12 text-center space-y-6 shadow-xs max-w-4xl mx-auto">
+      {/* Hero Section */}
+      <section className="border border-border bg-card rounded-3xl p-8 sm:p-12 text-center space-y-6 shadow-xs max-w-4xl mx-auto bg-grid-pattern">
         <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 px-4 py-1.5 rounded-full text-xs font-bold text-primary">
           <Keyboard size={15} />
-          <span>BANGLA TYPING HUB</span>
+          <span>BANGLA TYPING MASTER CURRICULUM</span>
         </div>
 
         <h1 className="text-3xl sm:text-5xl font-black text-foreground tracking-tight">
-          বাংলা টাইপিং কোর্স ও গাইড
+          বাংলা কীবোর্ড টাইপিং কোর্স ও অনলাইন গাইড
         </h1>
 
-        <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          অভ্র ফোনেটিক, ইউনিবিজয় ও সরকারি বিসিসি জাতীয় কিবোর্ডে বাংলা টাইপিং মাস্টার করুন সহজ উপায়ে।
+        <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed font-bangla">
+          অভ্র ফোনেটিক, ইউনিবিজয় এবং সরকারি বিএসসি জাতীয় কীবোর্ডে সঠিক আঙুল বিন্যাসে দ্রুত ও নির্ভুল বাংলা টাইপিং শিখুন সম্পূর্ণ বিনামূল্যে।
         </p>
 
-        <div className="flex flex-wrap justify-center gap-4 text-xs font-bold text-foreground">
-          <span>✓ অভ্র, বিজয় ও জাতীয় সাপোর্ট</span>
-          <span>✓ যুক্তাক্ষর ও জটিল বর্ণমালা</span>
-          <span>✓ সরকারি চাকরির পরীক্ষা প্রস্তুতি</span>
+        <div className="flex flex-wrap justify-center gap-4 text-xs font-bold text-foreground pt-2">
+          <span className="flex items-center gap-1.5 bg-secondary border border-border px-3 py-1.5 rounded-full">
+            <CheckCircle2 size={13} className="text-emerald-500" /> অভ্র, বিজয় ও জাতীয় কীবোর্ড সাপোর্টেড
+          </span>
+          <span className="flex items-center gap-1.5 bg-secondary border border-border px-3 py-1.5 rounded-full">
+            <CheckCircle2 size={13} className="text-emerald-500" /> যুক্তাক্ষর ও কার বর্ণমালার বিশেষ ড্রিল
+          </span>
+          <span className="flex items-center gap-1.5 bg-secondary border border-border px-3 py-1.5 rounded-full">
+            <CheckCircle2 size={13} className="text-emerald-500" /> সরকারি বিএসসি ৩০ WPM পরীক্ষা প্রস্তুতি
+          </span>
         </div>
 
-        <div className="pt-2">
+        <div className="pt-4 flex items-center justify-center gap-3 flex-wrap">
           <Link href="/courses">
-            <Button size="lg" className="font-bold text-sm h-12 px-8 rounded-xl shadow-xs gap-2">
-              বাংলা কোর্স শুরু করুন →
+            <Button size="lg" className="font-black text-sm h-12 px-8 rounded-xl shadow-xs gap-2 cursor-pointer">
+              <span>সকল কোর্স দেখুন</span>
+              <ArrowRight size={16} />
+            </Button>
+          </Link>
+          <Link href="/practice">
+            <Button variant="outline" size="lg" className="font-bold text-sm h-12 px-8 rounded-xl border-border cursor-pointer">
+              <span>ফ্রি প্র্যাকটিস হাব</span>
             </Button>
           </Link>
         </div>
       </section>
 
-      {/* ── 2. KEYBOARD LAYOUT SELECTION ────────────────────────────────────── */}
+      {/* Bangla Layout Cards Grid */}
       <section className="space-y-6">
-        <div className="text-center space-y-1">
-          <span className="text-xs font-black text-primary uppercase tracking-widest">কিবোর্ড নির্বাচন</span>
-          <h2 className="text-2xl sm:text-3xl font-black text-[#111827]">Choose Keyboard Layout</h2>
+        <div className="space-y-1">
+          <span className="text-xs font-bold text-primary uppercase tracking-widest">কিবোর্ড কারিকুলাম</span>
+          <h2 className="text-2xl font-black text-foreground">আপনার কীবোর্ড লেআউট বেছে নিন</h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="border border-[#E5E7EB] bg-[#FFFFFF] rounded-3xl p-6 space-y-4 hover:border-[#2563EB] transition-all">
-            <div className="text-3xl">⌨️</div>
-            <h3 className="text-lg font-black">Avro Phonetic (অভ্র)</h3>
-            <p className="text-xs text-[#6B7280]">ইংরেজি অক্ষরের সাহায্যে সহজ বাংলা টাইপিং (a=আ, k=ক)। নতুনদের জন্য সেরা।</p>
-            <Link href="/learn/avro" className="block pt-2">
-              <Button className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold h-10 rounded-xl">
-                অভ্র লেআউটে শুরু করুন →
-              </Button>
-            </Link>
-          </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {BANGLA_LAYOUT_CARDS.map((card) => (
+            <Card key={card.id} className="border border-border bg-card rounded-2xl shadow-xs hover:border-primary/50 transition-all">
+              <CardContent className="p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-3xl">{card.icon}</span>
+                  <Badge variant="outline" className="border-primary/40 text-primary bg-primary/10 font-bold text-xs">
+                    {card.badge}
+                  </Badge>
+                </div>
 
-          <Card className="border border-[#E5E7EB] bg-[#FFFFFF] rounded-3xl p-6 space-y-4 hover:border-[#2563EB] transition-all">
-            <div className="text-3xl">🏛️</div>
-            <h3 className="text-lg font-black">Jatiya Standard (জাতীয়)</h3>
-            <p className="text-xs text-[#6B7280]">বিসিসি অনুমোদিত প্রমিত জাতীয় কিবোর্ড। সরকারি চাকরির পরীক্ষার জন্য আবশ্যক।</p>
-            <Link href="/learn/jatiya" className="block pt-2">
-              <Button className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold h-10 rounded-xl">
-                জাতীয় কীবোর্ডে শুরু করুন →
-              </Button>
-            </Link>
-          </Card>
+                <div className="space-y-1">
+                  <h3 className="text-xl font-black text-foreground">{card.title}</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed font-bangla">{card.desc}</p>
+                </div>
 
-          <Card className="border border-[#E5E7EB] bg-[#FFFFFF] rounded-3xl p-6 space-y-4 hover:border-[#2563EB] transition-all">
-            <div className="text-3xl">🏢</div>
-            <h3 className="text-lg font-black">UniBijoy (ইউনিবিজয়)</h3>
-            <p className="text-xs text-[#6B7280]">প্রথাগত বিজয় ৫২ কিবোর্ড স্টাইল। কর্পোরেট অফিস ও প্রকাশনার জন্য আদর্শ।</p>
-            <Link href="/learn/unibijoy" className="block pt-2">
-              <Button className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold h-10 rounded-xl">
-                ইউনিবিজয় লেআউটে শুরু করুন →
-              </Button>
-            </Link>
-          </Card>
-        </div>
-      </section>
+                <div className="pt-3 border-t border-border flex items-center justify-between text-xs font-bold text-foreground">
+                  <span>📖 {card.lessons}</span>
+                  <span>⏱ {card.speed}</span>
+                </div>
 
-      {/* ── 3. COURSE ROADMAP ───────────────────────────────────────────────── */}
-      <section className="space-y-6">
-        <div className="text-center space-y-1">
-          <span className="text-xs font-black text-[#2563EB] uppercase tracking-widest">শেখার রোডম্যাপ</span>
-          <h2 className="text-2xl sm:text-3xl font-black text-[#111827]">Bangla Course Roadmap</h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="border border-[#E5E7EB] bg-[#FFFFFF] rounded-3xl p-6 space-y-4 hover:border-[#2563EB] transition-all">
-            <div className="text-3xl">🌱</div>
-            <h3 className="text-lg font-black">Beginner Course</h3>
-            <p className="text-xs text-[#6B7280]">স্বরবর্ণ, ব্যঞ্জনবর্ণ, হোম রো ও মৌলিক ২০ পাঠ।</p>
-            <Link href="/learn/beginner?lang=bn" className="block pt-2">
-              <Button className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold h-10 rounded-xl">
-                বিগিনার কোর্স (0–25 WPM) →
-              </Button>
-            </Link>
-          </Card>
-
-          <Card className="border border-[#E5E7EB] bg-[#FFFFFF] rounded-3xl p-6 space-y-4 hover:border-[#2563EB] transition-all">
-            <div className="text-3xl">🚀</div>
-            <h3 className="text-lg font-black">Intermediate Course</h3>
-            <p className="text-xs text-[#6B7280]">যুক্তাক্ষর, বিরামচিহ্ন, চাকরির আবেদনপত্র ও ৩০ পাঠ।</p>
-            <Link href="/learn/intermediate?lang=bn" className="block pt-2">
-              <Button className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold h-10 rounded-xl">
-                ইন্টারমিডিয়েট (25–50 WPM) →
-              </Button>
-            </Link>
-          </Card>
-
-          <Card className="border border-[#E5E7EB] bg-[#FFFFFF] rounded-3xl p-6 space-y-4 hover:border-[#2563EB] transition-all">
-            <div className="text-3xl">🏆</div>
-            <h3 className="text-lg font-black">Professional Mastery</h3>
-            <p className="text-xs text-[#6B7280]">সরকারি মক টেস্ট, প্রফেশনাল ফাইল ও ৪০ পাঠ।</p>
-            <Link href="/learn/advanced?lang=bn" className="block pt-2">
-              <Button className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold h-10 rounded-xl">
-                প্রফেশনাল মাস্টারি (60–90+ WPM) →
-              </Button>
-            </Link>
-          </Card>
+                <div className="pt-2 flex items-center gap-2">
+                  <Link href={card.courseLink} className="flex-1">
+                    <Button size="sm" className="w-full font-bold text-xs gap-1.5 h-9 cursor-pointer">
+                      <BookOpen size={13} /> পাঠক্রম ও লেসন
+                    </Button>
+                  </Link>
+                  <Link href={card.link} className="flex-1">
+                    <Button variant="outline" size="sm" className="w-full font-bold text-xs gap-1.5 h-9 border-border cursor-pointer">
+                      <span>লাইভ অ্যারেনা</span>
+                      <ArrowRight size={13} />
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </section>
 
-      {/* ── 4. FINAL CTA ────────────────────────────────────────────────────── */}
-      <section className="border border-[#E5E7EB] bg-[#2563EB] text-white rounded-3xl p-10 text-center space-y-6 shadow-xl">
-        <h2 className="text-3xl sm:text-4xl font-black">বাংলা টাইপিংয়ে দক্ষতা অর্জন করুন</h2>
-        <p className="text-sm text-white/90 max-w-xl mx-auto">
-          আজই শুরু করুন বাংলা টাইপিং অনুশীলন। সম্পূর্ণ বিনামূল্যে।
-        </p>
-        <Link href="/learn/beginner?lang=bn" className="inline-block pt-2">
-          <Button size="lg" className="bg-[#FFFFFF] hover:bg-[#F3F4F6] text-[#2563EB] font-bold text-sm h-12 px-8 rounded-xl shadow-lg">
-            বিগিনার বাংলা কোর্স শুরু করুন →
-          </Button>
-        </Link>
-      </section>
+      {/* FAQ Section */}
+      <section className="border border-border bg-card rounded-3xl p-8 shadow-xs space-y-6">
+        <h2 className="text-2xl font-black text-foreground flex items-center gap-2">
+          <HelpCircle size={20} className="text-primary" />
+          <span>বাংলা টাইপিং সম্পর্কিত সচরাচর জিজ্ঞাসিত প্রশ্নাবলী (FAQ)</span>
+        </h2>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+          <div className="space-y-2 p-5 rounded-2xl bg-secondary/50 border border-border">
+            <h3 className="font-bold text-sm text-foreground">১. সরকারি চাকরির জন্য কোন কীবোর্ড প্রয়োজন?</h3>
+            <p className="text-muted-foreground leading-relaxed font-bangla">
+              বাংলাদেশ সরকারি চাকরির পরীক্ষা (বিএসসি ও বিভিন্ন মন্ত্রণালয়) এবং সরকারি ই-নথি কাজের জন্য জাতীয় (Jatiya BCC) বা ইউনিবিজয় কীবোর্ড বাধ্যতামূলক।
+            </p>
+          </div>
+          <div className="space-y-2 p-5 rounded-2xl bg-secondary/50 border border-border">
+            <h3 className="font-bold text-sm text-foreground">২. নতুনদের জন্য কোনটি দিয়ে শুরু করা সহজ?</h3>
+            <p className="text-muted-foreground leading-relaxed font-bangla">
+              নতুনদের জন্য অভ্র ফোনেটিক (Avro Phonetic) সবচেয়ে সহজ, কারণ ইংরেজি অক্ষরের উচ্চারণে বাংলা লেখা যায় (যেমন: &apos;ami&apos; ➔ &apos;আমি&apos;)।
+            </p>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

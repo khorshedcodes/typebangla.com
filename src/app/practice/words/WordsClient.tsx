@@ -2,13 +2,15 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useTypingStore, KeyboardLayout } from "../../../store/typingStore";
 import TypingArea from "../../../components/TypingArea";
 import VirtualKeyboard from "../../../components/VirtualKeyboard";
 import { BANGLA_WORDS_LEVEL_1, BANGLA_WORDS_LEVEL_2, BANGLA_WORDS_LEVEL_3 } from "../../../data/banglaFrequentWords";
-import { AlignLeft, RefreshCw } from "lucide-react";
+import { AlignLeft, RefreshCw, ArrowLeft, Keyboard as KeyboardIcon, Sparkles } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { Badge } from "../../../components/ui/badge";
+import { Card } from "../../../components/ui/card";
 import { cn } from "@/utils/cn";
 
 export type WordCategory = "frequent-bn" | "juktakkhor" | "govt-terms" | "english-core";
@@ -19,7 +21,8 @@ const ALL_ENGLISH_WORDS = [
   "clean", "clear", "clock", "cloud", "coast", "color", "count", "course", "craft", "cyber",
   "daily", "dance", "delay", "depth", "digit", "dirty", "dream", "drill", "drive", "dusk",
   "early", "earth", "eight", "elite", "empty", "enemy", "enjoy", "equal", "event", "every",
-  "faith", "false", "field", "fight", "final", "first", "focus", "force", "forest", "front"
+  "faith", "false", "field", "fight", "final", "first", "focus", "force", "forest", "front",
+  "great", "green", "group", "guard", "guide", "happy", "heart", "heavy", "house", "image"
 ];
 
 const JUKTAKKHOR_WORDS = [
@@ -41,25 +44,44 @@ const BANGLA_CATEGORIES = [
   { id: "govt-terms", label: "💼 সরকারি" },
 ];
 
-const KEYBOARD_LAYOUTS = [
-  { id: "avro", label: "Avro" },
-  { id: "unibijoy", label: "UniBijoy" },
-  { id: "jatiya", label: "Jatiya" },
-  { id: "probhat", label: "Probhat" },
-  { id: "inscript", label: "Inscript" },
-  { id: "unicode", label: "Unicode" },
-  { id: "english", label: "English" },
+const BANGLA_LAYOUTS = [
+  { id: "avro",     label: "Avro Phonetic (অভ্র)" },
+  { id: "unibijoy", label: "UniBijoy (ইউনিবিজয়)" },
+  { id: "jatiya",   label: "Jatiya BCC (জাতীয়)" },
+  { id: "probhat",  label: "Probhat (প্রভাত)" },
+  { id: "inscript", label: "Inscript (ইনস্ক্রিপ্ট)" },
+  { id: "unicode",  label: "Unicode (ইউনিকোড)" },
+];
+
+const ENGLISH_LAYOUTS = [
+  { id: "english",  label: "English QWERTY" },
 ];
 
 export default function WordsClient() {
-  const { activeLayout, setActiveLayout, setTargetText, resetTest } = useTypingStore();
-  const [lang, setLang] = useState<"bangla" | "english">("bangla");
-  const [category, setCategory] = useState<WordCategory>("frequent-bn");
-  const [wordCount, setWordCount] = useState<number>(50);
+  const searchParams = useSearchParams();
+  const langParam = searchParams.get("lang");
+  const isEnglishMode = langParam === "en";
+  const lang = isEnglishMode ? "english" : "bangla";
+
+  const {
+    activeLayout,
+    setActiveLayout,
+    setSelectedDuration,
+    setTargetText,
+    resetTest,
+    targetText,
+    typedText
+  } = useTypingStore();
+
+  const [category, setCategory] = useState<WordCategory>(isEnglishMode ? "english-core" : "frequent-bn");
+  const [wordCount, setWordCount] = useState<number>(30);
 
   const generateWordsStream = () => {
+    // Word Drills are untimed practice (selectedDuration = 0)
+    setSelectedDuration(0);
+
     let pool: string[] = [];
-    if (lang === "english" || category === "english-core") {
+    if (isEnglishMode || category === "english-core") {
       pool = ALL_ENGLISH_WORDS;
     } else if (category === "juktakkhor") {
       pool = JUKTAKKHOR_WORDS;
@@ -74,130 +96,135 @@ export default function WordsClient() {
   };
 
   useEffect(() => {
+    if (isEnglishMode) {
+      setActiveLayout("english");
+    } else if (activeLayout === "english") {
+      setActiveLayout("avro");
+    }
     generateWordsStream();
-  }, [category, lang, wordCount, activeLayout]);
+  }, [category, langParam, wordCount, activeLayout]);
+
+  const currentAvailableLayouts = isEnglishMode ? ENGLISH_LAYOUTS : BANGLA_LAYOUTS;
+  const nextTargetChar = targetText ? targetText[typedText.length] || "" : "";
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* Back to Hub Link */}
-      <Link href="/practice" className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors">
-        ← প্র্যাকটিস হাব-এ ফিরে যান
-      </Link>
+      <div className="flex items-center justify-between border-b border-border pb-3">
+        <Link href="/practice" className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft size={14} /> প্র্যাকটিস হাব-এ ফিরে যান (Back to Practice Hub)
+        </Link>
+        <Badge variant="outline" className="text-xs font-mono font-bold border-primary/30 text-primary uppercase">
+          UNTIMED WORD DRILL ARENA
+        </Badge>
+      </div>
 
-      {/* ── Glassmorphism Pill Toolbar ── */}
-      <div className="rounded-2xl border border-border/60 bg-card/70 backdrop-blur-md shadow-sm px-4 py-3">
-        <div className="flex flex-wrap items-center gap-x-1 gap-y-2">
+      {/* ── Toolbar: Category & Word Count Pills ── */}
+      <Card className="rounded-2xl border border-border bg-card shadow-xs p-4 space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
 
-          {/* Group 1: Language */}
-          <div className="flex items-center gap-1">
-            {[
-              { value: "bangla" as const, label: "🇧🇩 বাংলা" },
-              { value: "english" as const, label: "🇬🇧 English" },
-            ].map((l) => (
-              <button
-                key={l.value}
-                onClick={() => { setLang(l.value); if (l.value === "english") setCategory("english-core"); else setCategory("frequent-bn"); }}
-                className={cn(
-                  "px-3 py-1.5 rounded-full text-xs font-bold transition-all",
-                  lang === l.value
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                )}
-              >
-                {l.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Divider */}
-          <span className="h-4 w-px bg-border mx-1 hidden sm:block" />
-
-          {/* Group 2: Category (Bangla only) */}
-          {lang === "bangla" && (
-            <div className="flex items-center gap-1 flex-wrap">
+          {/* Category Selector (Bangla only) */}
+          {!isEnglishMode ? (
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">ক্যাটাগরি:</span>
               {BANGLA_CATEGORIES.map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => setCategory(cat.id as WordCategory)}
                   className={cn(
-                    "px-3 py-1.5 rounded-full text-xs font-bold transition-all",
+                    "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border",
                     category === cat.id
-                      ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/50"
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                      ? "bg-primary text-primary-foreground border-primary shadow-xs font-black"
+                      : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
                   )}
                 >
                   {cat.label}
                 </button>
               ))}
             </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Badge className="bg-primary/10 text-primary border-primary/30 text-xs font-mono font-bold">
+                🌐 High-Frequency English Words (1000+ Vocabulary)
+              </Badge>
+            </div>
           )}
 
-          {/* Divider */}
-          <span className="h-4 w-px bg-border mx-1 hidden sm:block" />
-
-          {/* Group 3: Word Count */}
-          <div className="flex items-center gap-1">
-            <span className="text-[11px] text-muted-foreground font-semibold mr-1 hidden sm:block">শব্দ</span>
-            {[25, 50, 100, 200].map((cnt) => (
+          {/* Word Count Selector */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mr-1">শব্দ সংখ্যা:</span>
+            {[20, 30, 50, 100].map((cnt) => (
               <button
                 key={cnt}
                 onClick={() => setWordCount(cnt)}
                 className={cn(
-                  "px-2.5 py-1.5 rounded-full text-xs font-bold transition-all",
+                  "px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border",
                   wordCount === cnt
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    ? "bg-primary text-primary-foreground border-primary shadow-xs font-black"
+                    : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
                 )}
               >
-                {cnt}
+                {cnt} শব্দ
+              </button>
+            ))}
+
+            <button
+              onClick={generateWordsStream}
+              title="নতুন শব্দ রিফ্রেশ করুন"
+              className="ml-2 px-3 py-1.5 rounded-xl text-xs font-bold border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <RefreshCw size={13} />
+              <span>রিফ্রেশ</span>
+            </button>
+          </div>
+
+        </div>
+      </Card>
+
+      {/* ── Typing Arena ── */}
+      <TypingArea hideModeHeader={true} />
+
+      {/* ── Virtual Keyboard & Target Key Highlight ── */}
+      <Card className="rounded-2xl border border-border bg-card shadow-xs p-4 sm:p-6 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+          <div className="flex items-center gap-2 text-foreground">
+            <KeyboardIcon size={18} className="text-primary" />
+            <span className="text-xs sm:text-sm font-black text-foreground">অন-স্ক্রিন কীবোর্ড গাইড (Virtual Keyboard Guide)</span>
+          </div>
+
+          {/* Language-Aware Layout Selection Buttons */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase mr-1">লেআউট:</span>
+            {currentAvailableLayouts.map((l) => (
+              <button
+                key={l.id}
+                onClick={() => setActiveLayout(l.id as KeyboardLayout)}
+                className={cn(
+                  "px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border cursor-pointer",
+                  activeLayout === l.id
+                    ? "bg-primary text-primary-foreground border-primary shadow-xs font-black"
+                    : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
+                )}
+              >
+                {l.label}
               </button>
             ))}
           </div>
-
-          {/* Divider */}
-          <span className="h-4 w-px bg-border mx-1 hidden sm:block" />
-
-          {/* Group 4: Refresh */}
-          <button
-            onClick={generateWordsStream}
-            title="নতুন শব্দ লোড করুন"
-            className="p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
-          >
-            <RefreshCw size={14} />
-          </button>
-
         </div>
-      </div>
 
-      {/* ── Typing Arena ── */}
-      <TypingArea />
+        {/* Target Next Key Hint Display */}
+        {nextTargetChar && (
+          <div className="bg-primary/10 border border-primary/20 p-2.5 rounded-xl text-xs font-bold text-primary flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <Sparkles size={14} className="animate-pulse" />
+              <span>পরবর্তী বর্ণ (Target Key): <code className="bg-background text-foreground px-2 py-0.5 rounded border border-border font-bangla text-sm font-black">{nextTargetChar === " " ? "Spacebar (স্পেস)" : nextTargetChar}</code></span>
+            </span>
+            <span className="text-[10px] text-muted-foreground font-mono uppercase">Highlight Enabled</span>
+          </div>
+        )}
 
-      {/* ── Keyboard Layout Selector ── */}
-      <div className="rounded-2xl border border-border/60 bg-card/70 backdrop-blur-md shadow-sm px-4 py-3 space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">কিবোর্ড লেআউট</span>
-          <Badge variant="outline" className="border-primary/50 text-primary font-bold text-[10px] uppercase px-2 py-0.5">
-            {activeLayout}
-          </Badge>
-        </div>
-        <div className="flex flex-wrap gap-1.5">
-          {KEYBOARD_LAYOUTS.map((l) => (
-            <button
-              key={l.id}
-              onClick={() => setActiveLayout(l.id as KeyboardLayout)}
-              className={cn(
-                "px-3 py-1.5 rounded-full text-xs font-bold transition-all",
-                activeLayout === l.id
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "border border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
-              )}
-            >
-              {l.label}
-            </button>
-          ))}
-        </div>
-        <VirtualKeyboard />
-      </div>
+        <VirtualKeyboard activeLayout={activeLayout} nextChar={nextTargetChar} />
+      </Card>
 
     </div>
   );

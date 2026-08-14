@@ -1,12 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  Award, Clock, ShieldCheck, Building2, ChevronDown, ChevronUp,
-  Keyboard, FileText, Info, Download, CheckCircle2, Play, Target,
-  Settings
+  Award, Clock, ShieldCheck, Building2,
+  Keyboard, Info, CheckCircle2, Play, Target,
+  Settings, HelpCircle, Check
 } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { Badge } from "../../../components/ui/badge";
@@ -35,7 +34,7 @@ const GOVT_POSTS: GovtPost[] = [
     wpmEn: 35,
     minAcc: 95,
     badge: "Official Standard (৩০/৩৫ WPM)",
-    desc: "সকল সরকারি মন্ত্রণালয়, অধিদপ্তর ও ব্যাংকের কম্পিউটার অপারেটর পদের স্ট্যান্ডার্ড মানদণ্ড।",
+    desc: "সকল সরকারি মন্ত্রণালয়, অধিদপ্তর ও ব্যাংকের কম্পিউটার অপারেটর পদের অফিশিয়াল মানদণ্ড।",
   },
   {
     id: "data-entry",
@@ -72,18 +71,26 @@ const GOVT_POSTS: GovtPost[] = [
   },
 ];
 
-const FAQ = [
+const GOVT_FAQS = [
   {
     q: "১. সরকারি কম্পিউটার অপারেটর পরীক্ষায় কত WPM গতি লাগে?",
-    a: "অধিকাংশ সরকারি মন্ত্রণালয় ও ব্যাংকের ক্ষেত্রে বাংলায় সর্বনিম্ন ৩০ WPM এবং ইংরেজিতে ৩৫ WPM গতি প্রয়োজন। সাথে সর্বনিম্ন ৯৫% নির্ভুলতা নিশ্চিত করতে হয়।",
+    a: "অধিকাংশ সরকারি মন্ত্রণালয়, অধিদপ্তর ও ব্যাংকের ক্ষেত্রে বাংলায় সর্বনিম্ন ৩০ WPM এবং ইংরেজিতে ৩৫-৪০ WPM গতি প্রয়োজন। পাশাপাশি সর্বনিম্ন ৯৫% নির্ভুলতা (Accuracy) নিশ্চিত করতে হয়।",
   },
   {
-    q: "২. সরকারি পরীক্ষার জন্য কোন কীবোর্ড লেআউট শেখা ভালো?",
-    a: "সরকারি চাকরির পরীক্ষায় জাতীয় কীবোর্ড (Jatiya) বা বিজয় বায়ান্ন/ইউনিবিজয় লেআউট সবচেয়ে বেশি প্রচলিত।",
+    q: "২. সরকারি পরীক্ষার জন্য কোন কীবোর্ড লেআউট সমর্থিত?",
+    a: "বাংলাদেশ কম্পিউটার কাউন্সিল (BCC) ও সরকারি নিয়োগ পরীক্ষায় জাতীয় কীবোর্ড (Jatiya Layout) এবং বিজয় বায়ান্ন (Bijoy 52 / UniBijoy) অনুমোদিত ও সবচেয়ে প্রচলিত।",
   },
   {
-    q: "৩. কিভাবে দ্রুত টাইপিং গতি বাড়ানো সম্ভব?",
-    a: "প্রতিদিন ২০-৩০ মিনিট টাইপিং ড্রিল করুন। সঠিক আঙুলের পজিশন বজায় রাখুন এবং কীবোর্ডের দিকে না তাকিয়ে স্ক্রিনের দিকে তাকানোর অভ্যাস গড়ে তুলুন।",
+    q: "৩. পরীক্ষার হলে কি নেগেটিভ মার্কিং বা ভুল ক্যারেক্টার কাটার নিয়ম আছে?",
+    a: "হ্যাঁ! সরকারি টাইপিং পরীক্ষায় প্রতিটি ভুল শব্দের (Error) জন্য নির্ধারিত ক্যারেক্টার পেনাল্টি কাটা হয় এবং মোট টাইপ করা শব্দ থেকে ভুল বাদ দিয়ে Net WPM হিসেব করা হয়।",
+  },
+  {
+    q: "৪. ৫ মিনিটের পরীক্ষার সময় কিভাবে ভালো স্কোর করা যায়?",
+    a: "নিয়মিত ৫ ও ১০ মিনিটের টেস্ট সিমুলেশন ড্রিল করুন। কীবোর্ডের দিকে না তাকিয়ে টাচ টাইপিং মেথডে স্ক্রিনের দিকে তাকিয়ে টাইপ করার অভ্যাস গড়ে তুলুন।",
+  },
+  {
+    q: "৫. পরীক্ষা সম্পন্ন করার পর কি ভেরিফাইড সার্টিফিকেট পাওয়া যায়?",
+    a: "অবশ্যই! TypeBangla-র সরকারি পরীক্ষা সিমুলেটরে পাসিং ক্রাইটেরিয়া পূরণ করলে কিউআর কোড যুক্ত অনলাইন ভেরিফাইড ডিজিটাল সার্টিফিকেট লাভ করবেন।",
   },
 ];
 
@@ -94,13 +101,14 @@ export default function GovtExamClient() {
   const [selectedPost, setSelectedPost] = useState<GovtPost>(GOVT_POSTS[0]);
   const [selectedDurationSec, setSelectedDurationSec] = useState<number>(300); // 5 Min default
   const [customWpmGoal, setCustomWpmGoal] = useState<number>(30); // 30 WPM default for custom preset
-  const [faqOpen, setFaqOpen] = useState(false);
+
+  const [customPassageText, setCustomPassageText] = useState<string>("");
 
   const isCustomPost = selectedPost.id === "custom";
   const requiredWpm = isCustomPost ? customWpmGoal : (activeLayout === "english" ? selectedPost.wpmEn : selectedPost.wpmBn);
   const requiredAcc = selectedPost.minAcc;
 
-  // On configurator mount: default to Jatiya if a non-govt layout (avro, probhat, etc.) is active
+  // On configurator mount: default to Jatiya if a non-govt layout is active
   useEffect(() => {
     const govtLayouts = ["jatiya", "unibijoy", "english"];
     if (!govtLayouts.includes(activeLayout)) {
@@ -110,6 +118,13 @@ export default function GovtExamClient() {
   }, []);
 
   const handleStartExam = () => {
+    if (typeof window !== "undefined") {
+      if (isCustomPost && customPassageText.trim()) {
+        sessionStorage.setItem("typemaster_govt_custom_text", customPassageText.trim());
+      } else {
+        sessionStorage.removeItem("typemaster_govt_custom_text");
+      }
+    }
     router.push(`/exam/govt/test?post=${selectedPost.id}&customWpm=${requiredWpm}&duration=${selectedDurationSec}&layout=${activeLayout}`);
   };
 
@@ -155,7 +170,7 @@ export default function GovtExamClient() {
         </CardHeader>
 
         <CardContent className="p-6 space-y-8">
-          {/* Section 1: Job Post Cards (3 Ministry Presets + 1 Custom Preset) */}
+          {/* Section 1: Job Post Cards */}
           <div className="space-y-3">
             <label className="text-xs font-black uppercase text-foreground tracking-wider flex items-center gap-1.5">
               <span>১. লক্ষ্যভিত্তিক পদ নির্বাচন করুন:</span>
@@ -218,9 +233,9 @@ export default function GovtExamClient() {
             </div>
           </div>
 
-          {/* Section 1B: Custom WPM Goal Input (Rendered only when Custom Preset is selected) */}
+          {/* Section 1B: Custom WPM Goal Input & Custom Passage Textarea */}
           {isCustomPost && (
-            <div className="p-4 rounded-xl bg-secondary/40 border border-border space-y-3 fade-in">
+            <div className="p-5 rounded-xl bg-secondary/40 border border-border space-y-4 fade-in">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-extrabold text-foreground flex items-center gap-1.5">
                   <Target size={14} className="text-primary" />
@@ -245,6 +260,35 @@ export default function GovtExamClient() {
                     {goal} WPM
                   </button>
                 ))}
+              </div>
+
+              {/* Optional Custom Passage Text Area */}
+              <div className="space-y-2 pt-2 border-t border-border/60">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-extrabold text-foreground flex items-center gap-1.5">
+                    <span>কাস্টম পরীক্ষার অনুচ্ছেদ পেস্ট করুন (Custom Exam Passage - Optional):</span>
+                  </label>
+                  <span className="text-[10px] text-muted-foreground font-mono font-bold">
+                    {customPassageText.length} ক্যারেক্টার
+                  </span>
+                </div>
+                <textarea
+                  value={customPassageText}
+                  onChange={(e) => setCustomPassageText(e.target.value)}
+                  placeholder="এখানে আপনার নিজস্ব চাকরির সার্কুলারের প্রশ্ন বা পছন্দের টাইপিং অনুচ্ছেদ পেস্ট করুন (ঐচ্ছিক)... ফাঁকা রাখলে সিস্টেমের সরকারি অনুচ্ছেদ ব্যবহৃত হবে।"
+                  rows={4}
+                  className="w-full p-3 rounded-xl bg-background border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary font-mono leading-relaxed"
+                />
+                {customPassageText && (
+                  <div className="flex justify-end">
+                    <button
+                      onClick={() => setCustomPassageText("")}
+                      className="text-[10px] text-muted-foreground hover:text-rose-500 font-bold underline"
+                    >
+                      ক্লিয়ার করুন ✕
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -314,41 +358,6 @@ export default function GovtExamClient() {
             </div>
           </div>
 
-          {/* Section 3.5: Authentic Past Question Bank */}
-          <div className="border-t border-border pt-6 space-y-3">
-            <h4 className="text-xs font-black uppercase text-foreground tracking-wider flex items-center gap-1.5">
-              <FileText size={14} className="text-emerald-500" />
-              ৪. বিগত বছরের প্রশ্ন ব্যাংক (Authentic Govt Past Question Bank):
-            </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-              {[
-                { id: "govt-sec-2024", title: "বাংলাদেশ সচিবালয় ২০২৪", dept: "সচিবালয় ও ক্যাবিনেট" },
-                { id: "govt-bb-2024", title: "বাংলাদেশ ব্যাংক ২০২৪", dept: "বাংলাদেশ ব্যাংক" },
-                { id: "govt-nsi-2023", title: "NSI ফিল্ড অফিসার ২০২৩", dept: "জাতীয় নিরাপত্তা গোয়েন্দা" },
-                { id: "govt-nbr-2023", title: "NBR কাস্টমস ২০২৩", dept: "জাতীয় রাজস্ব বোর্ড" },
-                { id: "govt-jud-2024", title: "সুপ্রিম কোর্ট ২০২৪", dept: "বিচারালয় ও আইন মন্ত্রণালয়" },
-                { id: "govt-edu-2024", title: "শিক্ষা অধিদপ্তর ২০২৪", dept: "প্রাথমিক ও মাধ্যমিক শিক্ষা" },
-              ].map((item) => (
-                <div
-                  key={item.id}
-                  onClick={handleStartExam}
-                  className="p-3 rounded-xl border border-border bg-card hover:border-foreground/40 cursor-pointer transition-all flex flex-col justify-between space-y-1 shadow-xs opacity-80 hover:opacity-100"
-                  title="শীঘ্রই আসছে — বিগত বছরের আসল প্রশ্ন। এখন ক্লিক করলে স্ট্যান্ডার্ড পরীক্ষা শুরু হবে।"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-foreground line-clamp-1">{item.title}</span>
-                    <Badge variant="outline" className="text-[9px] font-bold border-amber-500/40 text-amber-600 dark:text-amber-400">শীঘ্রই</Badge>
-                  </div>
-                  <span className="text-[10px] text-muted-foreground">{item.dept}</span>
-                </div>
-              ))}
-            </div>
-            <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-              <Info size={10} />
-              বিগত বছরের আসল প্রশ্নপত্র শীঘ্রই যোগ করা হবে। এখন ক্লিক করলে নির্বাচিত কনফিগারেশনে পরীক্ষা শুরু হবে।
-            </p>
-          </div>
-
           {/* Section 4: SINGLE UNIFIED PRIMARY CTA BUTTON */}
           <div className="border-t border-border pt-6 text-center">
             <Button
@@ -362,24 +371,30 @@ export default function GovtExamClient() {
         </CardContent>
       </Card>
 
-      {/* Non-collapsible FAQ */}
-      <div className="border border-border rounded-xl overflow-hidden bg-card shadow-xs p-5 space-y-4">
-        <div className="flex items-center gap-2 border-b border-border pb-3">
-          <Info size={16} className="text-primary" />
-          <h3 className="text-sm font-black text-foreground uppercase tracking-wider">
-            সাধারণ জিজ্ঞাসাবলী (Govt Exam FAQ)
-          </h3>
+      {/* ── EXPANDED NON-COLLAPSIBLE FAQ SECTION ── */}
+      <Card className="border border-border bg-card rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
+        <div className="flex items-center gap-2.5 border-b border-border pb-4">
+          <HelpCircle size={20} className="text-primary" />
+          <div>
+            <h3 className="text-base font-black text-foreground uppercase tracking-wider">
+              সরকারি টাইপিং পরীক্ষা সম্পর্কিত প্রশ্ন ও উত্তর (Govt Exam FAQ)
+            </h3>
+            <p className="text-xs text-muted-foreground">বিসিসি সরকারি নিয়োগ পরীক্ষার নিয়মাবলী ও গাইডলাইন</p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {FAQ.map((item) => (
-            <div key={item.q} className="p-3.5 rounded-xl border border-border bg-secondary/30 space-y-1.5">
-              <h4 className="text-xs font-bold text-foreground leading-snug">{item.q}</h4>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">{item.a}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {GOVT_FAQS.map((item) => (
+            <div key={item.q} className="p-4 rounded-xl border border-border bg-secondary/30 space-y-2 hover:border-primary/40 transition-colors">
+              <h4 className="text-xs font-extrabold text-foreground leading-snug flex items-start gap-1.5">
+                <span className="text-primary font-black shrink-0">Q.</span>
+                <span>{item.q.replace(/^\d+\.\s*/, "")}</span>
+              </h4>
+              <p className="text-[11px] text-muted-foreground leading-relaxed pl-5">{item.a}</p>
             </div>
           ))}
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

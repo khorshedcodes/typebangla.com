@@ -1,12 +1,12 @@
 /**
- * TypeBangla — Unicode to Bijoy ANSI Converter Library
+ * TypeBangla — Unicode ↔ Bijoy ANSI (SutonnyMJ) Converter Library
  *
- * Provides functions to convert Unicode Bangla text to Bijoy ANSI encoding
- * (compatible with SutonnyMJ and other legacy ANSI Bangla fonts) and vice-versa.
+ * Provides bidirectional conversion between standard Unicode Bangla text and
+ * SutonnyMJ / Bijoy ANSI encoding for publication, layout printers, and office documents.
  */
 
-// Mapping of Unicode characters to SutonnyMJ ANSI characters
-const unicodeToAnsiMap: Record<string, string> = {
+// Comprehensive mapping of Unicode Bangla to SutonnyMJ ANSI characters
+export const UNICODE_TO_ANSI: Record<string, string> = {
   "অ": "a",
   "আ": "Av",
   "ই": "B",
@@ -79,11 +79,75 @@ const unicodeToAnsiMap: Record<string, string> = {
   "৯": "9"
 };
 
-// Reversing mapping for Bijoy to Unicode conversion
-const ansiToUnicodeMap: Record<string, string> = {};
-for (const [uni, ansi] of Object.entries(unicodeToAnsiMap)) {
-  ansiToUnicodeMap[ansi] = uni;
-}
+// Precise ANSI to Unicode reverse lookup dictionary
+export const ANSI_TO_UNICODE: Record<string, string> = {
+  "a": "ধ",
+  "Av": "আ",
+  "B": "ই",
+  "C": "ঈ",
+  "D": "উ",
+  "E": "ঊ",
+  "F": "ঋ",
+  "G": "এ",
+  "H": "ঐ",
+  "I": "ও",
+  "J": "ঔ",
+  "j": "ক",
+  "L": "খ",
+  "M": "গ",
+  "N": "ঘ",
+  "O": "ঙ",
+  "P": "চ",
+  "Q": "ছ",
+  "R": "জ",
+  "S": "ঝ",
+  "T": "ঞ",
+  "U": "ট",
+  "V": "ঠ",
+  "W": "ড",
+  "X": "ঢ",
+  "Y": "ণ",
+  "Z": "ত",
+  "_": "থ",
+  "`": "দ",
+  "b": "ন",
+  "c": "প",
+  "d": "ফ",
+  "e": "ব",
+  "f": "ভ",
+  "g": "ম",
+  "h": "য",
+  "i": "র",
+  "k": "ল",
+  "l": "শ",
+  "m": "ষ",
+  "n": "স",
+  "o": "হ",
+  "p": "ড়",
+  "q": "ঢ়",
+  "r": "য়",
+  "s": "ৎ",
+  "t": "ং",
+  "u": "ঃ",
+  "v": "া",
+  "w": "ি",
+  "x": "ী",
+  "y": "ু",
+  "~": "ূ",
+  "„": "ৃ",
+  "&": "্",
+  "|": "।",
+  "0": "০",
+  "1": "১",
+  "2": "২",
+  "3": "৩",
+  "4": "৪",
+  "5": "৫",
+  "6": "৬",
+  "7": "৭",
+  "8": "৮",
+  "9": "৯"
+};
 
 const CONSONANTS = new Set([
   "ক", "খ", "গ", "ঘ", "ঙ", "চ", "ছ", "জ", "ঝ", "ঞ", "ট", "ঠ", "ড", "ঢ", "ণ",
@@ -99,13 +163,11 @@ export function unicodeToBijoy(text: string): string {
 
   const chars = Array.from(text);
   const result: string[] = [];
-  
+
   for (let i = 0; i < chars.length; i++) {
     const char = chars[i];
-    
-    // Check if the current character is a consonant
+
     if (CONSONANTS.has(char)) {
-      // Look ahead to check if this is part of a consonant cluster (e.g. ক + ্ + ত)
       const cluster = [char];
       let j = i + 1;
       while (j < chars.length && chars[j] === "্" && j + 1 < chars.length && CONSONANTS.has(chars[j + 1])) {
@@ -113,46 +175,37 @@ export function unicodeToBijoy(text: string): string {
         cluster.push(chars[j + 1]);
         j += 2;
       }
-      
-      // Update our loop counter past the cluster
+
       i = j - 1;
-      
-      // Check if there is a vowel sign (kar) following this consonant/cluster
       const nextChar = chars[i + 1] || "";
-      
-      // Handle kars that need to be reordered BEFORE the consonant (ি, ে, ৈ, ো, ৌ)
+
       if (nextChar === "ি") {
-        // Move "ি" (SutonnyMJ code "w") before the cluster
         result.push("w");
-        cluster.forEach(c => result.push(unicodeToAnsiMap[c] || c));
-        i++; // skip the "ি" in next loop
+        cluster.forEach(c => result.push(UNICODE_TO_ANSI[c] || c));
+        i++;
       } else if (nextChar === "ে") {
         result.push("c");
-        cluster.forEach(c => result.push(unicodeToAnsiMap[c] || c));
+        cluster.forEach(c => result.push(UNICODE_TO_ANSI[c] || c));
         i++;
       } else if (nextChar === "ৈ") {
         result.push("t");
-        cluster.forEach(c => result.push(unicodeToAnsiMap[c] || c));
+        cluster.forEach(c => result.push(UNICODE_TO_ANSI[c] || c));
         i++;
       } else if (nextChar === "ো") {
-        // "ো" is split: "ে" (c) before consonant and "া" (v) after consonant
         result.push("c");
-        cluster.forEach(c => result.push(unicodeToAnsiMap[c] || c));
+        cluster.forEach(c => result.push(UNICODE_TO_ANSI[c] || c));
         result.push("v");
         i++;
       } else if (nextChar === "ৌ") {
-        // "ৌ" is split: "ে" (c) before consonant and "ৗ" (w) after consonant
         result.push("c");
-        cluster.forEach(c => result.push(unicodeToAnsiMap[c] || c));
-        result.push("š"); // "š" or similar is the suffix code for ৌ in SutonnyMJ
+        cluster.forEach(c => result.push(UNICODE_TO_ANSI[c] || c));
+        result.push("š");
         i++;
       } else {
-        // No pre-positioned kar, just convert the consonant/cluster directly
-        cluster.forEach(c => result.push(unicodeToAnsiMap[c] || c));
+        cluster.forEach(c => result.push(UNICODE_TO_ANSI[c] || c));
       }
     } else {
-      // Normal conversion
-      result.push(unicodeToAnsiMap[char] || char);
+      result.push(UNICODE_TO_ANSI[char] || char);
     }
   }
 
@@ -165,32 +218,27 @@ export function unicodeToBijoy(text: string): string {
 export function bijoyToUnicode(text: string): string {
   if (!text) return "";
 
-  // A simplified reverse converter that handles base characters
   const chars = Array.from(text);
   const result: string[] = [];
 
   for (let i = 0; i < chars.length; i++) {
     const char = chars[i];
-    
-    // Check if it's a pre-positioned kar (e.g. w, c, t)
+
     if (char === "w" || char === "c" || char === "t") {
       let kar = char === "w" ? "ি" : char === "c" ? "ে" : "ৈ";
-      
-      // Look ahead to find the consonant or consonant cluster it attaches to
       let j = i + 1;
       const cluster: string[] = [];
-      
+
       while (j < chars.length) {
-        const nextUni = ansiToUnicodeMap[chars[j]] || chars[j];
+        const nextUni = ANSI_TO_UNICODE[chars[j]] || chars[j];
         if (CONSONANTS.has(nextUni)) {
           cluster.push(nextUni);
           j++;
-          // check if followed by Hasanta link + consonant
           if (j < chars.length && chars[j] === "&") {
             cluster.push("্");
             j++;
             if (j < chars.length) {
-              const linkedUni = ansiToUnicodeMap[chars[j]] || chars[j];
+              const linkedUni = ANSI_TO_UNICODE[chars[j]] || chars[j];
               if (CONSONANTS.has(linkedUni)) {
                 cluster.push(linkedUni);
                 j++;
@@ -202,8 +250,7 @@ export function bijoyToUnicode(text: string): string {
           break;
         }
       }
-      
-      // Check if there is a trailing "v" (া) or "š" (ৗ) which merges the pre-kar into "ো" or "ৌ"
+
       if (char === "c" && j < chars.length && chars[j] === "v") {
         kar = "ো";
         j++;
@@ -211,15 +258,12 @@ export function bijoyToUnicode(text: string): string {
         kar = "ৌ";
         j++;
       }
-      
-      // Output the cluster first, then the kar (standard Unicode order)
+
       result.push(...cluster);
       result.push(kar);
-      
-      // Move index past the processed characters
       i = j - 1;
     } else {
-      result.push(ansiToUnicodeMap[char] || char);
+      result.push(ANSI_TO_UNICODE[char] || char);
     }
   }
 

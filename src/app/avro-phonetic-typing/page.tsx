@@ -4,13 +4,13 @@ import Link from "next/link";
 import Script from "next/script";
 import {
   Sparkles, Keyboard, BookOpen, CheckCircle2, ArrowRight,
-  HelpCircle, Zap, Award, Play, ShieldCheck
+  HelpCircle, Zap, Award, Play, ShieldCheck, FileText, ChevronRight
 } from "lucide-react";
-import LayoutPracticeClient from "@/app/practice/[layout]/LayoutPracticeClient";
-import VirtualKeyboard from "@/components/VirtualKeyboard";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import LayoutPracticeClient from "../practice/[layout]/LayoutPracticeClient";
+import VirtualKeyboard from "../../components/VirtualKeyboard";
+import { Card, CardContent } from "../../components/ui/card";
+import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
 
 export const metadata: Metadata = {
   title: "Avro Phonetic Bangla Typing Online — Free Interactive Keymap & Drills | TypeBangla",
@@ -60,7 +60,7 @@ const jsonLd = {
           "name": "How to type conjuncts (যুক্তাক্ষর) in Avro Phonetic?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "In Avro, type consonant letters together without spaces. For example, type 'kk' for 'ক্ক', 'kt' for 'ক্ত', or 'kSh' for 'ক্ষ'."
+            "text": "Conjuncts are formed naturally by combining consonant letters. For example: k+k = ক্ক, k+sh = ক্ষ, n+d = ন্দ."
           }
         }
       ]
@@ -68,171 +68,133 @@ const jsonLd = {
   ]
 };
 
-const FAQS = [
-  {
-    q: "How does Avro Phonetic Bangla typing work?",
-    a: "Avro Phonetic translates English phonetics directly into Bangla characters. You type English letters that sound like the Bangla words (e.g. 'shonar' -> 'সোনার')."
-  },
-  {
-    q: "How do I type Bangla conjuncts (যুক্তাক্ষর) in Avro?",
-    a: "Type consonant combinations without spaces. For instance, 'kkt' -> 'ক্ত', 'bondo' -> 'বন্ধ', and 'khoma' -> 'ক্ষমা'."
-  },
-  {
-    q: "Is Avro Phonetic good for beginners?",
-    a: "Yes! Avro Phonetic is the easiest layout for beginners because you don't need to memorize a new keyboard map—you just use standard English key positions."
-  }
-];
-
-export default function AvroPhoneticLandingPage() {
+export default function AvroPhoneticTypingLandingPage() {
   return (
-    <main className="w-full bg-background text-foreground space-y-14 py-10 fade-in">
+    <div className="min-h-screen bg-background text-foreground py-10 px-4 sm:px-6 fade-in">
       <Script
-        id="jsonld-avro-landing"
+        id="jsonld-avro-course"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* 1. HERO HEADER SECTION */}
-      <section className="container max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-5">
-        <div className="inline-flex items-center gap-2 bg-secondary border border-border px-4 py-1.5 rounded-full text-xs font-bold text-foreground">
-          <Sparkles size={14} className="text-primary" />
-          <span>PHONETIC TRANSLITERATION STANDARD</span>
-        </div>
-
-        <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground">
-          Avro Phonetic Bangla Typing Online
-        </h1>
-
-        <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          Master Bangladesh&apos;s most popular phonetic layout. Type Bangla effortlessly using standard English QWERTY keyboard sounds.
-        </p>
-
-        <div className="flex flex-wrap justify-center gap-3 pt-2">
-          <Link href="/courses/avro">
-            <Button className="font-bold text-xs gap-2 px-7 h-11 shadow-md">
-              <span>Enroll Free Course (25 Lessons)</span>
-              <ArrowRight size={15} />
-            </Button>
-          </Link>
-          <Link href="/practice?layout=avro">
-            <Button variant="outline" className="font-bold text-xs gap-2 px-6 h-11 border-border">
-              <Play size={14} />
-              <span>Instant Practice Arena</span>
-            </Button>
-          </Link>
-        </div>
-      </section>
-
-      {/* 2. INTERACTIVE KEYBOARD MAP CHEATSHEET */}
-      <section className="container max-w-5xl mx-auto px-4 sm:px-6 space-y-6">
-        <div className="border-b border-border pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-              <Keyboard size={18} className="text-primary" />
-              <span>Avro Phonetic Keymap Reference</span>
-            </h2>
-            <p className="text-xs text-muted-foreground">Standard English letter to Bangla character transliteration mapping.</p>
-          </div>
-          <Badge variant="outline" className="border-primary text-primary font-bold text-xs uppercase w-fit">
-            AVRO PHONETIC
+      <div className="max-w-6xl mx-auto space-y-12">
+        {/* Breadcrumb & Hero */}
+        <div className="space-y-4 text-center max-w-3xl mx-auto">
+          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 text-xs font-mono font-bold px-3 py-1">
+            PHONETIC TRANSLITERATION ENGINE
           </Badge>
-        </div>
 
-        <VirtualKeyboard />
+          <h1 className="text-3xl sm:text-5xl font-black text-foreground tracking-tight leading-tight">
+            অভ্র ফোনেটিক বাংলা টাইপিং শিক্ষা ও অনলাইন প্র্যাকটিস
+          </h1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs pt-2">
-          <Card className="border border-border bg-card p-4 space-y-2">
-            <h3 className="font-extrabold text-foreground text-sm">Vowels &amp; Signs</h3>
-            <div className="space-y-1 text-muted-foreground font-mono">
-              <div className="flex justify-between border-b border-border/50 py-1"><span>a = আ / া</span><span>i = ই / ি</span></div>
-              <div className="flex justify-between border-b border-border/50 py-1"><span>ee = ঈ / ী</span><span>u = উ / ু</span></div>
-              <div className="flex justify-between border-b border-border/50 py-1"><span>oo = ঊ / ূ</span><span>e = এ / ে</span></div>
-              <div className="flex justify-between py-1"><span>OI = ঐ / ৈ</span><span>OU = ঔ / ৌ</span></div>
-            </div>
-          </Card>
+          <p className="text-xs sm:text-base text-muted-foreground leading-relaxed">
+            ইংরেজি কিবোর্ডের সাহায্যে সহজে উচ্চারণ অনুযায়ী বাংলা টাইপ শিখুন। অতিরিক্ত কোনো সফটওয়্যার ছাড়াই লাইভ WPM স্পিড অ্যানালিটিক্স ও ভার্চুয়াল কিবোর্ড গাইডের মাধ্যমে চর্চা করুন।
+          </p>
 
-          <Card className="border border-border bg-card p-4 space-y-2">
-            <h3 className="font-extrabold text-foreground text-sm">Consonants</h3>
-            <div className="space-y-1 text-muted-foreground font-mono">
-              <div className="flex justify-between border-b border-border/50 py-1"><span>k = ক</span><span>kh = খ</span></div>
-              <div className="flex justify-between border-b border-border/50 py-1"><span>g = গ</span><span>gh = ঘ</span></div>
-              <div className="flex justify-between border-b border-border/50 py-1"><span>c = চ</span><span>ch = ছ</span></div>
-              <div className="flex justify-between py-1"><span>t = ত</span><span>th = থ</span></div>
-            </div>
-          </Card>
-
-          <Card className="border border-border bg-card p-4 space-y-2">
-            <h3 className="font-extrabold text-foreground text-sm">Conjuncts (যুক্তাক্ষর)</h3>
-            <div className="space-y-1 text-muted-foreground font-mono">
-              <div className="flex justify-between border-b border-border/50 py-1"><span>kk = ক্ক</span><span>kt = ক্ত</span></div>
-              <div className="flex justify-between border-b border-border/50 py-1"><span>kSh = ক্ষ</span><span>gg = জ্ঞ</span></div>
-              <div className="flex justify-between border-b border-border/50 py-1"><span>nd = ন্দ</span><span>nt = ন্ত</span></div>
-              <div className="flex justify-between py-1"><span>shch = শ্চ</span><span>tr = ত্র</span></div>
-            </div>
-          </Card>
-        </div>
-      </section>
-
-      {/* 3. 25-LESSON CURRICULUM SYLLABUS OUTLINE */}
-      <section className="container max-w-5xl mx-auto px-4 sm:px-6 space-y-6">
-        <div className="border-b border-border pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-              <BookOpen size={18} className="text-primary" />
-              <span>Avro Phonetic 25-Lesson Curriculum Outline</span>
-            </h2>
-            <p className="text-xs text-muted-foreground">Structured learning path from basic vowels to 60+ WPM typing speed.</p>
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <Link href="/courses/avro">
+              <Button className="font-bold text-xs gap-2 h-11 px-6 shadow-md cursor-pointer">
+                <Play size={15} />
+                <span>অভ্র সম্পূর্ণ কোর্স শুরু করুন (২৫ পাঠ)</span>
+              </Button>
+            </Link>
+            <Link href="/online-bangla-keyboard">
+              <Button variant="outline" className="font-bold text-xs gap-2 h-11 px-6 border-border cursor-pointer">
+                <Keyboard size={15} />
+                <span>ভার্চুয়াল কিবোর্ড টুল</span>
+              </Button>
+            </Link>
           </div>
-          <Link href="/courses/avro">
-            <Button className="font-bold text-xs gap-1.5 h-9">
-              <span>Full Course Syllabus</span>
-              <ArrowRight size={13} />
-            </Button>
-          </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-          {[
-            { num: "01", title: "Phonetic Vowels (a, i, u, e, o)", desc: "Basic Bangla vowel transliteration rules" },
-            { num: "02", title: "Consonants Part 1 (k, g, c, j)", desc: "Primary consonant key mapping" },
-            { num: "03", title: "Consonant Digraphs (kh, gh, ch, th)", desc: "Mastering 2-letter consonant sounds" },
-            { num: "04", title: "Phonetic Conjuncts (kk, kt, nd)", desc: "Typing combined Bangla letters smoothly" },
-            { num: "05", title: "Sentence Flow & Spacebar Rhythm", desc: "Building full sentence typing speed" },
-            { num: "06", title: "Speed Sprint & WPM Certification", desc: "Timed speed test with diagnostic analytics" },
-          ].map((item) => (
-            <Card key={item.num} className="border border-border bg-card p-4 space-y-1.5 shadow-xs">
-              <div className="flex items-center justify-between">
-                <Badge variant="outline" className="border-primary/40 text-primary text-[10px] font-black">
-                  Lesson {item.num}
-                </Badge>
-                <span className="text-[10px] text-muted-foreground font-semibold">Free Access</span>
-              </div>
-              <h3 className="font-bold text-xs text-foreground">{item.title}</h3>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">{item.desc}</p>
-            </Card>
-          ))}
-        </div>
-      </section>
+        {/* Live Interactive Typing Practice Arena */}
+        <Card className="border-2 border-primary/40 bg-card shadow-lg rounded-3xl overflow-hidden p-4 sm:p-8 space-y-4">
+          <div className="flex items-center justify-between border-b border-border pb-4">
+            <div className="flex items-center gap-2 text-foreground">
+              <Zap size={20} className="text-primary" />
+              <h2 className="text-base sm:text-lg font-black text-foreground">সরাসরি অভ্র টাইপিং টেস্ট ও প্র্যাকটিস অ্যারেনা</h2>
+            </div>
+            <Badge variant="outline" className="text-[10px] font-mono font-bold uppercase border-border">
+              Avro Phonetic Live Mode
+            </Badge>
+          </div>
 
-      {/* 4. SEO FAQS & RICH SNIPPET METADATA */}
-      <section className="container max-w-4xl mx-auto px-4 sm:px-6 space-y-4">
-        <div className="text-center space-y-1">
-          <h2 className="text-xl font-bold text-foreground">Frequently Asked Questions — Avro Phonetic</h2>
-          <p className="text-xs text-muted-foreground">Answers to common questions about Avro Phonetic typing.</p>
-        </div>
+          <LayoutPracticeClient layout="avro" />
+        </Card>
 
-        <div className="space-y-3">
-          {FAQS.map((faq, i) => (
-            <Card key={i} className="border border-border bg-card p-5 space-y-1.5">
-              <h3 className="font-bold text-sm text-foreground flex items-center gap-2">
+        {/* Avro Rules & Transliteration Guide Grid */}
+        <section className="space-y-6">
+          <div className="text-center space-y-1">
+            <h2 className="text-xl sm:text-3xl font-black text-foreground">অভ্র ফোনেটিক টাইপিংয়ের মূল নিয়মাবলী</h2>
+            <p className="text-xs text-muted-foreground">উচ্চারণ অনুযায়ী ইংরেজি অক্ষরের সঠিক ব্যবহার</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+            {[
+              { rule: "Vowel Signs (কার)", eg: "a = া, i = ি, u = ু, e = ে, o = ো", icon: Sparkles },
+              { rule: "Basic Consonants (ব্যঞ্জনবর্ণ)", eg: "k = ক, kh = খ, g = গ, gh = ঘ", icon: Keyboard },
+              { rule: "Jukttakkhor (যুক্তাক্ষর)", eg: "k+k = ক্ক, k+sh = ক্ষ, n+g = ঙ্গ", icon: BookOpen },
+              { rule: "Special Marks (ফলা ও রেফ)", eg: "r = ্র (ফলা), rr = র্ (রেফ)", icon: Award },
+            ].map((item, idx) => {
+              const Icon = item.icon;
+              return (
+                <Card key={idx} className="bg-card border-border p-5 rounded-2xl space-y-2 shadow-xs">
+                  <div className="p-2.5 bg-primary/10 text-primary rounded-xl w-fit">
+                    <Icon size={18} />
+                  </div>
+                  <h3 className="font-extrabold text-foreground text-sm">{item.rule}</h3>
+                  <p className="text-muted-foreground leading-relaxed font-mono text-[11px] bg-secondary p-2 rounded-lg border border-border">
+                    {item.eg}
+                  </p>
+                </Card>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Interactive Virtual Keyboard Visualizer */}
+        <Card className="border border-border bg-card shadow-xs rounded-3xl p-6 sm:p-8 space-y-4">
+          <div className="flex items-center justify-between border-b border-border pb-3">
+            <div className="flex items-center gap-2 text-foreground">
+              <Keyboard className="text-primary" size={20} />
+              <h2 className="text-base font-black text-foreground">অভ্র ফোনেটিক ভার্চুয়াল কীবোর্ড লেআউট ভিজ্যুয়ালাইজার</h2>
+            </div>
+            <Badge variant="outline" className="text-[10px] font-mono border-border">Interactive Layout</Badge>
+          </div>
+          <VirtualKeyboard activeLayout="avro" />
+        </Card>
+
+        {/* FAQ Section */}
+        <Card className="border border-border bg-card shadow-xs rounded-3xl p-6 sm:p-8 space-y-6">
+          <div className="space-y-1">
+            <h2 className="text-xl font-black text-foreground">সাধারণ প্রশ্ন ও উত্তর (FAQ)</h2>
+            <p className="text-xs text-muted-foreground">অভ্র টাইপিং সম্পর্কিত গুরুত্বপূর্ণ তথ্য</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div className="p-4 rounded-2xl bg-secondary/40 border border-border space-y-2">
+              <h3 className="font-bold text-foreground flex items-center gap-2 text-sm">
                 <HelpCircle size={15} className="text-primary shrink-0" />
-                <span>{faq.q}</span>
+                অভ্র ফোনেটিক টাইপিং কেন সহজ?
               </h3>
-              <p className="text-xs text-muted-foreground leading-relaxed pl-6">{faq.a}</p>
-            </Card>
-          ))}
-        </div>
-      </section>
-    </main>
+              <p className="text-muted-foreground leading-relaxed">
+                আপনাকে কোনো নির্দিষ্ট কীবোর্ড ম্যাপ মুখস্থ করতে হয় না। আপনি যা উচ্চারণ করেন, ইংরেজি বর্ণ দিয়ে ঠিক সেভাবে টাইপ করলেই তা বাংলায় রূপান্তরিত হয়।
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-secondary/40 border border-border space-y-2">
+              <h3 className="font-bold text-foreground flex items-center gap-2 text-sm">
+                <HelpCircle size={15} className="text-primary shrink-0" />
+                সরকারি চাকরির পরীক্ষায় কি অভ্র ব্যবহার করা যাবে?
+              </h3>
+              <p className="text-muted-foreground leading-relaxed">
+                বেশিরভাগ সরকারি নিয়োগ পরীক্ষায় জাতীয় বা ইউনিবিজয় নির্ধারিত থাকে। তবে কম্পিউটার অপারেটর ও প্রাতিষ্ঠানিক কাজে অভ্র বহুল ব্যবহৃত ইউনিকোড স্ট্যান্ডার্ড।
+              </p>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </div>
   );
 }

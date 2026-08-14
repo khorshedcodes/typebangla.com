@@ -98,7 +98,7 @@ export default function PhoneticClient() {
   const [copied, setCopied] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [showKeyboard, setShowKeyboard] = useState(true);
+  const [showKeyboard, setShowKeyboard] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const setActiveLayout = useTypingStore((state) => state.setActiveLayout);

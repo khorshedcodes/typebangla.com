@@ -22,6 +22,7 @@ const NAV_HUBS = [
 ];
 
 import { isFocusModePage } from "../utils/navigation";
+import FeedbackModal from "./FeedbackModal";
 
 export default function Header() {
   const pathname = usePathname();
@@ -30,6 +31,8 @@ export default function Header() {
   
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
   if (isFocusModeActive || isFocusModePage(pathname)) return null;
 
@@ -39,6 +42,33 @@ export default function Header() {
 
   return (
     <>
+      {/* Top Beta Notification Banner */}
+      {!bannerDismissed && (
+        <div className="bg-primary/10 border-b border-primary/20 py-2 px-4 text-center text-xs font-semibold text-foreground flex items-center justify-center gap-2 relative z-50">
+          <span className="inline-flex items-center gap-1 bg-primary text-primary-foreground text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+            v1.0 Beta
+          </span>
+          <span>
+            Welcome to TypeBangla Beta! Found a bug or have a suggestion?
+          </span>
+          <button
+            type="button"
+            onClick={() => setShowFeedbackModal(true)}
+            className="underline font-bold text-primary hover:text-primary/80 cursor-pointer ml-1"
+          >
+            Report Bug / Send Feedback →
+          </button>
+          <button
+            type="button"
+            onClick={() => setBannerDismissed(true)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-md cursor-pointer"
+            title="Dismiss"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
       <header className="sticky top-0 z-40 w-full border-b border-border/80 bg-background/75 backdrop-blur-xl transition-all">
         <div className="container max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 gap-4">
 
@@ -294,6 +324,12 @@ export default function Header() {
           </div>
         </div>
       )}
+
+      {/* Beta Feedback Modal */}
+      <FeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
+      />
     </>
   );
 }

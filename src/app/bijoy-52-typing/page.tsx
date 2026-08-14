@@ -4,12 +4,13 @@ import Link from "next/link";
 import Script from "next/script";
 import {
   Sparkles, Keyboard, BookOpen, CheckCircle2, ArrowRight,
-  HelpCircle, Zap, Award, Play
+  HelpCircle, Zap, Award, Play, ShieldCheck, ChevronRight
 } from "lucide-react";
-import VirtualKeyboard from "@/components/VirtualKeyboard";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import LayoutPracticeClient from "../practice/[layout]/LayoutPracticeClient";
+import VirtualKeyboard from "../../components/VirtualKeyboard";
+import { Card, CardContent } from "../../components/ui/card";
+import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
 
 export const metadata: Metadata = {
   title: "Bijoy 52 & UniBijoy Bangla Typing Online — Free Keymap & Course | TypeBangla",
@@ -51,15 +52,7 @@ const jsonLd = {
           "name": "What is the difference between Bijoy 52 and UniBijoy?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Bijoy 52 relies on legacy ANSI fonts like SutonnyMJ. UniBijoy uses the exact same keymap layout as Bijoy 52 but outputs modern Unicode text readable on all web browsers, smartphones, and social media."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "How to type conjuncts (যুক্তাক্ষর) in Bijoy / UniBijoy?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "In Bijoy layout, type First Consonant + 'g' (Hasant) + Second Consonant. For example, to type 'ক্ষ', press 'k' + 'g' + 'Shift+N'."
+            "text": "Bijoy 52 uses ANSI (SutonnyMJ) encoding, whereas UniBijoy maps the exact same physical key locations to modern web Unicode standards."
           }
         }
       ]
@@ -67,176 +60,103 @@ const jsonLd = {
   ]
 };
 
-const FAQS = [
-  {
-    q: "What is the difference between Bijoy 52 and UniBijoy?",
-    a: "Bijoy 52 outputs legacy SutonnyMJ ANSI text, while UniBijoy uses the exact same key map to output web-compatible Unicode text."
-  },
-  {
-    q: "How do I type conjuncts (যুক্তাক্ষর) in Bijoy 52 / UniBijoy?",
-    a: "Press the first consonant key, then press 'g' (Link / Hasant), followed by the second consonant key. E.g., 'k' + 'g' + 'k' = 'ক্ক'."
-  },
-  {
-    q: "Why is Bijoy 52 required for publishing and printing?",
-    a: "Most printing presses, newspapers, and official graphic design software in Bangladesh historically standardized on Bijoy 52 / SutonnyMJ."
-  }
-];
-
-export default function BijoyLandingPage() {
+export default function Bijoy52TypingLandingPage() {
   return (
-    <main className="w-full bg-background text-foreground space-y-14 py-10 fade-in">
+    <div className="min-h-screen bg-background text-foreground py-10 px-4 sm:px-6 fade-in">
       <Script
-        id="jsonld-bijoy-landing"
+        id="jsonld-bijoy-course"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* 1. HERO HEADER */}
-      <section className="container max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-5">
-        <div className="inline-flex items-center gap-2 bg-secondary border border-border px-4 py-1.5 rounded-full text-xs font-bold text-foreground">
-          <Sparkles size={14} className="text-primary" />
-          <span>PUBLISHING &amp; PRINTING STANDARD</span>
-        </div>
-
-        <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground">
-          Bijoy 52 &amp; UniBijoy Typing Online
-        </h1>
-
-        <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          Master Bangladesh&apos;s traditional publishing layout. Learn key positions, Link-g conjuncts, and boost your printing WPM speed.
-        </p>
-
-        <div className="flex flex-wrap justify-center gap-3 pt-2">
-          <Link href="/courses/unibijoy">
-            <Button className="font-bold text-xs gap-2 px-7 h-11 shadow-md">
-              <span>Enroll Free Course (25 Lessons)</span>
-              <ArrowRight size={15} />
-            </Button>
-          </Link>
-          <Link href="/practice?layout=unibijoy">
-            <Button variant="outline" className="font-bold text-xs gap-2 px-6 h-11 border-border">
-              <Play size={14} />
-              <span>Instant Practice Arena</span>
-            </Button>
-          </Link>
-          <Link href="/unicode-to-bijoy-converter">
-            <Button variant="secondary" className="font-bold text-xs gap-2 px-5 h-11">
-              <span>Bijoy ↔ Unicode Converter</span>
-            </Button>
-          </Link>
-        </div>
-      </section>
-
-      {/* 2. INTERACTIVE KEYBOARD MAP CHEATSHEET */}
-      <section className="container max-w-5xl mx-auto px-4 sm:px-6 space-y-6">
-        <div className="border-b border-border pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-              <Keyboard size={18} className="text-primary" />
-              <span>Bijoy 52 / UniBijoy Keymap Reference</span>
-            </h2>
-            <p className="text-xs text-muted-foreground">Essential key positions and Hasant (&apos;g&apos;) conjunct formation rule.</p>
-          </div>
-          <Badge variant="outline" className="border-primary text-primary font-bold text-xs uppercase w-fit">
-            UNI_BIJOY
+      <div className="max-w-6xl mx-auto space-y-12">
+        {/* Breadcrumb & Hero */}
+        <div className="space-y-4 text-center max-w-3xl mx-auto">
+          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 text-xs font-mono font-bold px-3 py-1">
+            TRADITIONAL FIXED LAYOUT STANDARD
           </Badge>
-        </div>
 
-        <VirtualKeyboard />
+          <h1 className="text-3xl sm:text-5xl font-black text-foreground tracking-tight leading-tight">
+            বিজয় ৫২ ও ইউনিবিজয় টাইপিং শিক্ষা ও অনলাইন প্র্যাকটিস
+          </h1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs pt-2">
-          <Card className="border border-border bg-card p-4 space-y-2">
-            <h3 className="font-extrabold text-foreground text-sm">Vowels &amp; Signs</h3>
-            <div className="space-y-1 text-muted-foreground font-mono">
-              <div className="flex justify-between border-b border-border/50 py-1"><span>Shift+F = অ</span><span>f = আকার (া)</span></div>
-              <div className="flex justify-between border-b border-border/50 py-1"><span>d = ইকার (ি)</span><span>Shift+D = ঈকার (ী)</span></div>
-              <div className="flex justify-between border-b border-border/50 py-1"><span>s = উকার (ু)</span><span>Shift+S = ঊকার (ূ)</span></div>
-              <div className="flex justify-between py-1"><span>c = একার (ে)</span><span>Shift+C = ঐকার (ৈ)</span></div>
-            </div>
-          </Card>
+          <p className="text-xs sm:text-base text-muted-foreground leading-relaxed">
+            বাংলাদেশের অফিস-আদালত ও প্রকাশনায় বহুল ব্যবহৃত বিজয় কিবোর্ড লেআউট অনলাইন প্র্যাকটিস করুন। SutonnyMJ এর কী-ম্যাপ হুবহু বজায় রেখে ওয়েব-স্ট্যান্ডার্ড ইউনিবিজয় টাইপিং শিখুন।
+          </p>
 
-          <Card className="border border-border bg-card p-4 space-y-2">
-            <h3 className="font-extrabold text-foreground text-sm">Consonants</h3>
-            <div className="space-y-1 text-muted-foreground font-mono">
-              <div className="flex justify-between border-b border-border/50 py-1"><span>j = ক</span><span>Shift+J = খ</span></div>
-              <div className="flex justify-between border-b border-border/50 py-1"><span>o = গ</span><span>Shift+O = ঘ</span></div>
-              <div className="flex justify-between border-b border-border/50 py-1"><span>y = চ</span><span>Shift+Y = ছ</span></div>
-              <div className="flex justify-between py-1"><span>k = ত</span><span>Shift+K = থ</span></div>
-            </div>
-          </Card>
-
-          <Card className="border border-border bg-card p-4 space-y-2">
-            <h3 className="font-extrabold text-foreground text-sm">Link-g Rule (যুক্তাক্ষর)</h3>
-            <div className="space-y-1 text-muted-foreground font-mono">
-              <div className="flex justify-between border-b border-border/50 py-1"><span>j + g + j = ক্ক</span><span>j + g + k = ক্ত</span></div>
-              <div className="flex justify-between border-b border-border/50 py-1"><span>j + g + Shift+N = ক্ষ</span><span>u + g + Shift+I = জ্ঞ</span></div>
-              <div className="flex justify-between border-b border-border/50 py-1"><span>v + g + l = ন্দ</span><span>v + g + k = ন্ত</span></div>
-              <div className="flex justify-between py-1"><span>p + g + y = শ্চ</span><span>k + g + z = ত্র</span></div>
-            </div>
-          </Card>
-        </div>
-      </section>
-
-      {/* 3. 25-LESSON CURRICULUM OUTLINE */}
-      <section className="container max-w-5xl mx-auto px-4 sm:px-6 space-y-6">
-        <div className="border-b border-border pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-              <BookOpen size={18} className="text-primary" />
-              <span>UniBijoy (Bijoy 52) 25-Lesson Curriculum Outline</span>
-            </h2>
-            <p className="text-xs text-muted-foreground">Step-by-step structured lessons from home row keys to full 55+ WPM typing speed.</p>
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <Link href="/courses/unibijoy">
+              <Button className="font-bold text-xs gap-2 h-11 px-6 shadow-md cursor-pointer">
+                <Play size={15} />
+                <span>ইউনিবিজয় সম্পূর্ণ কোর্স শুরু করুন (২৫ পাঠ)</span>
+              </Button>
+            </Link>
+            <Link href="/practice/unibijoy">
+              <Button variant="outline" className="font-bold text-xs gap-2 h-11 px-6 border-border cursor-pointer">
+                <Zap size={15} />
+                <span>স্পিড ড্রিল শুরু করুন</span>
+              </Button>
+            </Link>
           </div>
-          <Link href="/courses/unibijoy">
-            <Button className="font-bold text-xs gap-1.5 h-9">
-              <span>Full Course Syllabus</span>
-              <ArrowRight size={13} />
-            </Button>
-          </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-          {[
-            { num: "01", title: "Home Row Basics (ফ, গ, ক, ত)", desc: "Left hand & right hand primary finger anchor keys" },
-            { num: "02", title: "Vowels & Sign Kar (া, ি, ী, ু, ূ)", desc: "Essential Bangla vowel sign placement" },
-            { num: "03", title: "Top Row Consonants (প, ফ, গ, ঘ)", desc: "Reaching upper row key positions" },
-            { num: "04", title: "Bottom Row Consonants (ন, ম, স, ব)", desc: "Lower row finger extensions & spacebar rhythm" },
-            { num: "05", title: "Link-g Rule (যুক্তাক্ষর ক্ক, ক্ত, ক্ষ)", desc: "Mastering Hasant 'g' for complex conjunct formation" },
-            { num: "06", title: "Speed & Accuracy Evaluation", desc: "5-minute timed test with live WPM & error diagnostics" },
-          ].map((item) => (
-            <Card key={item.num} className="border border-border bg-card p-4 space-y-1.5 shadow-xs">
-              <div className="flex items-center justify-between">
-                <Badge variant="outline" className="border-primary/40 text-primary text-[10px] font-black">
-                  Lesson {item.num}
-                </Badge>
-                <span className="text-[10px] text-muted-foreground font-semibold">Free Access</span>
-              </div>
-              <h3 className="font-bold text-xs text-foreground">{item.title}</h3>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">{item.desc}</p>
-            </Card>
-          ))}
-        </div>
-      </section>
+        {/* Live Interactive Typing Practice Arena */}
+        <Card className="border-2 border-primary/40 bg-card shadow-lg rounded-3xl overflow-hidden p-4 sm:p-8 space-y-4">
+          <div className="flex items-center justify-between border-b border-border pb-4">
+            <div className="flex items-center gap-2 text-foreground">
+              <Zap size={20} className="text-primary" />
+              <h2 className="text-base sm:text-lg font-black text-foreground">সরাসরি বিজয় (UniBijoy) টাইপিং টেস্ট ও প্র্যাকটিস অ্যারেনা</h2>
+            </div>
+            <Badge variant="outline" className="text-[10px] font-mono font-bold uppercase border-border">
+              UniBijoy Live Engine
+            </Badge>
+          </div>
 
-      {/* 4. SEO FAQS */}
-      <section className="container max-w-4xl mx-auto px-4 sm:px-6 space-y-4">
-        <div className="text-center space-y-1">
-          <h2 className="text-xl font-bold text-foreground">Frequently Asked Questions — Bijoy Typing</h2>
-          <p className="text-xs text-muted-foreground">Answers to common questions about Bijoy 52 and UniBijoy layout.</p>
-        </div>
+          <LayoutPracticeClient layout="unibijoy" />
+        </Card>
 
-        <div className="space-y-3">
-          {FAQS.map((faq, i) => (
-            <Card key={i} className="border border-border bg-card p-5 space-y-1.5">
-              <h3 className="font-bold text-sm text-foreground flex items-center gap-2">
-                <HelpCircle size={15} className="text-primary shrink-0" />
-                <span>{faq.q}</span>
-              </h3>
-              <p className="text-xs text-muted-foreground leading-relaxed pl-6">{faq.a}</p>
-            </Card>
-          ))}
-        </div>
-      </section>
-    </main>
+        {/* Keymap Guide */}
+        <section className="space-y-6">
+          <div className="text-center space-y-1">
+            <h2 className="text-xl sm:text-3xl font-black text-foreground">বিজয় ৫২ কিবোর্ডের প্রধান কী-পজিশন</h2>
+            <p className="text-xs text-muted-foreground">SutonnyMJ ও ইউনিবিজয় কিবোর্ডের জন্য মুখস্থ করার মতো গুরুত্বপূর্ণ কীসমূহ</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+            {[
+              { title: "ক-বর্গীয় বর্ণসমূহ", eg: "j = ক,  shift+j = খ,  h = ব,  f = া", icon: Keyboard },
+              { title: "যুক্তাক্ষর লিংক বা হসন্ত", eg: "g = ্ (হসন্ত)। যেমন: g+j = ক্ক", icon: Sparkles },
+              { title: "কার চিহ্নসমূহ", eg: "d = ি,  shift+d = ী,  c = ু,  v = ূ", icon: BookOpen },
+              { title: "রেফ ও ফৌলা", eg: "shift+a = র্ (রেফ),  z = ্র (র-ফলা)", icon: Award },
+            ].map((item, idx) => {
+              const Icon = item.icon;
+              return (
+                <Card key={idx} className="bg-card border-border p-5 rounded-2xl space-y-2 shadow-xs">
+                  <div className="p-2.5 bg-primary/10 text-primary rounded-xl w-fit">
+                    <Icon size={18} />
+                  </div>
+                  <h3 className="font-extrabold text-foreground text-sm">{item.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed font-mono text-[11px] bg-secondary p-2 rounded-lg border border-border">
+                    {item.eg}
+                  </p>
+                </Card>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Virtual Keyboard */}
+        <Card className="border border-border bg-card shadow-xs rounded-3xl p-6 sm:p-8 space-y-4">
+          <div className="flex items-center justify-between border-b border-border pb-3">
+            <div className="flex items-center gap-2 text-foreground">
+              <Keyboard className="text-primary" size={20} />
+              <h2 className="text-base font-black text-foreground">ইউনিবিজয় (Bijoy 52) ভার্চুয়াল কীবোর্ড লেআউট গাইড</h2>
+            </div>
+            <Badge variant="outline" className="text-[10px] font-mono border-border">Interactive Keymap</Badge>
+          </div>
+          <VirtualKeyboard activeLayout="unibijoy" />
+        </Card>
+      </div>
+    </div>
   );
 }

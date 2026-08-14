@@ -9,6 +9,7 @@ import HandPlacement, { FINGER_MAP } from "./HandPlacement";
 interface VirtualKeyboardProps {
   nextChar?: string;
   onKeyClick?: (code: string, char: string, isShift?: boolean) => void;
+  activeLayout?: KeyboardLayout | string;
 }
 
 interface KeyboardKey {
@@ -19,14 +20,39 @@ interface KeyboardKey {
   classWidth?: string;
 }
 
-const getEnglishKeyCode = (char: string): string => {
-  if (/[a-z]/.test(char)) return `Key${char.toUpperCase()}`;
-  if (/[0-9]/.test(char)) return `Digit${char}`;
-  const symbolMap: { [key: string]: string } = {
-    "-": "Minus", "=": "Equal", "[": "BracketLeft", "]": "BracketRight",
-    ";": "Semicolon", "'": "Quote", ",": "Comma", ".": "Period", "/": "Slash"
-  };
-  return symbolMap[char] || "";
+const SHIFT_SYMBOL_MAP: Record<string, { code: string; needsShift: boolean }> = {
+  "!": { code: "Digit1", needsShift: true },
+  "@": { code: "Digit2", needsShift: true },
+  "#": { code: "Digit3", needsShift: true },
+  "$": { code: "Digit4", needsShift: true },
+  "%": { code: "Digit5", needsShift: true },
+  "^": { code: "Digit6", needsShift: true },
+  "&": { code: "Digit7", needsShift: true },
+  "*": { code: "Digit8", needsShift: true },
+  "(": { code: "Digit9", needsShift: true },
+  ")": { code: "Digit0", needsShift: true },
+  "_": { code: "Minus", needsShift: true },
+  "+": { code: "Equal", needsShift: true },
+  "{": { code: "BracketLeft", needsShift: true },
+  "}": { code: "BracketRight", needsShift: true },
+  "|": { code: "Backslash", needsShift: true },
+  ":": { code: "Semicolon", needsShift: true },
+  '"': { code: "Quote", needsShift: true },
+  "<": { code: "Comma", needsShift: true },
+  ">": { code: "Period", needsShift: true },
+  "?": { code: "Slash", needsShift: true },
+  "~": { code: "Backquote", needsShift: true },
+  "-": { code: "Minus", needsShift: false },
+  "=": { code: "Equal", needsShift: false },
+  "[": { code: "BracketLeft", needsShift: false },
+  "]": { code: "BracketRight", needsShift: false },
+  "\\": { code: "Backslash", needsShift: false },
+  ";": { code: "Semicolon", needsShift: false },
+  "'": { code: "Quote", needsShift: false },
+  ",": { code: "Comma", needsShift: false },
+  ".": { code: "Period", needsShift: false },
+  "/": { code: "Slash", needsShift: false },
+  "`": { code: "Backquote", needsShift: false },
 };
 
 const getHighlightKeys = (char: string, layout: KeyboardLayout): { codes: string[]; needsShift: boolean } => {
@@ -38,8 +64,12 @@ const getHighlightKeys = (char: string, layout: KeyboardLayout): { codes: string
 
   if (layout === "english" || layout === "avro") {
     const target = char.length > 1 && !/[a-zA-Z0-9]/.test(char) ? char[0] : char;
-    const code = getEnglishKeyCode(target.toLowerCase());
-    const needsShift = target !== target.toLowerCase() && /[A-Z]/.test(target);
+    const { code, needsShift } = SHIFT_SYMBOL_MAP[target] || (
+      /[a-z]/.test(target) ? { code: `Key${target.toUpperCase()}`, needsShift: false } :
+      /[A-Z]/.test(target) ? { code: `Key${target}`, needsShift: true } :
+      /[0-9]/.test(target) ? { code: `Digit${target}`, needsShift: false } :
+      { code: "", needsShift: false }
+    );
     return { codes: code ? [code] : [], needsShift };
   }
 
@@ -132,10 +162,12 @@ const FINGER_KEY_ACCENT: Record<string, string> = {
   "R-Pinky": "border-t-pink-500/80 hover:border-pink-500/60",
 };
 
-export default function VirtualKeyboard({ nextChar = "", onKeyClick }: VirtualKeyboardProps) {
-  const activeLayout = useTypingStore((state) => state.activeLayout);
+export default function VirtualKeyboard({ nextChar = "", onKeyClick, activeLayout: propActiveLayout }: VirtualKeyboardProps) {
+  const storeLayout = useTypingStore((state) => state.activeLayout);
+  const activeLayout = (propActiveLayout as KeyboardLayout) || storeLayout;
   const keyStats = useTypingStore((state) => state.keyStats) || {};
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
+  const [isShiftToggled, setIsShiftToggled] = useState<boolean>(false);
 
   const getKeyAccuracyColor = (key: KeyboardKey, normLeg: string, shftLeg: string) => {
     const charsToCheck: string[] = [];
@@ -301,17 +333,20 @@ export default function VirtualKeyboard({ nextChar = "", onKeyClick }: VirtualKe
     const fingerId = FINGER_MAP[key.code];
     const fingerAccentClass = !isSystemKey && fingerId ? FINGER_KEY_ACCENT[fingerId] : "";
 
-    const isShiftActive = highlightShift || pressedKeys.has("ShiftLeft") || pressedKeys.has("ShiftRight");
+    const isShiftActive = highlightShift || pressedKeys.has("ShiftLeft") || pressedKeys.has("ShiftRight") || isShiftToggled;
 
     return (
       <div
         role="button"
         tabIndex={0}
         onClick={() => {
+          if (key.code.startsWith("Shift")) {
+            setIsShiftToggled((prev) => !prev);
+          }
           if (onKeyClick) {
             let charToPass = "";
             if (activeLayout !== "english" && activeLayout !== "avro") {
-              charToPass = isShiftActive ? (shiftLegend || normalLegend || "") : (normalLegend || "");
+              charToPass = isShiftActive ? (shiftLegend !== undefined ? shiftLegend : (normalLegend || "")) : (normalLegend || "");
             } else {
               charToPass = isShiftActive ? (key.enShift || key.enNormal || "") : (key.enNormal || "");
             }
@@ -382,6 +417,30 @@ export default function VirtualKeyboard({ nextChar = "", onKeyClick }: VirtualKe
 
   return (
     <div className="border border-border bg-card p-4 sm:p-5 rounded-2xl flex flex-col space-y-4 shadow-xs">
+      {/* Shift Mode Indicator & Controls */}
+      <div className="flex items-center justify-between text-xs border-b border-border pb-3">
+        <span className="font-bold text-muted-foreground uppercase text-[11px] tracking-wider">
+          Layout: <strong className="text-foreground">{activeLayout.toUpperCase()}</strong>
+        </span>
+
+        <button
+          type="button"
+          onClick={() => setIsShiftToggled((prev) => !prev)}
+          className={`px-3 py-1.5 rounded-lg font-bold text-xs transition-all border flex items-center gap-1.5 cursor-pointer ${
+            isShiftToggled || pressedKeys.has("ShiftLeft") || pressedKeys.has("ShiftRight")
+              ? "bg-primary text-primary-foreground border-primary shadow-xs"
+              : "bg-secondary border-border text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <span>⇧ Shift Layer:</span>
+          <strong>
+            {isShiftToggled || pressedKeys.has("ShiftLeft") || pressedKeys.has("ShiftRight")
+              ? "ACTIVE ( uppercase / shifted )"
+              : "NORMAL ( lowercase )"}
+          </strong>
+        </button>
+      </div>
+
       <div className="relative">
         <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-card to-transparent z-10 sm:hidden rounded-r-xl" />
 

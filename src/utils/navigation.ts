@@ -23,8 +23,8 @@ export function isFocusModePage(pathname: string | null): boolean {
   // 5. Active test slug arenas (/tests/[testSlug], but keep Header/Footer on /tests hub)
   if (pathname.startsWith("/tests/") && pathname !== "/tests") return true;
 
-  // 6. Interactive Game screen (/game)
-  if (pathname === "/game") return true;
+  // 6. Interactive Game screen (/game), Dashboard (/dashboard), Admin Control Panel (/admin), and Institute Portal (/institute)
+  if (pathname === "/game" || pathname === "/dashboard" || pathname === "/admin" || pathname === "/institute") return true;
 
   return false;
 }

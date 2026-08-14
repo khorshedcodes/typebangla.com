@@ -18,6 +18,7 @@ import { saveTypingSession } from "../../../../lib/firestoreService";
 import { useAuth } from "../../../../context/AuthContext";
 import TypingArea from "../../../../components/TypingArea";
 import { ExamCertificateModal } from "../../../../components/ExamCertificateModal";
+import { GovtExamResultCard } from "../../../../components/GovtExamResultCard";
 
 interface GovtPostMeta {
   titleBn: string;
@@ -101,9 +102,22 @@ export default function GovtTestArenaClient() {
   useEffect(() => {
     setActiveLayout(layoutParam);
     setSelectedDuration(durationSec);
-    const lang = layoutParam === "english" ? "english" : "bangla";
-    const p = getPassageForDuration(lang, durationSec);
-    setTargetText(p.text);
+
+    let chosenText = "";
+    if (typeof window !== "undefined") {
+      const storedGovtCustom = sessionStorage.getItem("typemaster_govt_custom_text");
+      if (storedGovtCustom && storedGovtCustom.trim()) {
+        chosenText = storedGovtCustom.trim();
+      }
+    }
+
+    if (!chosenText) {
+      const lang = layoutParam === "english" ? "english" : "bangla";
+      const p = getPassageForDuration(lang, durationSec);
+      chosenText = p.text;
+    }
+
+    setTargetText(chosenText);
     resetTest();
   }, [layoutParam, durationSec, setActiveLayout, setSelectedDuration, setTargetText, resetTest]);
 
@@ -237,146 +251,57 @@ export default function GovtTestArenaClient() {
 
       {/* ── QUALIFICATION REPORT CARD OR TYPING ARENA ── */}
       {testResult ? (
-        <Card className={`border rounded-2xl p-6 sm:p-8 shadow-md space-y-6 ${testResult.qualified ? "border-emerald-500 bg-emerald-50/30 dark:bg-emerald-950/20" : "border-rose-500 bg-rose-50/30 dark:bg-rose-950/20"
-          }`}>
-          <CardContent className="p-0 space-y-6">
-            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-border pb-5">
-              <div className="flex items-center gap-3">
-                {testResult.qualified ? (
-                  <div className="w-14 h-14 rounded-full bg-emerald-500 text-white flex items-center justify-center font-black shrink-0 shadow-xs">
-                    <CheckCircle2 size={32} />
-                  </div>
-                ) : (
-                  <div className="w-14 h-14 rounded-full bg-rose-500 text-white flex items-center justify-center font-black shrink-0 shadow-xs">
-                    <AlertTriangle size={32} />
-                  </div>
-                )}
+        <div className="space-y-6">
+          <GovtExamResultCard
+            result={testResult}
+            onRetake={handleRestart}
+            onShare={handleShareResult}
+            onGetCertificate={() => {
+              if (!user) {
+                setShowAuthGateModal(true);
+                return;
+              }
+              setShowCertModal(true);
+            }}
+            copied={copied}
+          />
 
-                <div className="space-y-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-xl font-black text-foreground">
-                      {testResult.qualified
-                        ? `QUALIFIED FOR ${testResult.postTitle.toUpperCase()}! 🏆`
-                        : `NOT QUALIFIED FOR ${testResult.postTitle.toUpperCase()}`}
-                    </h3>
-                    <Badge variant="outline" className={`text-[10px] font-black ${testResult.qualified ? "border-emerald-500 text-emerald-600 bg-emerald-100 dark:bg-emerald-900/60" : "border-rose-500 text-rose-600 bg-rose-100 dark:bg-rose-900/60"
-                      }`}>
-                      {testResult.qualified ? "TYPEBANGLA VERIFIED QUALIFIED" : "DID NOT MEET THRESHOLD"}
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground max-w-xl">
-                    {testResult.qualified
-                      ? `Congratulations! Your score of ${testResult.wpm} WPM with ${testResult.accuracy}% accuracy satisfies the official hiring standard.`
-                      : `Minimum requirement is ${testResult.requiredWpm} WPM with ${testResult.requiredAcc}% accuracy. Your score was ${testResult.wpm} WPM at ${testResult.accuracy}%.`}
-                  </p>
+          {/* 🏛️ Official Bangladesh Govt Exam Marking & Penalty Simulator */}
+          <div className="p-4 sm:p-5 rounded-xl border border-primary/20 bg-primary/5 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ShieldCheck size={18} className="text-primary" />
+                <h4 className="text-xs font-black text-foreground uppercase tracking-wide">
+                  বাংলাদেশ সরকারি নিয়োগ পরীক্ষা পোনাল্টি হিসাব (Govt Penalty Breakdown)
+                </h4>
+              </div>
+              <Badge variant="outline" className="text-[10px] font-bold text-primary border-primary/30 bg-background">
+                BD Govt Standard Rules
+              </Badge>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center text-xs pt-1">
+              <div className="p-3 bg-background rounded-lg border border-border">
+                <div className="text-muted-foreground text-[11px]">Gross WPM (মোট স্পিড)</div>
+                <div className="text-lg font-black text-foreground">
+                  {testResult.wpm + Math.round(testResult.errorCount / 5)} WPM
                 </div>
               </div>
-
-              <div className="flex flex-wrap items-center justify-center lg:justify-end gap-2 w-full lg:w-auto">
-                <Button variant="outline" size="sm" onClick={handleRestart} className="text-xs font-bold gap-1.5 h-9 border-border">
-                  <RotateCcw size={13} /> Retake Test
-                </Button>
-
-                {testResult.qualified && (
-                  <>
-                    <Button variant="outline" size="sm" onClick={handleShareResult} className="text-xs font-bold gap-1.5 h-9 border-border">
-                      {copied ? <Check size={13} className="text-emerald-500" /> : <Share2 size={13} />}
-                      {copied ? "Copied!" : "Share Result"}
-                    </Button>
-
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        if (!user) {
-                          setShowAuthGateModal(true);
-                          return;
-                        }
-                        setShowCertModal(true);
-                      }}
-                      className="text-xs font-black gap-1.5 h-9 bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
-                    >
-                      <Award size={13} /> Get Govt Certificate
-                    </Button>
-
-                    <Link href="/dashboard">
-                      <Button variant="secondary" size="sm" className="text-xs font-bold gap-1.5 h-9 border border-border">
-                        <LayoutDashboard size={13} /> Dashboard
-                      </Button>
-                    </Link>
-                  </>
-                )}
+              <div className="p-3 bg-background rounded-lg border border-border">
+                <div className="text-rose-600 dark:text-rose-400 text-[11px] font-bold">Error Deduction (ভুল অক্ষর)</div>
+                <div className="text-lg font-black text-rose-600 dark:text-rose-400">-{testResult.errorCount} অক্ষর</div>
+              </div>
+              <div className="p-3 bg-background rounded-lg border border-primary/30">
+                <div className="text-primary text-[11px] font-bold">Final Govt Net WPM (চূড়ান্ত নিট)</div>
+                <div className="text-lg font-black text-primary">{testResult.wpm} WPM</div>
               </div>
             </div>
 
-            {/* Score Breakdown Table */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-              <div className="p-4 rounded-xl bg-background border border-border space-y-1">
-                <div className="text-[10px] font-bold text-muted-foreground uppercase">Net Speed (WPM)</div>
-                <div className={`text-2xl font-black ${
-                  testResult.wpm < 30
-                    ? "text-rose-600 dark:text-rose-400"
-                    : testResult.wpm <= 60
-                    ? "text-amber-600 dark:text-amber-400"
-                    : "text-emerald-600 dark:text-emerald-400"
-                }`}>
-                  {testResult.wpm} WPM
-                </div>
-                <div className="text-[10px] text-muted-foreground font-semibold">Required: {testResult.requiredWpm} WPM</div>
-              </div>
-              <div className="p-4 rounded-xl bg-background border border-border space-y-1">
-                <div className="text-[10px] font-bold text-muted-foreground uppercase">Accuracy</div>
-                <div className="text-2xl font-black text-foreground">{testResult.accuracy}%</div>
-                <div className="text-[10px] text-muted-foreground font-semibold">Required: {testResult.requiredAcc}%</div>
-              </div>
-              <div className="p-4 rounded-xl bg-background border border-border space-y-1">
-                <div className="text-[10px] font-bold text-muted-foreground uppercase">Exam Duration</div>
-                <div className="text-2xl font-black text-foreground">{durationSec / 60} Min</div>
-                <div className="text-[10px] text-muted-foreground font-semibold">Official Timer</div>
-              </div>
-              <div className="p-4 rounded-xl bg-background border border-border space-y-1">
-                <div className="text-[10px] font-bold text-muted-foreground uppercase">Layout Keymap</div>
-                <div className="text-2xl font-black text-foreground uppercase">{layoutParam}</div>
-                <div className="text-[10px] text-muted-foreground font-semibold">Active Layout</div>
-              </div>
-            </div>
-
-            {/* 🏛️ Official Bangladesh Govt Exam Marking & Penalty Simulator */}
-            <div className="p-4 sm:p-5 rounded-xl border border-primary/20 bg-primary/5 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck size={18} className="text-primary" />
-                  <h4 className="text-xs font-black text-foreground uppercase tracking-wide">
-                    বাংলাদেশ সরকারি নিয়োগ পরীক্ষা পোনাল্টি হিসাব (Govt Penalty Breakdown)
-                  </h4>
-                </div>
-                <Badge variant="outline" className="text-[10px] font-bold text-primary border-primary/30 bg-background">
-                  BD Govt Standard Rules
-                </Badge>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center text-xs pt-1">
-                <div className="p-3 bg-background rounded-lg border border-border">
-                  <div className="text-muted-foreground text-[11px]">Gross WPM (মোট স্পিড)</div>
-                  <div className="text-lg font-black text-foreground">
-                    {testResult.wpm + Math.round(testResult.errorCount / 5)} WPM
-                  </div>
-                </div>
-                <div className="p-3 bg-background rounded-lg border border-border">
-                  <div className="text-rose-600 dark:text-rose-400 text-[11px] font-bold">Error Deduction (ভুল অক্ষর)</div>
-                  <div className="text-lg font-black text-rose-600 dark:text-rose-400">-{testResult.errorCount} অক্ষর</div>
-                </div>
-                <div className="p-3 bg-background rounded-lg border border-primary/30">
-                  <div className="text-primary text-[11px] font-bold">Final Govt Net WPM (চূড়ান্ত নিট)</div>
-                  <div className="text-lg font-black text-primary">{testResult.wpm} WPM</div>
-                </div>
-              </div>
-
-              <p className="text-[11px] text-muted-foreground leading-relaxed pt-1">
-                💡 <strong>পরীক্ষা নীতি নোট:</strong> বাংলাদেশ সরকারি মন্ত্রণালয় ও ব্যাংকের টাইপিং টেস্ট নীতি অনুসারে প্রতি ভুলের জন্য নিট শব্দ থেকে বাদ দেয়া হয় এবং ৯৫% এর নিচে সঠিকতা হলে অকৃতকার্য গণ্য করা হয়।
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+            <p className="text-[11px] text-muted-foreground leading-relaxed pt-1">
+              💡 <strong>পরীক্ষা নীতি নোট:</strong> বাংলাদেশ সরকারি মন্ত্রণালয় ও ব্যাংকের টাইপিং টেস্ট নীতি অনুসারে প্রতি ভুলের জন্য নিট শব্দ থেকে বাদ দেয়া হয় এবং ৯৫% এর নিচে সঠিকতা হলে অকৃতকার্য গণ্য করা হয়।
+            </p>
+          </div>
+        </div>
       ) : (
         <div className="border border-border bg-card rounded-2xl p-6 shadow-xs space-y-4">
           {/* Typing Progress Bar */}

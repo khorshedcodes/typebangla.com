@@ -268,7 +268,7 @@ const signLicensors = new Set([
   "\u09a4", "\u09a5", "\u09a6", "\u09a7", "\u09a8",
   "\u09aa", "\u09ab", "\u09ac", "\u09ad", "\u09ae",
   "\u09af", "\u09b0", "\u09b2", "\u09b6", "\u09b7",
-  "\u09b8", "\u09b9", "\u09a1\u09bc", "\u09a2\u09bc", "\u09af\u09bc",
+  "\u09b8", "\u09b9", "\u09a1\u09bc", "\u09a2\u09bc", "\u09af\u09bc", "\u09bc",
   "\u09cd", "\u09cd\u09af", "\u09cd\u09ac", "\u09cd\u09b0", "\u09c3"
 ]);
 
@@ -313,8 +313,10 @@ export function avroTransliterate(input: string): string {
           if (prevToken && prevToken.type === "consonant") result += "\u09cd"; // ্
           result += currentToken.ban;
         } else if (currentToken.type === "vowel") {
-          const lastChar = result.length > 0 ? result[result.length - 1] : "";
-          if (lastChar && signLicensors.has(lastChar)) {
+          const last1 = result.length >= 1 ? result.slice(-1) : "";
+          const last2 = result.length >= 2 ? result.slice(-2) : "";
+          const isLicensor = (last1 && signLicensors.has(last1)) || (last2 && signLicensors.has(last2));
+          if (isLicensor) {
             result += currentToken.sign !== undefined ? currentToken.sign : currentToken.ban;
           } else {
             result += currentToken.ban;
@@ -494,6 +496,16 @@ export const UNICODE_MAP: LayoutMap = {
 };
 
 const SYMBOL_KEY_MAP: Record<string, { code: string; shift: boolean }> = {
+  "!": { code: "Digit1", shift: true },
+  "@": { code: "Digit2", shift: true },
+  "#": { code: "Digit3", shift: true },
+  "$": { code: "Digit4", shift: true },
+  "%": { code: "Digit5", shift: true },
+  "^": { code: "Digit6", shift: true },
+  "&": { code: "Digit7", shift: true },
+  "*": { code: "Digit8", shift: true },
+  "(": { code: "Digit9", shift: true },
+  ")": { code: "Digit0", shift: true },
   "-": { code: "Minus", shift: false },
   "_": { code: "Minus", shift: true },
   "=": { code: "Equal", shift: false },
@@ -523,9 +535,10 @@ const SYMBOL_KEY_MAP: Record<string, { code: string; shift: boolean }> = {
  * e.g., ্ + ি -> ই (Rossho I), ্ + ী -> ঈ (Dirgho I), ্ + া -> আ, etc.
  */
 export function applyHasantaVowelConversion(input: string): string {
-  if (!input || !input.includes("\u09cd")) return input;
+  if (!input || !input.includes("\u09cd") || input.length <= 1) return input;
 
   return input
+    .replace(/([\u0985-\u09b9\u09dc-\u09df])\u09b0\u09cd/g, "\u09b0\u09cd$1") // Reph reordering (consonant + র্ -> র্ + consonant)
     .replace(/\u09cd\u09bf/g, "\u0987") // ্ + ি -> ই (Rossho I)
     .replace(/\u09cd\u09c0/g, "\u0988") // ্ + ী -> ঈ (Dirgho I)
     .replace(/\u09cd\u09be/g, "\u0986") // ্ + া -> আ
@@ -544,6 +557,12 @@ export function applyHasantaVowelConversion(input: string): string {
  */
 export function mapInputToBangla(rawInput: string, layout: string, isShiftPressed = false): string {
   if (!rawInput) return "";
+  const MODIFIER_KEYS = new Set([
+    "ShiftLeft", "ShiftRight", "ControlLeft", "ControlRight",
+    "AltLeft", "AltRight", "CapsLock", "Tab", "Enter", "Backspace", "Escape", "MetaLeft", "MetaRight"
+  ]);
+  if (MODIFIER_KEYS.has(rawInput)) return "";
+
   if (layout === "english") return rawInput;
   if (layout === "avro") return avroTransliterate(rawInput);
 
@@ -556,7 +575,7 @@ export function mapInputToBangla(rawInput: string, layout: string, isShiftPresse
   // 1. Direct Keyboard Event Code lookup (e.g. "KeyK", "Digit1", "Semicolon", "Space")
   if (mapTable[rawInput]) {
     const mapped = isShiftPressed ? mapTable[rawInput].shift : mapTable[rawInput].normal;
-    return mapped !== undefined ? mapped : rawInput;
+    return mapped !== undefined ? mapped : "";
   }
   if (rawInput === "Space") return " ";
 

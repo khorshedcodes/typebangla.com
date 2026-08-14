@@ -69,6 +69,7 @@ export default function TypingArea({
     startTime,
     elapsedTime,
     errorIndices,
+    updateElapsedTime,
   } = useTypingStore();
 
   const [isFocused, setIsFocused] = useState(false);
@@ -124,6 +125,15 @@ export default function TypingArea({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isFocused, isCompleted, handleKeystroke]);
+
+  // Live Timer Interval (Increments elapsedTime every 1 sec while active)
+  useEffect(() => {
+    if (!isStarted || isCompleted) return;
+    const timer = setInterval(() => {
+      updateElapsedTime();
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isStarted, isCompleted, updateElapsedTime]);
 
   useEffect(() => {
     if (!isStarted || targetWpm <= 0 || !startTime) {
