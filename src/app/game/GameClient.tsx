@@ -550,7 +550,7 @@ export default function GameClient() {
           charToAdd = e.key;
         } else {
           charToAdd = mapInputToBangla(e.code || e.key, activeLayout, e.shiftKey);
-          if (!charToAdd || charToAdd.length > 1) return;
+          if (!charToAdd) return;
         }
 
         const newBuffer = typedBuffer + charToAdd;
