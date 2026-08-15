@@ -17,6 +17,11 @@ export default function TtsClient() {
     if (typeof window !== "undefined" && !("speechSynthesis" in window)) {
       setSupported(false);
     }
+    return () => {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
   }, []);
 
   const handlePlay = () => {
