@@ -52,8 +52,9 @@ export default function BanglaLoremClient() {
     setWordsPerParagraph(presetWords);
   };
 
-  const totalWords = generatedText ? generatedText.trim().split(/\s+/).length : 0;
-  const totalChars = generatedText ? generatedText.length : 0;
+  const plainContent = generatedText ? generatedText.replace(/<[^>]*>/g, "").replace(/^>\s*/gm, "").trim() : "";
+  const totalWords = plainContent ? plainContent.split(/\s+/).length : 0;
+  const totalChars = plainContent ? plainContent.length : 0;
 
   return (
     <main className="container max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-10 fade-in text-foreground">

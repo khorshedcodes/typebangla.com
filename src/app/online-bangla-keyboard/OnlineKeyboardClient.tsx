@@ -137,7 +137,7 @@ export default function OnlineKeyboardClient() {
 
     // For fixed layout conversion (UniBijoy / Jatiya / Probhat / Inscript / Unicode)
     if (selectedLayout !== "avro" && selectedLayout !== "english" && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      const converted = mapInputToBangla(e.key, selectedLayout, e.shiftKey);
+      const converted = mapInputToBangla(e.code || e.key, selectedLayout, e.shiftKey);
       if (converted && converted !== e.key) {
         e.preventDefault();
         const start = textareaRef.current?.selectionStart || text.length;
