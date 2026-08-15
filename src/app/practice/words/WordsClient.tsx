@@ -178,6 +178,27 @@ export default function WordsClient() {
             </button>
           </div>
 
+          {/* Layout Selector Pills */}
+          <div className="flex items-center gap-1.5 flex-wrap pt-2 border-t border-border w-full">
+            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mr-1">লেআউট:</span>
+            {currentAvailableLayouts.map((l) => {
+              const isSelected = activeLayout === l.id;
+              return (
+                <button
+                  key={l.id}
+                  onClick={() => setActiveLayout(l.id as KeyboardLayout)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border",
+                    isSelected
+                      ? "bg-emerald-500 text-white border-emerald-600 shadow-xs font-black dark:bg-emerald-600"
+                      : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  )}
+                >
+                  {l.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </Card>
 
