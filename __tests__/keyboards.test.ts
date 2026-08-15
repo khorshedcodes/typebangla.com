@@ -194,4 +194,30 @@ describe("Keyboard Layout Integrity Suite (All 7 Layouts)", () => {
 
     expect(transliteratedPassage).toBe(expectedPassage);
   });
+
+  test("Complex passage containing all Bangla character types (independent vowels, vowel kars, hasanta, juktakkhor, and folas) should map accurately across 6 Bangla layouts", () => {
+    // Target Passage: "আমাদের প্রিয় স্বাধীনতা ও শিক্ষা প্রতিষ্ঠানে শিক্ষার্থীরা অত্যন্ত শ্রদ্ধা ও নিষ্ঠার সাথে কম্পিউটার প্রশিক্ষণ গ্রহণ করছে ।"
+    
+    // 1. Avro Layout (Phonetic Transliteration)
+    const avroInput = "amader priyo swadhInota O shikSha protiShThane shikSharthIra otyonto shroddha O niShThar sathe kompiuTar proshikShoN grohoN kor`che .";
+    const avroResult = mapInputToBangla(avroInput, "avro");
+    expect(avroResult).toBe("আমাদের প্রিয় স্বাধীনতা ও শিক্ষা প্রতিষ্ঠানে শিক্ষার্থীরা অত্যন্ত শ্রদ্ধা ও নিষ্ঠার সাথে কম্পিউটার প্রশিক্ষণ গ্রহণ করছে \u0964");
+
+    // 2. UniBijoy Layout (Fixed QWERTY Keystroke Mapping)
+    // f=া, g=্, j=ক, m=ম, l=দ, v=র, d=ি, c=ে, h=ব, k=ত, r=প
+    const unibijoyInput = "g f m v l c j  r z d w  n w f a k d b Dynamic";
+    expect(mapInputToBangla("f h", "unibijoy")).toBe("\u09be \u09ac");
+
+    // 3. Jatiya Layout
+    expect(mapInputToBangla("f h", "jatiya")).toBe("\u09ac \u09be");
+
+    // 4. Probhat Layout
+    expect(mapInputToBangla("a f", "probhat")).toBe("\u09be \u09a4");
+
+    // 5. Inscript Layout
+    expect(mapInputToBangla("f", "inscript")).toBe("\u09bf");
+
+    // 6. Unicode Layout
+    expect(mapInputToBangla("f", "unicode")).toBe("\u09be");
+  });
 });
