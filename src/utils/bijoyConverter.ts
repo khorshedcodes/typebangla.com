@@ -274,6 +274,18 @@ export function bijoyToUnicode(text: string): string {
           if (CONSONANTS.has(cUni)) {
             cluster.push(cUni);
             j++;
+            if (j < chars.length && chars[j] === "&") {
+              cluster.push("্");
+              j++;
+              if (j < chars.length) {
+                const linkedUni = ANSI_TO_UNICODE[chars[j]] || chars[j];
+                if (CONSONANTS.has(linkedUni)) {
+                  cluster.push(linkedUni);
+                  j++;
+                }
+              }
+            }
+            break;
           } else break;
         }
         result.push(...cluster);
