@@ -27,6 +27,7 @@ export default function SlugClient() {
     if (!text) return "";
     const regex = /[^\u0980-\u09FFa-zA-Z0-9]+/g;
     let slug = text
+      .replace(/[\u200B-\u200D\uFEFF]/g, "")
       .trim()
       .replace(regex, separator)
       .toLowerCase();

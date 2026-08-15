@@ -37,8 +37,10 @@ export default function NumberClient() {
   const outputText = convertNumbers(inputText, direction);
 
   const toggleDirection = () => {
-    setDirection((prev) => (prev === "enToBn" ? "bnToEn" : "enToBn"));
-    setInputText(outputText);
+    const nextDir = direction === "enToBn" ? "bnToEn" : "enToBn";
+    const converted = convertNumbers(inputText, direction);
+    setDirection(nextDir);
+    setInputText(converted);
   };
 
   const handleCopy = () => {

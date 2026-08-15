@@ -26,13 +26,13 @@ export default function CleanerClient() {
     // Fix ZWNJ and invisible zero-width characters
     cleaned = cleaned.replace(/[\u200B-\u200D\uFEFF]/g, "");
 
-    // Fix Dari & Comma spacing
+    // Fix Dari & Comma spacing (exclude closing quotes/brackets from space insertion)
     if (fixPunctuation) {
       cleaned = cleaned
         .replace(/\s+।/g, "।")
-        .replace(/।([^\s।\n])/g, "। $1")
+        .replace(/।([^\s।\n”"'\)\]\}])/g, "। $1")
         .replace(/\s+,/g, ",")
-        .replace(/,([^\s,\n])/g, ", $1");
+        .replace(/,([^\s,\n”"'\)\]\}])/g, ", $1");
     }
 
     // Remove extra spaces
