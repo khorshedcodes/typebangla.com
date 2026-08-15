@@ -33,6 +33,8 @@ const ENGLISH_LAYOUTS = [
   { id: "english",  label: "English QWERTY" },
 ];
 
+import { shuffleArray } from "@/utils/shuffle";
+
 export default function SentencesClient() {
   const searchParams = useSearchParams();
   const langParam = searchParams.get("lang");
@@ -67,7 +69,7 @@ export default function SentencesClient() {
       else if (level === 2) pool = ENGLISH_SENTENCES_LEVEL_2;
       else pool = ENGLISH_SENTENCES_LEVEL_3;
     }
-    const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 10);
+    const shuffled = shuffleArray(pool).slice(0, 10);
     setSentenceList(shuffled);
     setCurrentIndex(0);
     if (shuffled.length > 0) {

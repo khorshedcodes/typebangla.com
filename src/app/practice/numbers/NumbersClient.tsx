@@ -34,6 +34,8 @@ const ENGLISH_LAYOUTS = [
   { id: "english",  label: "English QWERTY" },
 ];
 
+import { shuffleArray } from "@/utils/shuffle";
+
 export default function NumbersClient() {
   const searchParams = useSearchParams();
   const langParam = searchParams.get("lang");
@@ -54,7 +56,7 @@ export default function NumbersClient() {
     setSelectedDuration(0);
 
     const pool = isEnglishMode ? ENGLISH_NUMBERS_POOL : BANGLA_NUMBERS_POOL;
-    const shuffled = [...pool].sort(() => Math.random() - 0.5);
+    const shuffled = shuffleArray(pool);
     const stream = [...shuffled, ...shuffled, ...shuffled].join(" ");
 
     setTargetText(stream);

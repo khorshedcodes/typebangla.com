@@ -13,6 +13,8 @@ import { Badge } from "../../../components/ui/badge";
 import { Card } from "../../../components/ui/card";
 import { cn } from "@/utils/cn";
 
+import { shuffleArray } from "@/utils/shuffle";
+
 export type WordCategory = "frequent-bn" | "juktakkhor" | "govt-terms" | "english-core";
 
 const ALL_ENGLISH_WORDS = [
@@ -95,7 +97,7 @@ export default function WordsClient() {
     } else {
       pool = GOVT_TERMS;
     }
-    const shuffled = [...pool].sort(() => Math.random() - 0.5);
+    const shuffled = shuffleArray(pool);
     setTargetText(shuffled.slice(0, wordCount).join(" "));
     resetTest();
   };
