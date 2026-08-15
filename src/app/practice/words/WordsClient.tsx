@@ -70,10 +70,13 @@ export default function WordsClient() {
     setTargetText,
     resetTest,
     targetText,
-    typedText
+    typedText,
+    adaptiveLevel,
+    incrementAdaptiveLevel,
+    decrementAdaptiveLevel,
+    resetAdaptiveLevel,
   } = useTypingStore();
 
-  const [category, setCategory] = useState<WordCategory>(isEnglishMode ? "english-core" : "frequent-bn");
   const [wordCount, setWordCount] = useState<number>(30);
 
   const generateWordsStream = () => {
@@ -81,14 +84,16 @@ export default function WordsClient() {
     setSelectedDuration(0);
 
     let pool: string[] = [];
-    if (isEnglishMode || category === "english-core") {
+    if (isEnglishMode) {
       pool = ALL_ENGLISH_WORDS;
-    } else if (category === "juktakkhor") {
-      pool = JUKTAKKHOR_WORDS;
-    } else if (category === "govt-terms") {
-      pool = GOVT_TERMS;
+    } else if (adaptiveLevel === 1) {
+      pool = BANGLA_WORDS_LEVEL_1;
+    } else if (adaptiveLevel === 2) {
+      pool = BANGLA_WORDS_LEVEL_2;
+    } else if (adaptiveLevel === 3) {
+      pool = [...BANGLA_WORDS_LEVEL_3, ...JUKTAKKHOR_WORDS];
     } else {
-      pool = [...BANGLA_WORDS_LEVEL_1, ...BANGLA_WORDS_LEVEL_2, ...BANGLA_WORDS_LEVEL_3];
+      pool = GOVT_TERMS;
     }
     const shuffled = [...pool].sort(() => Math.random() - 0.5);
     setTargetText(shuffled.slice(0, wordCount).join(" "));
@@ -102,7 +107,15 @@ export default function WordsClient() {
       setActiveLayout("avro");
     }
     generateWordsStream();
-  }, [category, langParam, wordCount, activeLayout]);
+  }, [adaptiveLevel, langParam, wordCount, activeLayout]);
+
+  const handleSessionComplete = (wpm: number, accuracy: number) => {
+    if (accuracy >= 90) {
+      incrementAdaptiveLevel();
+    } else if (accuracy < 85) {
+      decrementAdaptiveLevel();
+    }
+  };
 
   const currentAvailableLayouts = isEnglishMode ? ENGLISH_LAYOUTS : BANGLA_LAYOUTS;
   const nextTargetChar = targetText ? targetText[typedText.length] || "" : "";
@@ -115,32 +128,39 @@ export default function WordsClient() {
           <ArrowLeft size={14} /> প্র্যাকটিস হাব-এ ফিরে যান (Back to Practice Hub)
         </Link>
         <Badge variant="outline" className="text-xs font-mono font-bold border-primary/30 text-primary uppercase">
-          UNTIMED WORD DRILL ARENA
+          ADAPTIVE WORD DRILL ARENA
         </Badge>
       </div>
 
-      {/* ── Toolbar: Category & Word Count Pills ── */}
+      {/* ── Toolbar: Adaptive Skill Level & Word Count ── */}
       <Card className="rounded-2xl border border-border bg-card shadow-xs p-4 space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
 
-          {/* Category Selector (Bangla only) */}
+          {/* Adaptive Skill Level Indicator */}
           {!isEnglishMode ? (
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">ক্যাটাগরি:</span>
-              {BANGLA_CATEGORIES.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setCategory(cat.id as WordCategory)}
-                  className={cn(
-                    "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border",
-                    category === cat.id
-                      ? "bg-primary text-primary-foreground border-primary shadow-xs font-black"
-                      : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
-                  )}
-                >
-                  {cat.label}
-                </button>
-              ))}
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">অ্যাডাপ্টিভ স্কিল লেভেল:</span>
+              <span className="px-3.5 py-1.5 rounded-xl text-xs font-black bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 shadow-2xs">
+                <Sparkles size={13} className="text-emerald-500 animate-pulse" />
+                <span>
+                  {adaptiveLevel === 1 && "লেভেল ১ (প্রাথমিক শব্দ)"}
+                  {adaptiveLevel === 2 && "লেভেল ২ (কার-চিহ্ন শব্দ)"}
+                  {adaptiveLevel === 3 && "লেভেল ৩ (জটিল যুক্তবর্ণ)"}
+                  {adaptiveLevel === 4 && "লেভেল ৪ (সরকারি প্রশাসনিক শব্দ)"}
+                </span>
+              </span>
+
+              <button
+                type="button"
+                onClick={() => {
+                  resetAdaptiveLevel();
+                  generateWordsStream();
+                }}
+                className="text-[11px] font-bold text-muted-foreground hover:text-foreground underline ml-1 cursor-pointer"
+                title="ওয়ার্মআপ শুরু করতে লেভেল ১-এ রিসেট করুন"
+              >
+                🔄 ওয়ার্মআপ রিসেট (Lvl 1)
+              </button>
             </div>
           ) : (
             <div className="flex items-center gap-2">
@@ -203,7 +223,7 @@ export default function WordsClient() {
       </Card>
 
       {/* ── Typing Arena ── */}
-      <TypingArea hideModeHeader={true} />
+      <TypingArea hideModeHeader={true} onSessionComplete={handleSessionComplete} />
 
       {/* ── Virtual Keyboard & Target Key Highlight ── */}
       <Card className="rounded-2xl border border-border bg-card shadow-xs p-4 sm:p-6 space-y-4">

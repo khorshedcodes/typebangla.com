@@ -65,6 +65,7 @@ interface TypingState {
   keyStats: Record<string, { correct: number; total: number }>;
   targetWpm: number;
   isFocusModeActive: boolean;
+  adaptiveLevel: number;
 
   // Actions
   setFocusModeActive: (active: boolean) => void;
@@ -94,6 +95,10 @@ interface TypingState {
   setTheme: (theme: "light" | "dark") => void;
   setTargetWpm: (wpm: number) => void;
   clearKeyStats: () => void;
+  setAdaptiveLevel: (level: number) => void;
+  incrementAdaptiveLevel: () => void;
+  decrementAdaptiveLevel: () => void;
+  resetAdaptiveLevel: () => void;
 }
 
 export const useTypingStore = create<TypingState>((set, get) => ({
@@ -103,6 +108,7 @@ export const useTypingStore = create<TypingState>((set, get) => ({
   soundVolume: 0.5,
   soundProfile: "mechanical",
   selectedDuration: 60, // Default 1 minute
+  adaptiveLevel: 1,
   
   // Curriculum & Prompt Settings
   selectedLevel: 1,
@@ -823,7 +829,11 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       localStorage.removeItem("typemaster_keystats");
       set({ keyStats: {} });
     }
-  }
+  },
+  setAdaptiveLevel: (level) => set({ adaptiveLevel: Math.max(1, Math.min(4, level)) }),
+  incrementAdaptiveLevel: () => set((s) => ({ adaptiveLevel: Math.min(4, s.adaptiveLevel + 1) })),
+  decrementAdaptiveLevel: () => set((s) => ({ adaptiveLevel: Math.max(1, s.adaptiveLevel - 1) })),
+  resetAdaptiveLevel: () => set({ adaptiveLevel: 1 }),
 }));
 
 // Helpers for checking typing matches
