@@ -224,8 +224,8 @@ export function bijoyToUnicode(text: string): string {
   for (let i = 0; i < chars.length; i++) {
     const char = chars[i];
 
-    if (char === "w" || char === "c" || char === "t") {
-      let kar = char === "w" ? "ি" : char === "c" ? "ে" : "ৈ";
+    if (char === "w" || char === "c") {
+      let kar = char === "w" ? "ি" : "ে";
       let j = i + 1;
       const cluster: string[] = [];
 
@@ -262,6 +262,25 @@ export function bijoyToUnicode(text: string): string {
       result.push(...cluster);
       result.push(kar);
       i = j - 1;
+    } else if (char === "t") {
+      // Position-aware 't': If followed by a consonant, it's OI-kar ('ৈ'); otherwise Anusvara ('ং')
+      let j = i + 1;
+      const nextUni = j < chars.length ? (ANSI_TO_UNICODE[chars[j]] || chars[j]) : "";
+      if (CONSONANTS.has(nextUni)) {
+        const cluster: string[] = [];
+        while (j < chars.length) {
+          const cUni = ANSI_TO_UNICODE[chars[j]] || chars[j];
+          if (CONSONANTS.has(cUni)) {
+            cluster.push(cUni);
+            j++;
+          } else break;
+        }
+        result.push(...cluster);
+        result.push("ৈ");
+        i = j - 1;
+      } else {
+        result.push("ং");
+      }
     } else {
       result.push(ANSI_TO_UNICODE[char] || char);
     }
