@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { Metadata } from "next";
 import ExamCenter from "../../../components/ExamCenter";
 import { FileText } from "lucide-react";
@@ -22,7 +22,9 @@ export default function SentencesPracticePage() {
         <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground">বাক্য অনুশীলন</h1>
         <p className="text-sm text-muted-foreground">সম্পূর্ণ বাক্য লিখে বাক্যের গঠন ও দাড়ি/কমা সহ টাইপ শিখুন।</p>
       </div>
-      <SentencesClient />
+      <Suspense fallback={<div className="p-8 text-center text-xs font-mono text-muted-foreground">Loading Sentence Practice...</div>}>
+        <SentencesClient />
+      </Suspense>
     </main>
   );
 }

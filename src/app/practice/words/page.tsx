@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { Metadata } from "next";
 import ExamCenter from "../../../components/ExamCenter";
 import { AlignLeft } from "lucide-react";
@@ -22,7 +22,9 @@ export default function WordsPracticePage() {
         <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground">শব্দ অনুশীলন</h1>
         <p className="text-sm text-muted-foreground">শব্দের পর শব্দ দ্রুত টাইপ করে আঙুলের পেশীর স্মৃতি (Muscle Memory) তৈরি করুন।</p>
       </div>
-      <WordsClient />
+      <Suspense fallback={<div className="p-8 text-center text-xs font-mono text-muted-foreground">Loading Words Drill...</div>}>
+        <WordsClient />
+      </Suspense>
     </main>
   );
 }

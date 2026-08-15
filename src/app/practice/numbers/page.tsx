@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { Metadata } from "next";
 import ExamCenter from "../../../components/ExamCenter";
 import { Binary } from "lucide-react";
@@ -22,7 +22,9 @@ export default function NumbersPracticePage() {
         <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground">সংখ্যা ও বিশেষ চিহ্ন অনুশীলন</h1>
         <p className="text-sm text-muted-foreground">১, ২, ৩... এবং বিশেষ গাণিতিক/পাঙ্কচুয়েশন চিহ্ন টাইপ করার দক্ষতা।</p>
       </div>
-      <NumbersClient />
+      <Suspense fallback={<div className="p-8 text-center text-xs font-mono text-muted-foreground">Loading Numbers Drill...</div>}>
+        <NumbersClient />
+      </Suspense>
     </main>
   );
 }
