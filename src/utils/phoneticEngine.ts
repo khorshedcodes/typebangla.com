@@ -101,6 +101,7 @@ export function parse_phonetic_input(keystroke_buffer = "", targeted_word = ""):
   const safeBuffer = keystroke_buffer || "";
   const safeTarget = targeted_word || "";
   const transientText = avroTransliterate(safeBuffer);
+  const cleanTransient = transientText.replace(/\u09cd$/, "");
   
   if (safeTarget === transientText) {
     return {
@@ -110,7 +111,7 @@ export function parse_phonetic_input(keystroke_buffer = "", targeted_word = ""):
     };
   }
   
-  if (safeTarget.startsWith(transientText)) {
+  if (safeTarget.startsWith(transientText) || (cleanTransient && safeTarget.startsWith(cleanTransient))) {
     const remainingTarget = safeTarget.slice(transientText.length);
     const nextChar = remainingTarget[0] || "";
     

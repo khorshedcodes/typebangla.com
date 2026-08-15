@@ -235,7 +235,7 @@ export const AVRO_BANGLA_LEGEND_MAP: Record<string, { normal: string; shift: str
   KeyL: { normal: "ল", shift: "্ল" },
   KeyS: { normal: "স", shift: "শ" },
   KeyH: { normal: "হ", shift: "ঃ" },
-  KeyA: { normal: "া", shift: "আ" },
+  KeyA: { normal: "া", shift: "অ" },
   KeyI: { normal: "ি", shift: "ই" },
   KeyU: { normal: "ু", shift: "উ" },
   KeyE: { normal: "ে", shift: "এ" },
@@ -269,6 +269,7 @@ const signLicensors = new Set([
   "\u09aa", "\u09ab", "\u09ac", "\u09ad", "\u09ae",
   "\u09af", "\u09b0", "\u09b2", "\u09b6", "\u09b7",
   "\u09b8", "\u09b9", "\u09a1\u09bc", "\u09a2\u09bc", "\u09af\u09bc", "\u09bc",
+  "\u0995\u09cd\u09b7", "\u099c\u09cd\u099e",
   "\u09cd", "\u09cd\u09af", "\u09cd\u09ac", "\u09cd\u09b0", "\u09c3"
 ]);
 
