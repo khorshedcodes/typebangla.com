@@ -68,6 +68,10 @@ const LAYOUT_DETAILS: Record<string, { name: string; nameBn: string; desc: strin
   },
 };
 
+export function generateStaticParams() {
+  return Object.keys(LAYOUT_DETAILS).map((layout) => ({ layout }));
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { layout } = await params;
   const detail = LAYOUT_DETAILS[layout];
@@ -123,7 +127,7 @@ export default async function KeyboardDetailPage({ params }: Props) {
       <div className="space-y-3">
         <h2 className="text-base font-extrabold text-foreground">কীবোর্ড লেআউট ম্যাপ (Interactive Map)</h2>
         <div className="border border-border bg-card p-4 rounded-2xl">
-          <VirtualKeyboard nextChar="" />
+          <VirtualKeyboard activeLayout={layout as KeyboardLayout} nextChar="" />
         </div>
       </div>
 

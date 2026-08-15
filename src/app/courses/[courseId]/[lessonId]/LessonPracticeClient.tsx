@@ -171,22 +171,22 @@ export default function LessonPracticeClient({
 
     const totalChars = typedText.length;
     const elapsedMinutes = elapsedTime / 60;
-    const grossWpm = Math.round(totalChars / 5 / elapsedMinutes);
 
     let correctChars = 0;
     for (let i = 0; i < Math.min(typedText.length, targetText.length); i++) {
       if (typedText[i] === targetText[i]) correctChars++;
     }
-    const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 0;
-    const passed = grossWpm >= activeLesson.targetWpm && accuracy >= 85;
+    const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 100;
+    const netWpm = elapsedMinutes > 0 ? Math.max(0, Math.round((correctChars / 5) / elapsedMinutes)) : 0;
+    const passed = netWpm >= activeLesson.targetWpm && accuracy >= 85;
 
-    saveLessonProgress(activeLesson.id, grossWpm, accuracy, {
+    saveLessonProgress(activeLesson.id, netWpm, accuracy, {
       targetWpm: activeLesson.targetWpm,
       targetAccuracy: 85,
     });
 
     queueMicrotask(() => {
-      setResultState({ wpm: grossWpm, accuracy, passed });
+      setResultState({ wpm: netWpm, accuracy, passed });
       if (passed && !nextLesson) {
         setShowCelebrationModal(true);
       }
