@@ -162,8 +162,10 @@ export default function SpeedTestPracticeClient() {
               <button
                 key={l.id}
                 onClick={() => {
+                  const nextLang = l.id === "english" ? "english" : "bangla";
+                  setLang(nextLang);
                   setActiveLayout(l.id as KeyboardLayout);
-                  setupSpeedTest(selectedDuration || 300, l.id === "english" ? "english" : "bangla");
+                  setupSpeedTest(selectedDuration || 300, nextLang);
                 }}
                 className={cn(
                   "px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border cursor-pointer",
