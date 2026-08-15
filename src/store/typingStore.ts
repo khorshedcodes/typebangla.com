@@ -344,7 +344,9 @@ export const useTypingStore = create<TypingState>((set, get) => ({
     const durationSec = startTime ? (Date.now() - startTime) / 1000 : elapsedTime;
     const grossWpm = Math.round((typedText.length / 5) / (Math.max(0.5, durationSec) / 60));
     const netWpm = Math.round(Math.max(0, (typedText.length - (errorIndices.length * 5)) / 5) / (Math.max(0.5, durationSec) / 60));
-    const accuracy = Math.round(((typedText.length - errorIndices.length) / (typedText.length || 1)) * 100);
+    const accuracy = typedText.length > 0 
+      ? Math.round(((typedText.length - errorIndices.length) / typedText.length) * 100)
+      : 100;
     
     const result: ExamResult = {
       id: Math.random().toString(36).substring(2, 9),
