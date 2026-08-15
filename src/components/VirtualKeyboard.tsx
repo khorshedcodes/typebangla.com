@@ -84,9 +84,10 @@ const getHighlightKeys = (char: string, layout: KeyboardLayout): { codes: string
 
   // 0. Independent Vowel Sequences (e.g. "ই" / Rossho I = G + D, "ঈ" = G + Shift + D) in UniBijoy, Jatiya, Unicode
   if (layout === "unibijoy" || layout === "jatiya" || layout === "unicode") {
+    const aKey = layout === "jatiya" ? "KeyH" : "KeyF";
     const vowelKeyMap: Record<string, { codes: string[]; needsShift: boolean }> = {
-      "\u0985": { codes: ["KeyF", "ShiftLeft", "ShiftRight"], needsShift: true },  // অ
-      "\u0986": { codes: ["KeyG", "KeyF"], needsShift: false },                  // আ
+      "\u0985": { codes: [aKey, "ShiftLeft", "ShiftRight"], needsShift: true },  // অ
+      "\u0986": { codes: ["KeyG", aKey], needsShift: false },                  // আ
       "\u0987": { codes: ["KeyG", "KeyD"], needsShift: false },                  // ই (Rossho I / Hrossho I)
       "\u0988": { codes: ["KeyG", "KeyD", "ShiftLeft", "ShiftRight"], needsShift: true }, // ঈ (Dirgho I)
       "\u0989": { codes: ["KeyG", "KeyS"], needsShift: false },                  // উ
