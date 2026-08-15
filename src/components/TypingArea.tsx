@@ -316,37 +316,18 @@ export default function TypingArea({
         </div>
       </div>
 
-      {/* Mode Header Banner */}
+      {/* Minimal Top Action Bar (Back Link & Mode Indicator) */}
       {!hideModeHeader && (
-        <div className="border border-border/80 bg-card/60 backdrop-blur-md p-3 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs shadow-xs">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-black text-foreground flex items-center gap-1.5 text-xs">
-              {isExamMode ? "🏛️ TypeBangla Timed Exam Mode" : "🌱 Free Practice Mode"}
-            </span>
-            {isExamMode ? (
-              <>
-                <Badge variant="outline" className="border-border text-foreground font-semibold bg-secondary text-[10px]">
-                  Countdown Timer Active
-                </Badge>
-              </>
-            ) : (
-              <>
-                <Badge variant="outline" className="border-border text-foreground font-semibold bg-secondary text-[10px]">
-                  Untimed Practice
-                </Badge>
-                <Badge variant="outline" className="border-border text-foreground font-semibold bg-secondary text-[10px]">
-                  Instant Restart
-                </Badge>
-              </>
-            )}
-          </div>
-
+        <div className="flex items-center justify-between text-xs px-1">
           <Link href={computedBackLink}>
-            <Button variant="outline" size="sm" className="h-7 text-xs font-bold gap-1.5 border-border bg-secondary hover:bg-secondary/80 text-foreground">
-              <ArrowLeft size={12} />
+            <Button variant="ghost" size="sm" className="h-7 text-xs font-bold gap-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary/60">
+              <ArrowLeft size={13} />
               <span>{computedBackLabel}</span>
             </Button>
           </Link>
+          <span className="font-mono text-[10px] font-bold text-muted-foreground tracking-wider uppercase">
+            {isExamMode ? "🏛️ Timed Exam Mode" : "🌱 Free Practice"}
+          </span>
         </div>
       )}
 
