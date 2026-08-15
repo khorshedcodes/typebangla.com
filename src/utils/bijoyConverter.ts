@@ -7,7 +7,7 @@
 
 // Comprehensive mapping of Unicode Bangla to SutonnyMJ ANSI characters
 export const UNICODE_TO_ANSI: Record<string, string> = {
-  "অ": "a",
+  "অ": "A",
   "আ": "Av",
   "ই": "B",
   "ঈ": "C",
@@ -81,6 +81,7 @@ export const UNICODE_TO_ANSI: Record<string, string> = {
 
 // Precise ANSI to Unicode reverse lookup dictionary
 export const ANSI_TO_UNICODE: Record<string, string> = {
+  "A": "অ",
   "a": "ধ",
   "Av": "আ",
   "B": "ই",
