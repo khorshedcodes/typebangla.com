@@ -352,11 +352,11 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       id: Math.random().toString(36).substring(2, 9),
       date: new Date().toISOString().split("T")[0],
       layout: activeLayout,
-      wpm: Math.max(0, grossWpm),
+      wpm: Math.max(0, netWpm),
       accuracy: Math.max(0, Math.min(100, accuracy)),
       duration: Math.round(durationSec),
       errors: errorIndices.length,
-      language: targetText.match(/[a-zA-Z]/) ? "english" : "bangla"
+      language: /[\u0980-\u09FF]/.test(targetText) ? "bangla" : "english"
     };
 
     const newHistory = [result, ...history];
