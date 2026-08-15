@@ -199,7 +199,7 @@ export function unicodeToBijoy(text: string): string {
       } else if (nextChar === "ৌ") {
         result.push("c");
         cluster.forEach(c => result.push(UNICODE_TO_ANSI[c] || c));
-        result.push("š");
+        result.push("\u0160");
         i++;
       } else {
         cluster.forEach(c => result.push(UNICODE_TO_ANSI[c] || c));
@@ -251,10 +251,10 @@ export function bijoyToUnicode(text: string): string {
         }
       }
 
-      if (char === "c" && j < chars.length && chars[j] === "v") {
+      if (char === "c" && j < chars.length && (chars[j] === "v" || chars[j] === "\u0160" || chars[j] === "š")) {
         kar = "ো";
         j++;
-      } else if (char === "c" && j < chars.length && chars[j] === "š") {
+      } else if (char === "c" && j < chars.length && (chars[j] === "\u0160" || chars[j] === "š")) {
         kar = "ৌ";
         j++;
       }
