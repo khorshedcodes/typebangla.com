@@ -127,9 +127,20 @@ interface TransliterationToken {
 }
 
 const phoneticTokens: TransliterationToken[] = [
-  // === 3-char tokens first (longest-match greedy) ===
+  // === 4-char tokens first ===
+  { eng: "Ngkh", ban: "\u0999\u09cd\u0996", type: "consonant" }, // ঙ্খ
+  { eng: "ngkh", ban: "\u0999\u09cd\u0996", type: "consonant" }, // ঙ্খ (alias)
+  { eng: "Nggh", ban: "\u0999\u09cd\u0998", type: "consonant" }, // ঙ্ঘ
+  { eng: "nggh", ban: "\u0999\u09cd\u0998", type: "consonant" }, // ঙ্ঘ (alias)
+  // === 3-char tokens ===
+  { eng: "Ngk", ban: "\u0999\u09cd\u0995", type: "consonant" },  // ঙ্ক
+  { eng: "ngk", ban: "\u0999\u09cd\u0995", type: "consonant" },  // ঙ্ক (alias)
+  { eng: "Ngg", ban: "\u0999\u09cd\u0997", type: "consonant" },  // ঙ্গ
+  { eng: "ngg", ban: "\u0999\u09cd\u0997", type: "consonant" },  // ঙ্গ (alias)
   { eng: "rri", ban: "\u098b", sign: "\u09c3", type: "vowel" }, // ঋ/ৃ
   { eng: "kSh", ban: "\u0995\u09cd\u09b7", type: "consonant" }, // ক্ষ
+  { eng: "kkh", ban: "\u0995\u09cd\u09b7", type: "consonant" }, // ক্ষ (alias)
+  { eng: "jNG", ban: "\u099c\u09cd\u099e", type: "consonant" }, // জ্ঞ
   // === 2-char consonant digraphs ===
   { eng: "kh", ban: "\u0996", type: "consonant" },   // খ
   { eng: "gh", ban: "\u0998", type: "consonant" },   // ঘ

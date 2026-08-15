@@ -220,4 +220,38 @@ describe("Keyboard Layout Integrity Suite (All 7 Layouts)", () => {
     // 6. Unicode Layout
     expect(mapInputToBangla("f", "unicode")).toBe("\u09be");
   });
+
+  test("Ultimate Bangla Keyboard Layout Stress Test (16 Juktakkhors, 11 Vowels, Digits, Currencies, Punctuation, and Symbols)", () => {
+    // 1. Verify Avro Phonetic Transliteration of 16 Complex Ligatures
+    expect(avroTransliterate("kSh")).toBe("ক্ষ");
+    expect(avroTransliterate("gg")).toBe("জ্ঞ");
+    expect(avroTransliterate("tr")).toBe("ত্র");
+    expect(avroTransliterate("shr")).toBe("শ্র");
+    expect(avroTransliterate("str")).toBe("স্ত্র");
+    expect(avroTransliterate("ddh")).toBe("দ্ধ");
+    expect(avroTransliterate("ndr")).toBe("ন্দ্র");
+    expect(avroTransliterate("ngkh")).toBe("ঙ্খ");
+    expect(avroTransliterate("ShTr")).toBe("ষ্ট্র");
+    expect(avroTransliterate("hm")).toBe("হ্ম");
+    expect(avroTransliterate("rrk")).toBe("র্ক");
+    expect(avroTransliterate("rrg")).toBe("র্গ");
+    expect(avroTransliterate("kt")).toBe("ক্ত");
+    expect(avroTransliterate("gdh")).toBe("গ্ধ");
+    expect(avroTransliterate("cch")).toBe("চ্ছ");
+    expect(avroTransliterate("NTh")).toBe("ণ্ঠ");
+
+    // 2. Verify Avro Transliteration of All 11 Independent Vowels
+    const vowelsBanglish = "A a i I u U rri e OI O OU";
+    const vowelsTransliterated = vowelsBanglish.split(" ").map(w => avroTransliterate(w)).join("-");
+    expect(vowelsTransliterated).toBe("অ-আ-ই-ঈ-উ-ঊ-ঋ-এ-ঐ-ও-ঔ");
+
+    // 3. Verify Digits & Bangladeshi Taka Currency Symbol Across All Layouts
+    expect(mapInputToBangla("1234567890", "unibijoy")).toBe("১২৩৪৫৬৭৮৯০");
+    expect(mapInputToBangla("1234567890", "jatiya")).toBe("১২৩৪৫৬৭৮৯০");
+    expect(mapInputToBangla("1234567890", "probhat")).toBe("১২৩৪৫৬৭৮৯০");
+    expect(mapInputToBangla("1234567890", "inscript")).toBe("১২৩৪৫৬৭৮৯০");
+    expect(mapInputToBangla("1234567890", "unicode")).toBe("১২৩৪৫৬৭৮৯০");
+    expect(mapInputToBangla("$", "unibijoy")).toBe("৳");
+    expect(mapInputToBangla("$", "jatiya")).toBe("৳");
+  });
 });
