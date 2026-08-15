@@ -360,8 +360,8 @@ export default function VirtualKeyboard({ nextChar = "", onKeyClick, activeLayou
           key.classWidth || "w-11 sm:w-12",
           fingerAccentClass,
           {
-            "bg-secondary border-border border-t-2 font-medium text-muted-foreground": isSystemKey,
-            "border-emerald-500 bg-emerald-600 text-white dark:bg-emerald-500 z-20 font-black shadow-lg scale-[1.05] key-target-glow": isHighlighted,
+            "bg-secondary/80 border-border/80 border-t-2 font-medium text-muted-foreground": isSystemKey,
+            "border-emerald-500 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 z-20 font-black shadow-md shadow-emerald-500/20 scale-[1.06] ring-2 ring-emerald-500/40 key-target-glow": isHighlighted,
             "bg-secondary translate-y-[2px] shadow-none border-border": isPressed
           }
         )}

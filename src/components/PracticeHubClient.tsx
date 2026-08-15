@@ -169,11 +169,11 @@ export function PracticeHubClient() {
     return (
       <Card
         key={mode.id}
-        className="border border-border bg-card hover:border-primary/50 transition-all rounded-2xl shadow-xs flex flex-col justify-between group"
+        className="border border-border/80 bg-card/80 backdrop-blur-md hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300 rounded-2xl shadow-xs flex flex-col justify-between group"
       >
         <CardContent className="p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+            <div className="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300 shadow-xs">
               <Icon size={22} />
             </div>
             <Badge variant="outline" className="border-border text-foreground font-bold bg-secondary text-[11px]">

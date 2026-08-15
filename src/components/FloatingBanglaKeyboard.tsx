@@ -236,9 +236,9 @@ export default function FloatingBanglaKeyboard({ onKeyClick, className }: Floati
       <div className="fixed bottom-5 right-5 z-[9999]">
         <Button
           onClick={() => setIsOpen(true)}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs gap-2 shadow-xl rounded-full px-5 py-3 cursor-pointer border border-emerald-400/30 animate-bounce"
+          className="bg-card/90 backdrop-blur-md hover:bg-card text-foreground font-black text-xs gap-2.5 shadow-2xl rounded-full px-5 py-3 cursor-pointer border border-emerald-500/40 text-emerald-600 dark:text-emerald-400 hover:border-emerald-500 transition-all hover:scale-105"
         >
-          <KeyboardIcon size={16} />
+          <KeyboardIcon size={16} className="text-emerald-500 animate-pulse" />
           <span>⌨️ ভাসমান বাংলা কীবোর্ড</span>
         </Button>
       </div>,
