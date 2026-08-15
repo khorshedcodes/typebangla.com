@@ -150,7 +150,9 @@ const phoneticTokens: TransliterationToken[] = [
   { eng: "rr", ban: "\u09b0\u09b0", type: "special" }, // রর (Reph logic in engine)
   // 2-char vowels
   { eng: "OI", ban: "\u0990", sign: "\u09c8", type: "vowel" }, // ঐ/ৈ  (official)
+  { eng: "oi", ban: "\u0990", sign: "\u09c8", type: "vowel" }, // ঐ/ৈ  (lowercase alias)
   { eng: "OU", ban: "\u0994", sign: "\u09cc", type: "vowel" }, // ঔ/ৌ  (official)
+  { eng: "ou", ban: "\u0994", sign: "\u09cc", type: "vowel" }, // ঔ/ৌ  (lowercase alias)
   { eng: "ee", ban: "\u0988", sign: "\u09c0", type: "vowel" }, // ঈ/ী
   { eng: "oo", ban: "\u098a", sign: "\u09c2", type: "vowel" }, // ঊ/ূ
   // === Capital 1-char consonants (special) ===
