@@ -175,9 +175,19 @@ export default function GovtTestArenaClient() {
   const handleRestart = () => {
     resetTest();
     setTestResult(null);
-    const lang = layoutParam === "english" ? "english" : "bangla";
-    const p = getRandomPassage(lang);
-    setTargetText(p.text);
+    let chosenText = "";
+    if (typeof window !== "undefined") {
+      const storedGovtCustom = sessionStorage.getItem("typemaster_govt_custom_text");
+      if (storedGovtCustom && storedGovtCustom.trim()) {
+        chosenText = storedGovtCustom.trim();
+      }
+    }
+    if (!chosenText) {
+      const lang = layoutParam === "english" ? "english" : "bangla";
+      const p = getPassageForDuration(lang, durationSec);
+      chosenText = p.text;
+    }
+    setTargetText(chosenText);
   };
 
   const handleShareResult = () => {
