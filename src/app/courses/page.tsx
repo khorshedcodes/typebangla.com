@@ -275,8 +275,8 @@ export default function CoursesCatalogPage() {
             return (
               <Card
                 key={course.id}
-                className={`border bg-card hover:border-foreground/50 transition-all rounded-xl shadow-xs flex flex-col justify-between ${
-                  isCurrentActive ? "border-foreground ring-1 ring-foreground" : "border-border"
+                className={`border bg-card/80 backdrop-blur-md hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300 rounded-2xl shadow-xs flex flex-col justify-between ${
+                  isCurrentActive ? "border-emerald-500 ring-2 ring-emerald-500/40" : "border-border/80"
                 }`}
               >
                 <CardContent className="p-6 space-y-5">

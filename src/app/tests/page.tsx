@@ -211,7 +211,7 @@ export default function TestsHubPage() {
             return (
               <Card
                 key={idx}
-                className="border border-border bg-card hover:border-foreground/50 transition-all rounded-xl shadow-xs flex flex-col justify-between"
+                className="border border-border/80 bg-card/80 backdrop-blur-md hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300 rounded-2xl shadow-xs flex flex-col justify-between group"
               >
                 <CardContent className="p-6 space-y-5">
                   <div className="flex items-center justify-between">
@@ -260,7 +260,7 @@ export default function TestsHubPage() {
             return (
               <Card
                 key={idx}
-                className="border border-border bg-card hover:border-foreground/50 transition-all rounded-xl shadow-xs flex flex-col justify-between"
+                className="border border-border/80 bg-card/80 backdrop-blur-md hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300 rounded-2xl shadow-xs flex flex-col justify-between group"
               >
                 <CardContent className="p-6 space-y-5">
                   <div className="flex items-center justify-between">
