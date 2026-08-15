@@ -112,11 +112,28 @@ export default function TypingArea({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isFocused || isCompleted) return;
+      if (isCompleted) return;
+
+      if (!isFocused) {
+        if (
+          e.code === "Tab" ||
+          e.code === "Space" ||
+          (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey)
+        ) {
+          e.preventDefault();
+          containerRef.current?.focus();
+          setIsFocused(true);
+          if (e.code !== "Tab") {
+            handleKeystroke(e.code, e.key, e.shiftKey);
+          }
+        }
+        return;
+      }
+
       if (
         e.code === "Space" ||
         e.code === "Backspace" ||
-        (e.key.length === 1 && !e.ctrlKey && !e.altKey)
+        (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey)
       ) {
         e.preventDefault();
         handleKeystroke(e.code, e.key, e.shiftKey);

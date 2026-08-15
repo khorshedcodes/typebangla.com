@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -28,11 +28,26 @@ export default function Header() {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
   const isFocusModeActive = useTypingStore((s) => s.isFocusModeActive);
-  
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [bannerDismissed, setBannerDismissed] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+    if (userMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [userMenuOpen]);
 
   if (isFocusModeActive || isFocusModePage(pathname)) return null;
 
@@ -126,11 +141,10 @@ export default function Header() {
                 <Link
                   key={hub.id}
                   href={hub.href}
-                  className={`relative px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 ${
-                    isActive
+                  className={`relative px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 ${isActive
                       ? "text-foreground bg-secondary/90 border border-border/80 shadow-xs"
                       : "text-muted-foreground hover:text-foreground hover:bg-secondary/40"
-                  }`}
+                    }`}
                 >
                   {hub.label}
                   {isActive && (
@@ -144,7 +158,7 @@ export default function Header() {
           {/* Right Auth Controls */}
           <div className="flex items-center gap-3 shrink-0">
             {user ? (
-              <div className="relative">
+              <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-2 p-1 rounded-full border border-border hover:bg-secondary transition-colors"
@@ -258,9 +272,9 @@ export default function Header() {
                 </div>
                 <span className="font-extrabold text-base text-foreground">typebangla</span>
               </Link>
-              <button 
-                type="button" 
-                onClick={() => setDrawerOpen(false)} 
+              <button
+                type="button"
+                onClick={() => setDrawerOpen(false)}
                 className="p-1.5 rounded-md text-muted-foreground hover:bg-secondary touch-manipulation cursor-pointer select-none"
               >
                 <X size={18} />
