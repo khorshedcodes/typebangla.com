@@ -285,19 +285,34 @@ export default function TypingArea({
     <div className="flex flex-col space-y-4">
       {/* Live Telemetry HUD Bar */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="glass-panel rounded-xl p-3 flex flex-col items-center justify-center border border-border/80 shadow-xs transition-all">
-          <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-0.5">WPM (Speed)</span>
-          <span className="text-xl sm:text-2xl font-black text-foreground">{liveWpm}</span>
+        <div className="relative overflow-hidden rounded-2xl p-3.5 flex flex-col items-center justify-center bg-card/80 backdrop-blur-md border border-border/80 shadow-xs transition-all hover:border-primary/40 group">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <span className="text-[10px] uppercase font-mono font-bold text-muted-foreground tracking-widest mb-1 flex items-center gap-1">
+            ⚡ WPM (Speed)
+          </span>
+          <span className="text-2xl sm:text-3xl font-black text-foreground tracking-tight font-mono">
+            {liveWpm}
+          </span>
         </div>
-        <div className="glass-panel rounded-xl p-3 flex flex-col items-center justify-center border border-border/80 shadow-xs transition-all">
-          <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-0.5">Accuracy</span>
-          <span className={`text-xl sm:text-2xl font-black ${liveAccuracy >= 95 ? "text-emerald-500" : liveAccuracy >= 85 ? "text-amber-500" : "text-rose-500"}`}>
+
+        <div className="relative overflow-hidden rounded-2xl p-3.5 flex flex-col items-center justify-center bg-card/80 backdrop-blur-md border border-border/80 shadow-xs transition-all hover:border-emerald-500/40 group">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <span className="text-[10px] uppercase font-mono font-bold text-muted-foreground tracking-widest mb-1 flex items-center gap-1">
+            🎯 Accuracy
+          </span>
+          <span className={`text-2xl sm:text-3xl font-black font-mono tracking-tight ${liveAccuracy >= 95 ? "text-emerald-500" : liveAccuracy >= 85 ? "text-amber-500" : "text-rose-500"}`}>
             {liveAccuracy}%
           </span>
         </div>
-        <div className="glass-panel rounded-xl p-3 flex flex-col items-center justify-center border border-border/80 shadow-xs transition-all">
-          <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-0.5">Time</span>
-          <span className="text-xl sm:text-2xl font-black text-foreground font-mono">{elapsedTime}s</span>
+
+        <div className="relative overflow-hidden rounded-2xl p-3.5 flex flex-col items-center justify-center bg-card/80 backdrop-blur-md border border-border/80 shadow-xs transition-all hover:border-primary/40 group">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <span className="text-[10px] uppercase font-mono font-bold text-muted-foreground tracking-widest mb-1 flex items-center gap-1">
+            ⏱️ Timer
+          </span>
+          <span className="text-2xl sm:text-3xl font-black text-foreground tracking-tight font-mono">
+            {elapsedTime}s
+          </span>
         </div>
       </div>
 
