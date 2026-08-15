@@ -15,6 +15,7 @@ import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { cn } from "@/utils/cn";
+import { trackGameStarted, trackGameOver } from "../../utils/analytics";
 
 export type GameMode = "falling" | "race" | "speed" | "time-attack";
 
@@ -329,6 +330,7 @@ export default function GameClient() {
     }
     setWordDeck(newDeck);
     setCurrentWordIndex(0);
+    trackGameStarted(mode, activeLayout);
 
     if (mode === "falling") {
       setWords([]);
@@ -484,16 +486,17 @@ export default function GameClient() {
     }
   }, [playerPosition, cpu1Position, cpu2Position, cpu3Position, mode, gameState]);
 
-  // High Score Saver
+  // High Score Saver & Analytics
   useEffect(() => {
     if (gameState === "game-over" || gameState === "victory") {
+      trackGameOver(mode, activeLayout, score, level, wordsCleared);
       const currentHigh = highScore;
       if (score > currentHigh) {
         setHighScore(score);
         localStorage.setItem(`typemaster_game_${mode}_highscore_${activeLayout}`, score.toString());
       }
     }
-  }, [gameState, score, highScore, mode, activeLayout]);
+  }, [gameState, score, highScore, mode, activeLayout, level, wordsCleared]);
 
   // ---------------------------------------------------------------------------
   // Key Down Handler for Games (with full Layout Mapping & Universal Matching)

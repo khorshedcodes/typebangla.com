@@ -14,6 +14,7 @@ import { Card, CardContent } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { Input } from "../../components/ui/input";
 import { submitInstituteV2Waitlist } from "../../lib/firestoreService";
+import { trackWaitlistSubmission } from "../../utils/analytics";
 
 const V2_FEATURES = [
   {
@@ -89,6 +90,7 @@ export default function InstitutePage() {
       const res = await submitInstituteV2Waitlist(formData);
       if (res) {
         setSubmittedRefId("INST-V2-" + Math.random().toString(36).substring(2, 8).toUpperCase());
+        trackWaitlistSubmission(formData.instituteName, formData.role, formData.expectedStudents);
       } else {
         setErrorMessage("Failed to submit waitlist application. Please try again.");
       }

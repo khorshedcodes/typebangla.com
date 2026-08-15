@@ -7,6 +7,7 @@ import { saveCertificateRecord } from "../lib/firestoreService";
 import { drawQrCodeOnCanvas } from "../utils/qrCode";
 import { useInstitute } from "../context/InstituteContext";
 import { CertificateTopUpModal } from "./CertificateTopUpModal";
+import { trackCertificateAction } from "../utils/analytics";
 
 interface ExamCertificateModalProps {
   isOpen: boolean;
@@ -427,6 +428,7 @@ export function ExamCertificateModal({ isOpen, onClose, result }: ExamCertificat
       mode: result.mode,
     }).catch(console.error);
 
+    trackCertificateAction("download_png", certId, result?.mode);
     const link = document.createElement("a");
     link.download = `TypeBangla_Official_Certificate_${candidateName.replace(/\s+/g, "_")}.png`;
     link.href = canvas.toDataURL("image/png");
@@ -439,6 +441,7 @@ export function ExamCertificateModal({ isOpen, onClose, result }: ExamCertificat
     if (!canvas) return;
 
     setIsGeneratingPdf(true);
+    trackCertificateAction("download_pdf", certId, result?.mode);
 
     try {
       saveCertificateRecord({
@@ -477,6 +480,7 @@ export function ExamCertificateModal({ isOpen, onClose, result }: ExamCertificat
   const handlePrintDocument = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    trackCertificateAction("print", certId, result?.mode);
     const dataUrl = canvas.toDataURL("image/png");
 
     const printWindow = window.open("", "_blank");

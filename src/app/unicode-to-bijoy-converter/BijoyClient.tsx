@@ -6,6 +6,7 @@ import { unicodeToBijoy, bijoyToUnicode } from "../../utils/bijoyConverter";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../components/ui/card";
 import { cn } from "../../utils/cn";
+import { trackToolUsage } from "../../utils/analytics";
 
 interface BijoyClientProps {
   initialDirection?: "uniToBijoy" | "bijoyToUni";
@@ -22,6 +23,7 @@ export default function BijoyClient({ initialDirection = "uniToBijoy" }: BijoyCl
 
   const handleCopy = () => {
     if (!outputText) return;
+    trackToolUsage("unicode_bijoy_converter", `copy_${direction}`);
     navigator.clipboard.writeText(outputText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -29,6 +31,7 @@ export default function BijoyClient({ initialDirection = "uniToBijoy" }: BijoyCl
 
   const handleDownload = () => {
     if (!outputText) return;
+    trackToolUsage("unicode_bijoy_converter", `download_${direction}`);
     const blob = new Blob([outputText], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

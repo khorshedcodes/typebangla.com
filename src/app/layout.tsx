@@ -75,6 +75,25 @@ export default function RootLayout({
     <html lang="bn" suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.webmanifest" />
+        {/* Google Analytics (gtag.js) */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-8E427VGB13"
+          strategy="afterInteractive"
+        />
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-8E427VGB13', {
+                page_path: window.location.pathname,
+              });
+            `,
+          }}
+        />
         <Script
           id="sw-register"
           strategy="afterInteractive"

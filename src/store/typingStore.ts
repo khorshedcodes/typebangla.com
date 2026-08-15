@@ -288,11 +288,22 @@ export const useTypingStore = create<TypingState>((set, get) => ({
   },
 
   startTest: () => {
+    const { selectedDuration, activeLayout, targetText } = get();
     set({
       isStarted: true,
       startTime: Date.now(),
       elapsedTime: 0
     });
+
+    if (typeof window !== "undefined") {
+      import("../utils/analytics").then(({ trackSpeedTestStart }) => {
+        trackSpeedTestStart(
+          selectedDuration,
+          activeLayout,
+          /[\u0980-\u09FF]/.test(targetText) ? "bangla" : "english"
+        );
+      }).catch(() => {});
+    }
   },
 
   resetTest: () => {
@@ -370,6 +381,17 @@ export const useTypingStore = create<TypingState>((set, get) => ({
     });
 
     if (typeof window !== "undefined") {
+      import("../utils/analytics").then(({ trackSpeedTestComplete }) => {
+        trackSpeedTestComplete(
+          result.duration,
+          result.layout,
+          result.language,
+          result.wpm,
+          result.accuracy,
+          result.errors
+        );
+      }).catch(() => {});
+
       import("../lib/firestoreService").then(({ saveTypingSession }) => {
         import("../lib/firebase").then(({ getFirebaseAuth }) => {
           getFirebaseAuth().then((auth) => {

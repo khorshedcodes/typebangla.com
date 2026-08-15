@@ -12,6 +12,7 @@ import { Badge } from "../../../components/ui/badge";
 import { Card, CardContent } from "../../../components/ui/card";
 import TypingArea from "../../../components/TypingArea";
 import { ExamCertificateModal } from "../../../components/ExamCertificateModal";
+import { trackRankedExamStart, trackRankedExamComplete } from "../../../utils/analytics";
 
 export default function RankedExamClient() {
   const { user } = useAuth();
@@ -34,6 +35,7 @@ export default function RankedExamClient() {
     setSelectedDuration(180); // Fixed 3 Minutes
     const p = getRandomPassage(activeLayout === "english" ? "english" : "bangla");
     setTargetText(p.text);
+    trackRankedExamStart(activeLayout);
   }, [activeLayout, setSelectedDuration, setTargetText]);
 
   const handleShareScore = () => {
@@ -57,6 +59,7 @@ export default function RankedExamClient() {
   const handleSessionComplete = async (wpm: number, accuracy: number) => {
     const qualified = accuracy >= 85;
     setTestResult({ wpm, accuracy, qualified });
+    trackRankedExamComplete(activeLayout, wpm, accuracy, qualified);
 
     if (qualified) {
       await saveTypingSession({

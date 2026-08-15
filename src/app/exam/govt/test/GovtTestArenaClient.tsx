@@ -19,6 +19,7 @@ import { useAuth } from "../../../../context/AuthContext";
 import TypingArea from "../../../../components/TypingArea";
 import { ExamCertificateModal } from "../../../../components/ExamCertificateModal";
 import { GovtExamResultCard } from "../../../../components/GovtExamResultCard";
+import { trackGovtExamStart, trackGovtExamComplete } from "../../../../utils/analytics";
 
 interface GovtPostMeta {
   titleBn: string;
@@ -119,7 +120,8 @@ export default function GovtTestArenaClient() {
 
     setTargetText(chosenText);
     resetTest();
-  }, [layoutParam, durationSec, setActiveLayout, setSelectedDuration, setTargetText, resetTest]);
+    trackGovtExamStart(postId, postTitle, durationSec, layoutParam);
+  }, [layoutParam, durationSec, postId, postTitle, setActiveLayout, setSelectedDuration, setTargetText, resetTest]);
 
   // Timer Ticking Effect
   useEffect(() => {
@@ -154,6 +156,8 @@ export default function GovtTestArenaClient() {
       requiredWpm,
       requiredAcc,
     });
+
+    trackGovtExamComplete(postId, postTitle, durationSec, layoutParam, wpm, accuracy, qualified);
 
     if (qualified) {
       await saveTypingSession({

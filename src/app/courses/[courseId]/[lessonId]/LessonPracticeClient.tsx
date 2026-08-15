@@ -185,6 +185,12 @@ export default function LessonPracticeClient({
       targetAccuracy: 85,
     });
 
+    if (typeof window !== "undefined") {
+      import("../../../../utils/analytics").then(({ trackLessonComplete }) => {
+        trackLessonComplete(courseId, activeLesson.id, netWpm, accuracy, passed);
+      }).catch(() => {});
+    }
+
     queueMicrotask(() => {
       setResultState({ wpm: netWpm, accuracy, passed });
       if (passed && !nextLesson) {
