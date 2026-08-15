@@ -236,15 +236,14 @@ export function bijoyToUnicode(text: string): string {
         if (CONSONANTS.has(nextUni)) {
           cluster.push(nextUni);
           j++;
-          if (j < chars.length && chars[j] === "&") {
-            cluster.push("্");
-            j++;
-            if (j < chars.length) {
-              const linkedUni = ANSI_TO_UNICODE[chars[j]] || chars[j];
-              if (CONSONANTS.has(linkedUni)) {
-                cluster.push(linkedUni);
-                j++;
-              }
+          while (j < chars.length && chars[j] === "&" && j + 1 < chars.length) {
+            const linkedUni = ANSI_TO_UNICODE[chars[j + 1]] || chars[j + 1];
+            if (CONSONANTS.has(linkedUni)) {
+              cluster.push("্");
+              cluster.push(linkedUni);
+              j += 2;
+            } else {
+              break;
             }
           }
           break;
@@ -275,15 +274,14 @@ export function bijoyToUnicode(text: string): string {
           if (CONSONANTS.has(cUni)) {
             cluster.push(cUni);
             j++;
-            if (j < chars.length && chars[j] === "&") {
-              cluster.push("্");
-              j++;
-              if (j < chars.length) {
-                const linkedUni = ANSI_TO_UNICODE[chars[j]] || chars[j];
-                if (CONSONANTS.has(linkedUni)) {
-                  cluster.push(linkedUni);
-                  j++;
-                }
+            while (j < chars.length && chars[j] === "&" && j + 1 < chars.length) {
+              const linkedUni = ANSI_TO_UNICODE[chars[j + 1]] || chars[j + 1];
+              if (CONSONANTS.has(linkedUni)) {
+                cluster.push("্");
+                cluster.push(linkedUni);
+                j += 2;
+              } else {
+                break;
               }
             }
             break;

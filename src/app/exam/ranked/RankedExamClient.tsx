@@ -21,6 +21,7 @@ export default function RankedExamClient() {
     setSelectedDuration,
     setTargetText,
     targetText,
+    errorIndices,
     isCompleted,
     resetTest,
   } = useTypingStore();
@@ -65,7 +66,7 @@ export default function RankedExamClient() {
         netWpm: wpm,
         accuracy,
         cpm: wpm * 5,
-        errors: 0,
+        errors: errorIndices.length,
         layout: activeLayout,
         language: activeLayout === "english" ? "english" : "bangla",
         mode: "ranked",
