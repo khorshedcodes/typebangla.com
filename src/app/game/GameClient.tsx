@@ -510,9 +510,8 @@ export default function GameClient() {
       // Allow switching falling words target using Tab or Space when buffer is empty
       if ((e.key === "Tab" || (e.key === " " && typedBuffer.length === 0)) && mode === "falling") {
         e.preventDefault();
-        setWords((currentWords) => {
-          if (currentWords.length === 0) return currentWords;
-          const sortedByY = [...currentWords].sort((a, b) => b.y - a.y);
+        if (words.length > 0) {
+          const sortedByY = [...words].sort((a, b) => b.y - a.y);
           const currentIndex = sortedByY.findIndex((w) => w.id === targetWordId);
           const nextWord = sortedByY[(currentIndex + 1) % sortedByY.length];
           if (nextWord) {
@@ -520,8 +519,7 @@ export default function GameClient() {
             setTypedBuffer("");
             playSound("click");
           }
-          return currentWords;
-        });
+        }
         return;
       }
 

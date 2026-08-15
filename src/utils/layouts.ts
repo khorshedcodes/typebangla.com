@@ -573,6 +573,17 @@ export function mapInputToBangla(rawInput: string, layout: string, isShiftPresse
   else if (layout === "unicode") mapTable = UNICODE_MAP;
 
   // 1. Direct Keyboard Event Code lookup (e.g. "KeyK", "Digit1", "Semicolon", "Space")
+  if (rawInput.startsWith("Numpad")) {
+    const digitMatch = rawInput.match(/^Numpad([0-9])$/);
+    if (digitMatch) {
+      const digitCode = `Digit${digitMatch[1]}`;
+      if (mapTable[digitCode]) {
+        const mapped = isShiftPressed ? mapTable[digitCode].shift : mapTable[digitCode].normal;
+        return mapped !== undefined ? mapped : "";
+      }
+    }
+  }
+
   if (mapTable[rawInput]) {
     const mapped = isShiftPressed ? mapTable[rawInput].shift : mapTable[rawInput].normal;
     return mapped !== undefined ? mapped : "";

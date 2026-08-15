@@ -572,8 +572,9 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       // Auto-repeat passage if timed session is active, otherwise complete
       if (nextTyped.length >= targetText.length) {
         const { selectedDuration, originalText } = get();
-        if (selectedDuration > 0 && originalText) {
-          set({ targetText: targetText + " " + originalText });
+        if (selectedDuration > 0) {
+          const repeatSource = originalText || targetText;
+          set({ targetText: targetText + " " + repeatSource });
         } else {
           get().completeTest();
         }
