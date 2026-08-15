@@ -252,10 +252,10 @@ export function bijoyToUnicode(text: string): string {
         }
       }
 
-      if (char === "c" && j < chars.length && (chars[j] === "v" || chars[j] === "\u0160" || chars[j] === "š")) {
+      if (char === "c" && j < chars.length && chars[j] === "v") {
         kar = "ো";
         j++;
-      } else if (char === "c" && j < chars.length && (chars[j] === "\u0160" || chars[j] === "š")) {
+      } else if (char === "c" && j < chars.length && (chars[j] === "\u0160" || chars[j] === "š" || chars[j] === "Š")) {
         kar = "ৌ";
         j++;
       }
