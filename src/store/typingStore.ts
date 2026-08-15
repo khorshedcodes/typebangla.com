@@ -379,7 +379,7 @@ export const useTypingStore = create<TypingState>((set, get) => ({
             saveTypingSession({
               userId: uid,
               name: displayName,
-              wpm: grossWpm,
+              wpm: netWpm,
               netWpm: netWpm,
               accuracy: result.accuracy,
               cpm: Math.round(grossWpm * 5),
