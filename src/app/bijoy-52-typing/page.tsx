@@ -126,7 +126,7 @@ export default function Bijoy52TypingLandingPage() {
             {[
               { title: "ক-বর্গীয় বর্ণসমূহ", eg: "j = ক,  shift+j = খ,  h = ব,  f = া", icon: Keyboard },
               { title: "যুক্তাক্ষর লিংক বা হসন্ত", eg: "g = ্ (হসন্ত)। যেমন: g+j = ক্ক", icon: Sparkles },
-              { title: "কার চিহ্নসমূহ", eg: "d = ি,  shift+d = ী,  c = ু,  v = ূ", icon: BookOpen },
+              { title: "কার চিহ্নসমূহ", eg: "d = ি,  shift+d = ী,  s = ু,  shift+s = ূ,  c = ে", icon: BookOpen },
               { title: "রেফ ও ফৌলা", eg: "shift+a = র্ (রেফ),  z = ্র (র-ফলা)", icon: Award },
             ].map((item, idx) => {
               const Icon = item.icon;
