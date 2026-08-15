@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     siteName: "typebangla",
     images: [
       {
-        url: "/images/logo/blackbg.png",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "typebangla - Online Typing Speed Trainer",
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "typebangla - Learn Typing Online",
     description: "Interactive online tool for learning and testing English & Bangla typing speeds.",
-    images: ["/images/logo/blackbg.png"],
+    images: ["/og-image.jpg"],
   },
   manifest: "/manifest.webmanifest",
 };
