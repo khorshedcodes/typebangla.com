@@ -629,8 +629,10 @@ export default function GameClient() {
         else if (mode === "race") {
           const target = getTargetWord();
           const targetStr = activeLayout === "english" ? target.bangla : activeLayout === "avro" ? target.phonetic : target.bangla;
-          const isPrefix = activeLayout === "english" || activeLayout === "avro"
+          const isPrefix = activeLayout === "english"
             ? targetStr.toLowerCase().startsWith(newBuffer.toLowerCase())
+            : activeLayout === "avro"
+            ? targetStr.toLowerCase().startsWith(newBuffer.toLowerCase()) || target.bangla.startsWith(avroTransliterate(newBuffer))
             : targetStr.startsWith(newBuffer);
 
           if (!isPrefix) {
@@ -666,8 +668,10 @@ export default function GameClient() {
         else if (mode === "speed") {
           const target = getTargetWord();
           const targetStr = activeLayout === "english" ? target.bangla : activeLayout === "avro" ? target.phonetic : target.bangla;
-          const isPrefix = activeLayout === "english" || activeLayout === "avro"
+          const isPrefix = activeLayout === "english"
             ? targetStr.toLowerCase().startsWith(newBuffer.toLowerCase())
+            : activeLayout === "avro"
+            ? targetStr.toLowerCase().startsWith(newBuffer.toLowerCase()) || target.bangla.startsWith(avroTransliterate(newBuffer))
             : targetStr.startsWith(newBuffer);
 
           if (!isPrefix) {
@@ -704,8 +708,10 @@ export default function GameClient() {
         else if (mode === "time-attack") {
           const target = getTargetWord();
           const targetStr = activeLayout === "english" ? target.bangla : activeLayout === "avro" ? target.phonetic : target.bangla;
-          const isPrefix = activeLayout === "english" || activeLayout === "avro"
+          const isPrefix = activeLayout === "english"
             ? targetStr.toLowerCase().startsWith(newBuffer.toLowerCase())
+            : activeLayout === "avro"
+            ? targetStr.toLowerCase().startsWith(newBuffer.toLowerCase()) || target.bangla.startsWith(avroTransliterate(newBuffer))
             : targetStr.startsWith(newBuffer);
 
           if (!isPrefix) {
