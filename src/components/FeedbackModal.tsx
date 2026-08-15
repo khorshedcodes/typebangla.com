@@ -25,7 +25,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
     // Trigger mailto link or log feedback submit
     const subject = encodeURIComponent(`[TypeBangla v1 Beta ${type === "bug" ? "Bug Report" : "Suggestion"}]`);
     const body = encodeURIComponent(`Feedback Type: ${type.toUpperCase()}\nUser Email: ${email || "Anonymous"}\n\nMessage:\n${message}`);
-    window.open(`mailto:hello@khorshed-alam.com?subject=${subject}&body=${body}`, "_blank");
+    window.location.href = `mailto:hello@khorshed-alam.com?subject=${subject}&body=${body}`;
 
     setSubmitted(true);
     setTimeout(() => {

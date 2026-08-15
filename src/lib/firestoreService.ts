@@ -76,6 +76,25 @@ export async function saveTypingSession(session: SessionData) {
           },
           { merge: true }
         );
+      } else {
+        await firestore.setDoc(
+          userRef,
+          {
+            uid: session.userId,
+            displayName: session.name || "Learner",
+            email: "",
+            totalSessions: 1,
+            totalTimeTypedSeconds: session.duration,
+            highWpm: safeNetWpm,
+            avgWpm: safeNetWpm,
+            xp: Math.round(safeNetWpm * (Math.max(0, Math.min(100, session.accuracy)) / 100) * 10),
+            level: 1,
+            role: "student",
+            createdAt: firestore.serverTimestamp(),
+            updatedAt: firestore.serverTimestamp(),
+          },
+          { merge: true }
+        );
       }
     }
 

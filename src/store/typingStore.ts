@@ -336,16 +336,17 @@ export const useTypingStore = create<TypingState>((set, get) => ({
     
     // Calculate final metrics
     const durationSec = startTime ? (Date.now() - startTime) / 1000 : elapsedTime;
-    const wpm = Math.round((typedText.length / 5) / (Math.max(0.5, durationSec) / 60));
+    const grossWpm = Math.round((typedText.length / 5) / (Math.max(0.5, durationSec) / 60));
+    const netWpm = Math.round(Math.max(0, (typedText.length - (errorIndices.length * 5)) / 5) / (Math.max(0.5, durationSec) / 60));
     const accuracy = Math.round(((typedText.length - errorIndices.length) / (typedText.length || 1)) * 100);
     
     const result: ExamResult = {
       id: Math.random().toString(36).substring(2, 9),
-      date: new Date().toLocaleDateString("bn-BD"),
+      date: new Date().toISOString().split("T")[0],
       layout: activeLayout,
-      wpm: Math.max(0, wpm),
+      wpm: Math.max(0, grossWpm),
       accuracy: Math.max(0, Math.min(100, accuracy)),
-      duration: elapsedTime,
+      duration: Math.round(durationSec),
       errors: errorIndices.length,
       language: targetText.match(/[a-zA-Z]/) ? "english" : "bangla"
     };
@@ -370,10 +371,10 @@ export const useTypingStore = create<TypingState>((set, get) => ({
             saveTypingSession({
               userId: uid,
               name: displayName,
-              wpm: result.wpm,
-              netWpm: result.wpm,
+              wpm: grossWpm,
+              netWpm: netWpm,
               accuracy: result.accuracy,
-              cpm: Math.round(result.wpm * 5),
+              cpm: Math.round(grossWpm * 5),
               errors: result.errors,
               layout: result.layout,
               language: result.language,
