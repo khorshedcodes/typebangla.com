@@ -91,6 +91,15 @@ export function getPhoneticKeysForChar(char: string): string {
   if (char === "ক্ত") return "kt";
   if (char === "ণ্ড") return "ND";
   
+  // General conjunct decomposition: c1 + ্ + c2 (+ ্ + c3)
+  if (char.includes("্")) {
+    const parts = char.split("্");
+    const phoneticParts = parts.map(p => BANGLA_PHONETIC_GUIDE[p] || (p.length === 1 ? p : "?"));
+    if (!phoneticParts.includes("?")) {
+      return phoneticParts.map(p => p.split("/")[0]).join("");
+    }
+  }
+
   return "?";
 }
 

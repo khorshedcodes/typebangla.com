@@ -182,19 +182,28 @@ export async function getCertificateRecord(certificateId: string) {
   if (typeof window === "undefined") return null;
   try {
     const db = await getFirebaseDb();
-    if (!db) return null;
-
-    const firestore = await import("firebase/firestore");
-    const certRef = firestore.doc(db, "certificates", certificateId);
-    const snap = await firestore.getDoc(certRef);
-    if (snap.exists()) {
-      return snap.data();
+    if (db) {
+      const firestore = await import("firebase/firestore");
+      const certRef = firestore.doc(db, "certificates", certificateId);
+      const snap = await firestore.getDoc(certRef);
+      if (snap.exists()) {
+        return snap.data();
+      }
     }
-    return null;
   } catch (error) {
-    console.error("Error getting certificate:", error);
-    return null;
+    console.error("Error getting certificate from Firestore:", error);
   }
+
+  try {
+    const cached = localStorage.getItem("typemaster_earned_certificates");
+    if (cached) {
+      const list = JSON.parse(cached);
+      const found = list.find((c: { certificateId?: string }) => c.certificateId === certificateId);
+      if (found) return found;
+    }
+  } catch (e) {}
+
+  return null;
 }
 
 // ── Institute & Classroom Engine Data Models ──────────────────────────────────

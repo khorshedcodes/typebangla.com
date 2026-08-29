@@ -347,7 +347,7 @@ export default function GovtTestArenaClient() {
             accuracy: testResult.accuracy,
             layout: layoutParam,
             duration: durationSec,
-            errors: 0,
+            errors: testResult.errorCount,
             language: layoutParam === "english" ? "english" : "bangla",
             candidateName: user?.displayName || "Govt Exam Candidate",
           }}

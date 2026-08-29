@@ -690,7 +690,13 @@ export const useTypingStore = create<TypingState>((set, get) => ({
         });
         
         if (nextTyped.length >= targetText.length) {
-          get().completeTest();
+          const { selectedDuration, originalText } = get();
+          if (selectedDuration > 0) {
+            const repeatSource = originalText || targetText;
+            set({ targetText: targetText + " " + repeatSource });
+          } else {
+            get().completeTest();
+          }
         }
         return;
       } else {
@@ -791,7 +797,13 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       });
 
       if (nextTyped.length >= targetText.length) {
-        get().completeTest();
+        const { selectedDuration, originalText } = get();
+        if (selectedDuration > 0) {
+          const repeatSource = originalText || targetText;
+          set({ targetText: targetText + " " + repeatSource });
+        } else {
+          get().completeTest();
+        }
       }
     }
   },

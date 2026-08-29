@@ -353,13 +353,18 @@ export default function LessonPracticeClient({
 
             <input
               type="text"
-              value={inputVal}
+              value={typedText}
               onKeyDown={(e) => {
-                useTypingStore.getState().handleKeystroke(e.code, e.key, e.shiftKey);
+                if (
+                  e.code === "Space" ||
+                  e.code === "Backspace" ||
+                  (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey)
+                ) {
+                  e.preventDefault();
+                  useTypingStore.getState().handleKeystroke(e.code, e.key, e.shiftKey);
+                }
               }}
-              onChange={(e) => {
-                setInputVal(e.target.value);
-              }}
+              onChange={() => {}}
               placeholder="Start typing here..."
               className="w-full px-5 py-4 rounded-xl border border-input bg-background text-foreground font-mono text-xl focus:outline-none focus:ring-2 focus:ring-primary shadow-xs"
               autoFocus

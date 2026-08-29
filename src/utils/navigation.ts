@@ -5,10 +5,7 @@
 export function isFocusModePage(pathname: string | null): boolean {
   if (!pathname) return false;
 
-  // 1. Interactive Learn lesson pages (e.g. /learn/avro, /learn/english - but keep Header/Footer on /learn index)
-  if (pathname.startsWith("/learn/") && pathname !== "/learn") return true;
-
-  // 2. Dynamic Course lesson practice (e.g. /courses/english/lesson-1)
+  // 1. Dynamic Course lesson practice (e.g. /courses/english/lesson-1)
   if (pathname.match(/^\/courses\/[^/]+\/[^/]+$/)) return true;
 
   // 3. Active practice arenas (/practice/test, /practice/words, /practice/sentences, /practice/quotes, /practice/numbers, /practice/custom/test, /practice/english, etc. But keep Header/Footer on /practice and /practice/custom builder)

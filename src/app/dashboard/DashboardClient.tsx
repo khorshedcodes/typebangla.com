@@ -610,7 +610,7 @@ export default function DashboardClient() {
         {/* ── Quick Action Workspace Links ─────────────────────── */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
-            { href: "/learn", icon: GraduationCap, label: "পাঠ্যক্রম শুরু করুন" },
+            { href: "/courses", icon: GraduationCap, label: "পাঠ্যক্রম শুরু করুন" },
             { href: "/practice/test", icon: Zap, label: "স্পিড টেস্ট দিন" },
             { href: "/exam/govt", icon: Trophy, label: "সরকারি পরীক্ষা সিমুলেটর" },
           ].map((cta) => {

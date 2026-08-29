@@ -112,7 +112,7 @@ export default function StatsDashboard({ minimal = false }: { minimal?: boolean 
             <circle cx={p.x} cy={p.y} r="4" className="fill-foreground stroke-background" strokeWidth="2" />
             <text x={p.x} y={p.y - 10} textAnchor="middle" fontSize="9" fontWeight="700" fill="currentColor" className="text-foreground">{p.val}</text>
             <text x={p.x} y="158" textAnchor="middle" fontSize="8" fontWeight="600" fill="currentColor" className="text-muted-foreground">
-              {p.date ? p.date.substring(0, 5) : ""}
+              {p.date ? (p.date.length > 5 ? p.date.substring(5) : p.date) : ""}
             </text>
           </g>
         ))}

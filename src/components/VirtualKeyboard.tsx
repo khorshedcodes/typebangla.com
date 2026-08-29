@@ -198,7 +198,7 @@ export default function VirtualKeyboard({ nextChar = "", onKeyClick, activeLayou
     const accuracy = totalCorrect / totalStrokes;
     const normalizedAcc = Math.max(0, Math.min(1, (accuracy - 0.5) / 0.5));
     const hue = Math.round(normalizedAcc * 120);
-    return `hsla(${hue}, 0%, 50%, 0.15)`;
+    return `hsla(${hue}, 80%, 45%, 0.25)`;
   };
 
   useEffect(() => {

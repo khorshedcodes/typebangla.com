@@ -1,6 +1,6 @@
 import React from "react";
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { KeyboardLayout } from "../../../store/typingStore";
 import { ArrowLeft, GraduationCap, Play, ShieldCheck } from "lucide-react";
@@ -66,6 +66,26 @@ const LAYOUT_DETAILS: Record<string, { name: string; nameBn: string; desc: strin
       "না তাকিয়ে টাইপ করার (Touch Typing) অভ্যাস গড়ে তুলুন",
     ],
   },
+  inscript: {
+    name: "Inscript Bangla",
+    nameBn: "ইনস্ক্রিপ্ট বাংলা",
+    desc: "ভারতীয় স্ট্যান্ডার্ড ইনস্ক্রিপ্ট কীবোর্ড লেআউট। স্বরবর্ণ বাম হাতে এবং ব্যঞ্জনবর্ণ ডান হাতে সুবিন্যস্ত।",
+    bestFor: "ইনস্ক্রিপ্ট লেআউটে অভিজ্ঞ টাইপিস্ট ও বহুভাষিক ভারতীয় ভাষার ব্যবহারকারী।",
+    tips: [
+      "বাম হাত স্বরবর্ণ ও কার চিহ্নের জন্য এবং ডান হাত ব্যঞ্জনবর্ণের জন্য ব্যবহার করুন",
+      "হসন্ত (d) কী দিয়ে যুক্তবর্ণ তৈরি করুন",
+    ],
+  },
+  unicode: {
+    name: "Unicode Standard",
+    nameBn: "ইউনিকোড লেআউট",
+    desc: "স্ট্যান্ডার্ড ইউনিকোড বাংলা কীবোর্ড ম্যাপিং যা সরাসরি ইউনিকোড ক্যারেক্টার জেনারেট করে।",
+    bestFor: "ডিজিটাল কন্টেন্ট ক্রিয়েশন, প্রোগ্রামিং ও আধুনিক ইউনিকোড বাংলা টাইপিং।",
+    tips: [
+      "Shift কী ব্যবহার করে দ্বিতীয় স্তরের বর্ণমালা টাইপ করুন",
+      "হসন্ত (g) কী ব্যবহার করে যুক্তবর্ণ লিখুন",
+    ],
+  },
 };
 
 export function generateStaticParams() {
@@ -87,7 +107,7 @@ export default async function KeyboardDetailPage({ params }: Props) {
   const { layout } = await params;
   const detail = LAYOUT_DETAILS[layout];
 
-  if (!detail) redirect("/keyboards");
+  if (!detail) notFound();
 
   return (
     <main className="container max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8 fade-in">
@@ -107,7 +127,7 @@ export default async function KeyboardDetailPage({ params }: Props) {
             <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground">{detail.nameBn}</h1>
             <p className="text-xs text-muted-foreground mt-0.5">{detail.name}</p>
           </div>
-          <Link href={`/learn/${layout}`}>
+          <Link href={`/courses/${layout}`}>
             <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs gap-2">
               <Play size={13} />
               <span>এই লেআউটে শিখুন</span>

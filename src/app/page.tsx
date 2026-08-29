@@ -103,7 +103,7 @@ export default function LandingPage() {
 
         {/* High-Conversion Hero Action Buttons */}
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-2">
-          <Link href="/learn" className="w-full sm:w-auto">
+          <Link href="/courses" className="w-full sm:w-auto">
             <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-base font-black shadow-lg rounded-2xl gap-2 bg-primary text-primary-foreground hover:opacity-95">
               <span>Start Learning Free →</span>
             </Button>
@@ -511,7 +511,7 @@ export default function LandingPage() {
             Start today. No account required. Free forever.
           </p>
           <div className="pt-2">
-            <Link href="/learn">
+            <Link href="/courses">
               <Button size="lg" variant="secondary" className="font-black text-base h-14 px-10 rounded-2xl shadow-lg">
                 Start Learning Free →
               </Button>
@@ -526,7 +526,7 @@ export default function LandingPage() {
           <span className="text-[10px] font-bold text-muted-foreground block">টাইপিং স্পিড বাড়ান</span>
           <span className="text-xs font-black text-foreground">১০০% ফ্রী অনুশীলন</span>
         </div>
-        <Link href="/learn">
+        <Link href="/courses">
           <Button size="sm" className="font-extrabold text-xs px-4 h-10 rounded-xl">
             Start Learning Free →
           </Button>

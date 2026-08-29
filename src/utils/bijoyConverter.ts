@@ -6,6 +6,7 @@
  */
 
 // Comprehensive mapping of Unicode Bangla to SutonnyMJ ANSI characters
+// Comprehensive mapping of Unicode Bangla to SutonnyMJ ANSI characters
 export const UNICODE_TO_ANSI: Record<string, string> = {
   "অ": "A",
   "আ": "Av",
@@ -63,8 +64,8 @@ export const UNICODE_TO_ANSI: Record<string, string> = {
   "ু": "y",
   "ূ": "~",
   "ৃ": "„",
-  "ে": "c",
-  "ৈ": "t",
+  "ে": "\u2021", // SutonnyMJ E-kar glyph (‡)
+  "ৈ": "\u2030", // SutonnyMJ Oi-kar glyph (‰)
   "্": "&",
   "।": "|",
   "০": "0",
@@ -136,6 +137,9 @@ export const ANSI_TO_UNICODE: Record<string, string> = {
   "y": "ু",
   "~": "ূ",
   "„": "ৃ",
+  "‡": "ে",
+  "‰": "ৈ",
+  "ˆ": "ৈ",
   "&": "্",
   "^": "ঁ",
   "|": "।",
@@ -186,20 +190,20 @@ export function unicodeToBijoy(text: string): string {
         cluster.forEach(c => result.push(UNICODE_TO_ANSI[c] || c));
         i++;
       } else if (nextChar === "ে") {
-        result.push("c");
+        result.push("\u2021");
         cluster.forEach(c => result.push(UNICODE_TO_ANSI[c] || c));
         i++;
       } else if (nextChar === "ৈ") {
-        result.push("t");
+        result.push("\u2030");
         cluster.forEach(c => result.push(UNICODE_TO_ANSI[c] || c));
         i++;
       } else if (nextChar === "ো") {
-        result.push("c");
+        result.push("\u2021");
         cluster.forEach(c => result.push(UNICODE_TO_ANSI[c] || c));
         result.push("v");
         i++;
       } else if (nextChar === "ৌ") {
-        result.push("c");
+        result.push("\u2021");
         cluster.forEach(c => result.push(UNICODE_TO_ANSI[c] || c));
         result.push("\u0160");
         i++;
@@ -226,8 +230,8 @@ export function bijoyToUnicode(text: string): string {
   for (let i = 0; i < chars.length; i++) {
     const char = chars[i];
 
-    if (char === "w" || char === "c") {
-      let kar = char === "w" ? "ি" : "ে";
+    if (char === "w" || char === "‡" || char === "‰" || char === "ˆ") {
+      let kar = char === "w" ? "ি" : (char === "‰" || char === "ˆ") ? "ৈ" : "ে";
       let j = i + 1;
       const cluster: string[] = [];
 
@@ -252,10 +256,10 @@ export function bijoyToUnicode(text: string): string {
         }
       }
 
-      if (char === "c" && j < chars.length && chars[j] === "v") {
+      if (char === "‡" && j < chars.length && chars[j] === "v") {
         kar = "ো";
         j++;
-      } else if (char === "c" && j < chars.length && (chars[j] === "\u0160" || chars[j] === "š" || chars[j] === "Š")) {
+      } else if (char === "‡" && j < chars.length && (chars[j] === "\u0160" || chars[j] === "š" || chars[j] === "Š")) {
         kar = "ৌ";
         j++;
       }
@@ -263,36 +267,6 @@ export function bijoyToUnicode(text: string): string {
       result.push(...cluster);
       result.push(kar);
       i = j - 1;
-    } else if (char === "t") {
-      // Position-aware 't': If followed by a consonant, it's OI-kar ('ৈ'); otherwise Anusvara ('ং')
-      let j = i + 1;
-      const nextUni = j < chars.length ? (ANSI_TO_UNICODE[chars[j]] || chars[j]) : "";
-      if (CONSONANTS.has(nextUni)) {
-        const cluster: string[] = [];
-        while (j < chars.length) {
-          const cUni = ANSI_TO_UNICODE[chars[j]] || chars[j];
-          if (CONSONANTS.has(cUni)) {
-            cluster.push(cUni);
-            j++;
-            while (j < chars.length && chars[j] === "&" && j + 1 < chars.length) {
-              const linkedUni = ANSI_TO_UNICODE[chars[j + 1]] || chars[j + 1];
-              if (CONSONANTS.has(linkedUni)) {
-                cluster.push("্");
-                cluster.push(linkedUni);
-                j += 2;
-              } else {
-                break;
-              }
-            }
-            break;
-          } else break;
-        }
-        result.push(...cluster);
-        result.push("ৈ");
-        i = j - 1;
-      } else {
-        result.push("ং");
-      }
     } else {
       result.push(ANSI_TO_UNICODE[char] || char);
     }
