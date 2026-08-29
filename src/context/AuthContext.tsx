@@ -176,8 +176,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Pure Role-Based Authorization + Developer Override (hello@khorshed-alam.com, admin@typebangla.com)
-  const isAdmin = role === "admin" || Boolean(user && (user.email === "hello@khorshed-alam.com" || user.email?.startsWith("admin")));
+  // Strict Environment-Based Admin Verification (NEXT_PUBLIC_ADMIN_EMAIL)
+  const adminEnvEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@typebangla.com").toLowerCase().trim();
+  const isAdmin = Boolean(user && user.email && user.email.toLowerCase().trim() === adminEnvEmail);
 
   return (
     <AuthContext.Provider

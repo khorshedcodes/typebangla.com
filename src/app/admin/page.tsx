@@ -8,7 +8,8 @@ import {
   Settings, ShieldAlert, CheckCircle2, Search,
   Plus, Trash2, Edit3, Lock, Flame, CreditCard,
   XCircle, Clock, Building2, User, RefreshCw, AlertCircle,
-  Sparkles, Mail, Phone, Send, Check, ShieldCheck, Layers
+  Sparkles, Mail, Phone, Send, Check, ShieldCheck, Layers,
+  ExternalLink, Activity
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
@@ -23,12 +24,38 @@ import {
   InstituteV2WaitlistRecord,
   getAllUsers,
   UserProfile,
-  seedDemoCertificates
+  updateUserRole,
+  getSystemAnalytics,
+  getCertificatesList,
+  seedDemoCertificates,
 } from "../../lib/firestoreService";
+import { ALL_EXAM_PASSAGES } from "../../utils/lessons/exam/examPassages";
 
 export default function AdminDashboardPage() {
-  const { user, role, loading, isAdmin } = useAuth();
-  const [activeTab, setActiveTab] = useState<"overview" | "waitlist" | "payments" | "users" | "exams" | "lessons">("overview");
+  const { user, loading } = useAuth();
+  const [activeTab, setActiveTab] = useState<"overview" | "waitlist" | "payments" | "users" | "certificates" | "exams">("overview");
+
+  // Admin Environment Email Check
+  const envAdminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@typebangla.com").toLowerCase().trim();
+  const isAuthorizedAdmin = Boolean(
+    user && user.email && user.email.toLowerCase().trim() === envAdminEmail
+  );
+
+  // System Analytics State
+  const [analytics, setAnalytics] = useState<{
+    totalUsers: number;
+    totalCertificates: number;
+    totalSessions: number;
+    totalWaitlist: number;
+    totalPayments: number;
+  }>({
+    totalUsers: 0,
+    totalCertificates: 0,
+    totalSessions: 0,
+    totalWaitlist: 0,
+    totalPayments: 0,
+  });
+  const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(false);
 
   // Payment Requests State
   const [paymentRequests, setPaymentRequests] = useState<PaymentRequestRecord[]>([]);
@@ -46,6 +73,28 @@ export default function AdminDashboardPage() {
   // Registered Users Directory State
   const [usersList, setUsersList] = useState<UserProfile[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState<boolean>(false);
+  const [userSearch, setUserSearch] = useState<string>("");
+  const [editingUserUid, setEditingUserUid] = useState<string | null>(null);
+
+  // Certificates State
+  const [certificatesList, setCertificatesList] = useState<any[]>([]);
+  const [isLoadingCertificates, setIsLoadingCertificates] = useState<boolean>(false);
+  const [certSearch, setCertSearch] = useState<string>("");
+
+  // Exam Passages Search
+  const [examSearch, setExamSearch] = useState<string>("");
+
+  const fetchAnalytics = async () => {
+    setIsLoadingAnalytics(true);
+    try {
+      const data = await getSystemAnalytics();
+      setAnalytics(data);
+    } catch (err) {
+      console.error("Error fetching analytics:", err);
+    } finally {
+      setIsLoadingAnalytics(false);
+    }
+  };
 
   const fetchPayments = async () => {
     setIsLoadingPayments(true);
@@ -83,13 +132,33 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const fetchCertificates = async () => {
+    setIsLoadingCertificates(true);
+    try {
+      const data = await getCertificatesList();
+      setCertificatesList(data);
+    } catch (err) {
+      console.error("Error fetching certificates list:", err);
+    } finally {
+      setIsLoadingCertificates(false);
+    }
+  };
+
+  const refreshAllData = () => {
+    fetchAnalytics();
+    fetchPayments();
+    fetchWaitlist();
+    fetchUsers();
+    fetchCertificates();
+  };
+
   useEffect(() => {
-    queueMicrotask(() => {
-      fetchPayments();
-      fetchWaitlist();
-      fetchUsers();
-    });
-  }, []);
+    if (isAuthorizedAdmin) {
+      queueMicrotask(() => {
+        refreshAllData();
+      });
+    }
+  }, [isAuthorizedAdmin]);
 
   const handleApprovePayment = async (req: PaymentRequestRecord) => {
     if (!req.id) return;
@@ -97,6 +166,7 @@ export default function AdminDashboardPage() {
     if (ok) {
       setActionMessage(`Approved payment TxID: ${req.transactionId}! Added ${req.certificateCount} credits.`);
       fetchPayments();
+      fetchAnalytics();
       setTimeout(() => setActionMessage(null), 4000);
     }
   };
@@ -107,6 +177,7 @@ export default function AdminDashboardPage() {
     if (ok) {
       setActionMessage(`Rejected payment TxID: ${req.transactionId}.`);
       fetchPayments();
+      fetchAnalytics();
       setTimeout(() => setActionMessage(null), 4000);
     }
   };
@@ -116,26 +187,23 @@ export default function AdminDashboardPage() {
     if (ok) {
       setActionMessage(`Updated waitlist record status to "${newStatus}".`);
       fetchWaitlist();
+      fetchAnalytics();
+      setTimeout(() => setActionMessage(null), 4000);
+    }
+  };
+
+  const handleRoleChange = async (uid: string, newRole: string) => {
+    const ok = await updateUserRole(uid, newRole);
+    if (ok) {
+      setActionMessage(`Updated user role to "${newRole}".`);
+      setEditingUserUid(null);
+      fetchUsers();
       setTimeout(() => setActionMessage(null), 4000);
     }
   };
 
   const pendingPaymentsCount = paymentRequests.filter((r) => r.status === "pending").length;
   const pendingWaitlistCount = waitlistRequests.filter((w) => w.status === "pending").length;
-
-  // Platform Metrics
-  const stats = [
-    { label: "মোট নিবন্ধিত ব্যবহারকারী", value: "1,248", icon: Users, change: "+12% this week" },
-    { label: "ইন্সটিটিউট V2 ওয়েটলিস্ট আবেদন", value: `${waitlistRequests.length}`, icon: Building2, change: pendingWaitlistCount > 0 ? `${pendingWaitlistCount} Pending Review` : "All Evaluated" },
-    { label: "পেন্ডিং পেমেন্ট রিকোয়েস্ট", value: `${pendingPaymentsCount}`, icon: CreditCard, change: pendingPaymentsCount > 0 ? "Action Needed" : "All Processed" },
-    { label: "ইস্যুকৃত সনদপত্র", value: "852", icon: CheckCircle2, change: "+34 this month" },
-  ];
-
-  const mockUsers = [
-    { id: "u1", name: "Tanvir Ahmed", email: "tanvir@example.com", role: "student", avgWpm: 45, highWpm: 68 },
-    { id: "u2", name: "Anika Rahman", email: "anika@example.com", role: "teacher", avgWpm: 52, highWpm: 74 },
-    { id: "u3", name: "Khorshed Alam", email: "hello@khorshed-alam.com", role: "admin", avgWpm: 65, highWpm: 88 },
-  ];
 
   const filteredPaymentRequests = paymentRequests.filter((r) => {
     const matchesStatus = filterStatus === "all" || r.status === filterStatus;
@@ -153,12 +221,36 @@ export default function AdminDashboardPage() {
     return matchesStatus && matchesSearch;
   });
 
-  // Mock Govt Exam Passages for Exam Hub tab
-  const samplePassages = [
-    { id: "p1", title: "BPSC Computer Operator Test 2026", category: "Govt Job", duration: "10 mins", wpmTarget: 30, lang: "Bangla (Bijoy)" },
-    { id: "p2", title: "NSI Data Entry Speed Exam", category: "Govt Job", duration: "5 mins", wpmTarget: 28, lang: "Bangla (Avro)" },
-    { id: "p3", title: "Bank Officer English Speed Arena", category: "Banking", duration: "5 mins", wpmTarget: 40, lang: "English" },
-  ];
+  const filteredUsers = usersList.filter((u) => {
+    if (!userSearch) return true;
+    const s = userSearch.toLowerCase();
+    return (
+      (u.displayName && u.displayName.toLowerCase().includes(s)) ||
+      (u.email && u.email.toLowerCase().includes(s)) ||
+      (u.role && u.role.toLowerCase().includes(s))
+    );
+  });
+
+  const filteredCertificates = certificatesList.filter((c) => {
+    if (!certSearch) return true;
+    const s = certSearch.toLowerCase();
+    return (
+      (c.certificateId && c.certificateId.toLowerCase().includes(s)) ||
+      (c.candidateName && c.candidateName.toLowerCase().includes(s)) ||
+      (c.studentName && c.studentName.toLowerCase().includes(s)) ||
+      (c.layout && c.layout.toLowerCase().includes(s))
+    );
+  });
+
+  const filteredPassages = ALL_EXAM_PASSAGES.filter((p) => {
+    if (!examSearch) return true;
+    const s = examSearch.toLowerCase();
+    return (
+      p.title.toLowerCase().includes(s) ||
+      p.author.toLowerCase().includes(s) ||
+      p.language.toLowerCase().includes(s)
+    );
+  });
 
   if (loading) {
     return (
@@ -171,7 +263,8 @@ export default function AdminDashboardPage() {
     );
   }
 
-  if (!isAdmin) {
+  // Strict 403 Gate for anyone other than envAdminEmail
+  if (!isAuthorizedAdmin) {
     return (
       <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-6">
         <Card className="max-w-md w-full bg-card border-border rounded-3xl p-8 text-center space-y-6 shadow-xl">
@@ -182,9 +275,10 @@ export default function AdminDashboardPage() {
             <Badge variant="outline" className="text-[10px] font-black uppercase text-destructive border-destructive/30 bg-destructive/5 px-2.5 py-0.5">
               403 Forbidden Access
             </Badge>
-            <h2 className="text-2xl font-black text-foreground">Access Denied</h2>
+            <h2 className="text-2xl font-black text-foreground">Admin Access Only</h2>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              The TypeBangla Admin Control Center is strictly restricted to authorized platform administrators. Your current account ({user?.email || "Guest"}) does not have administrator privileges.
+              The TypeBangla Admin Control Center is strictly restricted to the platform administrator (<strong>{envAdminEmail}</strong>). 
+              Your current account ({user?.email || "Guest"}) is not authorized.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
@@ -234,12 +328,12 @@ export default function AdminDashboardPage() {
 
         <nav className="flex flex-row md:flex-col gap-1 overflow-x-auto">
           {[
-            { id: "overview", label: "Overview & Health", icon: BarChart3 },
+            { id: "overview", label: "Overview & Analytics", icon: BarChart3 },
             { id: "waitlist", label: "Institute V2 Waitlist", icon: Building2, count: pendingWaitlistCount },
             { id: "payments", label: "Payment Top-Ups", icon: CreditCard, count: pendingPaymentsCount },
-            { id: "users", label: "User Directory", icon: Users },
-            { id: "exams", label: "Govt Exams Hub", icon: Award },
-            { id: "lessons", label: "Content Manager", icon: BookOpen },
+            { id: "users", label: "User Directory", icon: Users, count: usersList.length },
+            { id: "certificates", label: "Issued Certificates", icon: CheckCircle2, count: certificatesList.length },
+            { id: "exams", label: "Govt Exams & Passages", icon: Award },
           ].map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -278,20 +372,28 @@ export default function AdminDashboardPage() {
               <ShieldCheck className="w-6 h-6 text-primary" />
               <span>Platform Administration System</span>
             </h1>
-            <p className="text-xs text-muted-foreground mt-0.5">Enterprise Management Control Center for TypeBangla</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Live Firebase Cloud Database Control Center</p>
           </div>
 
           <div className="flex items-center gap-3">
+            <Button
+              onClick={refreshAllData}
+              variant="outline"
+              size="sm"
+              className="text-xs font-bold gap-1.5 border-border text-foreground h-9 cursor-pointer"
+            >
+              <RefreshCw size={13} className={isLoadingAnalytics || isLoadingPayments || isLoadingUsers ? "animate-spin" : ""} />
+              <span>Sync All Data</span>
+            </Button>
             <Link
               href="/dashboard"
               className="text-xs font-bold text-muted-foreground hover:text-foreground bg-secondary border border-border px-3 py-1.5 rounded-xl transition-colors flex items-center gap-1.5"
             >
-              <User size={13} /> User Dashboard
+              <User size={13} /> Dashboard
             </Link>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Logged in:</span>
               <Badge variant="outline" className="text-xs font-bold text-primary border-primary/30 bg-primary/10 px-2.5 py-1">
-                {user?.email || "Admin Operator"}
+                {user?.email}
               </Badge>
             </div>
           </div>
@@ -308,23 +410,64 @@ export default function AdminDashboardPage() {
         {activeTab === "overview" && (
           <div className="space-y-6 animate-in fade-in duration-150">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {stats.map((s, idx) => {
-                const Icon = s.icon;
-                return (
-                  <Card key={idx} className="bg-card border-border rounded-2xl p-5 space-y-3 shadow-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-muted-foreground">{s.label}</span>
-                      <div className="p-2 bg-primary/10 text-primary rounded-xl">
-                        <Icon size={18} />
-                      </div>
-                    </div>
-                    <div className="text-2xl font-black text-foreground">{s.value}</div>
-                    <span className="text-[11px] text-primary font-bold">{s.change}</span>
-                  </Card>
-                );
-              })}
+              <Card className="bg-card border-border rounded-2xl p-5 space-y-3 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-muted-foreground">মোট নিবন্ধিত ব্যবহারকারী</span>
+                  <div className="p-2 bg-primary/10 text-primary rounded-xl">
+                    <Users size={18} />
+                  </div>
+                </div>
+                <div className="text-2xl font-black text-foreground">
+                  {isLoadingAnalytics ? "..." : analytics.totalUsers || usersList.length}
+                </div>
+                <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold">Cloud Firestore Synced</span>
+              </Card>
+
+              <Card className="bg-card border-border rounded-2xl p-5 space-y-3 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-muted-foreground">ইন্সটিটিউট V2 আবেদন</span>
+                  <div className="p-2 bg-blue-500/10 text-blue-500 rounded-xl">
+                    <Building2 size={18} />
+                  </div>
+                </div>
+                <div className="text-2xl font-black text-foreground">
+                  {isLoadingAnalytics ? "..." : waitlistRequests.length}
+                </div>
+                <span className="text-[11px] text-primary font-bold">
+                  {pendingWaitlistCount > 0 ? `${pendingWaitlistCount} Pending Review` : "All Evaluated"}
+                </span>
+              </Card>
+
+              <Card className="bg-card border-border rounded-2xl p-5 space-y-3 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-muted-foreground">পেন্ডিং পেমেন্ট রিকোয়েস্ট</span>
+                  <div className="p-2 bg-amber-500/10 text-amber-500 rounded-xl">
+                    <CreditCard size={18} />
+                  </div>
+                </div>
+                <div className="text-2xl font-black text-foreground">
+                  {isLoadingAnalytics ? "..." : pendingPaymentsCount}
+                </div>
+                <span className="text-[11px] text-amber-600 dark:text-amber-400 font-bold">
+                  {pendingPaymentsCount > 0 ? `${pendingPaymentsCount} Actions Needed` : "All Processed"}
+                </span>
+              </Card>
+
+              <Card className="bg-card border-border rounded-2xl p-5 space-y-3 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-muted-foreground">ইস্যুকৃত সনদপত্র</span>
+                  <div className="p-2 bg-emerald-500/10 text-emerald-500 rounded-xl">
+                    <CheckCircle2 size={18} />
+                  </div>
+                </div>
+                <div className="text-2xl font-black text-foreground">
+                  {isLoadingAnalytics ? "..." : analytics.totalCertificates || certificatesList.length}
+                </div>
+                <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold">Verified in Database</span>
+              </Card>
             </div>
 
+            {/* Live Infrastructure Matrix */}
             <Card className="bg-card border-border rounded-2xl p-6 space-y-4 shadow-xs">
               <h3 className="font-extrabold text-sm text-foreground">System Status & Database Connection Matrix</h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -332,15 +475,15 @@ export default function AdminDashboardPage() {
                   <span className="text-xs text-muted-foreground">Firebase Cloud Firestore</span>
                   <div className="flex items-center gap-2 mt-1">
                     <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-sm font-bold text-foreground">Operational (asia-south1)</span>
+                    <span className="text-sm font-bold text-foreground">Operational (studio-4489913213-ea5ac)</span>
                   </div>
                 </div>
 
                 <div className="bg-secondary p-4 rounded-xl border border-border">
-                  <span className="text-xs text-muted-foreground">Vercel Edge Network</span>
+                  <span className="text-xs text-muted-foreground">Admin Environment Guard</span>
                   <div className="flex items-center gap-2 mt-1">
-                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-sm font-bold text-foreground">Connected</span>
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                    <span className="text-sm font-bold text-foreground">{envAdminEmail}</span>
                   </div>
                 </div>
 
@@ -348,7 +491,7 @@ export default function AdminDashboardPage() {
                   <span className="text-xs text-muted-foreground">Security Rules & Auth WAF</span>
                   <div className="flex items-center gap-2 mt-1">
                     <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                    <span className="text-sm font-bold text-foreground">Active Enforcement</span>
+                    <span className="text-sm font-bold text-foreground">Active Protection</span>
                   </div>
                 </div>
               </div>
@@ -367,7 +510,7 @@ export default function AdminDashboardPage() {
                     <span>Institute V2 Early Access Applications</span>
                   </h3>
                   <p className="text-xs text-muted-foreground">
-                    Review interest registrations submitted by computer training institutes, academies, and schools on /institute.
+                    Review interest registrations submitted by computer training institutes, academies, and schools.
                   </p>
                 </div>
                 
@@ -427,7 +570,7 @@ export default function AdminDashboardPage() {
                     {filteredWaitlistRequests.length === 0 ? (
                       <tr>
                         <td colSpan={6} className="p-8 text-center text-muted-foreground">
-                          {isLoadingWaitlist ? "Loading waitlist applications..." : "No waitlist submissions found matching your filter."}
+                          {isLoadingWaitlist ? "Loading waitlist applications from Firebase..." : "No waitlist submissions found matching your filter."}
                         </td>
                       </tr>
                     ) : (
@@ -471,7 +614,7 @@ export default function AdminDashboardPage() {
                             )}
                             {req.status === "approved" && (
                               <Badge variant="outline" className="border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 text-[10px] font-bold">
-                                ✅ Early Access Approved
+                                ✅ Approved
                               </Badge>
                             )}
                           </td>
@@ -520,7 +663,7 @@ export default function AdminDashboardPage() {
                     <span>Certificate Credit Top-Up Requests</span>
                   </h3>
                   <p className="text-xs text-muted-foreground">
-                    Verify bKash / Nagad Transaction IDs (TxID) and approve credits for Institutes (20 Tk/cert) and Individual Students (50 Tk/cert).
+                    Verify bKash / Nagad Transaction IDs (TxID) and approve credits for Institutes and Individual Students.
                   </p>
                 </div>
                 
@@ -595,7 +738,7 @@ export default function AdminDashboardPage() {
                     {filteredPaymentRequests.length === 0 ? (
                       <tr>
                         <td colSpan={5} className="p-8 text-center text-muted-foreground">
-                          No payment requests found matching your filter.
+                          {isLoadingPayments ? "Loading payment requests from Firebase..." : "No payment requests found matching your filter."}
                         </td>
                       </tr>
                     ) : (
@@ -696,15 +839,35 @@ export default function AdminDashboardPage() {
         {/* USERS DIRECTORY TAB */}
         {activeTab === "users" && (
           <Card className="bg-card border-border rounded-2xl p-6 space-y-4 shadow-xs animate-in fade-in duration-150">
-            <div className="flex items-center justify-between">
-              <h3 className="font-extrabold text-sm text-foreground">User Directory & Role Access Logs</h3>
-              <div className="relative">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search email or name..."
-                  className="bg-secondary border border-border rounded-xl pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
-                />
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
+              <div>
+                <h3 className="font-extrabold text-sm text-foreground flex items-center gap-2">
+                  <Users className="w-5 h-5 text-primary" />
+                  <span>Real User Directory ({usersList.length} registered in Firebase)</span>
+                </h3>
+                <p className="text-xs text-muted-foreground">Live accounts synced from Firebase Authentication and Firestore `users` collection.</p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={fetchUsers}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs font-bold gap-1.5 border-border text-foreground h-9 cursor-pointer"
+                >
+                  <RefreshCw size={13} className={isLoadingUsers ? "animate-spin" : ""} />
+                  <span>Refresh Users</span>
+                </Button>
+                <div className="relative">
+                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    type="text"
+                    placeholder="Search email, name, role..."
+                    value={userSearch}
+                    onChange={(e) => setUserSearch(e.target.value)}
+                    className="bg-secondary border border-border rounded-xl pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
+                  />
+                </div>
               </div>
             </div>
 
@@ -713,62 +876,101 @@ export default function AdminDashboardPage() {
                 <thead className="bg-secondary text-muted-foreground uppercase font-bold border-b border-border">
                   <tr>
                     <th className="p-3">User</th>
-                    <th className="p-3">Role</th>
+                    <th className="p-3">Current Role</th>
                     <th className="p-3">Avg WPM</th>
                     <th className="p-3">High WPM</th>
-                    <th className="p-3 text-right">Actions</th>
+                    <th className="p-3">XP / Level</th>
+                    <th className="p-3 text-right">Role Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {(usersList.length > 0
-                    ? usersList.map((u) => ({
-                        id: u.uid,
-                        name: u.displayName || "Typing Learner",
-                        email: u.email || "N/A",
-                        role: u.role || "student",
-                        avgWpm: u.avgWpm || 0,
-                        highWpm: u.highWpm || 0,
-                      }))
-                    : mockUsers
-                  ).map((u) => (
-                    <tr key={u.id} className="hover:bg-secondary/50 transition-colors">
-                      <td className="p-3 font-bold text-foreground">
-                        <div>{u.name}</div>
-                        <div className="text-[10px] text-muted-foreground font-normal">{u.email}</div>
-                      </td>
-                      <td className="p-3">
-                        <Badge variant="outline" className="text-[10px] font-bold uppercase border-border">
-                          {u.role}
-                        </Badge>
-                      </td>
-                      <td className="p-3 font-mono text-foreground font-extrabold">{u.avgWpm} WPM</td>
-                      <td className="p-3 font-mono text-foreground font-extrabold">{u.highWpm} WPM</td>
-                      <td className="p-3 text-right">
-                        <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground hover:text-foreground cursor-pointer">
-                          Edit Role
-                        </Button>
+                  {filteredUsers.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="p-8 text-center text-muted-foreground">
+                        {isLoadingUsers ? "Loading users from Cloud Firestore..." : "No registered users found matching your search."}
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredUsers.map((u) => (
+                      <tr key={u.uid} className="hover:bg-secondary/50 transition-colors">
+                        <td className="p-3 font-bold text-foreground">
+                          <div>{u.displayName || "Typing Learner"}</div>
+                          <div className="text-[10px] text-muted-foreground font-mono font-normal">{u.email || "No email"}</div>
+                        </td>
+                        <td className="p-3">
+                          <Badge
+                            variant="outline"
+                            className={`text-[10px] font-bold uppercase ${
+                              u.role === "admin"
+                                ? "border-purple-500/40 text-purple-600 dark:text-purple-400 bg-purple-500/10"
+                                : u.role === "teacher"
+                                ? "border-blue-500/40 text-blue-600 dark:text-blue-400 bg-blue-500/10"
+                                : "border-border text-foreground"
+                            }`}
+                          >
+                            {u.role || "student"}
+                          </Badge>
+                        </td>
+                        <td className="p-3 font-mono text-foreground font-extrabold">{u.avgWpm || 0} WPM</td>
+                        <td className="p-3 font-mono text-foreground font-extrabold">{u.highWpm || 0} WPM</td>
+                        <td className="p-3 font-mono text-foreground">
+                          <span className="font-bold">{u.xp || 0} XP</span> <span className="text-muted-foreground text-[10px]">(Lvl {u.level || 1})</span>
+                        </td>
+                        <td className="p-3 text-right">
+                          {editingUserUid === u.uid ? (
+                            <div className="flex items-center justify-end gap-1.5">
+                              <select
+                                defaultValue={u.role || "student"}
+                                onChange={(e) => handleRoleChange(u.uid, e.target.value)}
+                                className="bg-background border border-border text-xs rounded-lg px-2 py-1 font-bold text-foreground"
+                              >
+                                <option value="student">Student</option>
+                                <option value="teacher">Teacher</option>
+                                <option value="admin">Admin</option>
+                              </select>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => setEditingUserUid(null)}
+                                className="h-7 text-xs text-muted-foreground"
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setEditingUserUid(u.uid)}
+                              className="h-7 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
+                            >
+                              Edit Role
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
           </Card>
         )}
 
-        {/* GOVT EXAMS HUB TAB */}
-        {activeTab === "exams" && (
+        {/* CERTIFICATES TAB */}
+        {activeTab === "certificates" && (
           <Card className="bg-card border-border rounded-2xl p-6 space-y-4 shadow-xs animate-in fade-in duration-150">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
               <div>
                 <h3 className="font-black text-base text-foreground flex items-center gap-2">
-                  <Award className="w-5 h-5 text-amber-500" />
-                  <span>Government Exam Passage Manager</span>
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                  <span>Real Issued Certificates ({certificatesList.length} in Database)</span>
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  Configure official typing passages for BPSC, NSI, Bank, and Secretariat speed tests.
+                  Permanent verifiable typing certificates stored in Firebase Firestore `certificates` collection.
                 </p>
               </div>
+
               <div className="flex items-center gap-2">
                 <Button
                   size="sm"
@@ -776,73 +978,137 @@ export default function AdminDashboardPage() {
                   onClick={async () => {
                     const ok = await seedDemoCertificates();
                     if (ok) {
-                      setActionMessage("Successfully seeded demo certificates (TM-DEMO-2026, TM-VERIFIED-9912, TM-E2E-101) to Firebase!");
+                      setActionMessage("Successfully seeded demo certificates to Firebase!");
+                      fetchCertificates();
+                      fetchAnalytics();
                       setTimeout(() => setActionMessage(null), 5000);
                     }
                   }}
                   className="border-amber-500/40 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 font-bold gap-1 text-xs h-9 cursor-pointer"
                 >
-                  <Award size={14} /> Seed Demo Certs
+                  <Award size={14} /> Seed Test Certs
                 </Button>
-                <Button size="sm" className="font-bold gap-1 text-xs h-9 cursor-pointer">
-                  <Plus size={14} /> Add New Exam Passage
-                </Button>
+                <div className="relative">
+                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    type="text"
+                    placeholder="Search candidate, ID, layout..."
+                    value={certSearch}
+                    onChange={(e) => setCertSearch(e.target.value)}
+                    className="bg-secondary border border-border rounded-xl pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {samplePassages.map((p) => (
-                <div key={p.id} className="bg-secondary border border-border rounded-xl p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Badge variant="outline" className="border-amber-500/40 text-amber-600 dark:text-amber-400 bg-amber-500/10 text-[10px] font-bold">
-                      {p.category}
-                    </Badge>
-                    <span className="text-[10px] text-muted-foreground font-mono">{p.duration}</span>
-                  </div>
-                  <h4 className="font-black text-sm text-foreground">{p.title}</h4>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground border-t border-border pt-2">
-                    <span>Layout: <strong className="text-foreground">{p.lang}</strong></span>
-                    <span>Target: <strong className="text-emerald-600 dark:text-emerald-400">{p.wpmTarget} WPM</strong></span>
-                  </div>
-                </div>
-              ))}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-secondary text-muted-foreground uppercase font-bold border-b border-border">
+                  <tr>
+                    <th className="p-3">Certificate ID</th>
+                    <th className="p-3">Candidate</th>
+                    <th className="p-3">Speed &amp; Accuracy</th>
+                    <th className="p-3">Layout / Mode</th>
+                    <th className="p-3 text-right">Verification</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {filteredCertificates.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="p-8 text-center text-muted-foreground">
+                        {isLoadingCertificates ? "Loading certificates from Firebase..." : "No issued certificates found in the database."}
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredCertificates.map((c) => (
+                      <tr key={c.id || c.certificateId} className="hover:bg-secondary/50 transition-colors">
+                        <td className="p-3 font-mono font-bold text-foreground">
+                          {c.certificateId || c.id}
+                        </td>
+                        <td className="p-3 font-bold text-foreground">
+                          <div>{c.candidateName || c.studentName || "Candidate"}</div>
+                          {c.instituteName && <div className="text-[10px] text-primary font-normal">{c.instituteName}</div>}
+                        </td>
+                        <td className="p-3 font-mono">
+                          <span className="font-extrabold text-foreground text-sm">{c.wpm} WPM</span>
+                          <span className="text-muted-foreground ml-1.5">({c.accuracy}% acc)</span>
+                        </td>
+                        <td className="p-3">
+                          <Badge variant="outline" className="text-[10px] font-bold uppercase border-border">
+                            {c.layout || "bangla"} • {c.mode || "standard"}
+                          </Badge>
+                        </td>
+                        <td className="p-3 text-right">
+                          <Link href={`/verify/${c.certificateId || c.id}`} target="_blank">
+                            <Button size="sm" variant="ghost" className="h-7 text-xs font-bold gap-1 text-primary hover:bg-primary/10 cursor-pointer">
+                              <span>Public Verify</span>
+                              <ExternalLink size={12} />
+                            </Button>
+                          </Link>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </Card>
         )}
 
-        {/* LESSONS & CONTENT MANAGER TAB */}
-        {activeTab === "lessons" && (
+        {/* GOVT EXAMS & PASSAGES TAB */}
+        {activeTab === "exams" && (
           <Card className="bg-card border-border rounded-2xl p-6 space-y-4 shadow-xs animate-in fade-in duration-150">
-            <div className="flex items-center justify-between border-b border-border pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
               <div>
                 <h3 className="font-black text-base text-foreground flex items-center gap-2">
-                  <BookOpen className="w-5 h-5 text-primary" />
-                  <span>Curriculum & Content Manager</span>
+                  <Award className="w-5 h-5 text-amber-500" />
+                  <span>Official Exam Passages Bank ({ALL_EXAM_PASSAGES.length} Total Passages)</span>
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  Manage beginner, intermediate, and advanced typing course drills and passage banks.
+                  Active typing passages for BPSC, NSI, Bank, and Ministry recruitment speed tests.
                 </p>
               </div>
-              <Button size="sm" className="font-bold gap-1 text-xs h-9 cursor-pointer">
-                <Plus size={14} /> Create Drill Passage
-              </Button>
+
+              <div className="relative">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search passage title or language..."
+                  value={examSearch}
+                  onChange={(e) => setExamSearch(e.target.value)}
+                  className="bg-secondary border border-border rounded-xl pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
+                />
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-secondary p-4 rounded-xl border border-border space-y-2">
-                <h4 className="font-black text-sm text-foreground">Bangla Course Modules</h4>
-                <p className="text-xs text-muted-foreground">15 Interactive Masterclasses (Avro, Bijoy 52, Probhat)</p>
-                <Badge variant="outline" className="border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 text-[10px] font-bold">
-                  100% Active & Published
-                </Badge>
-              </div>
-              <div className="bg-secondary p-4 rounded-xl border border-border space-y-2">
-                <h4 className="font-black text-sm text-foreground">English Speed Drills</h4>
-                <p className="text-xs text-muted-foreground">Word, Sentence, and Quote practice passage banks</p>
-                <Badge variant="outline" className="border-sky-500/40 text-sky-600 dark:text-sky-400 bg-sky-500/10 text-[10px] font-bold">
-                  3,400+ Passages Active
-                </Badge>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredPassages.map((p) => (
+                <div key={p.id} className="bg-secondary border border-border rounded-xl p-4 space-y-3 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Badge
+                        variant="outline"
+                        className={`text-[10px] font-bold uppercase ${
+                          p.language === "bangla"
+                            ? "border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"
+                            : "border-sky-500/40 text-sky-600 dark:text-sky-400 bg-sky-500/10"
+                        }`}
+                      >
+                        {p.language} • {p.difficulty}
+                      </Badge>
+                      <span className="text-[10px] text-muted-foreground font-sans truncate max-w-[130px]">{p.author}</span>
+                    </div>
+                    <h4 className="font-black text-sm text-foreground">{p.title}</h4>
+                    <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed font-bangla">
+                      {p.text}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] text-muted-foreground border-t border-border pt-2 font-mono">
+                    <span>Length: <strong>{p.text.length} chars</strong></span>
+                    <span>Words: <strong>~{Math.round(p.text.length / 5)}</strong></span>
+                  </div>
+                </div>
+              ))}
             </div>
           </Card>
         )}

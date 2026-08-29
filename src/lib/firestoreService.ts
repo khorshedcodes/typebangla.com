@@ -608,6 +608,77 @@ export async function getAllUsers(): Promise<UserProfile[]> {
   }
 }
 
+export async function updateUserRole(uid: string, newRole: string): Promise<boolean> {
+  if (typeof window === "undefined" || !uid) return false;
+  try {
+    const db = await getFirebaseDb();
+    if (!db) return false;
+    const firestore = await import("firebase/firestore");
+    const ref = firestore.doc(db, "users", uid);
+    await firestore.updateDoc(ref, { role: newRole, updatedAt: firestore.serverTimestamp() });
+    return true;
+  } catch (err) {
+    console.error("Error updating user role in Firestore:", err);
+    return false;
+  }
+}
+
+export async function getSystemAnalytics(): Promise<{
+  totalUsers: number;
+  totalCertificates: number;
+  totalSessions: number;
+  totalWaitlist: number;
+  totalPayments: number;
+}> {
+  if (typeof window === "undefined") {
+    return { totalUsers: 0, totalCertificates: 0, totalSessions: 0, totalWaitlist: 0, totalPayments: 0 };
+  }
+  try {
+    const db = await getFirebaseDb();
+    if (!db) {
+      return { totalUsers: 0, totalCertificates: 0, totalSessions: 0, totalWaitlist: 0, totalPayments: 0 };
+    }
+    const firestore = await import("firebase/firestore");
+    const [usersSnap, certsSnap, sessionsSnap, waitlistSnap, paymentsSnap] = await Promise.allSettled([
+      firestore.getDocs(firestore.query(firestore.collection(db, "users"), firestore.limit(500))),
+      firestore.getDocs(firestore.query(firestore.collection(db, "certificates"), firestore.limit(500))),
+      firestore.getDocs(firestore.query(firestore.collection(db, "typing_sessions"), firestore.limit(500))),
+      firestore.getDocs(firestore.query(firestore.collection(db, "institute_v2_waitlist"), firestore.limit(500))),
+      firestore.getDocs(firestore.query(firestore.collection(db, "payment_requests"), firestore.limit(500))),
+    ]);
+
+    return {
+      totalUsers: usersSnap.status === "fulfilled" ? usersSnap.value.size : 0,
+      totalCertificates: certsSnap.status === "fulfilled" ? certsSnap.value.size : 0,
+      totalSessions: sessionsSnap.status === "fulfilled" ? sessionsSnap.value.size : 0,
+      totalWaitlist: waitlistSnap.status === "fulfilled" ? waitlistSnap.value.size : 0,
+      totalPayments: paymentsSnap.status === "fulfilled" ? paymentsSnap.value.size : 0,
+    };
+  } catch (err) {
+    console.error("Error fetching system analytics:", err);
+    return { totalUsers: 0, totalCertificates: 0, totalSessions: 0, totalWaitlist: 0, totalPayments: 0 };
+  }
+}
+
+export async function getCertificatesList(limitCount = 50): Promise<any[]> {
+  if (typeof window === "undefined") return [];
+  try {
+    const db = await getFirebaseDb();
+    if (!db) return [];
+    const firestore = await import("firebase/firestore");
+    const q = firestore.query(
+      firestore.collection(db, "certificates"),
+      firestore.orderBy("timestamp", "desc"),
+      firestore.limit(limitCount)
+    );
+    const snap = await firestore.getDocs(q);
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  } catch (err) {
+    console.error("Error fetching certificates list:", err);
+    return [];
+  }
+}
+
 export async function updateWaitlistStatus(id: string, status: "pending" | "contacted" | "approved") {
   if (typeof window === "undefined" || !id) return false;
   try {
