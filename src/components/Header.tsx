@@ -26,7 +26,7 @@ import FeedbackModal from "./FeedbackModal";
 
 export default function Header() {
   const pathname = usePathname();
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAdmin } = useAuth();
   const isFocusModeActive = useTypingStore((s) => s.isFocusModeActive);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -209,14 +209,16 @@ export default function Header() {
                       </div>
                       <span className="text-[9px] font-extrabold bg-amber-500/20 text-amber-500 px-1.5 py-0.5 rounded">V2</span>
                     </Link>
-                    <Link
-                      href="/admin"
-                      onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-foreground hover:bg-secondary rounded-lg transition-colors"
-                    >
-                      <ShieldCheck size={14} className="text-muted-foreground" />
-                      <span>Admin Panel</span>
-                    </Link>
+                    {isAdmin && (
+                      <Link
+                        href="/admin"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-foreground hover:bg-secondary rounded-lg transition-colors"
+                      >
+                        <ShieldCheck size={14} className="text-muted-foreground" />
+                        <span>Admin Panel</span>
+                      </Link>
+                    )}
                     <button
                       onClick={() => {
                         signOut();

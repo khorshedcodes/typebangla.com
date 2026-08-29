@@ -1,0 +1,95 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == "admin@typebangla.com"
+      );
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // ── 1. Users Collection ─────────────────────────────────────────
+    match /users/{userId} {
+      // Allow reading user profiles for leaderboards and public stats
+      allow read: if true;
+      // Allow users to create and update their own profiles; Admins can update any profile (e.g. change roles)
+      allow create, update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── 2. Typing Sessions & Leaderboard ────────────────────────────
+    match /typing_sessions/{sessionId} {
+      // Anyone can view sessions for leaderboards
+      allow read: if true;
+      // Authenticated users can save their session logs
+      allow create: if isAuthenticated();
+      // Only admins can delete sessions
+      allow update, delete: if isAdmin();
+    }
+
+    // ── 3. Certificates & Public Verification ───────────────────────
+    match /certificates/{certificateId} {
+      // Certificates must be publicly readable for QR code and link verification
+      allow read: if true;
+      // Authenticated users or admins can issue/save certificates
+      allow create: if isAuthenticated() || isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    // ── 4. Payment Top-Up Requests ──────────────────────────────────
+    match /payment_requests/{requestId} {
+      // Users can see their own payment requests; Admins can see all
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      // Authenticated users can submit a top-up request with their own userId
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      // Only admin can approve or reject payment requests
+      allow update, delete: if isAdmin();
+    }
+
+    // ── 5. Institute V2 Early Access Waitlist ────────────────────────
+    match /institute_v2_waitlist/{waitlistId} {
+      // Public submissions from /institute interest form
+      allow create: if true;
+      // Only admin can view and update application review status
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ── 6. Institute Portals & Classrooms ───────────────────────────
+    match /institutes/{instituteId} {
+      allow read: if true;
+      allow create, update: if isAuthenticated();
+      allow delete: if isAdmin();
+
+      match /students/{studentId} {
+        allow read, write: if isAuthenticated();
+      }
+
+      match /classes/{classId} {
+        allow read, write: if isAuthenticated();
+      }
+    }
+
+    // ── 7. Course & Lesson Progress ─────────────────────────────────
+    match /course_progress/{userId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+    }
+
+    // ── 8. Contact & Feedback Messages ──────────────────────────────
+    match /contact_messages/{messageId} {
+      // Anyone can submit a message via /contact
+      allow create: if true;
+      // Only admin can read and manage messages
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}
