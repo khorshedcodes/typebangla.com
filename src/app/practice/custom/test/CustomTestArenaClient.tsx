@@ -73,7 +73,7 @@ export default function CustomTestArenaClient() {
     if (typeof window !== "undefined") {
       const storedText = sessionStorage.getItem("typemaster_custom_text");
       if (storedText) {
-        customText = storedText;
+        customText = storedText.replace(/[\r\n\t]+/g, " ").replace(/ +/g, " ").trim();
       }
       const storedDuration = sessionStorage.getItem("typemaster_custom_duration");
       if (storedDuration) {
@@ -121,6 +121,15 @@ export default function CustomTestArenaClient() {
       targetWpm: goalParam,
     });
 
+    import("../../../../store/gamificationStore").then(({ useGamificationStore }) => {
+      useGamificationStore.getState().recordSession({
+        wpm,
+        accuracy,
+        targetWpm: goalParam,
+        isGovtExam: false,
+      });
+    }).catch(() => {});
+
     await saveTypingSession({
       userId: user?.uid || "guest",
       name: user?.displayName || "Custom Practice User",
@@ -128,7 +137,7 @@ export default function CustomTestArenaClient() {
       netWpm: wpm,
       accuracy,
       cpm: wpm * 5,
-      errors: 0,
+      errors: errorIndices.length,
       layout: activeLayout,
       language: activeLayout === "english" ? "english" : "bangla",
       mode: "custom-practice",

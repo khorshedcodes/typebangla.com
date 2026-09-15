@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Send, MessageSquare, Bug, Sparkles, CheckCircle2 } from "lucide-react";
+import { X, Send, MessageSquare, Bug, Sparkles, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
+import { submitFeedback } from "../lib/firestoreService";
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -14,26 +14,42 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
   const [type, setType] = useState<"bug" | "suggestion">("bug");
   const [message, setMessage] = useState("");
   const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim()) return;
 
-    // Trigger mailto link or log feedback submit
-    const subject = encodeURIComponent(`[TypeBangla v1 Beta ${type === "bug" ? "Bug Report" : "Suggestion"}]`);
-    const body = encodeURIComponent(`Feedback Type: ${type.toUpperCase()}\nUser Email: ${email || "Anonymous"}\n\nMessage:\n${message}`);
-    window.location.href = `mailto:hello@khorshed-alam.com?subject=${subject}&body=${body}`;
-
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setMessage("");
-      setEmail("");
-      onClose();
-    }, 2500);
+    setIsSubmitting(true);
+    setError("");
+    try {
+      const res = await submitFeedback({
+        type,
+        email: email.trim(),
+        message: message.trim(),
+      });
+      if (res && res.success === false) {
+        setError("Failed to send feedback. Please check your connection and try again.");
+      } else {
+        setSubmitted(true);
+        setTimeout(() => {
+          setSubmitted(false);
+          setMessage("");
+          setEmail("");
+          setError("");
+          onClose();
+        }, 2500);
+      }
+    } catch (err) {
+      console.error("Failed to submit feedback:", err);
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -120,9 +136,24 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
               />
             </div>
 
+            {error && (
+              <div className="p-3 text-xs bg-destructive/10 border border-destructive/30 text-destructive rounded-xl flex items-center gap-2">
+                <AlertCircle size={15} className="shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
             <div className="pt-2">
-              <Button type="submit" className="w-full font-bold text-xs h-11 gap-2 rounded-xl cursor-pointer shadow-xs">
-                <Send size={14} /> Send Feedback to Engineer
+              <Button type="submit" disabled={isSubmitting} className="w-full font-bold text-xs h-11 gap-2 rounded-xl cursor-pointer shadow-xs">
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={14} className="animate-spin" /> Submitting...
+                  </>
+                ) : (
+                  <>
+                    <Send size={14} /> Send Feedback to Engineer
+                  </>
+                )}
               </Button>
             </div>
           </form>

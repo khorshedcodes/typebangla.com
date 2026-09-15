@@ -72,6 +72,7 @@ interface GamificationState {
   // Actions
   recordSession: (params: { wpm: number; accuracy: number; targetWpm: number; isGovtExam?: boolean }) => void;
   awardXp:       (amount: number) => void;
+  syncFromProfile: (cloudXp: number) => void;
   unlockBadge:   (id: string) => void;
   getBadges:     () => { unlocked: Badge[]; locked: Badge[] };
   getLevel:      () => number;
@@ -105,9 +106,17 @@ export const useGamificationStore = create<GamificationState>()(
 
       awardXp: (amount) => {
         set((s) => {
-          const newXp = s.totalXp + amount;
-          const newLevel = Math.floor(newXp / XP_PER_LEVEL) + 1;
+          const newXp = (s.totalXp || 0) + (amount || 0);
+          const newLevel = Math.max(1, Math.floor(newXp / XP_PER_LEVEL) + 1);
           return { totalXp: newXp, level: newLevel };
+        });
+      },
+
+      syncFromProfile: (cloudXp: number) => {
+        set((s) => {
+          const finalXp = Math.max(s.totalXp || 0, cloudXp || 0);
+          const finalLevel = Math.max(1, Math.floor(finalXp / XP_PER_LEVEL) + 1);
+          return { totalXp: finalXp, level: finalLevel };
         });
       },
 
@@ -190,15 +199,20 @@ export const useGamificationStore = create<GamificationState>()(
         return { unlocked, locked };
       },
 
-      getLevel: () => get().level,
+      getLevel: () => {
+        const { totalXp, level } = get();
+        const computed = Math.max(1, Math.floor((totalXp || 0) / XP_PER_LEVEL) + 1);
+        return Math.max(level || 1, computed);
+      },
 
       getXpProgress: () => {
         const { totalXp } = get();
-        const xpInLevel  = totalXp % XP_PER_LEVEL;
+        const safeXp = Math.max(0, totalXp || 0);
+        const xpInLevel  = safeXp % XP_PER_LEVEL;
         return {
           xp:      xpInLevel,
           xpToNext: XP_PER_LEVEL,
-          percent:  Math.round((xpInLevel / XP_PER_LEVEL) * 100),
+          percent:  Math.min(100, Math.max(0, Math.round((xpInLevel / XP_PER_LEVEL) * 100))),
         };
       },
     }),

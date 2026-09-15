@@ -49,30 +49,32 @@ function ExamCenterContent() {
 
     if (!lang && !layout && !duration) return;
 
-    let targetLang: PassageLanguage = "bangla";
+    queueMicrotask(() => {
+      let targetLang: PassageLanguage = "bangla";
 
-    if (lang === "en" || lang === "english") {
-      targetLang = "english";
-      setLangFilter("english");
-    } else if (lang === "bn" || lang === "bangla") {
-      targetLang = "bangla";
-      setLangFilter("bangla");
-    }
+      if (lang === "en" || lang === "english") {
+        targetLang = "english";
+        setLangFilter("english");
+      } else if (lang === "bn" || lang === "bangla") {
+        targetLang = "bangla";
+        setLangFilter("bangla");
+      }
 
-    if (layout) {
-      setActiveLayout(layout as KeyboardLayout);
-    }
+      if (layout) {
+        setActiveLayout(layout as KeyboardLayout);
+      }
 
-    const durSec = duration ? Number(duration) : 60;
-    if (duration) {
-      setSelectedDuration(durSec);
-    }
+      const durSec = duration ? Number(duration) : 60;
+      if (duration) {
+        setSelectedDuration(durSec);
+      }
 
-    // If launched from a test card, pick a random passage for specified duration
-    const p = getPassageForDuration(targetLang, durSec);
-    setSelectedPassage(p);
-    setStep(3);
-    setTargetText(p.text);
+      // If launched from a test card, pick a random passage for specified duration
+      const p = getPassageForDuration(targetLang, durSec);
+      setSelectedPassage(p);
+      setStep(3);
+      setTargetText(p.text);
+    });
   }, [searchParams, setActiveLayout, setSelectedDuration, setTargetText]);
 
   const [authorFilter, setAuthorFilter] = useState<string>("all");

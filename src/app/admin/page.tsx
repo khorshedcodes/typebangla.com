@@ -9,7 +9,7 @@ import {
   Plus, Trash2, Edit3, Lock, Flame, CreditCard,
   XCircle, Clock, Building2, User, RefreshCw, AlertCircle,
   Sparkles, Mail, Phone, Send, Check, ShieldCheck, Layers,
-  ExternalLink, Activity
+  ExternalLink, Activity, MessageSquare
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
@@ -28,12 +28,16 @@ import {
   getSystemAnalytics,
   getCertificatesList,
   seedDemoCertificates,
+  getContactMessages,
+  updateContactMessageStatus,
+  deleteContactMessage,
+  ContactMessage,
 } from "../../lib/firestoreService";
 import { ALL_EXAM_PASSAGES } from "../../utils/lessons/exam/examPassages";
 
 export default function AdminDashboardPage() {
   const { user, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState<"overview" | "waitlist" | "payments" | "users" | "certificates" | "exams">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "waitlist" | "payments" | "users" | "certificates" | "exams" | "feedback">("overview");
 
   // Admin Environment Email Check
   const envAdminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@typebangla.com").toLowerCase().trim();
@@ -48,12 +52,14 @@ export default function AdminDashboardPage() {
     totalSessions: number;
     totalWaitlist: number;
     totalPayments: number;
+    totalFeedback: number;
   }>({
     totalUsers: 0,
     totalCertificates: 0,
     totalSessions: 0,
     totalWaitlist: 0,
     totalPayments: 0,
+    totalFeedback: 0,
   });
   const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(false);
 
@@ -83,6 +89,13 @@ export default function AdminDashboardPage() {
 
   // Exam Passages Search
   const [examSearch, setExamSearch] = useState<string>("");
+
+  // Feedback & Improvement Suggestions State
+  const [feedbackMessages, setFeedbackMessages] = useState<ContactMessage[]>([]);
+  const [feedbackCategoryFilter, setFeedbackCategoryFilter] = useState<"all" | "suggestion" | "bug" | "general">("all");
+  const [feedbackStatusFilter, setFeedbackStatusFilter] = useState<"all" | "unread" | "reviewed" | "resolved">("all");
+  const [feedbackSearch, setFeedbackSearch] = useState<string>("");
+  const [isLoadingFeedback, setIsLoadingFeedback] = useState<boolean>(false);
 
   const fetchAnalytics = async () => {
     setIsLoadingAnalytics(true);
@@ -144,12 +157,38 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const fetchFeedback = async () => {
+    setIsLoadingFeedback(true);
+    try {
+      const data = await getContactMessages();
+      setFeedbackMessages(data);
+    } catch (err) {
+      console.error("Error fetching feedback:", err);
+    } finally {
+      setIsLoadingFeedback(false);
+    }
+  };
+
+  const handleUpdateFeedbackStatus = async (id: string, status: "unread" | "reviewed" | "resolved") => {
+    await updateContactMessageStatus(id, status);
+    setFeedbackMessages((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, status } : m))
+    );
+  };
+
+  const handleDeleteFeedback = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this message?")) return;
+    await deleteContactMessage(id);
+    setFeedbackMessages((prev) => prev.filter((m) => m.id !== id));
+  };
+
   const refreshAllData = () => {
     fetchAnalytics();
     fetchPayments();
     fetchWaitlist();
     fetchUsers();
     fetchCertificates();
+    fetchFeedback();
   };
 
   useEffect(() => {
@@ -204,6 +243,32 @@ export default function AdminDashboardPage() {
 
   const pendingPaymentsCount = paymentRequests.filter((r) => r.status === "pending").length;
   const pendingWaitlistCount = waitlistRequests.filter((w) => w.status === "pending").length;
+  const pendingFeedbackCount = feedbackMessages.filter((m) => !m.status || m.status === "unread").length;
+  const suggestionFeedbackCount = feedbackMessages.filter((m) => m.category === "suggestion" || m.category === "improvement").length;
+  const bugFeedbackCount = feedbackMessages.filter((m) => m.category === "bug").length;
+
+  const filteredFeedback = feedbackMessages.filter((m) => {
+    const matchesCategory =
+      feedbackCategoryFilter === "all" ||
+      (feedbackCategoryFilter === "suggestion" && (m.category === "suggestion" || m.category === "improvement")) ||
+      (feedbackCategoryFilter === "bug" && m.category === "bug") ||
+      (feedbackCategoryFilter === "general" && m.category !== "suggestion" && m.category !== "bug" && m.category !== "improvement");
+
+    const matchesStatus =
+      feedbackStatusFilter === "all" ||
+      (feedbackStatusFilter === "unread" && (!m.status || m.status === "unread")) ||
+      m.status === feedbackStatusFilter;
+
+    const term = feedbackSearch.toLowerCase().trim();
+    const matchesSearch =
+      !term ||
+      m.message?.toLowerCase().includes(term) ||
+      m.subject?.toLowerCase().includes(term) ||
+      m.name?.toLowerCase().includes(term) ||
+      m.email?.toLowerCase().includes(term);
+
+    return matchesCategory && matchesStatus && matchesSearch;
+  });
 
   const filteredPaymentRequests = paymentRequests.filter((r) => {
     const matchesStatus = filterStatus === "all" || r.status === filterStatus;
@@ -329,6 +394,7 @@ export default function AdminDashboardPage() {
         <nav className="flex flex-row md:flex-col gap-1 overflow-x-auto">
           {[
             { id: "overview", label: "Overview & Analytics", icon: BarChart3 },
+            { id: "feedback", label: "পরামর্শ ও মতামত (Feedback)", icon: MessageSquare, count: pendingFeedbackCount },
             { id: "waitlist", label: "Institute V2 Waitlist", icon: Building2, count: pendingWaitlistCount },
             { id: "payments", label: "Payment Top-Ups", icon: CreditCard, count: pendingPaymentsCount },
             { id: "users", label: "User Directory", icon: Users, count: usersList.length },
@@ -409,7 +475,7 @@ export default function AdminDashboardPage() {
         {/* OVERVIEW TAB */}
         {activeTab === "overview" && (
           <div className="space-y-6 animate-in fade-in duration-150">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
               <Card className="bg-card border-border rounded-2xl p-5 space-y-3 shadow-xs">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-muted-foreground">মোট নিবন্ধিত ব্যবহারকারী</span>
@@ -421,6 +487,24 @@ export default function AdminDashboardPage() {
                   {isLoadingAnalytics ? "..." : analytics.totalUsers || usersList.length}
                 </div>
                 <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold">Cloud Firestore Synced</span>
+              </Card>
+
+              <Card
+                onClick={() => setActiveTab("feedback")}
+                className="bg-card border-border rounded-2xl p-5 space-y-3 shadow-xs cursor-pointer hover:border-primary/40 transition-colors"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-muted-foreground">পরামর্শ ও ফিডব্যাক</span>
+                  <div className="p-2 bg-indigo-500/10 text-indigo-500 rounded-xl">
+                    <MessageSquare size={18} />
+                  </div>
+                </div>
+                <div className="text-2xl font-black text-foreground">
+                  {isLoadingAnalytics ? "..." : analytics.totalFeedback || feedbackMessages.length}
+                </div>
+                <span className="text-[11px] text-indigo-600 dark:text-indigo-400 font-bold">
+                  {pendingFeedbackCount > 0 ? `${pendingFeedbackCount} Unread / Pending` : "All Reviewed"}
+                </span>
               </Card>
 
               <Card className="bg-card border-border rounded-2xl p-5 space-y-3 shadow-xs">
@@ -914,7 +998,7 @@ export default function AdminDashboardPage() {
                         <td className="p-3 font-mono text-foreground font-extrabold">{u.avgWpm || 0} WPM</td>
                         <td className="p-3 font-mono text-foreground font-extrabold">{u.highWpm || 0} WPM</td>
                         <td className="p-3 font-mono text-foreground">
-                          <span className="font-bold">{u.xp || 0} XP</span> <span className="text-muted-foreground text-[10px]">(Lvl {u.level || 1})</span>
+                          <span className="font-bold">{u.xp || 0} XP</span> <span className="text-muted-foreground text-[10px]">(Lvl {Math.max(u.level || 1, Math.floor((u.xp || 0) / 100) + 1)})</span>
                         </td>
                         <td className="p-3 text-right">
                           {editingUserUid === u.uid ? (
@@ -1111,6 +1195,269 @@ export default function AdminDashboardPage() {
               ))}
             </div>
           </Card>
+        )}
+
+        {/* USER FEEDBACK & SUGGESTIONS TAB */}
+        {activeTab === "feedback" && (
+          <div className="space-y-6 animate-in fade-in duration-150">
+            {/* Header & Controls Card */}
+            <Card className="bg-card border-border rounded-2xl p-6 space-y-4 shadow-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
+                <div>
+                  <h3 className="font-black text-base text-foreground flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5 text-indigo-500" />
+                    <span>ব্যবহারকারীদের পরামর্শ ও মতামত ({feedbackMessages.length} টি বার্তা)</span>
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    ব্যবহারকারীদের পাঠানো উন্নতির প্রস্তাব (Suggestions), নতুন ফিচার আইডিয়া এবং প্ল্যাটফর্ম বাগ রিপোর্ট।
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Button
+                    onClick={fetchFeedback}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs font-bold gap-1.5 border-border text-foreground h-9 cursor-pointer"
+                  >
+                    <RefreshCw size={13} className={isLoadingFeedback ? "animate-spin" : ""} />
+                    <span>Refresh Feedback</span>
+                  </Button>
+                  <div className="relative">
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <input
+                      type="text"
+                      placeholder="Search feedback message or email..."
+                      value={feedbackSearch}
+                      onChange={(e) => setFeedbackSearch(e.target.value)}
+                      className="bg-secondary border border-border rounded-xl pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary w-56 sm:w-64"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Category Counters */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+                <div className="bg-secondary/60 border border-border p-3 rounded-xl flex items-center justify-between">
+                  <span className="text-xs font-bold text-muted-foreground">মোট প্রাপ্ত বার্তা</span>
+                  <span className="text-base font-black text-foreground">{feedbackMessages.length}</span>
+                </div>
+                <div className="bg-indigo-500/10 border border-indigo-500/20 p-3 rounded-xl flex items-center justify-between">
+                  <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">💡 ফিচার/উন্নতির পরামর্শ</span>
+                  <span className="text-base font-black text-indigo-600 dark:text-indigo-400">{suggestionFeedbackCount}</span>
+                </div>
+                <div className="bg-rose-500/10 border border-rose-500/20 p-3 rounded-xl flex items-center justify-between">
+                  <span className="text-xs font-bold text-rose-600 dark:text-rose-400">🐛 বাগ রিপোর্ট</span>
+                  <span className="text-base font-black text-rose-600 dark:text-rose-400">{bugFeedbackCount}</span>
+                </div>
+                <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-xl flex items-center justify-between">
+                  <span className="text-xs font-bold text-amber-600 dark:text-amber-400">অপেক্ষমান (Unread)</span>
+                  <span className="text-base font-black text-amber-600 dark:text-amber-400">{pendingFeedbackCount}</span>
+                </div>
+              </div>
+
+              {/* Filter Tabs */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-border">
+                {/* Category Filter Buttons */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-xs font-bold text-muted-foreground mr-1">ক্যাটাগরি:</span>
+                  {[
+                    { id: "all", label: "সকল বার্তা" },
+                    { id: "suggestion", label: "💡 পরামর্শ (Suggestions)" },
+                    { id: "bug", label: "🐛 বাগ রিপোর্ট (Bugs)" },
+                    { id: "general", label: "✉️ সাধারণ বার্তা (General)" },
+                  ].map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => setFeedbackCategoryFilter(cat.id as any)}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        feedbackCategoryFilter === cat.id
+                          ? "bg-primary text-primary-foreground shadow-xs"
+                          : "bg-secondary text-muted-foreground hover:text-foreground border border-border"
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Status Filter Buttons */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-xs font-bold text-muted-foreground mr-1">স্ট্যাটাস:</span>
+                  {[
+                    { id: "all", label: "সকল" },
+                    { id: "unread", label: "অপেক্ষমান" },
+                    { id: "reviewed", label: "পর্যালোচিত" },
+                    { id: "resolved", label: "সমাধান হয়েছে" },
+                  ].map((st) => (
+                    <button
+                      key={st.id}
+                      onClick={() => setFeedbackStatusFilter(st.id as any)}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        feedbackStatusFilter === st.id
+                          ? "bg-foreground text-background font-extrabold"
+                          : "bg-secondary text-muted-foreground hover:text-foreground border border-border"
+                      }`}
+                    >
+                      {st.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </Card>
+
+            {/* Feedback Messages List */}
+            {filteredFeedback.length === 0 ? (
+              <Card className="bg-card border-border rounded-2xl p-12 text-center space-y-3">
+                <MessageSquare className="w-12 h-12 text-muted-foreground/40 mx-auto" />
+                <h4 className="text-base font-bold text-foreground">কোনো পরামর্শ বা বার্তা পাওয়া যায়নি</h4>
+                <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                  বর্তমানে নির্বাচিত ফিল্টারে কোনো পরামর্শ বা ফিডব্যাক নেই। নতুন কোনো ব্যবহারকারী ফিডব্যাক সাবমিট করলে এখানে রিয়েলটাইমে দৃশ্যমান হবে।
+                </p>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {filteredFeedback.map((m) => {
+                  const isSuggestion = m.category === "suggestion" || m.category === "improvement";
+                  const isBug = m.category === "bug";
+                  const status = m.status || "unread";
+
+                  return (
+                    <Card key={m.id || m.refId} className="bg-card border-border rounded-2xl p-5 space-y-4 shadow-xs">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/80 pb-3">
+                        <div className="flex items-center gap-2.5 flex-wrap">
+                          {isSuggestion ? (
+                            <Badge className="bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/30 text-xs font-bold gap-1">
+                              <span>💡 ফিচার / উন্নতির পরামর্শ</span>
+                            </Badge>
+                          ) : isBug ? (
+                            <Badge className="bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30 text-xs font-bold gap-1">
+                              <span>🐛 বাগ রিপোর্ট</span>
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-xs font-bold gap-1 border-border">
+                              <span>✉️ সাধারণ যোগাযোগ ({m.category})</span>
+                            </Badge>
+                          )}
+
+                          <Badge
+                            variant="outline"
+                            className={`text-[10px] font-extrabold uppercase px-2 py-0.5 ${
+                              status === "resolved"
+                                ? "border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"
+                                : status === "reviewed"
+                                ? "border-blue-500/40 text-blue-600 dark:text-blue-400 bg-blue-500/10"
+                                : "border-amber-500/40 text-amber-600 dark:text-amber-400 bg-amber-500/10"
+                            }`}
+                          >
+                            {status === "resolved" ? "✓ Resolved" : status === "reviewed" ? "Reviewed" : "● Unread"}
+                          </Badge>
+
+                          {m.refId && (
+                            <span className="text-[11px] font-mono text-muted-foreground bg-secondary px-2 py-0.5 rounded-md border border-border">
+                              {m.refId}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="text-xs text-muted-foreground flex items-center gap-1 font-mono">
+                          <Clock size={12} />
+                          <span>
+                            {m.createdAt
+                              ? new Date(m.createdAt).toLocaleString("bn-BD", { dateStyle: "medium", timeStyle: "short" })
+                              : "Recent"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Sender Details */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-extrabold text-foreground">{m.name || "Anonymous Learner"}</span>
+                          <span className="text-muted-foreground">•</span>
+                          <a
+                            href={`mailto:${m.email}?subject=Re: TypeBangla Feedback - ${encodeURIComponent(m.subject || "Your suggestion")}`}
+                            className="text-primary hover:underline font-mono inline-flex items-center gap-1 font-bold"
+                          >
+                            <Mail size={12} />
+                            <span>{m.email || "No email provided"}</span>
+                          </a>
+                        </div>
+                        {m.subject && (
+                          <span className="font-bold text-foreground bg-secondary px-2.5 py-1 rounded-lg border border-border text-xs">
+                            বিষয়: {m.subject}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Full Message Text */}
+                      <div className="p-4 rounded-xl bg-secondary/50 border border-border text-xs leading-relaxed text-foreground whitespace-pre-wrap font-sans">
+                        {m.message}
+                      </div>
+
+                      {/* Action Bar */}
+                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/80 flex-wrap">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] font-bold text-muted-foreground">স্ট্যাটাস পরিবর্তন:</span>
+                          {status !== "reviewed" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => m.id && handleUpdateFeedbackStatus(m.id, "reviewed")}
+                              className="h-8 text-xs font-bold gap-1 border-border hover:border-blue-500 cursor-pointer"
+                            >
+                              <Check size={12} /> Mark as Reviewed
+                            </Button>
+                          )}
+                          {status !== "resolved" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => m.id && handleUpdateFeedbackStatus(m.id, "resolved")}
+                              className="h-8 text-xs font-bold gap-1 border-border hover:border-emerald-500 text-emerald-600 dark:text-emerald-400 cursor-pointer"
+                            >
+                              <CheckCircle2 size={12} /> Mark as Resolved
+                            </Button>
+                          )}
+                          {status !== "unread" && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => m.id && handleUpdateFeedbackStatus(m.id, "unread")}
+                              className="h-8 text-xs text-muted-foreground cursor-pointer"
+                            >
+                              Mark Unread
+                            </Button>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <a
+                            href={`mailto:${m.email}?subject=Re: TypeBangla Feedback - ${encodeURIComponent(m.subject || "Thank you for your feedback")}`}
+                          >
+                            <Button size="sm" className="h-8 text-xs font-bold gap-1.5 cursor-pointer">
+                              <Mail size={13} />
+                              <span>Reply via Email</span>
+                            </Button>
+                          </a>
+                          {m.id && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleDeleteFeedback(m.id!)}
+                              className="h-8 text-xs text-destructive hover:bg-destructive/10 cursor-pointer"
+                            >
+                              <Trash2 size={13} />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         )}
       </main>
     </div>

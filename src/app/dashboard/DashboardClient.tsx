@@ -17,6 +17,7 @@ import { useAuth } from "../../context/AuthContext";
 import { getAllProgress } from "../../utils/lessons/progress";
 import { CertificateTopUpModal } from "../../components/CertificateTopUpModal";
 import { AuthModal } from "../../components/AuthModal";
+import { getUserProfile } from "../../lib/firestoreService";
 
 interface EarnedCertificate {
   certificateId: string;
@@ -115,6 +116,15 @@ export default function DashboardClient() {
       }
     });
   }, []);
+
+  useEffect(() => {
+    if (!user?.uid) return;
+    getUserProfile(user.uid).then((prof) => {
+      if (prof && typeof prof.xp === "number" && prof.xp > 0) {
+        useGamificationStore.getState().syncFromProfile(prof.xp);
+      }
+    }).catch(console.error);
+  }, [user]);
 
   const recentSessions = [...history].reverse().slice(0, 5);
   const bestWpm = history.length > 0 ? Math.max(...history.map((h) => h.wpm)) : 0;

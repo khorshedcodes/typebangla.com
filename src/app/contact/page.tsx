@@ -183,7 +183,9 @@ export default function ContactPage() {
                     onChange={(e) => setForm({ ...form, category: e.target.value })}
                     className="w-full h-10 px-3 rounded-md border border-border bg-background text-xs font-medium text-foreground outline-none focus:ring-1 focus:ring-primary"
                   >
-                    <option value="general">সাধারণ প্রশ্ন / ফিডব্যাক (General Question)</option>
+                    <option value="suggestion">💡 নতুন ফিচার বা উন্নতির পরামর্শ (Feature / Improvement Suggestion)</option>
+                    <option value="bug">🐛 প্ল্যাটফর্ম বাগ রিপোর্ট (Bug Report)</option>
+                    <option value="general">সাধারণ প্রশ্ন / মতামত (General Question / Feedback)</option>
                     <option value="billing">সার্টিফিকেট পেমেন্ট &amp; bKash/Nagad TrxID সমস্যা</option>
                     <option value="verification">সার্টিফিকেট ভেরিফিকেশন হেল্প (/verify/[id])</option>
                     <option value="institute">ইনস্টিটিউট পার্টনারশিপ &amp; বাল্ক লাইসেন্সিং</option>

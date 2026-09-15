@@ -19,14 +19,14 @@ interface KeyCap {
 }
 
 export default function FloatingBanglaKeyboard({ onKeyClick, className }: FloatingBanglaKeyboardProps) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
   const [isOpen, setIsOpen] = useState(true);
   const [isShiftActive, setIsShiftActive] = useState(false);
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Drag state
   const [position, setPosition] = useState<{ x: number; y: number } | null>(null);

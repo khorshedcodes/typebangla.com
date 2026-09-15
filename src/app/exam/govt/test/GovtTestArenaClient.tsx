@@ -159,6 +159,15 @@ export default function GovtTestArenaClient() {
 
     trackGovtExamComplete(postId, postTitle, durationSec, layoutParam, wpm, accuracy, qualified);
 
+    import("../../../../store/gamificationStore").then(({ useGamificationStore }) => {
+      useGamificationStore.getState().recordSession({
+        wpm,
+        accuracy,
+        targetWpm: requiredWpm,
+        isGovtExam: qualified,
+      });
+    }).catch(() => {});
+
     if (qualified) {
       await saveTypingSession({
         userId: user?.uid || "guest",

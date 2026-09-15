@@ -55,7 +55,8 @@ export function CustomTextPractice() {
     if (!rawText.trim()) return;
 
     if (typeof window !== "undefined") {
-      sessionStorage.setItem("typemaster_custom_text", rawText.trim());
+      const normalizedText = rawText.replace(/[\r\n\t]+/g, " ").replace(/ +/g, " ").trim();
+      sessionStorage.setItem("typemaster_custom_text", normalizedText);
       sessionStorage.setItem("typemaster_custom_wpm_goal", targetWpmGoal.toString());
       sessionStorage.setItem("typemaster_custom_layout", activeLayout);
       sessionStorage.setItem("typemaster_custom_duration", selectedDurationSec.toString());

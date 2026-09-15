@@ -6,7 +6,6 @@
  */
 
 // Comprehensive mapping of Unicode Bangla to SutonnyMJ ANSI characters
-// Comprehensive mapping of Unicode Bangla to SutonnyMJ ANSI characters
 export const UNICODE_TO_ANSI: Record<string, string> = {
   "অ": "A",
   "আ": "Av",

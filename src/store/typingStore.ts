@@ -140,7 +140,15 @@ export const useTypingStore = create<TypingState>((set, get) => ({
   lessonType: undefined,
   isRecapTest: false,
   
-  history: [],
+  history: (() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("typemaster_history");
+        if (stored) return JSON.parse(stored);
+      } catch {}
+    }
+    return [];
+  })(),
   theme: "light",
   keyStats: {},
   targetWpm: 0,
@@ -192,7 +200,7 @@ export const useTypingStore = create<TypingState>((set, get) => ({
   },
 
   setTargetText: (text, focusKeys, lessonType, inputLanguage = "bangla", outputPreview) => {
-    let finalTargetText = text;
+    let finalTargetText = (text || "").replace(/[\r\n\t]+/g, " ").replace(/ +/g, " ").trim();
     if (focusKeys && focusKeys !== "all" &&
         (lessonType === "drill" || lessonType === "combo" || lessonType === "pair")) {
       // Longer drill lengths = more muscle memory per session
@@ -353,8 +361,9 @@ export const useTypingStore = create<TypingState>((set, get) => ({
     
     // Calculate final metrics
     const durationSec = startTime ? (Date.now() - startTime) / 1000 : elapsedTime;
-    const grossWpm = Math.round((typedText.length / 5) / (Math.max(0.5, durationSec) / 60));
-    const netWpm = Math.round(Math.max(0, (typedText.length - (errorIndices.length * 5)) / 5) / (Math.max(0.5, durationSec) / 60));
+    const timeInMinutes = Math.max(0.5, durationSec) / 60;
+    const grossWpm = Math.round((typedText.length / 5) / timeInMinutes);
+    const netWpm = Math.max(0, Math.round(((typedText.length / 5) - errorIndices.length) / timeInMinutes));
     const accuracy = typedText.length > 0 
       ? Math.round(((typedText.length - errorIndices.length) / typedText.length) * 100)
       : 100;
@@ -381,6 +390,15 @@ export const useTypingStore = create<TypingState>((set, get) => ({
     });
 
     if (typeof window !== "undefined") {
+      import("./gamificationStore").then(({ useGamificationStore }) => {
+        useGamificationStore.getState().recordSession({
+          wpm: netWpm,
+          accuracy: result.accuracy,
+          targetWpm: 40,
+          isGovtExam: false,
+        });
+      }).catch(() => {});
+
       import("../utils/analytics").then(({ trackSpeedTestComplete }) => {
         trackSpeedTestComplete(
           result.duration,
@@ -557,8 +575,8 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       return;
     }
 
-    // --- 2. Handle Space ---
-    if (key === " ") {
+    // --- 2. Handle Space or Enter ---
+    if (key === " " || key === "Enter") {
       if (soundEnabled) playTypewriterSound("space");
 
       let nextTyped = typedText;

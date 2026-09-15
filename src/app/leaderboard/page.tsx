@@ -23,12 +23,15 @@ interface LeaderboardEntry {
 }
 
 function UserAvatar({ name }: { name: string }) {
-  const initials = name
-    .split(" ")
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase();
+  const safeName = (name || "").trim();
+  const initials = safeName
+    ? safeName
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((n) => n[0] || "")
+        .join("")
+        .toUpperCase()
+    : "?";
 
   return (
     <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-black text-xs shrink-0 shadow-xs border border-primary/20">

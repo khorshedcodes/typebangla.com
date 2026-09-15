@@ -63,6 +63,9 @@ export async function saveTypingSession(session: SessionData) {
         const newTotal = (data.totalSessions || 0) + 1;
         const rawAvg = Math.round(((data.avgWpm || 0) * (newTotal - 1) + safeNetWpm) / Math.max(1, newTotal));
         const newAvg = isNaN(rawAvg) ? safeNetWpm : Math.min(500, Math.max(0, rawAvg));
+        const earnedXp = Math.round(safeNetWpm * (Math.max(0, Math.min(100, session.accuracy)) / 100) * 10);
+        const newXp = (data.xp || 0) + earnedXp;
+        const newLevel = Math.max(1, Math.floor(newXp / 100) + 1);
 
         await firestore.setDoc(
           userRef,
@@ -71,12 +74,15 @@ export async function saveTypingSession(session: SessionData) {
             totalTimeTypedSeconds: firestore.increment(session.duration),
             highWpm: newHigh,
             avgWpm: newAvg,
-            xp: firestore.increment(Math.round(safeNetWpm * (Math.max(0, Math.min(100, session.accuracy)) / 100) * 10)),
+            xp: newXp,
+            level: newLevel,
             updatedAt: firestore.serverTimestamp(),
           },
           { merge: true }
         );
       } else {
+        const earnedXp = Math.round(safeNetWpm * (Math.max(0, Math.min(100, session.accuracy)) / 100) * 10);
+        const newLevel = Math.max(1, Math.floor(earnedXp / 100) + 1);
         await firestore.setDoc(
           userRef,
           {
@@ -87,8 +93,8 @@ export async function saveTypingSession(session: SessionData) {
             totalTimeTypedSeconds: session.duration,
             highWpm: safeNetWpm,
             avgWpm: safeNetWpm,
-            xp: Math.round(safeNetWpm * (Math.max(0, Math.min(100, session.accuracy)) / 100) * 10),
-            level: 1,
+            xp: earnedXp,
+            level: newLevel,
             role: "student",
             createdAt: firestore.serverTimestamp(),
             updatedAt: firestore.serverTimestamp(),
@@ -170,6 +176,7 @@ export async function saveCertificateRecord(certData: {
     await firestore.setDoc(certRef, {
       ...cleanData,
       issuedAt: firestore.serverTimestamp(),
+      timestamp: firestore.serverTimestamp(),
     });
     return true;
   } catch (error) {
@@ -599,12 +606,40 @@ export async function getAllUsers(): Promise<UserProfile[]> {
     const snap = await firestore.getDocs(q);
     const results: UserProfile[] = [];
     snap.forEach((docSnap) => {
-      results.push({ uid: docSnap.id, ...docSnap.data() } as UserProfile);
+      const data = docSnap.data() as UserProfile;
+      const xp = data.xp || 0;
+      const computedLevel = Math.max(1, Math.floor(xp / 100) + 1);
+      results.push({
+        ...data,
+        uid: docSnap.id,
+        level: Math.max(data.level || 1, computedLevel),
+      } as UserProfile);
     });
     return results;
   } catch (err) {
     console.error("Error fetching all users from Firestore:", err);
     return [];
+  }
+}
+
+export async function getUserProfile(uid: string): Promise<UserProfile | null> {
+  if (typeof window === "undefined" || !uid) return null;
+  try {
+    const db = await getFirebaseDb();
+    if (!db) return null;
+    const firestore = await import("firebase/firestore");
+    const ref = firestore.doc(db, "users", uid);
+    const snap = await firestore.getDoc(ref);
+    if (!snap.exists()) return null;
+    const data = snap.data() as UserProfile;
+    const computedLevel = Math.max(1, Math.floor((data.xp || 0) / 100) + 1);
+    return {
+      ...data,
+      level: Math.max(data.level || 1, computedLevel),
+    };
+  } catch (err) {
+    console.error("Error fetching user profile:", err);
+    return null;
   }
 }
 
@@ -629,22 +664,24 @@ export async function getSystemAnalytics(): Promise<{
   totalSessions: number;
   totalWaitlist: number;
   totalPayments: number;
+  totalFeedback: number;
 }> {
   if (typeof window === "undefined") {
-    return { totalUsers: 0, totalCertificates: 0, totalSessions: 0, totalWaitlist: 0, totalPayments: 0 };
+    return { totalUsers: 0, totalCertificates: 0, totalSessions: 0, totalWaitlist: 0, totalPayments: 0, totalFeedback: 0 };
   }
   try {
     const db = await getFirebaseDb();
     if (!db) {
-      return { totalUsers: 0, totalCertificates: 0, totalSessions: 0, totalWaitlist: 0, totalPayments: 0 };
+      return { totalUsers: 0, totalCertificates: 0, totalSessions: 0, totalWaitlist: 0, totalPayments: 0, totalFeedback: 0 };
     }
     const firestore = await import("firebase/firestore");
-    const [usersSnap, certsSnap, sessionsSnap, waitlistSnap, paymentsSnap] = await Promise.allSettled([
+    const [usersSnap, certsSnap, sessionsSnap, waitlistSnap, paymentsSnap, feedbackSnap] = await Promise.allSettled([
       firestore.getDocs(firestore.query(firestore.collection(db, "users"), firestore.limit(500))),
       firestore.getDocs(firestore.query(firestore.collection(db, "certificates"), firestore.limit(500))),
       firestore.getDocs(firestore.query(firestore.collection(db, "typing_sessions"), firestore.limit(500))),
       firestore.getDocs(firestore.query(firestore.collection(db, "institute_v2_waitlist"), firestore.limit(500))),
       firestore.getDocs(firestore.query(firestore.collection(db, "payment_requests"), firestore.limit(500))),
+      firestore.getDocs(firestore.query(firestore.collection(db, "contact_messages"), firestore.limit(500))),
     ]);
 
     return {
@@ -653,10 +690,11 @@ export async function getSystemAnalytics(): Promise<{
       totalSessions: sessionsSnap.status === "fulfilled" ? sessionsSnap.value.size : 0,
       totalWaitlist: waitlistSnap.status === "fulfilled" ? waitlistSnap.value.size : 0,
       totalPayments: paymentsSnap.status === "fulfilled" ? paymentsSnap.value.size : 0,
+      totalFeedback: feedbackSnap.status === "fulfilled" ? feedbackSnap.value.size : 0,
     };
   } catch (err) {
     console.error("Error fetching system analytics:", err);
-    return { totalUsers: 0, totalCertificates: 0, totalSessions: 0, totalWaitlist: 0, totalPayments: 0 };
+    return { totalUsers: 0, totalCertificates: 0, totalSessions: 0, totalWaitlist: 0, totalPayments: 0, totalFeedback: 0 };
   }
 }
 
@@ -666,13 +704,32 @@ export async function getCertificatesList(limitCount = 50): Promise<any[]> {
     const db = await getFirebaseDb();
     if (!db) return [];
     const firestore = await import("firebase/firestore");
-    const q = firestore.query(
-      firestore.collection(db, "certificates"),
-      firestore.orderBy("timestamp", "desc"),
-      firestore.limit(limitCount)
-    );
-    const snap = await firestore.getDocs(q);
-    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    let docs: any[] = [];
+    try {
+      const q = firestore.query(
+        firestore.collection(db, "certificates"),
+        firestore.orderBy("issuedAt", "desc"),
+        firestore.limit(limitCount)
+      );
+      const snap = await firestore.getDocs(q);
+      docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    } catch {
+      try {
+        const qFallback = firestore.query(
+          firestore.collection(db, "certificates"),
+          firestore.orderBy("timestamp", "desc"),
+          firestore.limit(limitCount)
+        );
+        const snapFallback = await firestore.getDocs(qFallback);
+        docs = snapFallback.docs.map((d) => ({ id: d.id, ...d.data() }));
+      } catch {
+        const snapRaw = await firestore.getDocs(
+          firestore.query(firestore.collection(db, "certificates"), firestore.limit(limitCount))
+        );
+        docs = snapRaw.docs.map((d) => ({ id: d.id, ...d.data() }));
+      }
+    }
+    return docs;
   } catch (err) {
     console.error("Error fetching certificates list:", err);
     return [];
@@ -695,15 +752,20 @@ export async function updateWaitlistStatus(id: string, status: "pending" | "cont
 }
 
 export interface ContactMessage {
+  id?: string;
+  refId?: string;
   name: string;
   email: string;
-  category: string;
+  category: string; // e.g. "suggestion", "bug", "general", "billing", "partnership", "improvement"
   subject: string;
   message: string;
+  status?: "unread" | "reviewed" | "resolved" | "archived";
+  createdAt?: string;
+  timestamp?: unknown;
 }
 
 export async function saveContactMessage(msg: ContactMessage) {
-  const refId = "MSG-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+  const refId = msg.refId || "MSG-" + Math.random().toString(36).substring(2, 8).toUpperCase();
   if (typeof window === "undefined") return { success: false, refId };
   try {
     const db = await getFirebaseDb();
@@ -714,19 +776,96 @@ export async function saveContactMessage(msg: ContactMessage) {
         ...msg,
         refId,
         id: docRef.id,
-        status: "unread",
+        status: msg.status || "unread",
         timestamp: firestore.serverTimestamp(),
-        createdAt: new Date().toISOString(),
+        createdAt: msg.createdAt || new Date().toISOString(),
       });
     }
     // Backup in local storage
     const stored = JSON.parse(localStorage.getItem("typemaster_contact_messages") || "[]");
-    stored.unshift({ ...msg, refId, createdAt: new Date().toISOString() });
+    stored.unshift({ ...msg, refId, status: msg.status || "unread", createdAt: new Date().toISOString() });
     localStorage.setItem("typemaster_contact_messages", JSON.stringify(stored.slice(0, 50)));
     return { success: true, refId };
   } catch (err) {
     console.error("Error saving contact message:", err);
-    return { success: true, refId };
+    return { success: false, refId };
+  }
+}
+
+export async function submitFeedback(data: {
+  type: "bug" | "suggestion" | "improvement";
+  email?: string;
+  name?: string;
+  message: string;
+}) {
+  const isBug = data.type === "bug";
+  return saveContactMessage({
+    name: data.name || (data.email ? data.email.split("@")[0] : "Learner"),
+    email: data.email || "anonymous@typebangla.com",
+    category: data.type,
+    subject: isBug ? "Bug Report" : "Improvement Suggestion",
+    message: data.message,
+    status: "unread",
+  });
+}
+
+export async function getContactMessages(limitCount = 100): Promise<ContactMessage[]> {
+  if (typeof window === "undefined") return [];
+  try {
+    const db = await getFirebaseDb();
+    if (!db) {
+      const stored = JSON.parse(localStorage.getItem("typemaster_contact_messages") || "[]");
+      return stored;
+    }
+    const firestore = await import("firebase/firestore");
+    const q = firestore.query(
+      firestore.collection(db, "contact_messages"),
+      firestore.orderBy("timestamp", "desc"),
+      firestore.limit(limitCount)
+    );
+    const snap = await firestore.getDocs(q);
+    const results: ContactMessage[] = [];
+    snap.forEach((docSnap) => {
+      results.push({ id: docSnap.id, ...docSnap.data() } as ContactMessage);
+    });
+    return results;
+  } catch (err) {
+    console.error("Error fetching contact messages:", err);
+    const stored = JSON.parse(localStorage.getItem("typemaster_contact_messages") || "[]");
+    return stored;
+  }
+}
+
+export async function updateContactMessageStatus(
+  id: string,
+  status: "unread" | "reviewed" | "resolved" | "archived"
+): Promise<boolean> {
+  if (typeof window === "undefined" || !id) return false;
+  try {
+    const db = await getFirebaseDb();
+    if (!db) return false;
+    const firestore = await import("firebase/firestore");
+    const ref = firestore.doc(db, "contact_messages", id);
+    await firestore.updateDoc(ref, { status, updatedAt: firestore.serverTimestamp() });
+    return true;
+  } catch (err) {
+    console.error("Error updating contact message status:", err);
+    return false;
+  }
+}
+
+export async function deleteContactMessage(id: string): Promise<boolean> {
+  if (typeof window === "undefined" || !id) return false;
+  try {
+    const db = await getFirebaseDb();
+    if (!db) return false;
+    const firestore = await import("firebase/firestore");
+    const ref = firestore.doc(db, "contact_messages", id);
+    await firestore.deleteDoc(ref);
+    return true;
+  } catch (err) {
+    console.error("Error deleting contact message:", err);
+    return false;
   }
 }
 
@@ -744,6 +883,7 @@ export async function seedDemoCertificates() {
       accuracy: 98,
       mode: "Govt Exam Simulator",
       issueDate: new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
+      issuedAt: firestore.serverTimestamp(),
       timestamp: firestore.serverTimestamp(),
     };
     const ref = firestore.doc(db, "certificates", "TM-DEMO-2026");

@@ -13,20 +13,25 @@ function getAudioContext(): AudioContext | null {
     }
   }
   if (audioCtx && audioCtx.state === "suspended") {
-    audioCtx.resume();
+    try {
+      void audioCtx.resume().catch(() => {});
+    } catch {
+      // Ignore autoplay restriction
+    }
   }
   return audioCtx;
 }
 
 export function playTypewriterSound(type: "click" | "error" | "success" | "space") {
   try {
+    const state = useTypingStore.getState();
+    if (!state.soundEnabled) return;
+    const soundVolume = state.soundVolume !== undefined ? state.soundVolume : 0.5;
+    if (soundVolume <= 0) return;
+
     const ctx = getAudioContext();
     if (!ctx) return;
     const now = ctx.currentTime;
-
-    // Retrieve volume and sound profile from store
-    const state = useTypingStore.getState();
-    const soundVolume = state.soundVolume !== undefined ? state.soundVolume : 0.5;
     const soundProfile = state.soundProfile || "mechanical";
 
     if (soundProfile === "retro") {

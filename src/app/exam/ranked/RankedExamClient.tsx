@@ -61,6 +61,15 @@ export default function RankedExamClient() {
     setTestResult({ wpm, accuracy, qualified });
     trackRankedExamComplete(activeLayout, wpm, accuracy, qualified);
 
+    import("../../../store/gamificationStore").then(({ useGamificationStore }) => {
+      useGamificationStore.getState().recordSession({
+        wpm,
+        accuracy,
+        targetWpm: 40,
+        isGovtExam: false,
+      });
+    }).catch(() => {});
+
     if (qualified) {
       await saveTypingSession({
         userId: user?.uid || "guest",

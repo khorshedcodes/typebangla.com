@@ -186,6 +186,15 @@ export default function LessonPracticeClient({
     });
 
     if (typeof window !== "undefined") {
+      import("../../../../store/gamificationStore").then(({ useGamificationStore }) => {
+        useGamificationStore.getState().recordSession({
+          wpm: netWpm,
+          accuracy,
+          targetWpm: activeLesson.targetWpm,
+          isGovtExam: false,
+        });
+      }).catch(() => {});
+
       import("../../../../utils/analytics").then(({ trackLessonComplete }) => {
         trackLessonComplete(courseId, activeLesson.id, netWpm, accuracy, passed);
       }).catch(() => {});

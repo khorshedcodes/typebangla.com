@@ -118,6 +118,7 @@ export default function TypingArea({
         if (
           e.code === "Tab" ||
           e.code === "Space" ||
+          e.code === "Enter" ||
           (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey)
         ) {
           e.preventDefault();
@@ -132,6 +133,7 @@ export default function TypingArea({
 
       if (
         e.code === "Space" ||
+        e.code === "Enter" ||
         e.code === "Backspace" ||
         (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey)
       ) {
