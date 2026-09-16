@@ -114,6 +114,7 @@ export default function LessonSelector({ initialLessonId }: LessonSelectorProps 
     setTargetText, 
     isCompleted, 
     elapsedTime, 
+    startTime,
     typedText, 
     targetText, 
     resetTest, 
@@ -186,14 +187,15 @@ export default function LessonSelector({ initialLessonId }: LessonSelectorProps 
   }, [selectedCategory, activeLayout, initialLessonId]);
 
   useEffect(() => {
-    if (!isCompleted || !elapsedTime || !typedText || mainMode !== "curriculum") return;
+    if (!isCompleted || !typedText || mainMode !== "curriculum") return;
 
     const allLessons = getLessonsByCategory(selectedCategory, activeLayout);
     const lesson = allLessons.find((l) => l.id === activeLessonId);
     if (!lesson) return;
 
     const totalChars = typedText.length;
-    const elapsedMinutes = elapsedTime / 60;
+    const durationSec = startTime ? Math.max(1, (Date.now() - startTime) / 1000) : Math.max(1, elapsedTime);
+    const elapsedMinutes = durationSec / 60;
     const grossWpm = Math.round(totalChars / 5 / elapsedMinutes);
 
     let correctChars = 0;
@@ -204,7 +206,7 @@ export default function LessonSelector({ initialLessonId }: LessonSelectorProps 
 
     const updated = saveLessonProgress(lesson.id, grossWpm, accuracy, { targetWpm: lesson.targetWpm, targetAccuracy: 85 });
     setProgress((prev) => ({ ...prev, [lesson.id]: updated }));
-  }, [isCompleted, elapsedTime, typedText, targetText, activeLessonId, selectedCategory, activeLayout, mainMode]);
+  }, [isCompleted, startTime, elapsedTime, typedText, targetText, activeLessonId, selectedCategory, activeLayout, mainMode]);
 
   const allLessons = getLessonsByCategory(selectedCategory, activeLayout);
   

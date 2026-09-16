@@ -9,11 +9,12 @@ import LessonSelector from "../../components/LessonSelector";
 import ExamCenter from "../../components/ExamCenter";
 import StatsDashboard from "../../components/StatsDashboard";
 import TypeBanglaCoachPanel from "../../components/TypeBanglaCoachPanel";
-import { RotateCcw, Sparkles, Settings, X, Volume2, VolumeX, ArrowLeft, BookOpen, Gauge, BarChart3, Keyboard } from "lucide-react";
+import { RotateCcw, Sparkles, Settings, X, Volume2, VolumeX, ArrowLeft, BookOpen, Gauge, BarChart3, Keyboard, ChevronRight } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { cn } from "../../utils/cn";
+import { getLessonsByCategory } from "../../utils/lessons";
 
 const LAYOUT_ITEMS: { id: KeyboardLayout; name: string; flag: string; badge: string }[] = [
   { id: "avro", name: "Avro Phonetic", flag: "🇧🇩", badge: "Phonetic" },
@@ -58,6 +59,7 @@ const LAYOUT_HELPERS: Record<KeyboardLayout, { title: string; desc: string }> = 
 export default function PracticeClient() {
   const {
     targetText,
+    setTargetText,
     typedText,
     activeLayout,
     setActiveLayout,
@@ -421,10 +423,43 @@ export default function PracticeClient() {
               ) : (
                 focusKeys && focusKeys !== "all" &&
                 (lessonType === "drill" || lessonType === "combo" || lessonType === "pair") ? (
-                  <>
-                    <Button variant="outline" onClick={resetTest} className="flex-1">Again</Button>
-                    <Button onClick={startRecapTest} className="flex-1 bg-zinc-950 text-white hover:bg-zinc-800">Recap Test</Button>
-                  </>
+                  <div className="flex flex-col gap-2 w-full">
+                    {(() => {
+                      const category = activeLayout === "english" ? "english" : "bangla";
+                      const allLessons = getLessonsByCategory(category, activeLayout);
+                      const currentSavedId = typeof window !== "undefined" ? localStorage.getItem("last_active_lesson_id") : null;
+                      const currentIdx = allLessons.findIndex(l => l.id === currentSavedId);
+                      const next = currentIdx !== -1 && currentIdx < allLessons.length - 1 ? allLessons[currentIdx + 1] : null;
+                      if (!next) return null;
+                      return (
+                        <Button
+                          onClick={() => {
+                            if (typeof window !== "undefined") localStorage.setItem("last_active_lesson_id", next.id);
+                            resetTest();
+                            setTargetText(next.text, next.focusKeys, next.type, next.inputLanguage, next.outputPreview);
+                          }}
+                          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs gap-1.5 h-10 shadow-xs cursor-pointer"
+                        >
+                          <span>Continue to Next Lesson ({next.title})</span>
+                          <ChevronRight size={14} />
+                        </Button>
+                      );
+                    })()}
+                    <div className="flex gap-2 w-full">
+                      <Button variant="outline" onClick={resetTest} className="flex-1 text-xs font-semibold">Practice Again</Button>
+                      <Button onClick={startRecapTest} className="flex-1 bg-secondary text-foreground hover:bg-secondary/80 text-xs font-semibold">Recap Test</Button>
+                    </div>
+                    <Button 
+                      variant="ghost"
+                      onClick={() => {
+                        resetTest();
+                        setIsArenaActive(false);
+                      }} 
+                      className="w-full text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      Back to Dashboard
+                    </Button>
+                  </div>
                 ) : (
                   <>
                     <Button variant="outline" onClick={resetTest} className="flex-1">Practice Again</Button>

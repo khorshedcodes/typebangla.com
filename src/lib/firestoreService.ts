@@ -894,3 +894,73 @@ export async function seedDemoCertificates() {
     return false;
   }
 }
+
+export async function saveUserLessonProgress(
+  userId: string,
+  lessonId: string,
+  progress: { lessonId: string; bestWpm: number; bestAccuracy: number; attempts: number; passed: boolean; lastAttempt: string }
+) {
+  if (typeof window === "undefined" || !userId || userId === "guest") return false;
+  try {
+    const db = await getFirebaseDb();
+    if (!db) return false;
+    const firestore = await import("firebase/firestore");
+    const userRef = firestore.doc(db, "users", userId);
+    await firestore.setDoc(
+      userRef,
+      {
+        [`lessonProgress.${lessonId}`]: {
+          ...progress,
+          updatedAt: new Date().toISOString(),
+        },
+        updatedAt: firestore.serverTimestamp(),
+      },
+      { merge: true }
+    );
+    return true;
+  } catch (err) {
+    console.error("Error saving lesson progress to cloud:", err);
+    return false;
+  }
+}
+
+export async function syncUserLessonProgress(userId: string) {
+  if (typeof window === "undefined" || !userId || userId === "guest") return;
+  try {
+    const db = await getFirebaseDb();
+    if (!db) return;
+    const firestore = await import("firebase/firestore");
+    const userRef = firestore.doc(db, "users", userId);
+    const snap = await firestore.getDoc(userRef);
+    if (snap.exists()) {
+      const data = snap.data();
+      const cloudProgress = (data?.lessonProgress || {}) as Record<string, { lessonId: string; bestWpm: number; bestAccuracy: number; attempts: number; passed: boolean; lastAttempt: string }>;
+      
+      let local: Record<string, any> = {};
+      try {
+        const raw = localStorage.getItem("typemaster_lesson_progress");
+        if (raw) local = JSON.parse(raw);
+      } catch {}
+
+      const merged: Record<string, any> = { ...cloudProgress };
+      for (const [id, lp] of Object.entries(local)) {
+        if (!merged[id]) {
+          merged[id] = lp;
+        } else {
+          merged[id] = {
+            lessonId: id,
+            bestWpm: Math.max(merged[id].bestWpm || 0, lp.bestWpm || 0),
+            bestAccuracy: Math.max(merged[id].bestAccuracy || 0, lp.bestAccuracy || 0),
+            attempts: Math.max(merged[id].attempts || 0, lp.attempts || 0),
+            passed: Boolean(merged[id].passed || lp.passed),
+            lastAttempt: lp.lastAttempt || merged[id].lastAttempt || new Date().toISOString(),
+          };
+        }
+      }
+      localStorage.setItem("typemaster_lesson_progress", JSON.stringify(merged));
+    }
+  } catch (err) {
+    console.error("Error syncing lesson progress from cloud:", err);
+  }
+}
+

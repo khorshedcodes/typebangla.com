@@ -118,10 +118,13 @@ function CoursePracticeArena({
   const {
     setTargetText,
     isCompleted,
+    isStarted,
     elapsedTime,
+    startTime,
     typedText,
     targetText,
     resetTest,
+    updateElapsedTime,
   } = useTypingStore();
 
   const [inputVal, setInputVal] = useState("");
@@ -131,7 +134,20 @@ function CoursePracticeArena({
     passed: boolean;
   } | null>(null);
 
+  // Live timer interval while test is started and active
   useEffect(() => {
+    if (!isStarted || isCompleted) return;
+    const timer = setInterval(() => {
+      updateElapsedTime();
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isStarted, isCompleted, updateElapsedTime]);
+
+  useEffect(() => {
+    resetTest();
+    setInputVal("");
+    setResultState(null);
+
     setTargetText(
       lesson.text,
       lesson.focusKeys,
@@ -139,17 +155,14 @@ function CoursePracticeArena({
       lesson.inputLanguage,
       lesson.outputPreview
     );
-    queueMicrotask(() => {
-      setInputVal("");
-      setResultState(null);
-    });
-  }, [lesson, setTargetText]);
+  }, [lesson, setTargetText, resetTest]);
 
   useEffect(() => {
-    if (!isCompleted || !elapsedTime || !typedText) return;
+    if (!isCompleted || !typedText) return;
 
     const totalChars = typedText.length;
-    const elapsedMinutes = elapsedTime / 60;
+    const durationSec = startTime ? Math.max(1, (Date.now() - startTime) / 1000) : Math.max(1, elapsedTime);
+    const elapsedMinutes = durationSec / 60;
     const grossWpm = Math.round(totalChars / 5 / elapsedMinutes);
 
     let correctChars = 0;
@@ -164,10 +177,8 @@ function CoursePracticeArena({
       targetAccuracy: 85,
     });
 
-    queueMicrotask(() => {
-      setResultState({ wpm: grossWpm, accuracy, passed });
-    });
-  }, [isCompleted, elapsedTime, typedText, targetText, lesson]);
+    setResultState({ wpm: grossWpm, accuracy, passed });
+  }, [isCompleted, startTime, elapsedTime, typedText, targetText, lesson]);
 
   const currentNextChar = targetText[typedText.length] || "";
 
@@ -442,10 +453,6 @@ export default function CourseDetailClient({ courseId }: { courseId: string }) {
                 <Button
                   size="lg"
                   onClick={() => {
-                    if (!user) {
-                      setShowAuthGateModal(true);
-                      return;
-                    }
                     const targetIdx = lessons.findIndex(l => l.id === nextUnlockedLesson.id) + 1;
                     router.push(`/courses/${courseId}/lesson-${targetIdx}`);
                   }}
@@ -592,10 +599,6 @@ export default function CourseDetailClient({ courseId }: { courseId: string }) {
                           <Button
                             size="sm"
                             onClick={() => {
-                              if (!user) {
-                                setShowAuthGateModal(true);
-                                return;
-                              }
                               router.push(`/courses/${courseId}/lesson-${idx + 1}`);
                             }}
                             className="font-bold text-xs h-8 px-3 rounded-md cursor-pointer"

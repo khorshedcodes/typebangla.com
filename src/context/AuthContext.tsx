@@ -107,6 +107,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               console.error("Failed to migrate guest history:", e);
             }
 
+            // Sync lesson progress from cloud
+            try {
+              const { syncUserLessonProgress } = await import("../lib/firestoreService");
+              await syncUserLessonProgress(currentUser.uid);
+            } catch (e) {
+              console.error("Failed to sync cloud lesson progress:", e);
+            }
           } else {
             setRole("student");
           }
@@ -168,7 +175,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { signOut: firebaseSignOut } = await import("firebase/auth");
       await firebaseSignOut(auth);
       localStorage.removeItem("typemaster_enrolled_courses");
-      localStorage.removeItem("typemaster_lesson_progress");
+      // Keep typemaster_lesson_progress so learner progress is never wiped on sign out
       localStorage.removeItem("typemaster_history");
       localStorage.removeItem("typemaster_earned_certificates");
     } catch (error) {

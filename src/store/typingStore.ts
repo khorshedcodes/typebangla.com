@@ -201,7 +201,9 @@ export const useTypingStore = create<TypingState>((set, get) => ({
 
   setTargetText: (text, focusKeys, lessonType, inputLanguage = "bangla", outputPreview) => {
     let finalTargetText = (text || "").replace(/[\r\n\t]+/g, " ").replace(/ +/g, " ").trim();
-    if (focusKeys && focusKeys !== "all" &&
+    const isLesson = lessonType !== undefined || Boolean(focusKeys && focusKeys !== "all");
+
+    if (focusKeys && focusKeys !== "all" && !text &&
         (lessonType === "drill" || lessonType === "combo" || lessonType === "pair")) {
       // Longer drill lengths = more muscle memory per session
       // drill: 2-4 keys → 280 chars (~60-90s at beginner pace)
@@ -221,8 +223,9 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       finalOutputPreview = finalTargetText.split(" ").map(w => avroTransliterate(w)).join(" ");
     }
 
-    const currentDuration = get().selectedDuration;
-    if (currentDuration > 0) {
+    // Only general timed speed tests (not structured lessons/drills) should extend text for duration
+    const currentDuration = isLesson ? 0 : get().selectedDuration;
+    if (currentDuration > 0 && !isLesson) {
       const lang = inputLanguage === "latin" || get().activeLayout === "english" ? "english" : "bangla";
       finalTargetText = extendTextForDuration(finalTargetText, currentDuration, lang);
     }
@@ -234,7 +237,7 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       originalText: text,
       focusKeys,
       lessonType,
-      selectedDuration: currentDuration, // Preserve active selectedDuration for timed sessions
+      selectedDuration: isLesson ? 0 : currentDuration,
       isRecapTest: false, // Reset recap test flag
       typedText: "",
       phoneticBuffer: "",
@@ -617,10 +620,10 @@ export const useTypingStore = create<TypingState>((set, get) => ({
         errorIndices: errors
       });
 
-      // Auto-repeat passage if timed session is active, otherwise complete
+      // Auto-repeat passage if timed session is active, otherwise complete immediately
       if (nextTyped.length >= targetText.length) {
-        const { selectedDuration, originalText } = get();
-        if (selectedDuration > 0) {
+        const { selectedDuration, originalText, lessonType } = get();
+        if (selectedDuration > 0 && !lessonType) {
           const repeatSource = originalText || targetText;
           set({ targetText: targetText + " " + repeatSource });
         } else {
@@ -708,8 +711,8 @@ export const useTypingStore = create<TypingState>((set, get) => ({
         });
         
         if (nextTyped.length >= targetText.length) {
-          const { selectedDuration, originalText } = get();
-          if (selectedDuration > 0) {
+          const { selectedDuration, originalText, lessonType } = get();
+          if (selectedDuration > 0 && !lessonType) {
             const repeatSource = originalText || targetText;
             set({ targetText: targetText + " " + repeatSource });
           } else {
@@ -815,8 +818,8 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       });
 
       if (nextTyped.length >= targetText.length) {
-        const { selectedDuration, originalText } = get();
-        if (selectedDuration > 0) {
+        const { selectedDuration, originalText, lessonType } = get();
+        if (selectedDuration > 0 && !lessonType) {
           const repeatSource = originalText || targetText;
           set({ targetText: targetText + " " + repeatSource });
         } else {

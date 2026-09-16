@@ -98,10 +98,13 @@ export default function LessonPracticeClient({
     setActiveLayout,
     setTargetText,
     isCompleted,
+    isStarted,
     elapsedTime,
+    startTime,
     typedText,
     targetText,
     resetTest,
+    updateElapsedTime,
   } = useTypingStore();
 
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -117,60 +120,65 @@ export default function LessonPracticeClient({
     passed: boolean;
   } | null>(null);
 
+  // Live timer interval while test is started and active
   useEffect(() => {
-    if (!user) {
-      setAuthModalOpen(true);
+    if (!isStarted || isCompleted) return;
+    const timer = setInterval(() => {
+      updateElapsedTime();
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isStarted, isCompleted, updateElapsedTime]);
+
+  useEffect(() => {
+    // Reset test state synchronously when switching lessons to avoid stale completions
+    resetTest();
+    setInputVal("");
+    setResultState(null);
+
+    setActiveLayout(meta.layout);
+    const category = meta.layout === "english" ? "english" : "bangla";
+    const lessonList = getLessonsByCategory(category, meta.layout);
+    setLessons(lessonList);
+
+    // Resolve lesson by index or ID
+    let foundIdx = -1;
+    if (lessonId.startsWith("lesson-") || !isNaN(Number(lessonId))) {
+      const parsedNum = parseInt(lessonId.replace("lesson-", ""), 10);
+      if (!isNaN(parsedNum) && parsedNum >= 1 && parsedNum <= lessonList.length) {
+        foundIdx = parsedNum - 1;
+      }
     }
-  }, [user]);
 
-  useEffect(() => {
-    queueMicrotask(() => {
-      setActiveLayout(meta.layout);
-      const category = meta.layout === "english" ? "english" : "bangla";
-      const lessonList = getLessonsByCategory(category, meta.layout);
-      setLessons(lessonList);
+    if (foundIdx === -1) {
+      foundIdx = lessonList.findIndex((l) => l.id === lessonId);
+    }
 
-      // Resolve lesson by index or ID
-      let foundIdx = -1;
-      if (lessonId.startsWith("lesson-") || !isNaN(Number(lessonId))) {
-        const parsedNum = parseInt(lessonId.replace("lesson-", ""), 10);
-        if (!isNaN(parsedNum) && parsedNum >= 1 && parsedNum <= lessonList.length) {
-          foundIdx = parsedNum - 1;
-        }
-      }
+    if (foundIdx === -1) foundIdx = 0;
 
-      if (foundIdx === -1) {
-        foundIdx = lessonList.findIndex((l) => l.id === lessonId);
-      }
+    setLessonIndex(foundIdx);
+    const lessonObj = lessonList[foundIdx] || lessonList[0];
+    setActiveLesson(lessonObj);
 
-      if (foundIdx === -1) foundIdx = 0;
-
-      setLessonIndex(foundIdx);
-      const lessonObj = lessonList[foundIdx] || lessonList[0];
-      setActiveLesson(lessonObj);
-
-      if (lessonObj) {
-        setTargetText(
-          lessonObj.text,
-          lessonObj.focusKeys,
-          lessonObj.type,
-          lessonObj.inputLanguage,
-          lessonObj.outputPreview
-        );
-      }
-      setInputVal("");
-      setResultState(null);
-    });
-  }, [meta.layout, courseId, lessonId, setActiveLayout, setTargetText]);
+    if (lessonObj) {
+      setTargetText(
+        lessonObj.text,
+        lessonObj.focusKeys,
+        lessonObj.type,
+        lessonObj.inputLanguage,
+        lessonObj.outputPreview
+      );
+    }
+  }, [meta.layout, courseId, lessonId, setActiveLayout, setTargetText, resetTest]);
 
   const nextLesson = lessons[lessonIndex + 1];
   const nextLessonUrl = nextLesson ? `/courses/${courseId}/lesson-${lessonIndex + 2}` : null;
 
   useEffect(() => {
-    if (!isCompleted || !elapsedTime || !typedText || !activeLesson) return;
+    if (!isCompleted || !typedText || !activeLesson) return;
 
     const totalChars = typedText.length;
-    const elapsedMinutes = elapsedTime / 60;
+    const durationSec = startTime ? Math.max(1, (Date.now() - startTime) / 1000) : Math.max(1, elapsedTime);
+    const elapsedMinutes = durationSec / 60;
 
     let correctChars = 0;
     for (let i = 0; i < Math.min(typedText.length, targetText.length); i++) {
@@ -180,12 +188,18 @@ export default function LessonPracticeClient({
     const netWpm = elapsedMinutes > 0 ? Math.max(0, Math.round((correctChars / 5) / elapsedMinutes)) : 0;
     const passed = netWpm >= activeLesson.targetWpm && accuracy >= 85;
 
-    saveLessonProgress(activeLesson.id, netWpm, accuracy, {
+    const updatedProg = saveLessonProgress(activeLesson.id, netWpm, accuracy, {
       targetWpm: activeLesson.targetWpm,
       targetAccuracy: 85,
     });
 
     if (typeof window !== "undefined") {
+      if (user?.uid) {
+        import("../../../../lib/firestoreService").then(({ saveUserLessonProgress }) => {
+          saveUserLessonProgress(user.uid, activeLesson.id, updatedProg);
+        }).catch(() => {});
+      }
+
       import("../../../../store/gamificationStore").then(({ useGamificationStore }) => {
         useGamificationStore.getState().recordSession({
           wpm: netWpm,
@@ -200,13 +214,11 @@ export default function LessonPracticeClient({
       }).catch(() => {});
     }
 
-    queueMicrotask(() => {
-      setResultState({ wpm: netWpm, accuracy, passed });
-      if (passed && !nextLesson) {
-        setShowCelebrationModal(true);
-      }
-    });
-  }, [isCompleted, elapsedTime, typedText, targetText, activeLesson, nextLesson]);
+    setResultState({ wpm: netWpm, accuracy, passed });
+    if (passed && !nextLesson) {
+      setShowCelebrationModal(true);
+    }
+  }, [isCompleted, startTime, elapsedTime, typedText, targetText, activeLesson, nextLesson, courseId, user?.uid]);
 
   if (!activeLesson) {
     return null;
@@ -366,6 +378,7 @@ export default function LessonPracticeClient({
               onKeyDown={(e) => {
                 if (
                   e.code === "Space" ||
+                  e.code === "Enter" ||
                   e.code === "Backspace" ||
                   (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey)
                 ) {
@@ -391,7 +404,6 @@ export default function LessonPracticeClient({
         <VirtualKeyboard nextChar={currentNextChar} />
       </div>
 
-      {/* Course Completion Certificate Modal */}
       {/* Course Completion Celebration Modal */}
       <CourseCompletionModal
         isOpen={showCelebrationModal}
@@ -399,7 +411,13 @@ export default function LessonPracticeClient({
         courseTitle={meta.title}
         wpm={resultState?.wpm || 45}
         accuracy={resultState?.accuracy || 95}
-        onClaimCertificate={() => setShowCertModal(true)}
+        onClaimCertificate={() => {
+          if (!user) {
+            setAuthModalOpen(true);
+          } else {
+            setShowCertModal(true);
+          }
+        }}
       />
 
       {showCertModal && (
@@ -417,13 +435,10 @@ export default function LessonPracticeClient({
           }}
         />
       )}
-      {/* Auth Gate Modal */}
+      {/* Auth Modal for certificate claim */}
       <AuthModal
-        isOpen={authModalOpen || !user}
-        onClose={() => {
-          setAuthModalOpen(false);
-          if (!user) router.push(`/courses/${courseId}`);
-        }}
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
         initialMode="signup"
       />
     </main>
