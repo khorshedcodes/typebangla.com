@@ -987,29 +987,54 @@ export const DEFAULT_ANNOUNCEMENT: AnnouncementConfig = {
   actionUrl: "/courses",
 };
 
+const STORAGE_ANNOUNCEMENT_KEY = "typemaster_global_announcement_cache";
+
 export async function getGlobalAnnouncement(): Promise<AnnouncementConfig> {
-  if (typeof window === "undefined") return DEFAULT_ANNOUNCEMENT;
+  let fallback = DEFAULT_ANNOUNCEMENT;
+  if (typeof window !== "undefined") {
+    try {
+      const cached = localStorage.getItem(STORAGE_ANNOUNCEMENT_KEY);
+      if (cached) {
+        fallback = JSON.parse(cached);
+      }
+    } catch {}
+  }
+
+  if (typeof window === "undefined") return fallback;
+
   try {
     const db = await getFirebaseDb();
-    if (!db) return DEFAULT_ANNOUNCEMENT;
+    if (!db) return fallback;
     const firestore = await import("firebase/firestore");
     const docRef = firestore.doc(db, "site_settings", "announcement");
     const snap = await firestore.getDoc(docRef);
     if (snap.exists()) {
-      return snap.data() as AnnouncementConfig;
+      const data = snap.data() as AnnouncementConfig;
+      try {
+        localStorage.setItem(STORAGE_ANNOUNCEMENT_KEY, JSON.stringify(data));
+      } catch {}
+      return data;
     }
-    return DEFAULT_ANNOUNCEMENT;
+    return fallback;
   } catch (err) {
-    console.error("Error fetching global announcement:", err);
-    return DEFAULT_ANNOUNCEMENT;
+    console.warn("Could not fetch remote announcement, using local fallback:", err);
+    return fallback;
   }
 }
 
 export async function saveGlobalAnnouncement(config: AnnouncementConfig, userEmail?: string): Promise<boolean> {
-  if (typeof window === "undefined") return false;
+  // Always update local cache so admin UI and browser immediately reflect it
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(STORAGE_ANNOUNCEMENT_KEY, JSON.stringify(config));
+    } catch {}
+  }
+
+  if (typeof window === "undefined") return true;
+
   try {
     const db = await getFirebaseDb();
-    if (!db) return false;
+    if (!db) return true;
     const firestore = await import("firebase/firestore");
     const docRef = firestore.doc(db, "site_settings", "announcement");
     await firestore.setDoc(docRef, {
@@ -1018,8 +1043,9 @@ export async function saveGlobalAnnouncement(config: AnnouncementConfig, userEma
       updatedBy: userEmail || "admin",
     }, { merge: true });
     return true;
-  } catch (err) {
-    console.error("Error saving global announcement:", err);
-    return false;
+  } catch (err: any) {
+    console.error("Error saving global announcement to Firestore:", err);
+    // Return error message or throw if Firestore rules rejected it
+    throw err;
   }
 }

@@ -91,5 +91,13 @@ service cloud.firestore {
       // Only admin can read and manage messages
       allow read, update, delete: if isAdmin();
     }
+
+    // ── 9. Global Site Settings & Announcements ─────────────────────
+    match /site_settings/{settingId} {
+      // Publicly readable so visitors can see active global announcements
+      allow read: if true;
+      // Only admin can create or update site settings
+      allow create, update, delete: if isAdmin();
+    }
   }
 }

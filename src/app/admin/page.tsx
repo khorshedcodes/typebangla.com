@@ -209,23 +209,24 @@ export default function AdminDashboardPage() {
         ...announcementConfig,
         id: rebroadcast ? `announcement_${Date.now()}` : (announcementConfig.id || `announcement_${Date.now()}`),
       };
-      const ok = await saveGlobalAnnouncement(configToSave, user?.email || undefined);
-      if (ok) {
-        setAnnouncementConfig(configToSave);
-        setActionMessage(
-          rebroadcast
-            ? "New Announcement re-broadcasted successfully! All users will see this again."
-            : "Global announcement settings saved successfully!"
-        );
-        setTimeout(() => setActionMessage(null), 4000);
-      } else {
-        setActionMessage("Failed to save announcement settings.");
-        setTimeout(() => setActionMessage(null), 4000);
-      }
-    } catch (err) {
-      console.error("Error saving announcement:", err);
-      setActionMessage("Error occurred while saving announcement.");
+      await saveGlobalAnnouncement(configToSave, user?.email || undefined);
+      setAnnouncementConfig(configToSave);
+      setActionMessage(
+        rebroadcast
+          ? "New Announcement re-broadcasted successfully! All users will see this again."
+          : "Global announcement settings saved successfully!"
+      );
       setTimeout(() => setActionMessage(null), 4000);
+    } catch (err: any) {
+      console.error("Error saving announcement:", err);
+      if (err?.code === "permission-denied" || err?.message?.includes("permission")) {
+        setActionMessage(
+          `Firestore permission error: Ensure your logged-in user (${user?.email || "anonymous"}) is admin@typebangla.com or update your Firestore security rules for site_settings.`
+        );
+      } else {
+        setActionMessage("Error occurred while saving announcement: " + (err?.message || "Unknown error"));
+      }
+      setTimeout(() => setActionMessage(null), 7000);
     } finally {
       setIsSavingAnnouncement(false);
     }
