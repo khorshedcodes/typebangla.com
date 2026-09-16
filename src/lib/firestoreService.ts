@@ -964,3 +964,62 @@ export async function syncUserLessonProgress(userId: string) {
   }
 }
 
+// ── Global Site Announcement System ──────────────────────────────────────────
+export interface AnnouncementConfig {
+  id: string;
+  enabled: boolean;
+  title: string;
+  message: string;
+  tag?: string;
+  actionText?: string;
+  actionUrl?: string;
+  updatedAt?: any;
+  updatedBy?: string;
+}
+
+export const DEFAULT_ANNOUNCEMENT: AnnouncementConfig = {
+  id: "announcement_v1",
+  enabled: false,
+  title: "Welcome to typebangla!",
+  message: "Practice Bangla & English typing with real-time feedback, speed analytics, and interactive courses.",
+  tag: "Notice",
+  actionText: "Start Practicing",
+  actionUrl: "/courses",
+};
+
+export async function getGlobalAnnouncement(): Promise<AnnouncementConfig> {
+  if (typeof window === "undefined") return DEFAULT_ANNOUNCEMENT;
+  try {
+    const db = await getFirebaseDb();
+    if (!db) return DEFAULT_ANNOUNCEMENT;
+    const firestore = await import("firebase/firestore");
+    const docRef = firestore.doc(db, "site_settings", "announcement");
+    const snap = await firestore.getDoc(docRef);
+    if (snap.exists()) {
+      return snap.data() as AnnouncementConfig;
+    }
+    return DEFAULT_ANNOUNCEMENT;
+  } catch (err) {
+    console.error("Error fetching global announcement:", err);
+    return DEFAULT_ANNOUNCEMENT;
+  }
+}
+
+export async function saveGlobalAnnouncement(config: AnnouncementConfig, userEmail?: string): Promise<boolean> {
+  if (typeof window === "undefined") return false;
+  try {
+    const db = await getFirebaseDb();
+    if (!db) return false;
+    const firestore = await import("firebase/firestore");
+    const docRef = firestore.doc(db, "site_settings", "announcement");
+    await firestore.setDoc(docRef, {
+      ...config,
+      updatedAt: firestore.serverTimestamp(),
+      updatedBy: userEmail || "admin",
+    }, { merge: true });
+    return true;
+  } catch (err) {
+    console.error("Error saving global announcement:", err);
+    return false;
+  }
+}

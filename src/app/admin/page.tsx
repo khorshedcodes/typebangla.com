@@ -9,7 +9,7 @@ import {
   Plus, Trash2, Edit3, Lock, Flame, CreditCard,
   XCircle, Clock, Building2, User, RefreshCw, AlertCircle,
   Sparkles, Mail, Phone, Send, Check, ShieldCheck, Layers,
-  ExternalLink, Activity, MessageSquare
+  ExternalLink, Activity, MessageSquare, Megaphone, Bell, Eye, Save, Radio
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
@@ -32,12 +32,16 @@ import {
   updateContactMessageStatus,
   deleteContactMessage,
   ContactMessage,
+  getGlobalAnnouncement,
+  saveGlobalAnnouncement,
+  AnnouncementConfig,
+  DEFAULT_ANNOUNCEMENT,
 } from "../../lib/firestoreService";
 import { ALL_EXAM_PASSAGES } from "../../utils/lessons/exam/examPassages";
 
 export default function AdminDashboardPage() {
   const { user, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState<"overview" | "waitlist" | "payments" | "users" | "certificates" | "exams" | "feedback">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "waitlist" | "payments" | "users" | "certificates" | "exams" | "feedback" | "announcement">("overview");
 
   // Admin Environment Email Check
   const envAdminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@typebangla.com").toLowerCase().trim();
@@ -182,6 +186,51 @@ export default function AdminDashboardPage() {
     setFeedbackMessages((prev) => prev.filter((m) => m.id !== id));
   };
 
+  const [announcementConfig, setAnnouncementConfig] = useState<AnnouncementConfig>(DEFAULT_ANNOUNCEMENT);
+  const [isLoadingAnnouncement, setIsLoadingAnnouncement] = useState<boolean>(false);
+  const [isSavingAnnouncement, setIsSavingAnnouncement] = useState<boolean>(false);
+
+  const fetchAnnouncement = async () => {
+    setIsLoadingAnnouncement(true);
+    try {
+      const config = await getGlobalAnnouncement();
+      setAnnouncementConfig(config);
+    } catch (err) {
+      console.error("Error loading announcement config:", err);
+    } finally {
+      setIsLoadingAnnouncement(false);
+    }
+  };
+
+  const handleSaveAnnouncement = async (rebroadcast: boolean = false) => {
+    setIsSavingAnnouncement(true);
+    try {
+      const configToSave: AnnouncementConfig = {
+        ...announcementConfig,
+        id: rebroadcast ? `announcement_${Date.now()}` : (announcementConfig.id || `announcement_${Date.now()}`),
+      };
+      const ok = await saveGlobalAnnouncement(configToSave, user?.email || undefined);
+      if (ok) {
+        setAnnouncementConfig(configToSave);
+        setActionMessage(
+          rebroadcast
+            ? "New Announcement re-broadcasted successfully! All users will see this again."
+            : "Global announcement settings saved successfully!"
+        );
+        setTimeout(() => setActionMessage(null), 4000);
+      } else {
+        setActionMessage("Failed to save announcement settings.");
+        setTimeout(() => setActionMessage(null), 4000);
+      }
+    } catch (err) {
+      console.error("Error saving announcement:", err);
+      setActionMessage("Error occurred while saving announcement.");
+      setTimeout(() => setActionMessage(null), 4000);
+    } finally {
+      setIsSavingAnnouncement(false);
+    }
+  };
+
   const refreshAllData = () => {
     fetchAnalytics();
     fetchPayments();
@@ -189,6 +238,7 @@ export default function AdminDashboardPage() {
     fetchUsers();
     fetchCertificates();
     fetchFeedback();
+    fetchAnnouncement();
   };
 
   useEffect(() => {
@@ -394,6 +444,7 @@ export default function AdminDashboardPage() {
         <nav className="flex flex-row md:flex-col gap-1 overflow-x-auto">
           {[
             { id: "overview", label: "Overview & Analytics", icon: BarChart3 },
+            { id: "announcement", label: "Global Announcement", icon: Megaphone },
             { id: "feedback", label: "পরামর্শ ও মতামত (Feedback)", icon: MessageSquare, count: pendingFeedbackCount },
             { id: "waitlist", label: "Institute V2 Waitlist", icon: Building2, count: pendingWaitlistCount },
             { id: "payments", label: "Payment Top-Ups", icon: CreditCard, count: pendingPaymentsCount },
@@ -1457,6 +1508,251 @@ export default function AdminDashboardPage() {
                 })}
               </div>
             )}
+          </div>
+        )}
+
+        {/* ── TAB: GLOBAL ANNOUNCEMENT ── */}
+        {activeTab === "announcement" && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h1 className="text-xl font-extrabold text-foreground flex items-center gap-2">
+                  <Megaphone className="w-5 h-5 text-emerald-500" />
+                  <span>Global Site Announcement Modal</span>
+                </h1>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Control the one-time popup notification displayed to all visitors. Re-broadcast to show it again to users who previously dismissed it.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={fetchAnnouncement}
+                  disabled={isLoadingAnnouncement}
+                  className="h-8 text-xs font-bold gap-1.5 cursor-pointer"
+                >
+                  <RefreshCw size={13} className={isLoadingAnnouncement ? "animate-spin" : ""} />
+                  <span>Reload</span>
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => handleSaveAnnouncement(false)}
+                  disabled={isSavingAnnouncement}
+                  className="h-8 text-xs font-bold gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer"
+                >
+                  <Save size={13} />
+                  <span>{isSavingAnnouncement ? "Saving..." : "Save Settings"}</span>
+                </Button>
+              </div>
+            </div>
+
+            {/* Announcement Status Banner */}
+            <div className={`p-4 rounded-xl border flex items-center justify-between gap-4 transition-colors ${
+              announcementConfig.enabled
+                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300"
+                : "bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300"
+            }`}>
+              <div className="flex items-center gap-3">
+                <div className={`w-3 h-3 rounded-full ${announcementConfig.enabled ? "bg-emerald-500 animate-pulse" : "bg-amber-500"}`} />
+                <div>
+                  <div className="text-xs font-bold uppercase tracking-wider">
+                    Current Status: {announcementConfig.enabled ? "Active & Broadcasting" : "Disabled / Hidden"}
+                  </div>
+                  <div className="text-[11px] opacity-80">
+                    {announcementConfig.enabled
+                      ? "Visitors will see this popup on first visit until they click dismiss."
+                      : "The announcement popup is turned off for all users."}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={announcementConfig.enabled}
+                    onChange={(e) => setAnnouncementConfig((prev) => ({ ...prev, enabled: e.target.checked }))}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-emerald-600"></div>
+                </label>
+                <span className="text-xs font-black">
+                  {announcementConfig.enabled ? "ON" : "OFF"}
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Form Controls */}
+              <div className="lg:col-span-7 space-y-4">
+                <Card className="p-5 border bg-card/60 space-y-4">
+                  <h3 className="text-sm font-extrabold text-foreground flex items-center gap-2">
+                    <Edit3 size={15} className="text-primary" />
+                    <span>Announcement Content</span>
+                  </h3>
+
+                  <div>
+                    <label className="text-xs font-bold text-muted-foreground block mb-1">
+                      Badge / Tag Label
+                    </label>
+                    <input
+                      type="text"
+                      value={announcementConfig.tag || ""}
+                      onChange={(e) => setAnnouncementConfig((prev) => ({ ...prev, tag: e.target.value }))}
+                      placeholder="e.g. Notice, New Feature, Maintenance, Offer"
+                      className="w-full px-3 py-2 rounded-xl text-xs bg-background border border-border focus:ring-1 focus:ring-primary focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-muted-foreground block mb-1">
+                      Modal Title *
+                    </label>
+                    <input
+                      type="text"
+                      value={announcementConfig.title}
+                      onChange={(e) => setAnnouncementConfig((prev) => ({ ...prev, title: e.target.value }))}
+                      placeholder="e.g. নতুন বাংলা টাইপিং কোর্স শুরু হয়েছে!"
+                      className="w-full px-3 py-2 rounded-xl text-xs bg-background border border-border focus:ring-1 focus:ring-primary focus:outline-none font-semibold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-muted-foreground block mb-1">
+                      Message Body *
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={announcementConfig.message}
+                      onChange={(e) => setAnnouncementConfig((prev) => ({ ...prev, message: e.target.value }))}
+                      placeholder="Detailed notice or instructions for users..."
+                      className="w-full px-3 py-2 rounded-xl text-xs bg-background border border-border focus:ring-1 focus:ring-primary focus:outline-none leading-relaxed"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-bold text-muted-foreground block mb-1">
+                        Action Button Text (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={announcementConfig.actionText || ""}
+                        onChange={(e) => setAnnouncementConfig((prev) => ({ ...prev, actionText: e.target.value }))}
+                        placeholder="e.g. Explore Now, বিস্তারিত দেখুন"
+                        className="w-full px-3 py-2 rounded-xl text-xs bg-background border border-border focus:ring-1 focus:ring-primary focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-muted-foreground block mb-1">
+                        Action Button Link (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={announcementConfig.actionUrl || ""}
+                        onChange={(e) => setAnnouncementConfig((prev) => ({ ...prev, actionUrl: e.target.value }))}
+                        placeholder="e.g. /courses or https://..."
+                        className="w-full px-3 py-2 rounded-xl text-xs bg-background border border-border focus:ring-1 focus:ring-primary focus:outline-none font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                    <Button
+                      size="sm"
+                      onClick={() => handleSaveAnnouncement(false)}
+                      disabled={isSavingAnnouncement}
+                      className="text-xs font-bold gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
+                    >
+                      <Save size={13} />
+                      <span>{isSavingAnnouncement ? "Saving..." : "Save Changes"}</span>
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        if (confirm("This will broadcast this announcement as a BRAND NEW announcement so that all users (even those who previously dismissed it) will see it again. Continue?")) {
+                          handleSaveAnnouncement(true);
+                        }
+                      }}
+                      disabled={isSavingAnnouncement}
+                      className="text-xs font-bold gap-1.5 border-emerald-500/40 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 cursor-pointer"
+                    >
+                      <Radio size={13} className="text-emerald-500" />
+                      <span>Re-broadcast to Everyone</span>
+                    </Button>
+                  </div>
+                </Card>
+
+                {/* Announcement ID & Metadata */}
+                <div className="p-3 rounded-xl bg-secondary/50 border border-border text-[11px] text-muted-foreground flex items-center justify-between">
+                  <span>Current Version ID: <code className="font-mono text-foreground font-bold">{announcementConfig.id}</code></span>
+                  {announcementConfig.updatedBy && (
+                    <span>Last updated by: {announcementConfig.updatedBy}</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Live Preview Panel */}
+              <div className="lg:col-span-5">
+                <div className="sticky top-6 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                      <Eye size={14} className="text-emerald-500" />
+                      <span>Live User Modal Preview</span>
+                    </h3>
+                    <Badge variant="outline" className="text-[10px]">
+                      {announcementConfig.enabled ? "Active" : "Preview Only"}
+                    </Badge>
+                  </div>
+
+                  {/* Simulated Modal Card */}
+                  <div className="rounded-2xl bg-white dark:bg-[#131b2e] border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+                    <div className="h-1.5 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-indigo-500" />
+
+                    <div className="p-5 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                          <Megaphone className="w-3 h-3" />
+                          {announcementConfig.tag || "Notice"}
+                        </span>
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-1">
+                          <Sparkles className="w-3 h-3 text-amber-500" />
+                          Announcement
+                        </span>
+                      </div>
+
+                      <h4 className="text-base font-bold text-slate-900 dark:text-white leading-snug">
+                        {announcementConfig.title || "Announcement Title Preview"}
+                      </h4>
+
+                      <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">
+                        {announcementConfig.message || "This is how your announcement body text will appear to visitors."}
+                      </p>
+
+                      <div className="pt-3 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-end gap-2">
+                        <span className="px-3 py-1.5 text-[11px] font-medium text-slate-400">
+                          Don&apos;t show again
+                        </span>
+                        {announcementConfig.actionUrl && (
+                          <span className="px-3 py-1.5 rounded-lg text-[11px] font-bold text-white bg-emerald-600 inline-flex items-center gap-1">
+                            {announcementConfig.actionText || "View Details"}
+                            <ExternalLink size={11} />
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-[11px] text-muted-foreground text-center">
+                    Note: Users can click outside the modal, press the close button, or select &quot;Don&apos;t show again&quot; to dismiss.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </main>
