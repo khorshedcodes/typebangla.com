@@ -11,7 +11,7 @@ import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import FloatingBanglaKeyboard from "../../components/FloatingBanglaKeyboard";
-import { mapInputToBangla, avroTransliterate } from "../../utils/layouts";
+import { mapInputToBangla, avroTransliterate, applyHasantaVowelConversion } from "../../utils/layouts";
 import { KeyboardLayout } from "../../store/typingStore";
 
 export default function OnlineKeyboardClient() {
@@ -95,7 +95,8 @@ export default function OnlineKeyboardClient() {
     // 7. Fixed Layout Conversion (UniBijoy / Jatiya / Probhat / Inscript / Unicode)
     else {
       const converted = mapInputToBangla(char, selectedLayout, isShift);
-      setText((prev) => prev + (converted || char));
+      const combined = text + (converted || char);
+      setText(applyHasantaVowelConversion(combined));
     }
 
     if (textareaRef.current) textareaRef.current.focus();
@@ -142,7 +143,9 @@ export default function OnlineKeyboardClient() {
         e.preventDefault();
         const start = textareaRef.current?.selectionStart || text.length;
         const end = textareaRef.current?.selectionEnd || text.length;
-        const updated = text.substring(0, start) + converted + text.substring(end);
+        const before = text.substring(0, start) + converted;
+        const convertedBefore = applyHasantaVowelConversion(before);
+        const updated = convertedBefore + text.substring(end);
         setText(updated);
       }
     }

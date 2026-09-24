@@ -546,23 +546,32 @@ const SYMBOL_KEY_MAP: Record<string, { code: string; shift: boolean }> = {
 
 /**
  * Converts Hasanta (্) + Kar sequence to Independent Bangla Vowels (for UniBijoy, Jatiya, Unicode)
- * e.g., ্ + ি -> ই (Rossho I), ্ + ী -> ঈ (Dirgho I), ্ + া -> আ, etc.
+ * e.g., ্ + ি -> ই (Rossho I), ্ + ী -> ঈ (Dirgho I), ্ + ু -> উ, etc.
+ * NOTE: 'gf' in UniBijoy is ্ + া = ্া (kept as-is; never converted to আ).
+ * Standard Bijoy typing of 'আ' is Shift+F (অ) then F (া) -> অ + া = আ.
  */
 export function applyHasantaVowelConversion(input: string): string {
-  if (!input || !input.includes("\u09cd") || input.length <= 1) return input;
+  if (!input || input.length <= 1) return input;
 
-  return input
+  // ponytail: regex cascade handles ligatures in place, upgrade to Trie if buffer throughput bottlenecks
+  let res = input
     .replace(/([\u0985-\u09b9\u09dc-\u09df])\u09b0\u09cd/g, "\u09b0\u09cd$1") // Reph reordering (consonant + র্ -> র্ + consonant)
-    .replace(/\u09cd\u09bf/g, "\u0987") // ্ + ি -> ই (Rossho I)
-    .replace(/\u09cd\u09c0/g, "\u0988") // ্ + ী -> ঈ (Dirgho I)
-    .replace(/\u09cd\u09be/g, "\u0986") // ্ + া -> আ
-    .replace(/\u09cd\u09c1/g, "\u0989") // ্ + ু -> উ
-    .replace(/\u09cd\u09c2/g, "\u098a") // ্ + ূ -> ঊ
-    .replace(/\u09cd\u09c3/g, "\u098b") // ্ + ৃ -> ঋ
-    .replace(/\u09cd\u09c7/g, "\u098f") // ্ + ে -> এ
-    .replace(/\u09cd\u09c8/g, "\u0990") // ্ + ৈ -> ঐ
-    .replace(/\u09cd\u09cb/g, "\u0993") // ্ + ো -> ও
-    .replace(/\u09cd\u09cc/g, "\u0994"); // ্ + ৌ -> ঔ
+    .replace(/\u0985\u09be/g, "\u0986"); // অ + া -> আ (Bijoy standard for typing আ: Shift+F + F)
+
+  if (res.includes("\u09cd")) {
+    res = res
+      .replace(/\u09cd\u09bf/g, "\u0987") // ্ + ি -> ই (Rossho I)
+      .replace(/\u09cd\u09c0/g, "\u0988") // ্ + ী -> ঈ (Dirgho I)
+      .replace(/\u09cd\u09c1/g, "\u0989") // ্ + ু -> উ
+      .replace(/\u09cd\u09c2/g, "\u098a") // ্ + ূ -> ঊ
+      .replace(/\u09cd\u09c3/g, "\u098b") // ্ + ৃ -> ঋ
+      .replace(/\u09cd\u09c7/g, "\u098f") // ্ + ে -> এ
+      .replace(/\u09cd\u09c8/g, "\u0990") // ্ + ৈ -> ঐ
+      .replace(/\u09cd\u09cb/g, "\u0993") // ্ + ো -> ও
+      .replace(/\u09cd\u09cc/g, "\u0994"); // ্ + ৌ -> ঔ
+  }
+
+  return res;
 }
 
 /**

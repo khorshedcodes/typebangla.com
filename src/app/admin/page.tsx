@@ -9,7 +9,7 @@ import {
   Plus, Trash2, Edit3, Lock, Flame, CreditCard,
   XCircle, Clock, Building2, User, RefreshCw, AlertCircle,
   Sparkles, Mail, Phone, Send, Check, ShieldCheck, Layers,
-  ExternalLink, Activity, MessageSquare, Megaphone, Bell, Eye, Save, Radio
+  ExternalLink, Activity, MessageSquare, Megaphone, Bell, Eye, Save, Radio, X
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
@@ -38,6 +38,113 @@ import {
   DEFAULT_ANNOUNCEMENT,
 } from "../../lib/firestoreService";
 import { ALL_EXAM_PASSAGES } from "../../utils/lessons/exam/examPassages";
+
+const ADMIN_COURSE_DEFINITIONS = [
+  { id: "english-full", title: "English QWERTY", prefix: "en-", total: 20 },
+  { id: "avro-full", title: "Avro Phonetic", prefix: "bn-avro-", total: 25 },
+  { id: "unibijoy-full", title: "UniBijoy 52", prefix: "bn-unibijoy-", total: 25 },
+  { id: "jatiya-full", title: "Jatiya BCC", prefix: "bn-jatiya-", total: 25 },
+  { id: "probhat-full", title: "Probhat", prefix: "bn-probhat-", total: 20 },
+  { id: "inscript-full", title: "Inscript", prefix: "bn-inscript-", total: 20 },
+  { id: "unicode-full", title: "Unicode", prefix: "bn-unicode-", total: 20 },
+];
+const TOTAL_LESSONS_ALL_COURSES = 155;
+
+function getUserCourseStats(user: UserProfile) {
+  const lp = user.lessonProgress || {};
+  let totalPassed = 0;
+  let totalAttempts = 0;
+  let highestLessonWpm = 0;
+
+  const courseBreakdown = ADMIN_COURSE_DEFINITIONS.map((c) => {
+    let passedInCourse = 0;
+    let attemptsInCourse = 0;
+    let bestWpmInCourse = 0;
+
+    for (const [lessonId, progress] of Object.entries(lp)) {
+      if (lessonId.startsWith(c.prefix)) {
+        if (progress.passed) passedInCourse++;
+        attemptsInCourse += progress.attempts || 1;
+        bestWpmInCourse = Math.max(bestWpmInCourse, progress.bestWpm || 0);
+      }
+    }
+    totalPassed += passedInCourse;
+    totalAttempts += attemptsInCourse;
+    highestLessonWpm = Math.max(highestLessonWpm, bestWpmInCourse);
+
+    return {
+      courseId: c.id,
+      title: c.title,
+      total: c.total,
+      passed: passedInCourse,
+      percent: Math.round((passedInCourse / c.total) * 100),
+      bestWpm: bestWpmInCourse,
+    };
+  });
+
+  const activeCourses = courseBreakdown.filter((c) => c.passed > 0);
+  const overallPercent = Math.round((totalPassed / TOTAL_LESSONS_ALL_COURSES) * 100);
+
+  return {
+    totalPassed,
+    totalLessons: TOTAL_LESSONS_ALL_COURSES,
+    overallPercent,
+    highestLessonWpm,
+    activeCourses,
+    courseBreakdown,
+  };
+}
+
+function AdminPagination({
+  currentPage,
+  totalItems,
+  pageSize,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalItems: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+}) {
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  if (totalPages <= 1) return null;
+
+  return (
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border text-xs font-bold">
+      <span className="text-muted-foreground">
+        Showing{" "}
+        <strong className="text-foreground">
+          {Math.min(totalItems, (currentPage - 1) * pageSize + 1)} -{" "}
+          {Math.min(totalItems, currentPage * pageSize)}
+        </strong>{" "}
+        of <strong className="text-foreground">{totalItems}</strong> entries
+      </span>
+      <div className="flex items-center gap-1.5">
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={currentPage === 1}
+          onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+          className="text-xs h-8 px-2.5 border-border cursor-pointer disabled:opacity-50"
+        >
+          Previous
+        </Button>
+        <span className="px-2 text-xs text-muted-foreground font-mono">
+          Page {currentPage} of {totalPages}
+        </span>
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={currentPage >= totalPages}
+          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+          className="text-xs h-8 px-2.5 border-border cursor-pointer disabled:opacity-50"
+        >
+          Next
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 export default function AdminDashboardPage() {
   const { user, loading } = useAuth();
@@ -100,6 +207,20 @@ export default function AdminDashboardPage() {
   const [feedbackStatusFilter, setFeedbackStatusFilter] = useState<"all" | "unread" | "reviewed" | "resolved">("all");
   const [feedbackSearch, setFeedbackSearch] = useState<string>("");
   const [isLoadingFeedback, setIsLoadingFeedback] = useState<boolean>(false);
+
+  // Pagination states for Admin tabs (ponytail: client-side pagination over synced collections)
+  const [usersPage, setUsersPage] = useState<number>(1);
+  const [paymentsPage, setPaymentsPage] = useState<number>(1);
+  const [waitlistPage, setWaitlistPage] = useState<number>(1);
+  const [certsPage, setCertsPage] = useState<number>(1);
+  const [examsPage, setExamsPage] = useState<number>(1);
+  const [feedbackPage, setFeedbackPage] = useState<number>(1);
+
+  // Selected user for Course Status inspection modal
+  const [selectedUserForCourses, setSelectedUserForCourses] = useState<UserProfile | null>(null);
+
+  const PAGE_SIZE = 10;
+  const EXAMS_PAGE_SIZE = 12;
 
   const fetchAnalytics = async () => {
     setIsLoadingAnalytics(true);
@@ -367,6 +488,14 @@ export default function AdminDashboardPage() {
       p.language.toLowerCase().includes(s)
     );
   });
+
+  // Paginated array slices for each admin tab
+  const paginatedUsers = filteredUsers.slice((usersPage - 1) * PAGE_SIZE, usersPage * PAGE_SIZE);
+  const paginatedPaymentRequests = filteredPaymentRequests.slice((paymentsPage - 1) * PAGE_SIZE, paymentsPage * PAGE_SIZE);
+  const paginatedWaitlistRequests = filteredWaitlistRequests.slice((waitlistPage - 1) * PAGE_SIZE, waitlistPage * PAGE_SIZE);
+  const paginatedCertificates = filteredCertificates.slice((certsPage - 1) * PAGE_SIZE, certsPage * PAGE_SIZE);
+  const paginatedFeedback = filteredFeedback.slice((feedbackPage - 1) * PAGE_SIZE, feedbackPage * PAGE_SIZE);
+  const paginatedPassages = filteredPassages.slice((examsPage - 1) * EXAMS_PAGE_SIZE, examsPage * EXAMS_PAGE_SIZE);
 
   if (loading) {
     return (
@@ -667,7 +796,10 @@ export default function AdminDashboardPage() {
                   {(["all", "pending", "contacted", "approved"] as const).map((st) => (
                     <button
                       key={st}
-                      onClick={() => setWaitlistFilterStatus(st)}
+                      onClick={() => {
+                        setWaitlistFilterStatus(st);
+                        setWaitlistPage(1);
+                      }}
                       className={`px-3 py-1.5 rounded-lg font-bold capitalize transition-colors cursor-pointer ${
                         waitlistFilterStatus === st ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                       }`}
@@ -683,7 +815,10 @@ export default function AdminDashboardPage() {
                     type="text"
                     placeholder="Search academy or contact..."
                     value={waitlistSearch}
-                    onChange={(e) => setWaitlistSearch(e.target.value)}
+                    onChange={(e) => {
+                      setWaitlistSearch(e.target.value);
+                      setWaitlistPage(1);
+                    }}
                     className="bg-secondary border border-border rounded-xl pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary w-64"
                   />
                 </div>
@@ -703,14 +838,14 @@ export default function AdminDashboardPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {filteredWaitlistRequests.length === 0 ? (
+                    {paginatedWaitlistRequests.length === 0 ? (
                       <tr>
                         <td colSpan={6} className="p-8 text-center text-muted-foreground">
                           {isLoadingWaitlist ? "Loading waitlist applications from Firebase..." : "No waitlist submissions found matching your filter."}
                         </td>
                       </tr>
                     ) : (
-                      filteredWaitlistRequests.map((req) => (
+                      paginatedWaitlistRequests.map((req) => (
                         <tr key={req.id} className="hover:bg-secondary/50 transition-colors">
                           <td className="p-3">
                             <div className="font-extrabold text-foreground text-sm">{req.instituteName}</div>
@@ -784,6 +919,13 @@ export default function AdminDashboardPage() {
                   </tbody>
                 </table>
               </div>
+
+              <AdminPagination
+                currentPage={waitlistPage}
+                totalItems={filteredWaitlistRequests.length}
+                pageSize={PAGE_SIZE}
+                onPageChange={setWaitlistPage}
+              />
             </Card>
           </div>
         )}
@@ -820,7 +962,10 @@ export default function AdminDashboardPage() {
                   {(["all", "pending", "approved", "rejected"] as const).map((st) => (
                     <button
                       key={st}
-                      onClick={() => setFilterStatus(st)}
+                      onClick={() => {
+                        setFilterStatus(st);
+                        setPaymentsPage(1);
+                      }}
                       className={`px-3 py-1.5 rounded-lg font-bold capitalize transition-colors cursor-pointer ${
                         filterStatus === st ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                       }`}
@@ -832,7 +977,10 @@ export default function AdminDashboardPage() {
 
                 <div className="flex items-center gap-1.5 bg-secondary p-1 rounded-xl border border-border text-xs">
                   <button
-                    onClick={() => setFilterType("all")}
+                    onClick={() => {
+                      setFilterType("all");
+                      setPaymentsPage(1);
+                    }}
                     className={`px-3 py-1.5 rounded-lg font-bold transition-colors cursor-pointer ${
                       filterType === "all" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                     }`}
@@ -840,7 +988,10 @@ export default function AdminDashboardPage() {
                     All Types
                   </button>
                   <button
-                    onClick={() => setFilterType("institute")}
+                    onClick={() => {
+                      setFilterType("institute");
+                      setPaymentsPage(1);
+                    }}
                     className={`px-3 py-1.5 rounded-lg font-bold transition-colors cursor-pointer ${
                       filterType === "institute" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                     }`}
@@ -848,7 +999,10 @@ export default function AdminDashboardPage() {
                     Institutes (20 Tk)
                   </button>
                   <button
-                    onClick={() => setFilterType("individual")}
+                    onClick={() => {
+                      setFilterType("individual");
+                      setPaymentsPage(1);
+                    }}
                     className={`px-3 py-1.5 rounded-lg font-bold transition-colors cursor-pointer ${
                       filterType === "individual" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                     }`}
@@ -871,14 +1025,14 @@ export default function AdminDashboardPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {filteredPaymentRequests.length === 0 ? (
+                    {paginatedPaymentRequests.length === 0 ? (
                       <tr>
                         <td colSpan={5} className="p-8 text-center text-muted-foreground">
                           {isLoadingPayments ? "Loading payment requests from Firebase..." : "No payment requests found matching your filter."}
                         </td>
                       </tr>
                     ) : (
-                      filteredPaymentRequests.map((req) => (
+                      paginatedPaymentRequests.map((req) => (
                         <tr key={req.id} className="hover:bg-secondary/50 transition-colors">
                           <td className="p-3">
                             <div className="flex items-center gap-2">
@@ -968,6 +1122,13 @@ export default function AdminDashboardPage() {
                   </tbody>
                 </table>
               </div>
+
+              <AdminPagination
+                currentPage={paymentsPage}
+                totalItems={filteredPaymentRequests.length}
+                pageSize={PAGE_SIZE}
+                onPageChange={setPaymentsPage}
+              />
             </Card>
           </div>
         )}
@@ -1000,7 +1161,10 @@ export default function AdminDashboardPage() {
                     type="text"
                     placeholder="Search email, name, role..."
                     value={userSearch}
-                    onChange={(e) => setUserSearch(e.target.value)}
+                    onChange={(e) => {
+                      setUserSearch(e.target.value);
+                      setUsersPage(1);
+                    }}
                     className="bg-secondary border border-border rounded-xl pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
                   />
                 </div>
@@ -1016,18 +1180,19 @@ export default function AdminDashboardPage() {
                     <th className="p-3">Avg WPM</th>
                     <th className="p-3">High WPM</th>
                     <th className="p-3">XP / Level</th>
+                    <th className="p-3">Course Achievement</th>
                     <th className="p-3 text-right">Role Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {filteredUsers.length === 0 ? (
+                  {paginatedUsers.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="p-8 text-center text-muted-foreground">
+                      <td colSpan={7} className="p-8 text-center text-muted-foreground">
                         {isLoadingUsers ? "Loading users from Cloud Firestore..." : "No registered users found matching your search."}
                       </td>
                     </tr>
                   ) : (
-                    filteredUsers.map((u) => (
+                    paginatedUsers.map((u) => (
                       <tr key={u.uid} className="hover:bg-secondary/50 transition-colors">
                         <td className="p-3 font-bold text-foreground">
                           <div>{u.displayName || "Typing Learner"}</div>
@@ -1051,6 +1216,40 @@ export default function AdminDashboardPage() {
                         <td className="p-3 font-mono text-foreground font-extrabold">{u.highWpm || 0} WPM</td>
                         <td className="p-3 font-mono text-foreground">
                           <span className="font-bold">{u.xp || 0} XP</span> <span className="text-muted-foreground text-[10px]">(Lvl {Math.max(u.level || 1, Math.floor((u.xp || 0) / 100) + 1)})</span>
+                        </td>
+                        <td className="p-3">
+                          {(() => {
+                            const stats = getUserCourseStats(u);
+                            if (stats.totalPassed === 0) {
+                              return <span className="text-[11px] text-muted-foreground font-medium">0 Lessons (Not started)</span>;
+                            }
+                            return (
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-1.5">
+                                  <Badge variant="outline" className="border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 text-[10px] font-mono font-bold">
+                                    {stats.totalPassed} / {stats.totalLessons} ({stats.overallPercent}%)
+                                  </Badge>
+                                  <button
+                                    onClick={() => setSelectedUserForCourses(u)}
+                                    className="text-[10px] text-primary hover:underline font-bold cursor-pointer inline-flex items-center gap-0.5"
+                                  >
+                                    <span>Breakdown</span>
+                                    <Eye size={10} />
+                                  </button>
+                                </div>
+                                <div className="flex flex-wrap gap-1">
+                                  {stats.activeCourses.slice(0, 2).map((c) => (
+                                    <span key={c.courseId} className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-secondary text-foreground border border-border">
+                                      {c.title}: {c.passed}/{c.total}
+                                    </span>
+                                  ))}
+                                  {stats.activeCourses.length > 2 && (
+                                    <span className="text-[9px] text-muted-foreground font-mono">+{stats.activeCourses.length - 2}</span>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })()}
                         </td>
                         <td className="p-3 text-right">
                           {editingUserUid === u.uid ? (
@@ -1090,6 +1289,13 @@ export default function AdminDashboardPage() {
                 </tbody>
               </table>
             </div>
+
+            <AdminPagination
+              currentPage={usersPage}
+              totalItems={filteredUsers.length}
+              pageSize={PAGE_SIZE}
+              onPageChange={setUsersPage}
+            />
           </Card>
         )}
 
@@ -1130,7 +1336,10 @@ export default function AdminDashboardPage() {
                     type="text"
                     placeholder="Search candidate, ID, layout..."
                     value={certSearch}
-                    onChange={(e) => setCertSearch(e.target.value)}
+                    onChange={(e) => {
+                      setCertSearch(e.target.value);
+                      setCertsPage(1);
+                    }}
                     className="bg-secondary border border-border rounded-xl pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
                   />
                 </div>
@@ -1149,14 +1358,14 @@ export default function AdminDashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {filteredCertificates.length === 0 ? (
+                  {paginatedCertificates.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="p-8 text-center text-muted-foreground">
                         {isLoadingCertificates ? "Loading certificates from Firebase..." : "No issued certificates found in the database."}
                       </td>
                     </tr>
                   ) : (
-                    filteredCertificates.map((c) => (
+                    paginatedCertificates.map((c) => (
                       <tr key={c.id || c.certificateId} className="hover:bg-secondary/50 transition-colors">
                         <td className="p-3 font-mono font-bold text-foreground">
                           {c.certificateId || c.id}
@@ -1188,6 +1397,13 @@ export default function AdminDashboardPage() {
                 </tbody>
               </table>
             </div>
+
+            <AdminPagination
+              currentPage={certsPage}
+              totalItems={filteredCertificates.length}
+              pageSize={PAGE_SIZE}
+              onPageChange={setCertsPage}
+            />
           </Card>
         )}
 
@@ -1211,14 +1427,17 @@ export default function AdminDashboardPage() {
                   type="text"
                   placeholder="Search passage title or language..."
                   value={examSearch}
-                  onChange={(e) => setExamSearch(e.target.value)}
+                  onChange={(e) => {
+                    setExamSearch(e.target.value);
+                    setExamsPage(1);
+                  }}
                   className="bg-secondary border border-border rounded-xl pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredPassages.map((p) => (
+              {paginatedPassages.map((p) => (
                 <div key={p.id} className="bg-secondary border border-border rounded-xl p-4 space-y-3 flex flex-col justify-between">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
@@ -1246,6 +1465,13 @@ export default function AdminDashboardPage() {
                 </div>
               ))}
             </div>
+
+            <AdminPagination
+              currentPage={examsPage}
+              totalItems={filteredPassages.length}
+              pageSize={EXAMS_PAGE_SIZE}
+              onPageChange={setExamsPage}
+            />
           </Card>
         )}
 
@@ -1281,7 +1507,10 @@ export default function AdminDashboardPage() {
                       type="text"
                       placeholder="Search feedback message or email..."
                       value={feedbackSearch}
-                      onChange={(e) => setFeedbackSearch(e.target.value)}
+                      onChange={(e) => {
+                        setFeedbackSearch(e.target.value);
+                        setFeedbackPage(1);
+                      }}
                       className="bg-secondary border border-border rounded-xl pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary w-56 sm:w-64"
                     />
                   </div>
@@ -1321,7 +1550,10 @@ export default function AdminDashboardPage() {
                   ].map((cat) => (
                     <button
                       key={cat.id}
-                      onClick={() => setFeedbackCategoryFilter(cat.id as any)}
+                      onClick={() => {
+                        setFeedbackCategoryFilter(cat.id as any);
+                        setFeedbackPage(1);
+                      }}
                       className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                         feedbackCategoryFilter === cat.id
                           ? "bg-primary text-primary-foreground shadow-xs"
@@ -1344,7 +1576,10 @@ export default function AdminDashboardPage() {
                   ].map((st) => (
                     <button
                       key={st.id}
-                      onClick={() => setFeedbackStatusFilter(st.id as any)}
+                      onClick={() => {
+                        setFeedbackStatusFilter(st.id as any);
+                        setFeedbackPage(1);
+                      }}
                       className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                         feedbackStatusFilter === st.id
                           ? "bg-foreground text-background font-extrabold"
@@ -1369,7 +1604,7 @@ export default function AdminDashboardPage() {
               </Card>
             ) : (
               <div className="space-y-4">
-                {filteredFeedback.map((m) => {
+                {paginatedFeedback.map((m) => {
                   const isSuggestion = m.category === "suggestion" || m.category === "improvement";
                   const isBug = m.category === "bug";
                   const status = m.status || "unread";
@@ -1507,6 +1742,13 @@ export default function AdminDashboardPage() {
                     </Card>
                   );
                 })}
+
+                <AdminPagination
+                  currentPage={feedbackPage}
+                  totalItems={filteredFeedback.length}
+                  pageSize={PAGE_SIZE}
+                  onPageChange={setFeedbackPage}
+                />
               </div>
             )}
           </div>
@@ -1756,6 +1998,173 @@ export default function AdminDashboardPage() {
             </div>
           </div>
         )}
+
+        {/* Course Status & Achievement Breakdown Modal */}
+        {selectedUserForCourses && (() => {
+          const stats = getUserCourseStats(selectedUserForCourses);
+          return (
+            <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+              <div
+                className="fixed inset-0"
+                onClick={() => setSelectedUserForCourses(null)}
+              />
+              <div className="relative bg-card border border-border rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150 z-10">
+                {/* Header */}
+                <div className="p-5 border-b border-border flex items-start justify-between gap-4 bg-secondary/30">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base font-extrabold text-foreground">
+                        {selectedUserForCourses.displayName || "Typing Learner"}
+                      </h3>
+                      <Badge variant="outline" className="text-[10px] font-mono capitalize">
+                        {selectedUserForCourses.role || "student"}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {selectedUserForCourses.email || "No email provided"} • UID: <span className="font-mono">{selectedUserForCourses.uid}</span>
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setSelectedUserForCourses(null)}
+                    className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors cursor-pointer"
+                    aria-label="Close modal"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+
+                {/* Overview Stats Cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-5 border-b border-border bg-secondary/10">
+                  <div className="bg-card border border-border p-3 rounded-xl text-center">
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground block">Course Completion</span>
+                    <span className="text-lg font-black text-emerald-600 dark:text-emerald-400">
+                      {stats.overallPercent}%
+                    </span>
+                    <span className="text-[10px] text-muted-foreground block mt-0.5 font-mono">
+                      {stats.totalPassed} / {stats.totalLessons} Lessons
+                    </span>
+                  </div>
+
+                  <div className="bg-card border border-border p-3 rounded-xl text-center">
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground block">XP &amp; Level</span>
+                    <span className="text-lg font-black text-foreground">
+                      {selectedUserForCourses.xp || 0} <span className="text-xs font-semibold text-muted-foreground">XP</span>
+                    </span>
+                    <span className="text-[10px] text-muted-foreground block mt-0.5 font-mono">
+                      Level {Math.max(selectedUserForCourses.level || 1, Math.floor((selectedUserForCourses.xp || 0) / 100) + 1)}
+                    </span>
+                  </div>
+
+                  <div className="bg-card border border-border p-3 rounded-xl text-center">
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground block">Average Speed</span>
+                    <span className="text-lg font-black text-foreground">
+                      {selectedUserForCourses.avgWpm || 0} <span className="text-xs font-semibold text-muted-foreground">WPM</span>
+                    </span>
+                    <span className="text-[10px] text-muted-foreground block mt-0.5 font-mono">
+                      Lifetime Avg
+                    </span>
+                  </div>
+
+                  <div className="bg-card border border-border p-3 rounded-xl text-center">
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground block">Highest WPM</span>
+                    <span className="text-lg font-black text-primary">
+                      {selectedUserForCourses.highWpm || stats.highestLessonWpm || 0} <span className="text-xs font-semibold text-muted-foreground">WPM</span>
+                    </span>
+                    <span className="text-[10px] text-muted-foreground block mt-0.5 font-mono">
+                      {selectedUserForCourses.totalSessions || 0} sessions
+                    </span>
+                  </div>
+                </div>
+
+                {/* Scrollable Course List */}
+                <div className="p-5 overflow-y-auto space-y-3.5 flex-1">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                      <BookOpen size={14} className="text-primary" />
+                      <span>Curriculum Progress Across All 7 Courses</span>
+                    </h4>
+                    <span className="text-[11px] text-muted-foreground font-mono">
+                      {stats.activeCourses.length} active / 7 total
+                    </span>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {stats.courseBreakdown.map((c) => {
+                      const isDone = c.passed === c.total;
+                      const hasStarted = c.passed > 0;
+                      return (
+                        <div
+                          key={c.courseId}
+                          className="p-3.5 rounded-xl border border-border bg-secondary/20 hover:bg-secondary/40 transition-colors space-y-2"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="font-bold text-xs text-foreground flex items-center gap-2">
+                              <span>{c.title}</span>
+                              {isDone && (
+                                <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-[9px] font-bold">
+                                  Completed
+                                </Badge>
+                              )}
+                              {!isDone && hasStarted && (
+                                <Badge variant="outline" className="border-sky-500/40 text-sky-600 dark:text-sky-400 bg-sky-500/10 text-[9px] font-bold">
+                                  In Progress
+                                </Badge>
+                              )}
+                              {!hasStarted && (
+                                <span className="text-[10px] text-muted-foreground font-medium">Not started</span>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              <span className="font-mono text-xs font-bold text-foreground">
+                                {c.passed} / {c.total}
+                              </span>
+                              <span className="text-[10px] text-muted-foreground ml-1.5">({c.percent}%)</span>
+                            </div>
+                          </div>
+
+                          {/* Progress Bar */}
+                          <div className="w-full bg-secondary h-2 rounded-full overflow-hidden border border-border/40">
+                            <div
+                              className={`h-full rounded-full transition-all duration-300 ${
+                                isDone
+                                  ? "bg-emerald-500"
+                                  : hasStarted
+                                  ? "bg-primary"
+                                  : "bg-transparent"
+                              }`}
+                              style={{ width: `${c.percent}%` }}
+                            />
+                          </div>
+
+                          {hasStarted && (
+                            <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-0.5 font-mono">
+                              <span>Prefix: {c.courseId}</span>
+                              {c.bestWpm > 0 && (
+                                <span>Best Lesson Speed: <strong className="text-foreground">{c.bestWpm} WPM</strong></span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="p-4 border-t border-border flex items-center justify-end bg-secondary/30">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setSelectedUserForCourses(null)}
+                    className="text-xs font-bold cursor-pointer"
+                  >
+                    Close
+                  </Button>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </main>
     </div>
   );

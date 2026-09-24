@@ -58,3 +58,51 @@ describe("Duration-Aware Passage Content Sufficiency (1m, 5m, 10m, 15m)", () => 
     expect(p.text.length).toBeGreaterThanOrEqual(7500);
   });
 });
+
+describe("Leaderboard User Deduplication & Raw UID Sanitation", () => {
+  test("Duplicate sessions by the same user should deduplicate to their single best WPM score", () => {
+    const rawSessions = [
+      { userId: "u1", name: "Tanvir Abedin", netWpm: 47, accuracy: 100 },
+      { userId: "u1", name: "Tanvir Abedin", netWpm: 47, accuracy: 99 },
+      { userId: "FaeOZOoTABNPjlCdRqZQvEORVbb2", name: "FaeOZOoTABNPjlCdRqZQvEORVbb2", netWpm: 42, accuracy: 99 },
+      { userId: "u3", name: "sharif", netWpm: 42, accuracy: 99 },
+      { userId: "u1", name: "Tanvir Abedin", netWpm: 42, accuracy: 100 },
+      { userId: "FaeOZOoTABNPjlCdRqZQvEORVbb2", name: "FaeOZOoTABNPjlCdRqZQvEORVbb2", netWpm: 41, accuracy: 98 },
+      { userId: "u1", name: "Tanvir Abedin", netWpm: 40, accuracy: 99 },
+    ];
+
+    const isRawUid = (val?: string) => Boolean(val && /^[a-zA-Z0-9_-]{20,}$/.test(val.trim()) && !val.includes(" "));
+    const bestUserScores = new Map<string, any>();
+
+    for (const s of rawSessions) {
+      const key = s.userId || s.name;
+      let displayName = s.name;
+      if (!displayName || isRawUid(displayName)) {
+        displayName = "Typing Learner";
+      }
+      const clean = { ...s, name: displayName };
+      const existing = bestUserScores.get(key);
+      if (!existing) {
+        bestUserScores.set(key, clean);
+      } else {
+        const curScore = clean.netWpm;
+        const exScore = existing.netWpm;
+        if (curScore > exScore || (curScore === exScore && clean.accuracy > existing.accuracy)) {
+          bestUserScores.set(key, clean);
+        }
+      }
+    }
+
+    const deduplicated = Array.from(bestUserScores.values()).sort((a, b) => b.netWpm - a.netWpm);
+
+    // Exactly 3 unique users (Tanvir, FaeOZO... -> Typing Learner, sharif)
+    expect(deduplicated.length).toBe(3);
+    expect(deduplicated[0].name).toBe("Tanvir Abedin");
+    expect(deduplicated[0].netWpm).toBe(47);
+    expect(deduplicated[0].accuracy).toBe(100);
+    expect(deduplicated[1].name).toBe("Typing Learner");
+    expect(deduplicated[1].netWpm).toBe(42);
+    expect(deduplicated[2].name).toBe("sharif");
+    expect(deduplicated[2].netWpm).toBe(42);
+  });
+});

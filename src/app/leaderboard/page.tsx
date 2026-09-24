@@ -22,20 +22,25 @@ interface LeaderboardEntry {
   timePeriod?: string;
 }
 
+function getCleanDisplayName(name?: string, userId?: string): string {
+  const isRawUid = (val?: string) => Boolean(val && /^[a-zA-Z0-9_-]{20,}$/.test(val.trim()) && !val.includes(" "));
+  if (name && !isRawUid(name)) return name.trim();
+  if (userId && !isRawUid(userId)) return userId.trim();
+  return "Typing Learner";
+}
+
 function UserAvatar({ name }: { name: string }) {
-  const safeName = (name || "").trim();
-  const initials = safeName
-    ? safeName
-        .split(/\s+/)
-        .slice(0, 2)
-        .map((n) => n[0] || "")
-        .join("")
-        .toUpperCase()
-    : "?";
+  const clean = getCleanDisplayName(name);
+  const initials = clean
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((n) => n[0] || "")
+    .join("")
+    .toUpperCase();
 
   return (
     <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-black text-xs shrink-0 shadow-xs border border-primary/20">
-      {initials || "?"}
+      {initials || "TL"}
     </span>
   );
 }
@@ -115,8 +120,32 @@ export default function LeaderboardPage() {
   const realData = leaderboardData.length > 0;
   const rawData = realData ? leaderboardData : EXTENDED_MOCK_LEADERBOARD;
 
-  // Filter rawData by selectedLayout and time period if using fallback
-  const filteredData = rawData.filter((item) => {
+  // Deduplicate: Guarantee each user appears strictly ONCE with their highest score
+  const uniqueDataMap = new Map<string, LeaderboardEntry>();
+  for (const item of rawData) {
+    const key = (item.userId && item.userId !== "guest")
+      ? item.userId
+      : (item.name?.trim().toLowerCase() || "guest");
+    const existing = uniqueDataMap.get(key);
+    if (!existing) {
+      uniqueDataMap.set(key, item);
+    } else {
+      const score = item.netWpm ?? item.wpm ?? 0;
+      const exScore = existing.netWpm ?? existing.wpm ?? 0;
+      if (score > exScore || (score === exScore && (item.accuracy || 0) > (existing.accuracy || 0))) {
+        uniqueDataMap.set(key, item);
+      }
+    }
+  }
+  const deduplicatedData = Array.from(uniqueDataMap.values()).sort((a, b) => {
+    const scoreA = a.netWpm ?? a.wpm ?? 0;
+    const scoreB = b.netWpm ?? b.wpm ?? 0;
+    if (scoreB !== scoreA) return scoreB - scoreA;
+    return (b.accuracy || 0) - (a.accuracy || 0);
+  });
+
+  // Filter deduplicatedData by selectedLayout and time period if using fallback
+  const filteredData = deduplicatedData.filter((item) => {
     if (selectedLayout !== "all" && item.layout !== selectedLayout) return false;
     return true;
   });
@@ -267,10 +296,17 @@ export default function LeaderboardPage() {
 
                           <td className="p-3.5">
                             <div className="flex items-center gap-2.5">
-                              <UserAvatar name={item.name || item.userId || "Anonymous"} />
-                              <span className="font-extrabold text-foreground">
-                                {item.name || item.userId || "Anonymous Learner"}
-                              </span>
+                              {(() => {
+                                const displayName = getCleanDisplayName(item.name, item.userId);
+                                return (
+                                  <>
+                                    <UserAvatar name={displayName} />
+                                    <span className="font-extrabold text-foreground">
+                                      {displayName}
+                                    </span>
+                                  </>
+                                );
+                              })()}
                               {rank === 1 && (
                                 <Badge className="text-[9px] font-black bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
                                   চ্যাম্পিয়ন 🏆

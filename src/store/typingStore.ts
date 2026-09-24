@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { UNI_BIJOY_MAP, JATIYA_MAP, PROBHAT_MAP, INSCRIPT_MAP, UNICODE_MAP, avroTransliterate } from "../utils/layouts";
+import { UNI_BIJOY_MAP, JATIYA_MAP, PROBHAT_MAP, INSCRIPT_MAP, UNICODE_MAP, avroTransliterate, applyHasantaVowelConversion } from "../utils/layouts";
 import { extendTextForDuration } from "../utils/lessons/exam/examPassages";
 import { playTypewriterSound } from "../lib/soundSynthesizer";
 import { generateDrillText } from "../utils/drillGenerator";
@@ -785,7 +785,10 @@ export const useTypingStore = create<TypingState>((set, get) => ({
 
     // Append resolved layout key
     if (resolvedChar) {
-      const nextTyped = typedText + resolvedChar;
+      let nextTyped = typedText + resolvedChar;
+      if (activeLayout === "unibijoy" || activeLayout === "jatiya" || activeLayout === "unicode") {
+        nextTyped = applyHasantaVowelConversion(nextTyped);
+      }
       const errors = getErrorIndices(nextTyped, targetText);
       const isError = nextTyped.length > targetText.length || nextTyped[nextTyped.length - 1] !== targetText[nextTyped.length - 1];
 

@@ -7,6 +7,7 @@ import {
   UNICODE_MAP,
   avroTransliterate,
   mapInputToBangla,
+  applyHasantaVowelConversion,
 } from "../src/utils/layouts";
 
 describe("Keyboard Layout Integrity Suite (All 7 Layouts)", () => {
@@ -253,5 +254,24 @@ describe("Keyboard Layout Integrity Suite (All 7 Layouts)", () => {
     expect(mapInputToBangla("1234567890", "unicode")).toBe("১২৩৪৫৬৭৮৯০");
     expect(mapInputToBangla("$", "unibijoy")).toBe("৳");
     expect(mapInputToBangla("$", "jatiya")).toBe("৳");
+  });
+
+  test("UniBijoy 'gf' keystroke must produce ্া (hasanta + akar) and NEVER produce আ; 'অ' + 'া' produces আ", () => {
+    // 'g' is \u09cd (্), 'f' is \u09be (া) in UniBijoy
+    const mappedG = mapInputToBangla("g", "unibijoy");
+    const mappedF = mapInputToBangla("f", "unibijoy");
+    expect(mappedG).toBe("্");
+    expect(mappedF).toBe("া");
+
+    // 'gf' sequence in string mapping should be '্া' (্ + া), never 'আ'
+    const gfResult = mapInputToBangla("gf", "unibijoy");
+    expect(gfResult).toBe("্া");
+
+    // Hasanta + akar conversion check
+    expect(applyHasantaVowelConversion("্\u09be")).toBe("্া");
+
+    // Shift+F (অ) then F (া) -> অ + া = আ
+    const aaResult = applyHasantaVowelConversion("অ\u09be");
+    expect(aaResult).toBe("আ");
   });
 });

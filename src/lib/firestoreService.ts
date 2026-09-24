@@ -28,6 +28,7 @@ export interface UserProfile {
   xp: number;
   level: number;
   role: "student" | "teacher" | "admin";
+  lessonProgress?: Record<string, { lessonId: string; bestWpm: number; bestAccuracy: number; attempts: number; passed: boolean; lastAttempt?: string }>;
 }
 
 // ── Session Recording ────────────────────────────────────────────────────────
@@ -141,11 +142,60 @@ export async function getTopLeaderboard(layout = "all", timePeriod = "all", limi
     }
 
     constraints.push(firestore.orderBy("netWpm", "desc"));
-    constraints.push(firestore.limit(limitCount));
+    // ponytail: overfetch 4x to guarantee limitCount unique users after in-memory deduplication
+    const fetchLimit = Math.max(limitCount * 4, 150);
+    constraints.push(firestore.limit(fetchLimit));
 
     const q = firestore.query(sessionsRef, ...constraints);
     const snapshot = await firestore.getDocs(q);
-    return snapshot.docs.map((doc) => doc.data());
+    const rawSessions = snapshot.docs.map((doc) => doc.data() as any);
+
+    // Helper to detect raw Firebase Auth UID hashes (e.g., FaeOZOoTABNPjlCdRqZQvEORVbb2)
+    const isRawUid = (val?: string) => Boolean(val && /^[a-zA-Z0-9_-]{20,}$/.test(val.trim()) && !val.includes(" "));
+
+    // Deduplicate: Each user gets strictly ONE best record on the leaderboard
+    const bestUserScores = new Map<string, any>();
+    for (const session of rawSessions) {
+      const userKey = (session.userId && session.userId !== "guest")
+        ? session.userId
+        : (session.name?.trim().toLowerCase() || "guest");
+
+      // Sanitize display name if missing or raw UID hash
+      let displayName = session.name?.trim();
+      if (!displayName || isRawUid(displayName)) {
+        displayName = "Typing Learner";
+      }
+
+      const cleanSession = {
+        ...session,
+        name: displayName,
+      };
+
+      const existing = bestUserScores.get(userKey);
+      if (!existing) {
+        bestUserScores.set(userKey, cleanSession);
+      } else {
+        const currentScore = cleanSession.netWpm ?? cleanSession.wpm ?? 0;
+        const existingScore = existing.netWpm ?? existing.wpm ?? 0;
+        const currentAcc = cleanSession.accuracy ?? 0;
+        const existingAcc = existing.accuracy ?? 0;
+
+        if (currentScore > existingScore || (currentScore === existingScore && currentAcc > existingAcc)) {
+          bestUserScores.set(userKey, cleanSession);
+        }
+      }
+    }
+
+    const uniqueLeaderboard = Array.from(bestUserScores.values())
+      .sort((a, b) => {
+        const scoreA = a.netWpm ?? a.wpm ?? 0;
+        const scoreB = b.netWpm ?? b.wpm ?? 0;
+        if (scoreB !== scoreA) return scoreB - scoreA;
+        return (b.accuracy || 0) - (a.accuracy || 0);
+      })
+      .slice(0, limitCount);
+
+    return uniqueLeaderboard;
   } catch (error) {
     console.error("Error fetching leaderboard:", error);
     return [];
@@ -598,10 +648,11 @@ export async function getAllUsers(): Promise<UserProfile[]> {
     const db = await getFirebaseDb();
     if (!db) return [];
     const firestore = await import("firebase/firestore");
+    // ponytail: 500 covers full directory for in-memory pagination; cursor query if userbase passes 10k
     const q = firestore.query(
       firestore.collection(db, "users"),
       firestore.orderBy("createdAt", "desc"),
-      firestore.limit(50)
+      firestore.limit(500)
     );
     const snap = await firestore.getDocs(q);
     const results: UserProfile[] = [];
@@ -613,6 +664,7 @@ export async function getAllUsers(): Promise<UserProfile[]> {
         ...data,
         uid: docSnap.id,
         level: Math.max(data.level || 1, computedLevel),
+        lessonProgress: data.lessonProgress || {},
       } as UserProfile);
     });
     return results;
