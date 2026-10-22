@@ -786,22 +786,36 @@ export const useTypingStore = create<TypingState>((set, get) => ({
     // Append resolved layout key
     if (resolvedChar) {
       let nextTyped = typedText + resolvedChar;
-      if (activeLayout === "unibijoy" || activeLayout === "jatiya" || activeLayout === "unicode") {
+      const isFixedBanglaLayout = activeLayout === "unibijoy" || activeLayout === "jatiya" || activeLayout === "unicode";
+      if (isFixedBanglaLayout) {
         nextTyped = applyHasantaVowelConversion(nextTyped);
       }
+
+      const expectedChar = targetText[typedText.length];
+      const isPendingVowelLead =
+        isFixedBanglaLayout &&
+        ((resolvedChar === "\u09cd" && "আইঈউঊঋএঐওঔ".includes(expectedChar)) ||
+         (resolvedChar === "\u0985" && expectedChar === "আ"));
+
       const errors = getErrorIndices(nextTyped, targetText);
-      const isError = nextTyped.length > targetText.length || nextTyped[nextTyped.length - 1] !== targetText[nextTyped.length - 1];
+      const isError = !isPendingVowelLead && (nextTyped.length > targetText.length || nextTyped[nextTyped.length - 1] !== targetText[nextTyped.length - 1]);
 
       if (soundEnabled) {
         playTypewriterSound(isError ? "error" : "click");
       }
 
-      checkAndLogProblem(nextTyped);
+      if (!isPendingVowelLead) {
+        checkAndLogProblem(nextTyped);
+      }
 
       // Track keyStats for normal character
-      const expectedChar = targetText[typedText.length];
-      if (expectedChar) {
-        const charKey = expectedChar.toLowerCase();
+      // If a multi-key vowel was just collapsed (e.g. ্ + া -> আ), credit the formed vowel char
+      const charForStats = (nextTyped.length <= typedText.length)
+        ? nextTyped[nextTyped.length - 1]
+        : expectedChar;
+
+      if (charForStats && !isPendingVowelLead) {
+        const charKey = charForStats.toLowerCase();
         const currentStats = { ...(get().keyStats || {}) };
         const stats = currentStats[charKey] || { correct: 0, total: 0 };
         stats.total += 1;

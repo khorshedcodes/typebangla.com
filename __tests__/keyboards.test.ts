@@ -256,22 +256,31 @@ describe("Keyboard Layout Integrity Suite (All 7 Layouts)", () => {
     expect(mapInputToBangla("$", "jatiya")).toBe("৳");
   });
 
-  test("UniBijoy 'gf' keystroke must produce ্া (hasanta + akar) and NEVER produce আ; 'অ' + 'া' produces আ", () => {
+  test("UniBijoy 'gf' and 'অ+া' keystrokes must produce 'আ'; Avro 'a' and 'aa' must produce 'আ'", () => {
     // 'g' is \u09cd (্), 'f' is \u09be (া) in UniBijoy
     const mappedG = mapInputToBangla("g", "unibijoy");
     const mappedF = mapInputToBangla("f", "unibijoy");
     expect(mappedG).toBe("্");
     expect(mappedF).toBe("া");
 
-    // 'gf' sequence in string mapping should be '্া' (্ + া), never 'আ'
+    // 'gf' sequence in string mapping must produce 'আ' (Bijoy standard link + akar)
     const gfResult = mapInputToBangla("gf", "unibijoy");
-    expect(gfResult).toBe("্া");
+    expect(gfResult).toBe("আ");
 
-    // Hasanta + akar conversion check
-    expect(applyHasantaVowelConversion("্\u09be")).toBe("্া");
+    // Hasanta + akar conversion check (্ + া -> আ)
+    expect(applyHasantaVowelConversion("্\u09be")).toBe("আ");
 
     // Shift+F (অ) then F (া) -> অ + া = আ
     const aaResult = applyHasantaVowelConversion("অ\u09be");
     expect(aaResult).toBe("আ");
+
+    // Jatiya: 'g' is ্, 'h' is া -> gh = আ
+    expect(mapInputToBangla("gh", "jatiya")).toBe("আ");
+
+    // Avro: both 'a' and 'aa' produce 'আ'
+    expect(avroTransliterate("a")).toBe("আ");
+    expect(avroTransliterate("aa")).toBe("আ");
+    expect(avroTransliterate("aaj")).toBe("আজ");
+    expect(avroTransliterate("aami")).toBe("আমি");
   });
 });

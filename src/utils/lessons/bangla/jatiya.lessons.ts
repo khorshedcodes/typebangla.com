@@ -39,7 +39,7 @@ export const jatiyaLessons: Lesson[] = [
     level: "beginner",
     type: "drill",
     focusKeys: "া ্",
-    text: "া ্ া ্ াা ্্ া্ ্া াা ্্ াা ্্ া্ ্া ্া া্ াা্ ্াা",
+    text: "া ্ া ্ াা ্্ া্ া ্ াা ্্ াা ্্ া্ া ্ া্ া্ াা্ াা",
     order: 2,
     targetWpm: 8,
     targetAccuracy: 88,

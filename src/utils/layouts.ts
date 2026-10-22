@@ -166,6 +166,7 @@ const phoneticTokens: TransliterationToken[] = [
   { eng: "ou", ban: "\u0994", sign: "\u09cc", type: "vowel" }, // ঔ/ৌ  (lowercase alias)
   { eng: "ee", ban: "\u0988", sign: "\u09c0", type: "vowel" }, // ঈ/ী
   { eng: "oo", ban: "\u098a", sign: "\u09c2", type: "vowel" }, // ঊ/ূ
+  { eng: "aa", ban: "\u0986", sign: "\u09be", type: "vowel" }, // আ/া
   // === Capital 1-char consonants (special) ===
   { eng: "Rh", ban: "\u09a2\u09bc", type: "consonant" }, // ঢ়  (2-char, before R)
   { eng: "R", ban: "\u09a1\u09bc", type: "consonant" },  // ড়
@@ -546,9 +547,9 @@ const SYMBOL_KEY_MAP: Record<string, { code: string; shift: boolean }> = {
 
 /**
  * Converts Hasanta (্) + Kar sequence to Independent Bangla Vowels (for UniBijoy, Jatiya, Unicode)
- * e.g., ্ + ি -> ই (Rossho I), ্ + ী -> ঈ (Dirgho I), ্ + ু -> উ, etc.
- * NOTE: 'gf' in UniBijoy is ্ + া = ্া (kept as-is; never converted to আ).
- * Standard Bijoy typing of 'আ' is Shift+F (অ) then F (া) -> অ + া = আ.
+ * e.g., ্ + া -> আ, ্ + ি -> ই (Rossho I), ্ + ী -> ঈ (Dirgho I), ্ + ু -> উ, etc.
+ * Supports both standard Bijoy/Jatiya link typing (Link/হসন্ত 'g' + াকার 'f'/'h' -> আ)
+ * and Shift+F (অ) then F (া) -> অ + া = আ.
  */
 export function applyHasantaVowelConversion(input: string): string {
   if (!input || input.length <= 1) return input;
@@ -556,10 +557,11 @@ export function applyHasantaVowelConversion(input: string): string {
   // ponytail: regex cascade handles ligatures in place, upgrade to Trie if buffer throughput bottlenecks
   let res = input
     .replace(/([\u0985-\u09b9\u09dc-\u09df])\u09b0\u09cd/g, "\u09b0\u09cd$1") // Reph reordering (consonant + র্ -> র্ + consonant)
-    .replace(/\u0985\u09be/g, "\u0986"); // অ + া -> আ (Bijoy standard for typing আ: Shift+F + F)
+    .replace(/\u0985\u09be/g, "\u0986"); // অ + া -> আ (Bijoy alias: Shift+F + F)
 
   if (res.includes("\u09cd")) {
     res = res
+      .replace(/\u09cd\u09be/g, "\u0986") // ্ + া -> আ (Standard Bijoy/Jatiya/Unicode: Link/Hasanta + A-kar)
       .replace(/\u09cd\u09bf/g, "\u0987") // ্ + ি -> ই (Rossho I)
       .replace(/\u09cd\u09c0/g, "\u0988") // ্ + ী -> ঈ (Dirgho I)
       .replace(/\u09cd\u09c1/g, "\u0989") // ্ + ু -> উ

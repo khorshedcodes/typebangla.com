@@ -106,3 +106,73 @@ describe("Leaderboard User Deduplication & Raw UID Sanitation", () => {
     expect(deduplicated[2].netWpm).toBe(42);
   });
 });
+
+describe("Independent Vowel Typing (আ) in Typing Store", () => {
+  const { useTypingStore } = require("../src/store/typingStore");
+
+  test("UniBijoy layout types 'আ' via 'g' then 'f' without false error", () => {
+    const store = useTypingStore.getState();
+    store.setActiveLayout("unibijoy");
+    store.setTargetText("আজকে");
+    store.resetTest();
+
+    // Key 1: 'g' (্)
+    useTypingStore.getState().handleKeystroke("KeyG", "g", false);
+    expect(useTypingStore.getState().typedText).toBe("্");
+    expect(useTypingStore.getState().problematicPairs.includes("আ-্")).toBe(false);
+
+    // Key 2: 'f' (া) -> collapses to 'আ'
+    useTypingStore.getState().handleKeystroke("KeyF", "f", false);
+    expect(useTypingStore.getState().typedText).toBe("আ");
+    expect(useTypingStore.getState().errorIndices.length).toBe(0);
+  });
+
+  test("UniBijoy layout types 'আ' via Shift+F (অ) then 'f' (া)", () => {
+    const store = useTypingStore.getState();
+    store.setActiveLayout("unibijoy");
+    store.setTargetText("আজকে");
+    store.resetTest();
+
+    // Key 1: Shift+F (অ)
+    useTypingStore.getState().handleKeystroke("KeyF", "F", true);
+    expect(useTypingStore.getState().typedText).toBe("অ");
+
+    // Key 2: 'f' (া) -> collapses to 'আ'
+    useTypingStore.getState().handleKeystroke("KeyF", "f", false);
+    expect(useTypingStore.getState().typedText).toBe("আ");
+    expect(useTypingStore.getState().errorIndices.length).toBe(0);
+  });
+
+  test("Jatiya layout types 'আ' via 'g' then 'h'", () => {
+    const store = useTypingStore.getState();
+    store.setActiveLayout("jatiya");
+    store.setTargetText("আজকে");
+    store.resetTest();
+
+    // Key 1: 'g' (্)
+    useTypingStore.getState().handleKeystroke("KeyG", "g", false);
+    expect(useTypingStore.getState().typedText).toBe("্");
+
+    // Key 2: 'h' (া) -> collapses to 'আ'
+    useTypingStore.getState().handleKeystroke("KeyH", "h", false);
+    expect(useTypingStore.getState().typedText).toBe("আ");
+    expect(useTypingStore.getState().errorIndices.length).toBe(0);
+  });
+
+  test("Avro layout types 'আ' via 'a' and 'aa'", () => {
+    const store = useTypingStore.getState();
+    store.setActiveLayout("avro");
+    store.setTargetText("আজকে");
+    store.resetTest();
+
+    // Type "aa"
+    useTypingStore.getState().handleKeystroke("KeyA", "a", false);
+    useTypingStore.getState().handleKeystroke("KeyA", "a", false);
+    expect(useTypingStore.getState().typedText).toBe("আ");
+
+    // Type "j"
+    useTypingStore.getState().handleKeystroke("KeyJ", "j", false);
+    expect(useTypingStore.getState().typedText).toBe("আজ");
+    expect(useTypingStore.getState().errorIndices.length).toBe(0);
+  });
+});
