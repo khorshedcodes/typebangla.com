@@ -127,6 +127,7 @@ function CoursePracticeArena({
     updateElapsedTime,
   } = useTypingStore();
 
+  const { user } = useAuth();
   const [inputVal, setInputVal] = useState("");
   const [resultState, setResultState] = useState<{
     wpm: number;
@@ -172,13 +173,30 @@ function CoursePracticeArena({
     const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 0;
     const passed = grossWpm >= lesson.targetWpm && accuracy >= 85;
 
-    saveLessonProgress(lesson.id, grossWpm, accuracy, {
+    const updatedProg = saveLessonProgress(lesson.id, grossWpm, accuracy, {
       targetWpm: lesson.targetWpm,
       targetAccuracy: 85,
     });
 
+    if (typeof window !== "undefined") {
+      if (user?.uid) {
+        import("../../../lib/firestoreService").then(({ saveUserLessonProgress }) => {
+          saveUserLessonProgress(user.uid, lesson.id, updatedProg);
+        }).catch(() => {});
+      }
+
+      import("../../../store/gamificationStore").then(({ useGamificationStore }) => {
+        useGamificationStore.getState().recordSession({
+          wpm: grossWpm,
+          accuracy,
+          targetWpm: lesson.targetWpm,
+          isGovtExam: false,
+        });
+      }).catch(() => {});
+    }
+
     setResultState({ wpm: grossWpm, accuracy, passed });
-  }, [isCompleted, startTime, elapsedTime, typedText, targetText, lesson]);
+  }, [isCompleted, startTime, elapsedTime, typedText, targetText, lesson, user]);
 
   const currentNextChar = targetText[typedText.length] || "";
 

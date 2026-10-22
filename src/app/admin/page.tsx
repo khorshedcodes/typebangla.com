@@ -40,15 +40,15 @@ import {
 import { ALL_EXAM_PASSAGES } from "../../utils/lessons/exam/examPassages";
 
 const ADMIN_COURSE_DEFINITIONS = [
-  { id: "english-full", title: "English QWERTY", prefix: "en-", total: 20 },
-  { id: "avro-full", title: "Avro Phonetic", prefix: "bn-avro-", total: 25 },
-  { id: "unibijoy-full", title: "UniBijoy 52", prefix: "bn-unibijoy-", total: 25 },
-  { id: "jatiya-full", title: "Jatiya BCC", prefix: "bn-jatiya-", total: 25 },
-  { id: "probhat-full", title: "Probhat", prefix: "bn-probhat-", total: 20 },
-  { id: "inscript-full", title: "Inscript", prefix: "bn-inscript-", total: 20 },
-  { id: "unicode-full", title: "Unicode", prefix: "bn-unicode-", total: 20 },
+  { id: "english-full", title: "English QWERTY", prefix: "en-", total: 50 },
+  { id: "avro-full", title: "Avro Phonetic", prefix: "bn-avro-", total: 40 },
+  { id: "unibijoy-full", title: "UniBijoy 52", prefix: "bn-unibijoy-", total: 45 },
+  { id: "jatiya-full", title: "Jatiya BCC", prefix: "bn-jatiya-", total: 45 },
+  { id: "probhat-full", title: "Probhat", prefix: "bn-probhat-", total: 45 },
+  { id: "inscript-full", title: "Inscript", prefix: "bn-inscript-", total: 45 },
+  { id: "unicode-full", title: "Unicode", prefix: "bn-unicode-", total: 45 },
 ];
-const TOTAL_LESSONS_ALL_COURSES = 155;
+const TOTAL_LESSONS_ALL_COURSES = 315;
 
 function getUserCourseStats(user: UserProfile) {
   const lp = user.lessonProgress || {};
@@ -77,16 +77,18 @@ function getUserCourseStats(user: UserProfile) {
       title: c.title,
       total: c.total,
       passed: passedInCourse,
+      attempts: attemptsInCourse,
       percent: Math.round((passedInCourse / c.total) * 100),
       bestWpm: bestWpmInCourse,
     };
   });
 
-  const activeCourses = courseBreakdown.filter((c) => c.passed > 0);
+  const activeCourses = courseBreakdown.filter((c) => c.passed > 0 || c.attempts > 0);
   const overallPercent = Math.round((totalPassed / TOTAL_LESSONS_ALL_COURSES) * 100);
 
   return {
     totalPassed,
+    totalAttempts,
     totalLessons: TOTAL_LESSONS_ALL_COURSES,
     overallPercent,
     highestLessonWpm,
@@ -147,13 +149,19 @@ function AdminPagination({
 }
 
 export default function AdminDashboardPage() {
-  const { user, loading } = useAuth();
+  const { user, loading, isAdmin: authIsAdmin, role } = useAuth();
   const [activeTab, setActiveTab] = useState<"overview" | "waitlist" | "payments" | "users" | "certificates" | "exams" | "feedback" | "announcement">("overview");
 
-  // Admin Environment Email Check
+  // Admin Verification (env, default admin, owner email, or admin role)
   const envAdminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@typebangla.com").toLowerCase().trim();
   const isAuthorizedAdmin = Boolean(
-    user && user.email && user.email.toLowerCase().trim() === envAdminEmail
+    authIsAdmin ||
+    role === "admin" ||
+    (user?.email && (
+      user.email.toLowerCase().trim() === envAdminEmail ||
+      user.email.toLowerCase().trim() === "admin@typebangla.com" ||
+      user.email.toLowerCase().trim() === "khorshed.codes@gmail.com"
+    ))
   );
 
   // System Analytics State
@@ -1220,14 +1228,23 @@ export default function AdminDashboardPage() {
                         <td className="p-3">
                           {(() => {
                             const stats = getUserCourseStats(u);
-                            if (stats.totalPassed === 0) {
+                            if (stats.totalPassed === 0 && stats.totalAttempts === 0) {
                               return <span className="text-[11px] text-muted-foreground font-medium">0 Lessons (Not started)</span>;
                             }
                             return (
                               <div className="space-y-1">
                                 <div className="flex items-center gap-1.5">
-                                  <Badge variant="outline" className="border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 text-[10px] font-mono font-bold">
-                                    {stats.totalPassed} / {stats.totalLessons} ({stats.overallPercent}%)
+                                  <Badge
+                                    variant="outline"
+                                    className={`${
+                                      stats.totalPassed > 0
+                                        ? "border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"
+                                        : "border-sky-500/40 text-sky-600 dark:text-sky-400 bg-sky-500/10"
+                                    } text-[10px] font-mono font-bold`}
+                                  >
+                                    {stats.totalPassed > 0
+                                      ? `${stats.totalPassed} / ${stats.totalLessons} (${stats.overallPercent}%)`
+                                      : `${stats.totalAttempts} Attempts`}
                                   </Badge>
                                   <button
                                     onClick={() => setSelectedUserForCourses(u)}
@@ -1240,7 +1257,7 @@ export default function AdminDashboardPage() {
                                 <div className="flex flex-wrap gap-1">
                                   {stats.activeCourses.slice(0, 2).map((c) => (
                                     <span key={c.courseId} className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-secondary text-foreground border border-border">
-                                      {c.title}: {c.passed}/{c.total}
+                                      {c.title}: {c.passed > 0 ? `${c.passed}/${c.total}` : `${c.attempts} att`}
                                     </span>
                                   ))}
                                   {stats.activeCourses.length > 2 && (
@@ -2091,7 +2108,7 @@ export default function AdminDashboardPage() {
                   <div className="space-y-2.5">
                     {stats.courseBreakdown.map((c) => {
                       const isDone = c.passed === c.total;
-                      const hasStarted = c.passed > 0;
+                      const hasStarted = c.passed > 0 || c.attempts > 0;
                       return (
                         <div
                           key={c.courseId}
@@ -2107,7 +2124,7 @@ export default function AdminDashboardPage() {
                               )}
                               {!isDone && hasStarted && (
                                 <Badge variant="outline" className="border-sky-500/40 text-sky-600 dark:text-sky-400 bg-sky-500/10 text-[9px] font-bold">
-                                  In Progress
+                                  {c.passed > 0 ? "In Progress" : `${c.attempts} Attempts`}
                                 </Badge>
                               )}
                               {!hasStarted && (
@@ -2132,13 +2149,13 @@ export default function AdminDashboardPage() {
                                   ? "bg-primary"
                                   : "bg-transparent"
                               }`}
-                              style={{ width: `${c.percent}%` }}
+                              style={{ width: `${Math.max(c.percent, c.attempts > 0 ? 5 : 0)}%` }}
                             />
                           </div>
 
                           {hasStarted && (
                             <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-0.5 font-mono">
-                              <span>Prefix: {c.courseId}</span>
+                              <span>{c.attempts} total attempts</span>
                               {c.bestWpm > 0 && (
                                 <span>Best Lesson Speed: <strong className="text-foreground">{c.bestWpm} WPM</strong></span>
                               )}

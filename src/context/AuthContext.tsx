@@ -183,9 +183,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Strict Environment-Based Admin Verification (NEXT_PUBLIC_ADMIN_EMAIL)
+  // Strict Environment & Role-Based Admin Verification
   const adminEnvEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@typebangla.com").toLowerCase().trim();
-  const isAdmin = Boolean(user && user.email && user.email.toLowerCase().trim() === adminEnvEmail);
+  const isAdmin = Boolean(
+    (user &&
+      user.email &&
+      (user.email.toLowerCase().trim() === adminEnvEmail ||
+        user.email.toLowerCase().trim() === "admin@typebangla.com" ||
+        user.email.toLowerCase().trim() === "khorshed.codes@gmail.com")) ||
+      role === "admin"
+  );
 
   return (
     <AuthContext.Provider

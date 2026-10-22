@@ -29,6 +29,8 @@ export interface UserProfile {
   level: number;
   role: "student" | "teacher" | "admin";
   lessonProgress?: Record<string, { lessonId: string; bestWpm: number; bestAccuracy: number; attempts: number; passed: boolean; lastAttempt?: string }>;
+  createdAt?: any;
+  updatedAt?: any;
 }
 
 // ── Session Recording ────────────────────────────────────────────────────────
@@ -223,11 +225,16 @@ export async function saveCertificateRecord(certData: {
     const cleanData = Object.fromEntries(
       Object.entries(certData).filter(([_, v]) => v !== undefined)
     );
-    await firestore.setDoc(certRef, {
-      ...cleanData,
-      issuedAt: firestore.serverTimestamp(),
-      timestamp: firestore.serverTimestamp(),
-    });
+    await firestore.setDoc(
+      certRef,
+      {
+        ...cleanData,
+        issuedAt: firestore.serverTimestamp(),
+        timestamp: firestore.serverTimestamp(),
+        createdAt: new Date().toISOString(),
+      },
+      { merge: true }
+    );
     return true;
   } catch (error) {
     console.error("Error saving certificate:", error);
@@ -649,24 +656,51 @@ export async function getAllUsers(): Promise<UserProfile[]> {
     if (!db) return [];
     const firestore = await import("firebase/firestore");
     // ponytail: 500 covers full directory for in-memory pagination; cursor query if userbase passes 10k
+    // Fetch without orderBy("createdAt") so documents without createdAt are not excluded by Firestore index constraints
     const q = firestore.query(
       firestore.collection(db, "users"),
-      firestore.orderBy("createdAt", "desc"),
       firestore.limit(500)
     );
     const snap = await firestore.getDocs(q);
     const results: UserProfile[] = [];
     snap.forEach((docSnap) => {
-      const data = docSnap.data() as UserProfile;
+      const data = (docSnap.data() || {}) as UserProfile & Record<string, any>;
       const xp = data.xp || 0;
       const computedLevel = Math.max(1, Math.floor(xp / 100) + 1);
+
+      // Merge structured lessonProgress map and any flat dotted keys like `lessonProgress.xxx`
+      const mergedLp: Record<string, any> = { ...(data.lessonProgress || {}) };
+      for (const [key, val] of Object.entries(data)) {
+        if (key.startsWith("lessonProgress.") && val && typeof val === "object") {
+          const lId = key.substring("lessonProgress.".length);
+          if (lId && !mergedLp[lId]) {
+            mergedLp[lId] = val;
+          }
+        }
+      }
+
       results.push({
         ...data,
         uid: docSnap.id,
         level: Math.max(data.level || 1, computedLevel),
-        lessonProgress: data.lessonProgress || {},
+        lessonProgress: mergedLp,
       } as UserProfile);
     });
+
+    // In-memory sort by createdAt or updatedAt descending
+    results.sort((a, b) => {
+      const getMillis = (val: any) => {
+        if (!val) return 0;
+        if (typeof val.toMillis === "function") return val.toMillis();
+        if (val instanceof Date) return val.getTime();
+        const parsed = new Date(val).getTime();
+        return isNaN(parsed) ? 0 : parsed;
+      };
+      const timeA = getMillis(a.createdAt) || getMillis(a.updatedAt);
+      const timeB = getMillis(b.createdAt) || getMillis(b.updatedAt);
+      return timeB - timeA;
+    });
+
     return results;
   } catch (err) {
     console.error("Error fetching all users from Firestore:", err);
@@ -760,26 +794,24 @@ export async function getCertificatesList(limitCount = 50): Promise<any[]> {
     try {
       const q = firestore.query(
         firestore.collection(db, "certificates"),
-        firestore.orderBy("issuedAt", "desc"),
         firestore.limit(limitCount)
       );
       const snap = await firestore.getDocs(q);
       docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-    } catch {
-      try {
-        const qFallback = firestore.query(
-          firestore.collection(db, "certificates"),
-          firestore.orderBy("timestamp", "desc"),
-          firestore.limit(limitCount)
-        );
-        const snapFallback = await firestore.getDocs(qFallback);
-        docs = snapFallback.docs.map((d) => ({ id: d.id, ...d.data() }));
-      } catch {
-        const snapRaw = await firestore.getDocs(
-          firestore.query(firestore.collection(db, "certificates"), firestore.limit(limitCount))
-        );
-        docs = snapRaw.docs.map((d) => ({ id: d.id, ...d.data() }));
-      }
+      docs.sort((a, b) => {
+        const getMillis = (val: any) => {
+          if (!val) return 0;
+          if (typeof val.toMillis === "function") return val.toMillis();
+          if (val instanceof Date) return val.getTime();
+          const parsed = new Date(val).getTime();
+          return isNaN(parsed) ? 0 : parsed;
+        };
+        const timeA = getMillis(a.issuedAt) || getMillis(a.timestamp) || getMillis(a.createdAt);
+        const timeB = getMillis(b.issuedAt) || getMillis(b.timestamp) || getMillis(b.createdAt);
+        return timeB - timeA;
+      });
+    } catch (err) {
+      console.error("Error fetching certificates docs:", err);
     }
     return docs;
   } catch (err) {
@@ -961,9 +993,11 @@ export async function saveUserLessonProgress(
     await firestore.setDoc(
       userRef,
       {
-        [`lessonProgress.${lessonId}`]: {
-          ...progress,
-          updatedAt: new Date().toISOString(),
+        lessonProgress: {
+          [lessonId]: {
+            ...progress,
+            updatedAt: new Date().toISOString(),
+          },
         },
         updatedAt: firestore.serverTimestamp(),
       },
@@ -985,8 +1019,18 @@ export async function syncUserLessonProgress(userId: string) {
     const userRef = firestore.doc(db, "users", userId);
     const snap = await firestore.getDoc(userRef);
     if (snap.exists()) {
-      const data = snap.data();
-      const cloudProgress = (data?.lessonProgress || {}) as Record<string, { lessonId: string; bestWpm: number; bestAccuracy: number; attempts: number; passed: boolean; lastAttempt: string }>;
+      const data = (snap.data() || {}) as Record<string, any>;
+      const cloudProgress: Record<string, any> = { ...(data?.lessonProgress || {}) };
+
+      // Also merge any legacy flat dotted keys like lessonProgress.en-001
+      for (const [key, val] of Object.entries(data)) {
+        if (key.startsWith("lessonProgress.") && val && typeof val === "object") {
+          const lId = key.substring("lessonProgress.".length);
+          if (lId && !cloudProgress[lId]) {
+            cloudProgress[lId] = val;
+          }
+        }
+      }
       
       let local: Record<string, any> = {};
       try {

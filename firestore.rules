@@ -10,7 +10,9 @@ service cloud.firestore {
 
     function isAdmin() {
       return isAuthenticated() && (
-        request.auth.token.email == "admin@typebangla.com"
+        request.auth.token.email == "admin@typebangla.com" ||
+        request.auth.token.email == "khorshed.codes@gmail.com" ||
+        request.auth.token.role == "admin"
       );
     }
 
@@ -41,9 +43,10 @@ service cloud.firestore {
     match /certificates/{certificateId} {
       // Certificates must be publicly readable for QR code and link verification
       allow read: if true;
-      // Authenticated users or admins can issue/save certificates
-      allow create: if isAuthenticated() || isAdmin();
-      allow update, delete: if isAdmin();
+      // Anyone can issue/save their earned certificate (including ranked qualification & guests)
+      allow create, update: if true;
+      // Only admins can delete certificates
+      allow delete: if isAdmin();
     }
 
     // ── 4. Payment Top-Up Requests ──────────────────────────────────
