@@ -68,7 +68,7 @@ export const UNI_BIJOY_MAP: LayoutMap = {
 // Intentional duplicates preserved exactly as in the official BCC specification.
 export const JATIYA_MAP: LayoutMap = {
   Backquote: { normal: "`", shift: "~" },
-  Backslash: { normal: "\u005c", shift: "\u0965" },
+  Backslash: { normal: "\u005c", shift: "\u09ce", altgr: "\u0965" },
   BracketLeft: { normal: "[", shift: "{" },
   BracketRight: { normal: "]", shift: "}" },
   Comma: { normal: ",", shift: "<" },
@@ -109,7 +109,7 @@ export const JATIYA_MAP: LayoutMap = {
   KeyX: { normal: "\u09cb", shift: "\u09cc", altgr: "\u0993", altgr_shift: "\u0994" },
   KeyY: { normal: "\u099a", shift: "\u099b" },
   KeyZ: { normal: "\u0981", shift: "\u0983", altgr: "\u09fa" },
-  Minus: { normal: "\u200c", shift: "_", altgr: "\u200c" },
+  Minus: { normal: "-", shift: "_", altgr: "\u200c" },
   Period: { normal: ".", shift: ">", altgr: "\u09bc" },
   Quote: { normal: "'", shift: "\u0022" },
   Semicolon: { normal: ";", shift: ":" },
@@ -398,7 +398,7 @@ export const PROBHAT_MAP: LayoutMap = {
   KeyX: { normal: "\u09b6", shift: "\u09dd" },
   KeyY: { normal: "\u098f", shift: "\u0990" },
   KeyZ: { normal: "\u09df", shift: "\u09af" },
-  Minus: { normal: "\u200c", shift: "_" },
+  Minus: { normal: "\u200c", shift: "_", altgr: "-" },
   Period: { normal: "\u0964", shift: "\u0981", altgr: "\u09bc" },
   Quote: { normal: "'", shift: "\u0022" },
   Semicolon: { normal: ";", shift: ":" },
@@ -454,7 +454,7 @@ export const INSCRIPT_MAP: LayoutMap = {
   Period: { normal: ".", shift: "\u0964", altgr: "\u09bd", altgr_shift: ">" },
   Quote: { normal: "\u099f", shift: "\u09a0", altgr: "'", altgr_shift: "\u0022" },
   Semicolon: { normal: "\u099a", shift: "\u099b", altgr: ";", altgr_shift: ":" },
-  Slash: { normal: "\u09af", shift: "\u09af", altgr: "/", altgr_shift: "?" },
+  Slash: { normal: "\u09af", shift: "\u09df", altgr: "/", altgr_shift: "?" },
   Space: { normal: " ", shift: " " },
 };
 
@@ -546,6 +546,22 @@ const SYMBOL_KEY_MAP: Record<string, { code: string; shift: boolean }> = {
 };
 
 /**
+ * Normalizes decomposed Bangla Nukta consonant pairs (য+়, ড+়, ঢ+়) to single
+ * precomposed code points (য় U+09DF, ড় U+09DC, ঢ় U+09DD) so fixed layouts and
+ * phonetic/NFC passages compare 1:1 per character.
+ */
+export function normalizeBanglaNukta(text: string): string {
+  if (!text) return "";
+  return text
+    .replace(/\u09af\u09bc/g, "\u09df")
+    .replace(/\u09a1\u09bc/g, "\u09dc")
+    .replace(/\u09a2\u09bc/g, "\u09dd")
+    .replace(/[\u2013\u2014]/g, "-")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201c\u201d]/g, '"');
+}
+
+/**
  * Converts Hasanta (্) + Kar sequence to Independent Bangla Vowels (for UniBijoy, Jatiya, Unicode)
  * e.g., ্ + া -> আ, ্ + ি -> ই (Rossho I), ্ + ী -> ঈ (Dirgho I), ্ + ু -> উ, etc.
  * Supports both standard Bijoy/Jatiya link typing (Link/হসন্ত 'g' + াকার 'f'/'h' -> আ)
@@ -555,8 +571,8 @@ export function applyHasantaVowelConversion(input: string): string {
   if (!input || input.length <= 1) return input;
 
   // ponytail: regex cascade handles ligatures in place, upgrade to Trie if buffer throughput bottlenecks
-  let res = input
-    .replace(/([\u0985-\u09b9\u09dc-\u09df])\u09b0\u09cd/g, "\u09b0\u09cd$1") // Reph reordering (consonant + র্ -> র্ + consonant)
+  let res = normalizeBanglaNukta(input)
+    .replace(/([\u0995-\u09b9\u09dc-\u09df])\u09b0\u09cd(?![\u0995-\u09b9\u09dc-\u09df])/g, "\u09b0\u09cd$1") // Reph reordering (consonant + র্ -> র্ + consonant)
     .replace(/\u0985\u09be/g, "\u0986"); // অ + া -> আ (Bijoy alias: Shift+F + F)
 
   if (res.includes("\u09cd")) {
@@ -653,5 +669,37 @@ export function mapInputToBangla(rawInput: string, layout: string, isShiftPresse
 
   return applyHasantaVowelConversion(result);
 }
+
+/**
+ * Maps independent Bangla vowels (স্বরবর্ণ) that are typed via 2-key sequences
+ * (Hasanta ্ + Kar, or অ + া -> আ) to their second-key Kar (কার চিহ্ন).
+ */
+export const VOWEL_TO_KAR_MAP: Record<string, string> = {
+  "আ": "া",
+  "ই": "ি",
+  "ঈ": "ী",
+  "উ": "ু",
+  "ঊ": "ূ",
+  "ঋ": "ৃ",
+  "এ": "ে",
+  "ঐ": "ৈ",
+  "ও": "ো",
+  "ঔ": "ৌ",
+};
+
+/**
+ * Returns true when `leadChar` is the valid first keystroke ("্" or "অ")
+ * of a 2-key independent vowel `targetChar` (such as "আ", "ই", "ঈ", etc.).
+ */
+export function isPendingVowelLeadChar(
+  leadChar: string | undefined,
+  targetChar: string | undefined
+): boolean {
+  if (!leadChar || !targetChar) return false;
+  if (leadChar === "\u09cd" && Boolean(VOWEL_TO_KAR_MAP[targetChar])) return true;
+  if (leadChar === "\u0985" && targetChar === "আ") return true;
+  return false;
+}
+
 
 

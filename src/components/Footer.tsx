@@ -41,21 +41,14 @@ export default function Footer() {
         <div className="col-span-2 md:col-span-1 flex flex-col space-y-4">
           <Link href="/" className="flex items-center gap-2 group">
             <Image
-              src="/images/logo/blackbg.png"
+              src="/images/logo/icon.svg"
               alt="typebangla logo"
               width={32}
               height={32}
-              className="w-8 h-8 hidden dark:block object-contain"
-            />
-            <Image
-              src="/images/logo/whitebg_1.png"
-              alt="typebangla logo"
-              width={32}
-              height={32}
-              className="w-8 h-8 block dark:hidden object-contain"
+              className="w-8 h-8 rounded-lg object-contain"
             />
             <span className="font-black text-base tracking-tight text-foreground select-none">
-              typebangla<span className="text-primary font-bold">.com</span>
+              typebangla<span className="text-emerald-500 font-bold">.com</span>
             </span>
           </Link>
           <p className="text-xs text-muted-foreground leading-relaxed">
@@ -106,6 +99,7 @@ export default function Footer() {
           <span className="text-xs font-bold text-foreground uppercase tracking-wider">তথ্য ও সাপোর্ট</span>
           <Link href="/about" className="text-xs text-muted-foreground hover:text-foreground transition-colors font-medium">আমাদের সম্পর্কে (About Us)</Link>
           <Link href="/contact" className="text-xs text-muted-foreground hover:text-foreground transition-colors font-medium">যোগাযোগ ও সাপোর্ট (Contact)</Link>
+          <Link href="/bug-reports" className="text-xs text-rose-500 dark:text-rose-400 hover:underline transition-colors font-bold">বাগ রিপোর্ট ও স্ট্যাটাস (Bug Reports)</Link>
           <Link href="/dashboard" className="text-xs text-muted-foreground hover:text-foreground transition-colors">মাই ড্যাশবোর্ড</Link>
           <Link href="/institute" className="text-xs font-extrabold text-teal-500 hover:underline transition-colors flex items-center gap-1">
             <span>ইনস্টিটিউট V2 পোর্টাল 🏫</span>

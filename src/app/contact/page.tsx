@@ -1,20 +1,32 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import {
-  Send, Mail, Sparkles, Clock, CreditCard, Building, CheckCircle2, Globe, Loader2
+  Send, Mail, Sparkles, Clock, CreditCard, Building, CheckCircle2, Globe, Loader2, Bug, Wrench
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { saveContactMessage } from "@/lib/firestoreService";
+import { saveContactMessage, getPublicBugReports, ContactMessage } from "@/lib/firestoreService";
+import { getBugStatusBadgeMeta } from "@/components/FeedbackModal";
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", category: "general", subject: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [refId, setRefId] = useState("");
+  const [bugReports, setBugReports] = useState<ContactMessage[]>([]);
+  const [statusFilter, setStatusFilter] = useState<"all" | "solved" | "working" | "acknowledged">("all");
+
+  const loadBugReports = () => {
+    getPublicBugReports(20).then(setBugReports).catch(() => {});
+  };
+
+  useEffect(() => {
+    loadBugReports();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +39,16 @@ export default function ContactPage() {
     setRefId(result.refId || "MSG-" + Math.floor(100000 + Math.random() * 900000));
     setSubmitted(true);
     setForm({ name: "", email: "", category: "general", subject: "", message: "" });
+    loadBugReports();
   };
+
+  const filteredReports = bugReports.filter((r) => {
+    if (statusFilter === "all") return true;
+    if (statusFilter === "solved") return r.status === "solved" || r.status === "resolved";
+    if (statusFilter === "working") return r.status === "working";
+    if (statusFilter === "acknowledged") return r.status === "acknowledged" || r.status === "reviewed";
+    return true;
+  });
 
   return (
     <main className="container max-w-4xl mx-auto px-4 sm:px-6 py-12 space-y-12 fade-in text-foreground">
@@ -235,6 +256,117 @@ export default function ContactPage() {
         </Card>
 
       </div>
+
+      {/* Latest Bug Reports & Live Status Board */}
+      <section id="bug-reports" className="space-y-5 pt-4 border-t border-border">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-rose-600 dark:text-rose-400">
+              <Bug size={14} />
+              <span>LIVE BUG TRACKER &amp; ISSUE STATUS</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-foreground">
+              সর্বশেষ বাগ রিপোর্ট ও সমাধানের বর্তমান স্ট্যাটাস
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              ব্যবহারকারীদের রিপোর্ট করা বাগ এবং নতুন ফিচারের লাইভ স্ট্যাটাস (Solved, Working, Acknowledged)।
+            </p>
+          </div>
+
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {[
+              { id: "all", label: "All Reports" },
+              { id: "solved", label: "✓ Solved" },
+              { id: "working", label: "⚙ Working" },
+              { id: "acknowledged", label: "👁 Acknowledged" },
+            ].map((st) => (
+              <button
+                key={st.id}
+                type="button"
+                onClick={() => setStatusFilter(st.id as any)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  statusFilter === st.id
+                    ? "bg-primary text-primary-foreground shadow-xs"
+                    : "bg-secondary text-muted-foreground hover:text-foreground border border-border"
+                }`}
+              >
+                {st.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {filteredReports.map((item) => {
+            const badge = getBugStatusBadgeMeta(item.status);
+            const isBug = item.category === "bug";
+            return (
+              <Card
+                key={item.id || item.refId}
+                className="border border-border bg-card rounded-2xl p-5 space-y-3 shadow-xs flex flex-col justify-between"
+              >
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <Badge
+                        variant="outline"
+                        className={
+                          isBug
+                            ? "border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[10px] font-bold"
+                            : "border-indigo-500/30 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-bold"
+                        }
+                      >
+                        {isBug ? "🐛 Bug Report" : "💡 Suggestion"}
+                      </Badge>
+                      {item.refId && (
+                        <span className="text-[10px] font-mono text-muted-foreground bg-secondary px-2 py-0.5 rounded border border-border">
+                          {item.refId}
+                        </span>
+                      )}
+                    </div>
+
+                    <Badge
+                      variant="outline"
+                      className={`text-[10px] font-extrabold px-2.5 py-0.5 ${badge.className}`}
+                    >
+                      {badge.label} • {badge.labelBn}
+                    </Badge>
+                  </div>
+
+                  <h3 className="text-sm font-extrabold text-foreground">
+                    {item.subject || "Bug Report"}
+                  </h3>
+
+                  <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                    {item.message}
+                  </p>
+
+                  {item.adminNote && (
+                    <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-emerald-700 dark:text-emerald-300 leading-relaxed">
+                      <strong className="font-bold">সমাধান নোট: </strong>
+                      {item.adminNote}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-2 border-t border-border/60">
+                  <span>প্রেরক: {item.name || "Learner"}</span>
+                  {item.createdAt && (
+                    <span className="inline-flex items-center gap-1 font-mono">
+                      <Clock size={11} />
+                      {new Date(item.createdAt).toLocaleDateString("bn-BD", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </span>
+                  )}
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+      </section>
     </main>
   );
 }

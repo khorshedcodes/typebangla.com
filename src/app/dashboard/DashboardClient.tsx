@@ -197,10 +197,14 @@ export default function DashboardClient() {
           
           {/* Left: Brand Logo & Workspace Identifier */}
           <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-            <div className="relative w-8 h-8 flex items-center justify-center rounded-xl bg-primary/10 border border-primary/20 group-hover:scale-105 transition-transform">
-              <Image src="/images/logo/blackbg.png" alt="TypeBangla" width={28} height={28} className="w-7 h-7 hidden dark:block object-contain" priority />
-              <Image src="/images/logo/whitebg_1.png" alt="TypeBangla" width={28} height={28} className="w-7 h-7 dark:hidden object-contain" priority />
-            </div>
+            <Image
+              src="/images/logo/icon.svg"
+              alt="TypeBangla"
+              width={32}
+              height={32}
+              className="w-8 h-8 rounded-lg group-hover:scale-105 transition-transform object-contain"
+              priority
+            />
             <div className="flex flex-col">
               <span className="text-base font-black tracking-tight text-foreground flex items-center gap-1">
                 TypeBangla <span className="text-[10px] font-black uppercase text-primary px-1.5 py-0.5 rounded bg-primary/10 border border-primary/20">Workspace</span>

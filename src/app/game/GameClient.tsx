@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useTypingStore, KeyboardLayout, playTypewriterSound } from "../../store/typingStore";
 import VirtualKeyboard from "../../components/VirtualKeyboard";
-import { avroTransliterate, mapInputToBangla } from "../../utils/layouts";
+import { avroTransliterate, mapInputToBangla, applyHasantaVowelConversion, isPendingVowelLeadChar, normalizeBanglaNukta, VOWEL_TO_KAR_MAP } from "../../utils/layouts";
 import {
   Heart, Play, Pause, RotateCcw, Volume2, VolumeX, Award, Star, ArrowRight, ArrowLeft, Home, X,
   Trophy, Gauge, Zap, Flame, Timer, Sparkles, CheckCircle2, ChevronRight, Flag
@@ -556,7 +556,27 @@ export default function GameClient() {
           if (!charToAdd) return;
         }
 
-        const newBuffer = typedBuffer + charToAdd;
+        const isFixedBangla =
+          activeLayout === "unibijoy" || activeLayout === "jatiya" || activeLayout === "unicode";
+        const newBuffer = isFixedBangla
+          ? (typedBuffer.length > 0
+              ? typedBuffer.slice(0, -1) + applyHasantaVowelConversion(typedBuffer.slice(-1) + charToAdd)
+              : applyHasantaVowelConversion(charToAdd))
+          : normalizeBanglaNukta(typedBuffer + charToAdd);
+
+        const matchesBanglaPrefix = (buf: string, rawWord: string): boolean => {
+          const word = normalizeBanglaNukta(rawWord);
+          if (word.startsWith(buf)) return true;
+          if (
+            isFixedBangla &&
+            buf.length > 0 &&
+            word.startsWith(buf.slice(0, -1)) &&
+            isPendingVowelLeadChar(buf[buf.length - 1], word[buf.length - 1])
+          ) {
+            return true;
+          }
+          return false;
+        };
 
         // Helper to fetch active target word object from randomized deck
         const getTargetWord = (): WordPair => {
@@ -575,8 +595,8 @@ export default function GameClient() {
           if (!currentTarget) {
             currentTarget = words.find((w) => {
               if (activeLayout === "english") return w.text.toLowerCase().startsWith(newBuffer.toLowerCase());
-              if (activeLayout === "avro") return w.phonetic.toLowerCase().startsWith(newBuffer.toLowerCase()) || w.text.startsWith(avroTransliterate(newBuffer));
-              return w.text.startsWith(newBuffer);
+              if (activeLayout === "avro") return w.phonetic.toLowerCase().startsWith(newBuffer.toLowerCase()) || normalizeBanglaNukta(w.text).startsWith(normalizeBanglaNukta(avroTransliterate(newBuffer)));
+              return matchesBanglaPrefix(newBuffer, w.text);
             });
 
             if (currentTarget) setTargetWordId(currentTarget.id);
@@ -585,8 +605,8 @@ export default function GameClient() {
           if (currentTarget) {
             const targetStr = activeLayout === "english" ? currentTarget.text : activeLayout === "avro" ? currentTarget.phonetic : currentTarget.text;
             const isPrefix = activeLayout === "english" || activeLayout === "avro"
-              ? targetStr.toLowerCase().startsWith(newBuffer.toLowerCase())
-              : targetStr.startsWith(newBuffer);
+              ? targetStr.toLowerCase().startsWith(newBuffer.toLowerCase()) || (activeLayout === "avro" && normalizeBanglaNukta(currentTarget.text).startsWith(normalizeBanglaNukta(avroTransliterate(newBuffer))))
+              : matchesBanglaPrefix(newBuffer, targetStr);
 
             if (!isPrefix) {
               setHasError(true);
@@ -599,8 +619,8 @@ export default function GameClient() {
 
             let isExactMatch = false;
             if (activeLayout === "english") isExactMatch = currentTarget.text.toLowerCase() === newBuffer.toLowerCase();
-            else if (activeLayout === "avro") isExactMatch = currentTarget.phonetic.toLowerCase() === newBuffer.toLowerCase() || currentTarget.text === avroTransliterate(newBuffer);
-            else isExactMatch = currentTarget.text === newBuffer;
+            else if (activeLayout === "avro") isExactMatch = currentTarget.phonetic.toLowerCase() === newBuffer.toLowerCase() || normalizeBanglaNukta(currentTarget.text) === normalizeBanglaNukta(avroTransliterate(newBuffer));
+            else isExactMatch = normalizeBanglaNukta(currentTarget.text) === newBuffer;
 
             if (isExactMatch) {
               playSound("success");
@@ -635,8 +655,8 @@ export default function GameClient() {
           const isPrefix = activeLayout === "english"
             ? targetStr.toLowerCase().startsWith(newBuffer.toLowerCase())
             : activeLayout === "avro"
-            ? targetStr.toLowerCase().startsWith(newBuffer.toLowerCase()) || target.bangla.startsWith(avroTransliterate(newBuffer))
-            : targetStr.startsWith(newBuffer);
+            ? targetStr.toLowerCase().startsWith(newBuffer.toLowerCase()) || normalizeBanglaNukta(target.bangla).startsWith(normalizeBanglaNukta(avroTransliterate(newBuffer)))
+            : matchesBanglaPrefix(newBuffer, targetStr);
 
           if (!isPrefix) {
             setHasError(true);
@@ -649,8 +669,8 @@ export default function GameClient() {
 
           let isMatch = false;
           if (activeLayout === "english") isMatch = target.bangla.toLowerCase() === newBuffer.toLowerCase();
-          else if (activeLayout === "avro") isMatch = target.phonetic.toLowerCase() === newBuffer.toLowerCase() || target.bangla === avroTransliterate(newBuffer);
-          else isMatch = target.bangla === newBuffer;
+          else if (activeLayout === "avro") isMatch = target.phonetic.toLowerCase() === newBuffer.toLowerCase() || normalizeBanglaNukta(target.bangla) === normalizeBanglaNukta(avroTransliterate(newBuffer));
+          else isMatch = normalizeBanglaNukta(target.bangla) === newBuffer;
 
           if (isMatch) {
             playSound("success");
@@ -674,8 +694,8 @@ export default function GameClient() {
           const isPrefix = activeLayout === "english"
             ? targetStr.toLowerCase().startsWith(newBuffer.toLowerCase())
             : activeLayout === "avro"
-            ? targetStr.toLowerCase().startsWith(newBuffer.toLowerCase()) || target.bangla.startsWith(avroTransliterate(newBuffer))
-            : targetStr.startsWith(newBuffer);
+            ? targetStr.toLowerCase().startsWith(newBuffer.toLowerCase()) || normalizeBanglaNukta(target.bangla).startsWith(normalizeBanglaNukta(avroTransliterate(newBuffer)))
+            : matchesBanglaPrefix(newBuffer, targetStr);
 
           if (!isPrefix) {
             setHasError(true);
@@ -688,8 +708,8 @@ export default function GameClient() {
 
           let isMatch = false;
           if (activeLayout === "english") isMatch = target.bangla.toLowerCase() === newBuffer.toLowerCase();
-          else if (activeLayout === "avro") isMatch = target.phonetic.toLowerCase() === newBuffer.toLowerCase() || target.bangla === avroTransliterate(newBuffer);
-          else isMatch = target.bangla === newBuffer;
+          else if (activeLayout === "avro") isMatch = target.phonetic.toLowerCase() === newBuffer.toLowerCase() || normalizeBanglaNukta(target.bangla) === normalizeBanglaNukta(avroTransliterate(newBuffer));
+          else isMatch = normalizeBanglaNukta(target.bangla) === newBuffer;
 
           if (isMatch) {
             playSound("success");
@@ -714,8 +734,8 @@ export default function GameClient() {
           const isPrefix = activeLayout === "english"
             ? targetStr.toLowerCase().startsWith(newBuffer.toLowerCase())
             : activeLayout === "avro"
-            ? targetStr.toLowerCase().startsWith(newBuffer.toLowerCase()) || target.bangla.startsWith(avroTransliterate(newBuffer))
-            : targetStr.startsWith(newBuffer);
+            ? targetStr.toLowerCase().startsWith(newBuffer.toLowerCase()) || normalizeBanglaNukta(target.bangla).startsWith(normalizeBanglaNukta(avroTransliterate(newBuffer)))
+            : matchesBanglaPrefix(newBuffer, targetStr);
 
           if (!isPrefix) {
             setHasError(true);
@@ -728,8 +748,8 @@ export default function GameClient() {
 
           let isMatch = false;
           if (activeLayout === "english") isMatch = target.bangla.toLowerCase() === newBuffer.toLowerCase();
-          else if (activeLayout === "avro") isMatch = target.phonetic.toLowerCase() === newBuffer.toLowerCase() || target.bangla === avroTransliterate(newBuffer);
-          else isMatch = target.bangla === newBuffer;
+          else if (activeLayout === "avro") isMatch = target.phonetic.toLowerCase() === newBuffer.toLowerCase() || normalizeBanglaNukta(target.bangla) === normalizeBanglaNukta(avroTransliterate(newBuffer));
+          else isMatch = normalizeBanglaNukta(target.bangla) === newBuffer;
 
           if (isMatch) {
             playSound("success");
@@ -775,15 +795,26 @@ export default function GameClient() {
   }
 
   if (activeTargetString) {
+    const normalizedActive = normalizeBanglaNukta(activeTargetString);
     let validLen = 0;
     while (
       validLen < typedBuffer.length &&
-      validLen < activeTargetString.length &&
-      activeTargetString[validLen].toLowerCase() === typedBuffer[validLen].toLowerCase()
+      validLen < normalizedActive.length &&
+      normalizedActive[validLen].toLowerCase() === typedBuffer[validLen].toLowerCase()
     ) {
       validLen++;
     }
-    nextCharForKeyboard = activeTargetString[validLen] || "";
+    const isFixedBangla =
+      activeLayout === "unibijoy" || activeLayout === "jatiya" || activeLayout === "unicode";
+    if (
+      isFixedBangla &&
+      validLen < typedBuffer.length &&
+      isPendingVowelLeadChar(typedBuffer[validLen], normalizedActive[validLen])
+    ) {
+      nextCharForKeyboard = VOWEL_TO_KAR_MAP[normalizedActive[validLen]] || normalizedActive[validLen] || "";
+    } else {
+      nextCharForKeyboard = normalizedActive[validLen] || "";
+    }
   }
 
   return (

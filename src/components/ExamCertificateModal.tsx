@@ -133,7 +133,7 @@ export function ExamCertificateModal({ isOpen, onClose, result }: ExamCertificat
     ctx.stroke();
 
     const logoImg = new window.Image();
-    logoImg.src = "/images/logo/blackbg.png";
+    logoImg.src = "/images/logo/icon.png";
     logoImg.onload = () => {
       ctx.drawImage(logoImg, 132, 115, 50, 50);
       ctx.fillStyle = "#ffffff";

@@ -39,12 +39,18 @@ async function main() {
     .toFile(path.join(rootDir, 'public', 'images', 'logo', 'whitebg_1.png'));
   console.log('✔ Generated public/images/logo/whitebg_1.png (512x512)');
 
-  // 4. OpenGraph Social Share PNG 1200x630
+  // 4. Dark Theme Badge PNG 512x512 & OpenGraph Social Share Banner 1200x630
+  await sharp(iconSvgPath)
+    .resize(512, 512)
+    .png()
+    .toFile(path.join(rootDir, 'public', 'images', 'logo', 'blackbg.png'));
+  console.log('✔ Generated public/images/logo/blackbg.png (512x512)');
+
   await sharp(ogBannerSvgPath)
     .resize(1200, 630)
     .png()
-    .toFile(path.join(rootDir, 'public', 'images', 'logo', 'blackbg.png'));
-  console.log('✔ Generated public/images/logo/blackbg.png (1200x630)');
+    .toFile(path.join(rootDir, 'public', 'images', 'logo', 'og-banner.png'));
+  console.log('✔ Generated public/images/logo/og-banner.png (1200x630)');
 
   // 5. Certificate Horizontal Logo PNG
   await sharp(logoHorizontalDarkSvgPath)

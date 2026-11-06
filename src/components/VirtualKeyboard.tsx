@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useTypingStore, KeyboardLayout } from "../store/typingStore";
-import { JATIYA_MAP, UNI_BIJOY_MAP, PROBHAT_MAP, INSCRIPT_MAP, UNICODE_MAP } from "../utils/layouts";
+import { JATIYA_MAP, UNI_BIJOY_MAP, PROBHAT_MAP, INSCRIPT_MAP, UNICODE_MAP, VOWEL_TO_KAR_MAP, isPendingVowelLeadChar, normalizeBanglaNukta } from "../utils/layouts";
 import { cn } from "../utils/cn";
 import HandPlacement, { FINGER_MAP } from "./HandPlacement";
 
@@ -55,7 +55,8 @@ const SHIFT_SYMBOL_MAP: Record<string, { code: string; needsShift: boolean }> = 
   "`": { code: "Backquote", needsShift: false },
 };
 
-const getHighlightKeys = (char: string, layout: KeyboardLayout): { codes: string[]; needsShift: boolean } => {
+const getHighlightKeys = (rawChar: string, layout: KeyboardLayout): { codes: string[]; needsShift: boolean } => {
+  const char = normalizeBanglaNukta(rawChar);
   if (!char) return { codes: [], needsShift: false };
 
   if (char === " ") {
@@ -166,6 +167,8 @@ const FINGER_KEY_ACCENT: Record<string, string> = {
 export default function VirtualKeyboard({ nextChar = "", onKeyClick, activeLayout: propActiveLayout }: VirtualKeyboardProps) {
   const storeLayout = useTypingStore((state) => state.activeLayout);
   const activeLayout = (propActiveLayout as KeyboardLayout) || storeLayout;
+  const typedText = useTypingStore((state) => state.typedText);
+  const targetText = useTypingStore((state) => state.targetText);
   const keyStats = useTypingStore((state) => state.keyStats) || {};
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const [isShiftToggled, setIsShiftToggled] = useState<boolean>(false);
@@ -227,7 +230,16 @@ export default function VirtualKeyboard({ nextChar = "", onKeyClick, activeLayou
     };
   }, []);
 
-  const { codes: highlightCodes, needsShift: highlightShift } = getHighlightKeys(nextChar, activeLayout);
+  const isFixedBanglaLayout =
+    activeLayout === "unibijoy" || activeLayout === "jatiya" || activeLayout === "unicode";
+  const pendingVowelTarget =
+    isFixedBanglaLayout &&
+    typedText.length > 0 &&
+    isPendingVowelLeadChar(typedText[typedText.length - 1], targetText[typedText.length - 1])
+      ? VOWEL_TO_KAR_MAP[targetText[typedText.length - 1]]
+      : "";
+  const effectiveNextChar = pendingVowelTarget || nextChar;
+  const { codes: highlightCodes, needsShift: highlightShift } = getHighlightKeys(effectiveNextChar, activeLayout);
 
   const row1 = [
     { code: "Backquote", enNormal: "`", enShift: "~" },

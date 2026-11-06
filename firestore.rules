@@ -89,10 +89,10 @@ service cloud.firestore {
 
     // ── 8. Contact & Feedback Messages ──────────────────────────────
     match /contact_messages/{messageId} {
-      // Anyone can submit a message via /contact
-      allow create: if true;
-      // Only admin can read and manage messages
-      allow read, update, delete: if isAdmin();
+      // Anyone can submit a message via /contact or FeedbackModal and view public bug report statuses
+      allow create, read: if true;
+      // Only admin can update status or delete messages
+      allow update, delete: if isAdmin();
     }
 
     // ── 9. Global Site Settings & Announcements ─────────────────────

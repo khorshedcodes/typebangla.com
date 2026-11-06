@@ -261,8 +261,8 @@ export const jatiyaLessons: Lesson[] = [
   // ══════════════════════════════════════════════════════════
   {
     id: "bn-jatiya-018",
-    title: "Shift Home Left: আ শ । (m g)",
-    subtitle: "A=আ, Shift+Shift+m=শ, Shift+Shift+g=। — শিফট+বাম হোম রো",
+    title: "Shift Home Left: আ শ । (g+h M G)",
+    subtitle: "g+h=আ (বা Shift+h+h=আ), Shift+m=শ, Shift+g=। — হোম রো ও স্বরবর্ণ",
     category: "bangla",
     level: "intermediate",
     type: "drill",
@@ -304,8 +304,8 @@ export const jatiyaLessons: Lesson[] = [
   // ══════════════════════════════════════════════════════════
   {
     id: "bn-jatiya-021",
-    title: "Shift Top Left: ঔ ঊ ঈ উ ই (Q W E R T)",
-    subtitle: "Q=ঔ, W=ঊ, E=ঈ, R=উ, T=ই — শিফট+বাম টপ রো",
+    title: "Independent Vowels: ঔ ঊ ঈ উ ই (g+X g+S g+D g+s g+d)",
+    subtitle: "g+X=ঔ, g+S=ঊ, g+D=ঈ, g+s=উ, g+d=ই — হসন্ত (g) + কার চিহ্ন দিয়ে স্বরবর্ণ",
     category: "bangla",
     level: "intermediate",
     type: "drill",

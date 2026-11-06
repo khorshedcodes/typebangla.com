@@ -1,7 +1,20 @@
 import { describe, test, expect } from "./testRunner";
+import { getPassageForDuration } from "../src/utils/lessons/exam/examPassages";
+import { useTypingStore } from "../src/store/typingStore";
+import { generateDrillText } from "../src/utils/drillGenerator";
+
+interface WpmMetrics {
+  grossWpm: number;
+  netWpm: number;
+  accuracy: number;
+}
 
 describe("Typing Engine Formulas & Metrics", () => {
-  const calculateWpm = (grossCharacters: number, errors: number, durationSeconds: number) => {
+  const calculateWpm = (
+    grossCharacters: number,
+    errors: number,
+    durationSeconds: number
+  ): WpmMetrics => {
     const minutes = durationSeconds / 60;
     if (minutes === 0) return { grossWpm: 0, netWpm: 0, accuracy: 100 };
     
@@ -36,8 +49,6 @@ describe("Typing Engine Formulas & Metrics", () => {
 });
 
 describe("Duration-Aware Passage Content Sufficiency (1m, 5m, 10m, 15m)", () => {
-  const { extendTextForDuration, getPassageForDuration } = require("../src/utils/lessons/exam/examPassages");
-
   test("1-minute test passage should provide at least 500 characters", () => {
     const p = getPassageForDuration("bangla", 60);
     expect(p.text.length).toBeGreaterThanOrEqual(500);
@@ -108,8 +119,6 @@ describe("Leaderboard User Deduplication & Raw UID Sanitation", () => {
 });
 
 describe("Independent Vowel Typing (আ) in Typing Store", () => {
-  const { useTypingStore } = require("../src/store/typingStore");
-
   test("UniBijoy layout types 'আ' via 'g' then 'f' without false error", () => {
     const store = useTypingStore.getState();
     store.setActiveLayout("unibijoy");
@@ -119,6 +128,7 @@ describe("Independent Vowel Typing (আ) in Typing Store", () => {
     // Key 1: 'g' (্)
     useTypingStore.getState().handleKeystroke("KeyG", "g", false);
     expect(useTypingStore.getState().typedText).toBe("্");
+    expect(useTypingStore.getState().errorIndices.length).toBe(0);
     expect(useTypingStore.getState().problematicPairs.includes("আ-্")).toBe(false);
 
     // Key 2: 'f' (া) -> collapses to 'আ'
@@ -136,11 +146,46 @@ describe("Independent Vowel Typing (আ) in Typing Store", () => {
     // Key 1: Shift+F (অ)
     useTypingStore.getState().handleKeystroke("KeyF", "F", true);
     expect(useTypingStore.getState().typedText).toBe("অ");
+    expect(useTypingStore.getState().errorIndices.length).toBe(0);
 
     // Key 2: 'f' (া) -> collapses to 'আ'
     useTypingStore.getState().handleKeystroke("KeyF", "f", false);
     expect(useTypingStore.getState().typedText).toBe("আ");
     expect(useTypingStore.getState().errorIndices.length).toBe(0);
+  });
+
+  test("Side-by-side 'অ' and 'া' ('অা') does not turn 'অ' red when typing 'া'", () => {
+    const store = useTypingStore.getState();
+    store.setActiveLayout("unibijoy");
+    store.setSelectedDuration(0);
+    store.setTargetText("অা");
+    store.resetTest();
+
+    // First type 'অ' (Shift+F) -> matches targetText[0] ('অ')
+    useTypingStore.getState().handleKeystroke("KeyF", "F", true);
+    expect(useTypingStore.getState().typedText).toBe("অ");
+    expect(useTypingStore.getState().errorIndices.length).toBe(0);
+
+    // Next type 'া' (f) -> matches targetText[1] ('া'), must NOT collapse 'অ' into 'আ'
+    useTypingStore.getState().handleKeystroke("KeyF", "f", false);
+    expect(useTypingStore.getState().typedText).toBe("অা");
+    expect(useTypingStore.getState().errorIndices.length).toBe(0);
+    expect(useTypingStore.getState().isCompleted).toBe(true);
+  });
+
+  test("generateDrillText never attaches diacritics or hasanta directly to 'অ'", () => {
+    const drill = generateDrillText("অ স া ্ ক", 280);
+    expect(drill.includes("অা")).toBe(false);
+    expect(drill.includes("অ্")).toBe(false);
+  });
+
+  test("resetTest preserves curated lesson text instead of overwriting with random drill", () => {
+    const store = useTypingStore.getState();
+    store.setActiveLayout("unibijoy");
+    const curated = "কা সা আস ক্ ত্ কা সা আস";
+    store.setTargetText(curated, "অ স া ্ ক", "combo");
+    store.resetTest();
+    expect(useTypingStore.getState().targetText).toBe(curated);
   });
 
   test("Jatiya layout types 'আ' via 'g' then 'h'", () => {
@@ -174,5 +219,72 @@ describe("Independent Vowel Typing (আ) in Typing Store", () => {
     useTypingStore.getState().handleKeystroke("KeyJ", "j", false);
     expect(useTypingStore.getState().typedText).toBe("আজ");
     expect(useTypingStore.getState().errorIndices.length).toBe(0);
+  });
+
+  test("Nukta consonants (য়, ড়, ঢ়) normalize and match 1:1 across UniBijoy, Jatiya, Probhat, InScript, Unicode, and Avro", () => {
+    const store = useTypingStore.getState();
+
+    // Decomposed input in targetText ("জাতীয় কীবোর্ড বড় দৃঢ়") -> normalized to single codepoints
+    store.setActiveLayout("unibijoy");
+    store.setSelectedDuration(0);
+    store.setTargetText("য় ড় ঢ়");
+    store.resetTest();
+
+    expect(useTypingStore.getState().targetText.length).toBe(5); // 'য়', ' ', 'ড়', ' ', 'ঢ়'
+
+    // UniBijoy: Shift+W = য়, P = ড়, Shift+P = ঢ়
+    useTypingStore.getState().handleKeystroke("KeyW", "W", true);
+    useTypingStore.getState().handleKeystroke("Space", " ", false);
+    useTypingStore.getState().handleKeystroke("KeyP", "p", false);
+    useTypingStore.getState().handleKeystroke("Space", " ", false);
+    useTypingStore.getState().handleKeystroke("KeyP", "P", true);
+
+    expect(useTypingStore.getState().errorIndices.length).toBe(0);
+    expect(useTypingStore.getState().isCompleted).toBe(true);
+  });
+
+  test("Reph (র্) in 'অর্জনের' and 'সর্বদা' is not retroactively corrupted when typing multi-key vowels later", () => {
+    const store = useTypingStore.getState();
+    store.setActiveLayout("unibijoy");
+    store.setSelectedDuration(0);
+    store.setTargetText("অর্জন ই");
+    store.resetTest();
+
+    // Type 'অ' (Shift+F), 'র্' (Shift+A), 'জ' (u), 'ন' (b), ' ' (Space), 'ই' (g + d)
+    useTypingStore.getState().handleKeystroke("KeyF", "F", true);
+    useTypingStore.getState().handleKeystroke("KeyA", "A", true);
+    useTypingStore.getState().handleKeystroke("KeyU", "u", false);
+    useTypingStore.getState().handleKeystroke("KeyB", "b", false);
+    useTypingStore.getState().handleKeystroke("Space", " ", false);
+    useTypingStore.getState().handleKeystroke("KeyG", "g", false);
+    useTypingStore.getState().handleKeystroke("KeyD", "d", false);
+
+    expect(useTypingStore.getState().typedText).toBe("অর্জন ই");
+    expect(useTypingStore.getState().errorIndices.length).toBe(0);
+    expect(useTypingStore.getState().isCompleted).toBe(true);
+  });
+
+  test("Jatiya layout supports ৎ (Shift+Backslash) and Probhat/Jatiya support hyphen (-)", () => {
+    const store = useTypingStore.getState();
+    store.setActiveLayout("jatiya");
+    store.setSelectedDuration(0);
+    store.setTargetText("হঠাৎ রো-তে");
+    store.resetTest();
+
+    // হ (i), ঠ (Shift+T), া (h), ৎ (Shift+Backslash), ' ', র (v), ো (x), - (Minus), ত (k), ে (c)
+    useTypingStore.getState().handleKeystroke("KeyI", "i", false);
+    useTypingStore.getState().handleKeystroke("KeyT", "T", true);
+    useTypingStore.getState().handleKeystroke("KeyH", "h", false);
+    useTypingStore.getState().handleKeystroke("Backslash", "|", true);
+    useTypingStore.getState().handleKeystroke("Space", " ", false);
+    useTypingStore.getState().handleKeystroke("KeyV", "v", false);
+    useTypingStore.getState().handleKeystroke("KeyX", "x", false);
+    useTypingStore.getState().handleKeystroke("Minus", "-", false);
+    useTypingStore.getState().handleKeystroke("KeyK", "k", false);
+    useTypingStore.getState().handleKeystroke("KeyC", "c", false);
+
+    expect(useTypingStore.getState().typedText).toBe("হঠাৎ রো-তে");
+    expect(useTypingStore.getState().errorIndices.length).toBe(0);
+    expect(useTypingStore.getState().isCompleted).toBe(true);
   });
 });

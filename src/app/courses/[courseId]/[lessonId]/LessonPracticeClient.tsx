@@ -11,6 +11,7 @@ import { Card, CardContent } from "../../../../components/ui/card";
 import { Badge } from "../../../../components/ui/badge";
 import { Button } from "../../../../components/ui/button";
 import { useTypingStore, KeyboardLayout } from "../../../../store/typingStore";
+import { VOWEL_TO_KAR_MAP, isPendingVowelLeadChar } from "../../../../utils/layouts";
 import {
   getLessonsByCategory,
   getAllProgress,
@@ -95,6 +96,7 @@ export default function LessonPracticeClient({
   const meta = COURSE_METAS[courseId] || COURSE_METAS["english"];
   const { user } = useAuth();
   const {
+    activeLayout,
     setActiveLayout,
     setTargetText,
     isCompleted,
@@ -224,7 +226,16 @@ export default function LessonPracticeClient({
     return null;
   }
 
-  const currentNextChar = targetText[typedText.length] || "";
+  const isFixedBanglaLayout =
+    activeLayout === "unibijoy" || activeLayout === "jatiya" || activeLayout === "unicode";
+  const hasPendingLead =
+    isFixedBanglaLayout &&
+    typedText.length > 0 &&
+    isPendingVowelLeadChar(typedText[typedText.length - 1], targetText[typedText.length - 1]);
+  const activeCharIndex = hasPendingLead ? typedText.length - 1 : typedText.length;
+  const currentNextChar = hasPendingLead
+    ? VOWEL_TO_KAR_MAP[targetText[typedText.length - 1]] || targetText[activeCharIndex] || ""
+    : targetText[typedText.length] || "";
 
   return (
     <main className="container max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6 fade-in text-foreground">
@@ -330,9 +341,10 @@ export default function LessonPracticeClient({
             {targetText.split("").map((char, i) => {
               const typedChar = typedText[i];
               let colorClass = "text-muted-foreground/80";
-              const isCurrent = i === typedText.length;
+              const isCurrent = i === activeCharIndex;
+              const isPendingAtThisIndex = hasPendingLead && i === typedText.length - 1;
 
-              if (typedChar !== undefined) {
+              if (typedChar !== undefined && !isPendingAtThisIndex) {
                 colorClass =
                   typedChar === char
                     ? "text-emerald-600 dark:text-emerald-400 font-bold"

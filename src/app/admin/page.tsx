@@ -32,6 +32,7 @@ import {
   updateContactMessageStatus,
   deleteContactMessage,
   ContactMessage,
+  ContactMessageStatus,
   getGlobalAnnouncement,
   saveGlobalAnnouncement,
   AnnouncementConfig,
@@ -212,7 +213,7 @@ export default function AdminDashboardPage() {
   // Feedback & Improvement Suggestions State
   const [feedbackMessages, setFeedbackMessages] = useState<ContactMessage[]>([]);
   const [feedbackCategoryFilter, setFeedbackCategoryFilter] = useState<"all" | "suggestion" | "bug" | "general">("all");
-  const [feedbackStatusFilter, setFeedbackStatusFilter] = useState<"all" | "unread" | "reviewed" | "resolved">("all");
+  const [feedbackStatusFilter, setFeedbackStatusFilter] = useState<"all" | ContactMessageStatus>("all");
   const [feedbackSearch, setFeedbackSearch] = useState<string>("");
   const [isLoadingFeedback, setIsLoadingFeedback] = useState<boolean>(false);
 
@@ -302,7 +303,7 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleUpdateFeedbackStatus = async (id: string, status: "unread" | "reviewed" | "resolved") => {
+  const handleUpdateFeedbackStatus = async (id: string, status: ContactMessageStatus) => {
     await updateContactMessageStatus(id, status);
     setFeedbackMessages((prev) =>
       prev.map((m) => (m.id === id ? { ...m, status } : m))
@@ -437,6 +438,8 @@ export default function AdminDashboardPage() {
     const matchesStatus =
       feedbackStatusFilter === "all" ||
       (feedbackStatusFilter === "unread" && (!m.status || m.status === "unread")) ||
+      (feedbackStatusFilter === "solved" && (m.status === "solved" || m.status === "resolved")) ||
+      (feedbackStatusFilter === "acknowledged" && (m.status === "acknowledged" || m.status === "reviewed")) ||
       m.status === feedbackStatusFilter;
 
     const term = feedbackSearch.toLowerCase().trim();
@@ -557,18 +560,11 @@ export default function AdminDashboardPage() {
       <aside className="w-full md:w-64 bg-card border-b md:border-b-0 md:border-r border-border p-4 flex flex-col gap-6 shrink-0">
         <div className="flex items-center gap-3 px-2">
           <Image
-            src="/images/logo/blackbg.png"
+            src="/images/logo/icon.svg"
             alt="TypeBangla Logo"
             width={32}
             height={32}
-            className="w-8 h-8 rounded-xl dark:block hidden object-contain"
-          />
-          <Image
-            src="/images/logo/whitebg_1.png"
-            alt="TypeBangla Logo"
-            width={32}
-            height={32}
-            className="w-8 h-8 rounded-xl dark:hidden block object-contain"
+            className="w-8 h-8 rounded-xl object-contain"
           />
           <div>
             <h2 className="font-black text-sm tracking-tight text-foreground flex items-center gap-1.5">
@@ -1587,9 +1583,10 @@ export default function AdminDashboardPage() {
                   <span className="text-xs font-bold text-muted-foreground mr-1">স্ট্যাটাস:</span>
                   {[
                     { id: "all", label: "সকল" },
-                    { id: "unread", label: "অপেক্ষমান" },
-                    { id: "reviewed", label: "পর্যালোচিত" },
-                    { id: "resolved", label: "সমাধান হয়েছে" },
+                    { id: "unread", label: "অপেক্ষমান (Open)" },
+                    { id: "acknowledged", label: "বিবেচনাধীন (Acknowledged)" },
+                    { id: "working", label: "কাজ চলছে (Working)" },
+                    { id: "solved", label: "সমাধানকৃত (Solved)" },
                   ].map((st) => (
                     <button
                       key={st.id}
@@ -1647,14 +1644,22 @@ export default function AdminDashboardPage() {
                           <Badge
                             variant="outline"
                             className={`text-[10px] font-extrabold uppercase px-2 py-0.5 ${
-                              status === "resolved"
+                              status === "solved" || status === "resolved"
                                 ? "border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"
-                                : status === "reviewed"
+                                : status === "working"
+                                ? "border-amber-500/40 text-amber-600 dark:text-amber-400 bg-amber-500/10"
+                                : status === "acknowledged" || status === "reviewed"
                                 ? "border-blue-500/40 text-blue-600 dark:text-blue-400 bg-blue-500/10"
-                                : "border-amber-500/40 text-amber-600 dark:text-amber-400 bg-amber-500/10"
+                                : "border-purple-500/40 text-purple-600 dark:text-purple-400 bg-purple-500/10"
                             }`}
                           >
-                            {status === "resolved" ? "✓ Resolved" : status === "reviewed" ? "Reviewed" : "● Unread"}
+                            {status === "solved" || status === "resolved"
+                              ? "✓ Solved"
+                              : status === "working"
+                              ? "⚙ Working"
+                              : status === "acknowledged" || status === "reviewed"
+                              ? "👁 Acknowledged"
+                              : "● Open / Unread"}
                           </Badge>
 
                           {m.refId && (
@@ -1701,26 +1706,36 @@ export default function AdminDashboardPage() {
 
                       {/* Action Bar */}
                       <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/80 flex-wrap">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-[11px] font-bold text-muted-foreground">স্ট্যাটাস পরিবর্তন:</span>
-                          {status !== "reviewed" && (
+                          {status !== "acknowledged" && (
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => m.id && handleUpdateFeedbackStatus(m.id, "reviewed")}
-                              className="h-8 text-xs font-bold gap-1 border-border hover:border-blue-500 cursor-pointer"
+                              onClick={() => m.id && handleUpdateFeedbackStatus(m.id, "acknowledged")}
+                              className="h-8 text-xs font-bold gap-1 border-border hover:border-blue-500 text-blue-600 dark:text-blue-400 cursor-pointer"
                             >
-                              <Check size={12} /> Mark as Reviewed
+                              <Eye size={12} /> Acknowledged
                             </Button>
                           )}
-                          {status !== "resolved" && (
+                          {status !== "working" && (
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => m.id && handleUpdateFeedbackStatus(m.id, "resolved")}
+                              onClick={() => m.id && handleUpdateFeedbackStatus(m.id, "working")}
+                              className="h-8 text-xs font-bold gap-1 border-border hover:border-amber-500 text-amber-600 dark:text-amber-400 cursor-pointer"
+                            >
+                              <Settings size={12} /> Working
+                            </Button>
+                          )}
+                          {status !== "solved" && status !== "resolved" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => m.id && handleUpdateFeedbackStatus(m.id, "solved")}
                               className="h-8 text-xs font-bold gap-1 border-border hover:border-emerald-500 text-emerald-600 dark:text-emerald-400 cursor-pointer"
                             >
-                              <CheckCircle2 size={12} /> Mark as Resolved
+                              <CheckCircle2 size={12} /> Solved
                             </Button>
                           )}
                           {status !== "unread" && (

@@ -7,7 +7,10 @@ export function generateDrillText(focusKeys: string, length = 280): string {
 
   if (isBangla) {
     const BANGLA_DIACRITICS = new Set(["া", "ি", "ী", "ু", "ূ", "ৃ", "ে", "ৈ", "ো", "ৌ", "্", "ং", "ঃ", "ঁ"]);
+    const BANGLA_VOWELS = new Set(["অ", "আ", "ই", "ঈ", "উ", "ঊ", "ঋ", "এ", "ঐ", "ও", "ঔ"]);
     const consonants = keys.filter((k) => !BANGLA_DIACRITICS.has(k));
+    const trueConsonants = keys.filter((k) => !BANGLA_DIACRITICS.has(k) && !BANGLA_VOWELS.has(k));
+    const vowels = keys.filter((k) => BANGLA_VOWELS.has(k));
     const diacritics = keys.filter((k) => BANGLA_DIACRITICS.has(k));
 
     // Case 1: Only diacritics are focused (e.g. Vowel Signs "া ি ী ু ূ")
@@ -64,22 +67,31 @@ export function generateDrillText(focusKeys: string, length = 280): string {
       }
     }
 
-    // Case 3: Both consonants and diacritics are focused
+    // Case 3: Both consonants/vowels and diacritics are focused
     if (consonants.length > 0 && diacritics.length > 0) {
       const hasHasanta = diacritics.includes("্");
       const kars = diacritics.filter((d) => d !== "্");
+      const activeConsonants = trueConsonants.length > 0 ? trueConsonants : ["ক", "ত", "স", "দ"];
 
       const result: string[] = [];
       let currentLen = 0;
       while (currentLen < length) {
         let word = "";
 
-        if (hasHasanta && consonants.length >= 2 && Math.random() > 0.45) {
+        if (vowels.length > 0 && Math.random() < 0.3) {
+          // Independent vowel followed by a consonant (never attach a kar or hasanta directly to an independent vowel)
+          const v = vowels[Math.floor(Math.random() * vowels.length)];
+          const c = activeConsonants[Math.floor(Math.random() * activeConsonants.length)];
+          word = v + c;
+          if (kars.length > 0 && Math.random() > 0.5) {
+            word += kars[Math.floor(Math.random() * kars.length)];
+          }
+        } else if (hasHasanta && activeConsonants.length >= 2 && Math.random() > 0.45) {
           // Generate a linked conjunct (e.g. ক + ্ + ত = ক্ত)
-          const c1 = consonants[Math.floor(Math.random() * consonants.length)];
-          let c2 = consonants[Math.floor(Math.random() * consonants.length)];
-          if (c1 === c2 && consonants.length > 1) {
-            c2 = consonants.filter((c) => c !== c1)[0];
+          const c1 = activeConsonants[Math.floor(Math.random() * activeConsonants.length)];
+          let c2 = activeConsonants[Math.floor(Math.random() * activeConsonants.length)];
+          if (c1 === c2 && activeConsonants.length > 1) {
+            c2 = activeConsonants.filter((c) => c !== c1)[0];
           }
           word = c1 + "্" + c2;
           // Optionally add a vowel sign (kar)
@@ -87,12 +99,17 @@ export function generateDrillText(focusKeys: string, length = 280): string {
             word += kars[Math.floor(Math.random() * kars.length)];
           }
         } else {
-          // Standard CV syllable
+          // Standard CV syllable using only true consonants with kars
           const cvCount = Math.floor(Math.random() * 2) + 1; // 1 or 2 CV blocks
           for (let i = 0; i < cvCount; i++) {
-            const c = consonants[Math.floor(Math.random() * consonants.length)];
-            const d = diacritics[Math.floor(Math.random() * diacritics.length)];
-            word += c + d;
+            const c = activeConsonants[Math.floor(Math.random() * activeConsonants.length)];
+            if (kars.length > 0) {
+              const d = kars[Math.floor(Math.random() * kars.length)];
+              word += c + d;
+            } else {
+              const c2 = activeConsonants[Math.floor(Math.random() * activeConsonants.length)];
+              word += c + "্" + c2;
+            }
           }
         }
 

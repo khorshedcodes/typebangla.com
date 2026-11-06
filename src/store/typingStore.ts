@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { UNI_BIJOY_MAP, JATIYA_MAP, PROBHAT_MAP, INSCRIPT_MAP, UNICODE_MAP, avroTransliterate, applyHasantaVowelConversion } from "../utils/layouts";
+import { UNI_BIJOY_MAP, JATIYA_MAP, PROBHAT_MAP, INSCRIPT_MAP, UNICODE_MAP, avroTransliterate, applyHasantaVowelConversion, isPendingVowelLeadChar, normalizeBanglaNukta, VOWEL_TO_KAR_MAP } from "../utils/layouts";
 import { extendTextForDuration } from "../utils/lessons/exam/examPassages";
 import { playTypewriterSound } from "../lib/soundSynthesizer";
 import { generateDrillText } from "../utils/drillGenerator";
@@ -200,7 +200,7 @@ export const useTypingStore = create<TypingState>((set, get) => ({
   },
 
   setTargetText: (text, focusKeys, lessonType, inputLanguage = "bangla", outputPreview) => {
-    let finalTargetText = (text || "").replace(/[\r\n\t]+/g, " ").replace(/ +/g, " ").trim();
+    let finalTargetText = normalizeBanglaNukta((text || "").replace(/[\r\n\t]+/g, " ").replace(/ +/g, " ").trim());
     const isLesson = lessonType !== undefined || Boolean(focusKeys && focusKeys !== "all");
 
     if (focusKeys && focusKeys !== "all" && !text &&
@@ -213,21 +213,21 @@ export const useTypingStore = create<TypingState>((set, get) => ({
         lessonType === "combo" ? 360 :
         lessonType === "pair"  ? 300 :
         280; // drill
-      finalTargetText = generateDrillText(focusKeys, drillLength);
+      finalTargetText = normalizeBanglaNukta(generateDrillText(focusKeys, drillLength));
     }
 
-    let finalOutputPreview = outputPreview;
+    let finalOutputPreview = outputPreview ? normalizeBanglaNukta(outputPreview) : outputPreview;
     if (get().activeLayout === "avro" && inputLanguage === "latin" && focusKeys && focusKeys !== "all" &&
         (lessonType === "drill" || lessonType === "combo" || lessonType === "pair")) {
       // For Avro drills, we dynamically generate outputPreview by transliterating the finalTargetText word-by-word
-      finalOutputPreview = finalTargetText.split(" ").map(w => avroTransliterate(w)).join(" ");
+      finalOutputPreview = normalizeBanglaNukta(finalTargetText.split(" ").map(w => avroTransliterate(w)).join(" "));
     }
 
     // Only general timed speed tests (not structured lessons/drills) should extend text for duration
     const currentDuration = isLesson ? 0 : get().selectedDuration;
     if (currentDuration > 0 && !isLesson) {
       const lang = inputLanguage === "latin" || get().activeLayout === "english" ? "english" : "bangla";
-      finalTargetText = extendTextForDuration(finalTargetText, currentDuration, lang);
+      finalTargetText = normalizeBanglaNukta(extendTextForDuration(finalTargetText, currentDuration, lang));
     }
 
     set({
@@ -262,10 +262,10 @@ export const useTypingStore = create<TypingState>((set, get) => ({
     if (!focusKeys) return;
 
     // Generate recap challenge sequence: shorter 200 characters suited for 30s timed test
-    const nextTargetText = generateDrillText(focusKeys, 200);
+    const nextTargetText = normalizeBanglaNukta(generateDrillText(focusKeys, 200));
     let nextOutputPreview = undefined;
     if (activeLayout === "avro" && inputLanguage === "latin") {
-      nextOutputPreview = nextTargetText.split(" ").map(w => avroTransliterate(w)).join(" ");
+      nextOutputPreview = normalizeBanglaNukta(nextTargetText.split(" ").map(w => avroTransliterate(w)).join(" "));
     }
 
     set({
@@ -322,16 +322,25 @@ export const useTypingStore = create<TypingState>((set, get) => ({
     let nextTargetText = get().targetText;
     let nextOutputPreview = get().outputPreview;
 
-    if (focusKeys && focusKeys !== "all") {
+    const origText = get().originalText;
+    if (focusKeys && focusKeys !== "all" && (isRecapTest || !origText)) {
       // 200 characters for 30-second timed recaps, otherwise standard values
       const drillLength = isRecapTest ? 200 :
         lessonType === "combo" ? 360 :
         lessonType === "pair"  ? 300 :
         280; // drill
-      nextTargetText = generateDrillText(focusKeys, drillLength);
+      nextTargetText = normalizeBanglaNukta(generateDrillText(focusKeys, drillLength));
       
       if (activeLayout === "avro" && inputLanguage === "latin") {
-        nextOutputPreview = nextTargetText.split(" ").map(w => avroTransliterate(w)).join(" ");
+        nextOutputPreview = normalizeBanglaNukta(nextTargetText.split(" ").map(w => avroTransliterate(w)).join(" "));
+      }
+    } else if (origText && !isRecapTest) {
+      nextTargetText = normalizeBanglaNukta(origText.replace(/[\r\n\t]+/g, " ").replace(/ +/g, " ").trim());
+      const isLesson = lessonType !== undefined || Boolean(focusKeys && focusKeys !== "all");
+      const currentDuration = isLesson ? 0 : get().selectedDuration;
+      if (currentDuration > 0 && !isLesson) {
+        const lang = inputLanguage === "latin" || activeLayout === "english" ? "english" : "bangla";
+        nextTargetText = normalizeBanglaNukta(extendTextForDuration(nextTargetText, currentDuration, lang));
       }
     }
 
@@ -549,7 +558,7 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       if (activeLayout === "avro" && phoneticBuffer.length > 0) {
         // Backspace removes last phonetic key
         const newPhonetic = phoneticBuffer.slice(0, -1);
-        const newTrans = avroTransliterate(newPhonetic);
+        const newTrans = normalizeBanglaNukta(avroTransliterate(newPhonetic));
         
         // Replace current word portion in typedText
         const lastSpace = typedText.lastIndexOf(" ");
@@ -585,7 +594,7 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       let nextTyped = typedText;
       if (activeLayout === "avro" && phoneticBuffer.length > 0) {
         // Space commits Avro phonetic buffer and resets it
-        const committedWord = avroTransliterate(phoneticBuffer);
+        const committedWord = normalizeBanglaNukta(avroTransliterate(phoneticBuffer));
         const lastSpace = typedText.lastIndexOf(" ");
         const baseText = lastSpace !== -1 ? typedText.substring(0, lastSpace + 1) : "";
         nextTyped = baseText + committedWord + " ";
@@ -624,7 +633,7 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       if (nextTyped.length >= targetText.length) {
         const { selectedDuration, originalText, lessonType } = get();
         if (selectedDuration > 0 && !lessonType) {
-          const repeatSource = originalText || targetText;
+          const repeatSource = normalizeBanglaNukta(originalText || targetText);
           set({ targetText: targetText + " " + repeatSource });
         } else {
           get().completeTest();
@@ -643,36 +652,35 @@ export const useTypingStore = create<TypingState>((set, get) => ({
     
     if (activeLayout === "english" || (activeLayout === "avro" && get().inputLanguage === "latin")) {
       resolvedChar = key;
-    } else if (activeLayout === "unibijoy") {
-      const mapped = UNI_BIJOY_MAP[code];
+    } else if (
+      activeLayout === "unibijoy" ||
+      activeLayout === "jatiya" ||
+      activeLayout === "probhat" ||
+      activeLayout === "inscript" ||
+      activeLayout === "unicode"
+    ) {
+      const mapTable =
+        activeLayout === "unibijoy" ? UNI_BIJOY_MAP :
+        activeLayout === "jatiya" ? JATIYA_MAP :
+        activeLayout === "probhat" ? PROBHAT_MAP :
+        activeLayout === "inscript" ? INSCRIPT_MAP :
+        UNICODE_MAP;
+      const mapped = mapTable[code];
       if (mapped) {
-        resolvedChar = isShift ? mapped.shift : mapped.normal;
-      }
-    } else if (activeLayout === "jatiya") {
-      const mapped = JATIYA_MAP[code];
-      if (mapped) {
-        resolvedChar = isShift ? mapped.shift : mapped.normal;
-      }
-    } else if (activeLayout === "probhat") {
-      const mapped = PROBHAT_MAP[code];
-      if (mapped) {
-        resolvedChar = isShift ? mapped.shift : mapped.normal;
-      }
-    } else if (activeLayout === "inscript") {
-      const mapped = INSCRIPT_MAP[code];
-      if (mapped) {
-        resolvedChar = isShift ? mapped.shift : mapped.normal;
-      }
-    } else if (activeLayout === "unicode") {
-      const mapped = UNICODE_MAP[code];
-      if (mapped) {
-        resolvedChar = isShift ? mapped.shift : mapped.normal;
+        const primary = isShift ? mapped.shift : mapped.normal;
+        const alt = isShift ? mapped.altgr_shift : mapped.altgr;
+        const expectedAtCursor = targetText[typedText.length];
+        if (alt && !VOWEL_TO_KAR_MAP[alt] && expectedAtCursor === alt && primary !== expectedAtCursor) {
+          resolvedChar = alt;
+        } else {
+          resolvedChar = primary;
+        }
       }
     } else if (activeLayout === "avro" && get().inputLanguage === "bangla") {
       // English character added to phonetic string
       if (/[a-zA-Z]/i.test(key)) {
         const nextPhonetic = phoneticBuffer + key;
-        const currentTrans = avroTransliterate(nextPhonetic);
+        const currentTrans = normalizeBanglaNukta(avroTransliterate(nextPhonetic));
         
         const lastSpace = typedText.lastIndexOf(" ");
         const baseText = lastSpace !== -1 ? typedText.substring(0, lastSpace + 1) : "";
@@ -713,7 +721,7 @@ export const useTypingStore = create<TypingState>((set, get) => ({
         if (nextTyped.length >= targetText.length) {
           const { selectedDuration, originalText, lessonType } = get();
           if (selectedDuration > 0 && !lessonType) {
-            const repeatSource = originalText || targetText;
+            const repeatSource = normalizeBanglaNukta(originalText || targetText);
             set({ targetText: targetText + " " + repeatSource });
           } else {
             get().completeTest();
@@ -725,7 +733,7 @@ export const useTypingStore = create<TypingState>((set, get) => ({
         // 1. First commit the current phonetic buffer (if any)
         let committed = "";
         if (phoneticBuffer.length > 0) {
-          committed = avroTransliterate(phoneticBuffer);
+          committed = normalizeBanglaNukta(avroTransliterate(phoneticBuffer));
           set({ phoneticBuffer: "" });
         }
 
@@ -774,7 +782,7 @@ export const useTypingStore = create<TypingState>((set, get) => ({
         if (nextTyped.length >= targetText.length) {
           const { selectedDuration, originalText } = get();
           if (selectedDuration > 0 && originalText) {
-            set({ targetText: targetText + " " + originalText });
+            set({ targetText: targetText + " " + normalizeBanglaNukta(originalText) });
           } else {
             get().completeTest();
           }
@@ -785,19 +793,27 @@ export const useTypingStore = create<TypingState>((set, get) => ({
 
     // Append resolved layout key
     if (resolvedChar) {
-      let nextTyped = typedText + resolvedChar;
+      if (resolvedChar === "\u200c" && targetText[typedText.length] === "-") {
+        resolvedChar = "-";
+      }
+      let nextTyped = normalizeBanglaNukta(typedText + resolvedChar);
       const isFixedBanglaLayout = activeLayout === "unibijoy" || activeLayout === "jatiya" || activeLayout === "unicode";
-      if (isFixedBanglaLayout) {
-        nextTyped = applyHasantaVowelConversion(nextTyped);
+      const prevMatchedTarget =
+        typedText.length > 0 && typedText[typedText.length - 1] === targetText[typedText.length - 1];
+      if (isFixedBanglaLayout && !prevMatchedTarget) {
+        nextTyped =
+          typedText.length > 0
+            ? typedText.slice(0, -1) + applyHasantaVowelConversion(typedText.slice(-1) + resolvedChar)
+            : applyHasantaVowelConversion(nextTyped);
       }
 
       const expectedChar = targetText[typedText.length];
       const isPendingVowelLead =
         isFixedBanglaLayout &&
-        ((resolvedChar === "\u09cd" && "আইঈউঊঋএঐওঔ".includes(expectedChar)) ||
-         (resolvedChar === "\u0985" && expectedChar === "আ"));
+        (isPendingVowelLeadChar(resolvedChar, expectedChar) ||
+          isPendingRephBaseChar(resolvedChar, targetText, typedText.length));
 
-      const errors = getErrorIndices(nextTyped, targetText);
+      const errors = getErrorIndices(nextTyped, targetText, isFixedBanglaLayout);
       const isError = !isPendingVowelLead && (nextTyped.length > targetText.length || nextTyped[nextTyped.length - 1] !== targetText[nextTyped.length - 1]);
 
       if (soundEnabled) {
@@ -834,10 +850,10 @@ export const useTypingStore = create<TypingState>((set, get) => ({
         errorIndices: errors
       });
 
-      if (nextTyped.length >= targetText.length) {
+      if (!isPendingVowelLead && nextTyped.length >= targetText.length) {
         const { selectedDuration, originalText, lessonType } = get();
         if (selectedDuration > 0 && !lessonType) {
-          const repeatSource = originalText || targetText;
+          const repeatSource = normalizeBanglaNukta(originalText || targetText);
           set({ targetText: targetText + " " + repeatSource });
         } else {
           get().completeTest();
@@ -877,7 +893,7 @@ export const useTypingStore = create<TypingState>((set, get) => ({
     set({ selectedDuration: duration });
     if (duration > 0 && (targetText || originalText)) {
       const lang = inputLanguage === "latin" || activeLayout === "english" ? "english" : "bangla";
-      const extended = extendTextForDuration(originalText || targetText, duration, lang);
+      const extended = normalizeBanglaNukta(extendTextForDuration(originalText || targetText, duration, lang));
       set({ targetText: extended });
     }
   },
@@ -910,11 +926,26 @@ export const useTypingStore = create<TypingState>((set, get) => ({
   resetAdaptiveLevel: () => set({ adaptiveLevel: 1 }),
 }));
 
+function isPendingRephBaseChar(leadChar: string | undefined, target: string, index: number): boolean {
+  if (!leadChar) return false;
+  return (
+    target.slice(index, index + 2) === "\u09b0\u09cd" &&
+    target[index + 2] === leadChar
+  );
+}
+
 // Helpers for checking typing matches
-function getErrorIndices(typed: string, target: string): number[] {
+function getErrorIndices(typed: string, target: string, isFixedBanglaLayout = false): number[] {
   const errors: number[] = [];
   for (let i = 0; i < typed.length; i++) {
     if (typed[i] !== target[i]) {
+      if (
+        isFixedBanglaLayout &&
+        i === typed.length - 1 &&
+        (isPendingVowelLeadChar(typed[i], target[i]) || isPendingRephBaseChar(typed[i], target, i))
+      ) {
+        continue;
+      }
       errors.push(i);
     }
   }

@@ -7,6 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import { useTypingStore } from "../store/typingStore";
 import { parse_phonetic_input } from "../utils/phoneticEngine";
 import { getClusterRanges } from "../utils/grapheme";
+import { isPendingVowelLeadChar } from "../utils/layouts";
 import { cn } from "../utils/cn";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -190,6 +191,13 @@ export default function TypingArea({
   const renderCharacters = () => {
     let charIndex = 0;
     const targetWordsList = targetText.split(" ");
+    const isFixedBanglaLayout =
+      activeLayout === "unibijoy" || activeLayout === "jatiya" || activeLayout === "unicode";
+    const hasPendingLead =
+      isFixedBanglaLayout &&
+      typedText.length > 0 &&
+      isPendingVowelLeadChar(typedText[typedText.length - 1], targetText[typedText.length - 1]);
+    const effectiveTypedLength = hasPendingLead ? typedText.length - 1 : typedText.length;
 
     return targetWordsList.map((word, wordIdx) => {
       const isLastWord = wordIdx === targetWordsList.length - 1;
@@ -205,15 +213,15 @@ export default function TypingArea({
             const absStart = wordStart + start;
             const absEnd = wordStart + end;
 
-            const isFullyTyped = typedText.length >= absEnd;
-            const isPartiallyTyped = typedText.length > absStart && typedText.length < absEnd;
-            const isCurrent = typedText.length >= absStart && typedText.length < absEnd;
+            const isFullyTyped = effectiveTypedLength >= absEnd;
+            const isPartiallyTyped = effectiveTypedLength > absStart && effectiveTypedLength < absEnd;
+            const isCurrent = effectiveTypedLength >= absStart && effectiveTypedLength < absEnd;
 
             let isCorrect = false;
             if (isFullyTyped) {
               isCorrect = typedText.slice(absStart, absEnd) === cluster;
             } else if (isPartiallyTyped) {
-              const typedSeg = typedText.slice(absStart, typedText.length);
+              const typedSeg = typedText.slice(absStart, effectiveTypedLength);
               isCorrect = typedSeg === cluster.slice(0, typedSeg.length);
             }
 

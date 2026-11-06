@@ -12,6 +12,7 @@ import { Card, CardContent } from "../../../components/ui/card";
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
 import { useTypingStore, KeyboardLayout } from "../../../store/typingStore";
+import { VOWEL_TO_KAR_MAP, isPendingVowelLeadChar } from "../../../utils/layouts";
 import { getLessonsByCategory, getAllProgress, saveLessonProgress, Lesson, LessonProgress } from "../../../utils/lessons";
 import { useAuth } from "../../../context/AuthContext";
 import VirtualKeyboard from "../../../components/VirtualKeyboard";
@@ -198,7 +199,17 @@ function CoursePracticeArena({
     setResultState({ wpm: grossWpm, accuracy, passed });
   }, [isCompleted, startTime, elapsedTime, typedText, targetText, lesson, user]);
 
-  const currentNextChar = targetText[typedText.length] || "";
+  const activeLayout = useTypingStore((s) => s.activeLayout);
+  const isFixedBanglaLayout =
+    activeLayout === "unibijoy" || activeLayout === "jatiya" || activeLayout === "unicode";
+  const hasPendingLead =
+    isFixedBanglaLayout &&
+    typedText.length > 0 &&
+    isPendingVowelLeadChar(typedText[typedText.length - 1], targetText[typedText.length - 1]);
+  const activeCharIndex = hasPendingLead ? typedText.length - 1 : typedText.length;
+  const currentNextChar = hasPendingLead
+    ? VOWEL_TO_KAR_MAP[targetText[typedText.length - 1]] || targetText[activeCharIndex] || ""
+    : targetText[typedText.length] || "";
 
   return (
     <div className="space-y-6 fade-in max-w-5xl mx-auto">
@@ -305,9 +316,10 @@ function CoursePracticeArena({
             {targetText.split("").map((char, i) => {
               const typedChar = typedText[i];
               let colorClass = "text-muted-foreground/80";
-              const isCurrent = i === typedText.length;
+              const isCurrent = i === activeCharIndex;
+              const isPendingAtThisIndex = hasPendingLead && i === typedText.length - 1;
 
-              if (typedChar !== undefined) {
+              if (typedChar !== undefined && !isPendingAtThisIndex) {
                 colorClass = typedChar === char ? "text-emerald-600 dark:text-emerald-400 font-bold" : "text-rose-500 dark:text-rose-400 bg-rose-500/10 rounded font-bold underline";
               }
 
@@ -344,13 +356,19 @@ function CoursePracticeArena({
 
             <input
               type="text"
-              value={inputVal}
+              value={typedText}
               onKeyDown={(e) => {
-                useTypingStore.getState().handleKeystroke(e.code, e.key, e.shiftKey);
+                if (
+                  e.code === "Space" ||
+                  e.code === "Enter" ||
+                  e.code === "Backspace" ||
+                  (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey)
+                ) {
+                  e.preventDefault();
+                  useTypingStore.getState().handleKeystroke(e.code, e.key, e.shiftKey);
+                }
               }}
-              onChange={(e) => {
-                setInputVal(e.target.value);
-              }}
+              onChange={() => {}}
               placeholder="Start typing here..."
               className="w-full px-5 py-4 rounded-xl border border-input bg-background text-foreground font-mono text-xl focus:outline-none focus:ring-2 focus:ring-primary shadow-xs"
               autoFocus

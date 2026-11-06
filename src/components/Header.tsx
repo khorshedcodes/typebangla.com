@@ -90,24 +90,14 @@ export default function Header() {
           {/* Brand Logo & Dynamic Workspace Breadcrumb */}
           <div className="flex items-center gap-3 shrink-0">
             <Link href="/" className="flex items-center gap-2.5 group shrink-0" onClick={() => setDrawerOpen(false)}>
-              <div className="relative w-8 h-8 flex items-center justify-center rounded-xl bg-secondary/80 border border-border group-hover:scale-105 transition-transform">
-                <Image
-                  src="/images/logo/blackbg.png"
-                  alt="typebangla logo"
-                  width={28}
-                  height={28}
-                  className="w-7 h-7 hidden dark:block object-contain"
-                  priority
-                />
-                <Image
-                  src="/images/logo/whitebg_1.png"
-                  alt="typebangla logo"
-                  width={28}
-                  height={28}
-                  className="w-7 h-7 block dark:hidden object-contain"
-                  priority
-                />
-              </div>
+              <Image
+                src="/images/logo/icon.svg"
+                alt="typebangla logo"
+                width={32}
+                height={32}
+                className="w-8 h-8 rounded-lg group-hover:scale-105 transition-transform object-contain"
+                priority
+              />
               <span className="font-black text-lg tracking-tight text-foreground select-none group-hover:text-foreground/90">
                 typebangla<span className="text-emerald-500 font-bold">.com</span>
               </span>
@@ -269,10 +259,16 @@ export default function Header() {
           <div className="fixed inset-y-0 right-0 z-50 w-full max-w-[300px] bg-background border-l border-border flex flex-col shadow-xl">
             <div className="flex items-center justify-between px-5 py-4 border-b border-border">
               <Link href="/" className="flex items-center gap-2" onClick={() => setDrawerOpen(false)}>
-                <div className="w-6 h-6 rounded-md bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs">
-                  TB
-                </div>
-                <span className="font-extrabold text-base text-foreground">typebangla</span>
+                <Image
+                  src="/images/logo/icon.svg"
+                  alt="typebangla logo"
+                  width={28}
+                  height={28}
+                  className="w-7 h-7 rounded-lg object-contain"
+                />
+                <span className="font-extrabold text-base text-foreground">
+                  typebangla<span className="text-emerald-500 font-bold">.com</span>
+                </span>
               </Link>
               <button
                 type="button"
