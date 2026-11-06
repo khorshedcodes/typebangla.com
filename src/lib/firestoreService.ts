@@ -858,83 +858,6 @@ export interface ContactMessage {
   timestamp?: unknown;
 }
 
-export const SEEDED_PUBLIC_BUG_REPORTS: ContactMessage[] = [
-  {
-    id: "seed-bug-1042",
-    refId: "BUG-1042",
-    name: "Learner",
-    email: "",
-    category: "bug",
-    subject: "পাশাপাশি “অ” এবং “া” থাকলে “অ” লাল হয়ে যাওয়া",
-    message:
-      "পাশাপাশি “অ” “া” থাকলে প্রথমে অ টাইপ করলে সঠিক দেখায় কিন্তু পরে আবার া টাইপ করলে অ টা লাল হয় মানে ভুল দেখায়",
-    status: "solved",
-    adminNote: "Fixed: Context-aware vowel conversion prevents collapsing already-matched 'অ' when followed by 'া'.",
-    createdAt: "2026-11-06T18:00:00.000Z",
-  },
-  {
-    id: "seed-bug-1039",
-    refId: "BUG-1039",
-    name: "Bangla Learner",
-    email: "",
-    category: "bug",
-    subject: "কীবোর্ড দিয়ে 'আ' (স্বরবর্ণ) লেখা ও হাইলাইট বাগ",
-    message:
-      "Ai keyboard dia to - আ - lekha jai na, plz ata ekbar dekhben and try korben as soon as ata solve korte , ar apnar ai system ta amar bangla typing practice korte onk help kortese - Apnar jonno onk onk dua ar valobasha roilo",
-    status: "solved",
-    adminNote: "Fixed: Added support for both অ+া and ্+া (g+f) sequences for 'আ' with live virtual keyboard second-key guidance and zero premature red highlighting.",
-    createdAt: "2026-10-22T09:30:00.000Z",
-  },
-  {
-    id: "seed-bug-1035",
-    refId: "BUG-1035",
-    name: "UniBijoy User",
-    email: "",
-    category: "bug",
-    subject: "UniBijoy লেআউটে g+f চাপলে 'আ' আসা",
-    message: "UniBijoy e gf chple আ ashe ba keno",
-    status: "solved",
-    adminNote: "Fixed: UniBijoy g (্) + f (া) now smoothly forms 'আ' across all typing arenas and online notepad.",
-    createdAt: "2026-09-25T02:15:00.000Z",
-  },
-  {
-    id: "seed-bug-1046",
-    refId: "BUG-1046",
-    name: "Community Report",
-    email: "",
-    category: "bug",
-    subject: "হেডার লোগো আইকন ডিসপ্লে ফিক্স",
-    message: "Header logo looked squished in dark mode because the social banner was referenced instead of the standalone emblem.",
-    status: "solved",
-    adminNote: "Fixed: Restored crisp vector keycap emblem across Header, Footer, Dashboard, and Admin bar.",
-    createdAt: "2026-11-06T19:00:00.000Z",
-  },
-  {
-    id: "seed-feat-1044",
-    refId: "REQ-1044",
-    name: "Tanvir H.",
-    email: "",
-    category: "suggestion",
-    subject: "দুর্বল অক্ষরের কাস্টম স্মার্ট রিভিউ ড্রিল",
-    message: "প্র্যাকটিস শেষে যেসব যুক্তবর্ণ বা স্বরবর্ণে বেশি ভুল হয় সেগুলো নিয়ে অটোমেটিক কাস্টম প্র্যাকটিস ড্রিল চালু করলে খুব ভালো হতো।",
-    status: "working",
-    adminNote: "In Progress: Adaptive key-error drill generator is currently being integrated with course lessons.",
-    createdAt: "2026-11-04T14:20:00.000Z",
-  },
-  {
-    id: "seed-feat-1045",
-    refId: "REQ-1045",
-    name: "Nusrat J.",
-    email: "",
-    category: "suggestion",
-    subject: "মোবাইল ও ট্যাবলেটে এক্সটার্নাল OTG কীবোর্ড শর্টকাট গাইড",
-    message: "মোবাইলে OTG কীবোর্ড দিয়ে বিজয় ও অভ্র টাইপিং প্র্যাকটিস করার সময় শর্টকাট চিটশিট পপআপ হিসেবে দেখার অপশন চাই।",
-    status: "acknowledged",
-    adminNote: "Acknowledged: Scheduled for upcoming mobile ergonomics update.",
-    createdAt: "2026-11-02T11:10:00.000Z",
-  },
-];
-
 export async function saveContactMessage(msg: ContactMessage) {
   const refId = msg.refId || "MSG-" + Math.random().toString(36).substring(2, 8).toUpperCase();
   if (typeof window === "undefined") return { success: false, refId };
@@ -1009,7 +932,7 @@ export async function getContactMessages(limitCount = 100): Promise<ContactMessa
 
 export async function getPublicBugReports(limitCount = 30): Promise<ContactMessage[]> {
   const publicCategories = new Set(["bug", "suggestion", "improvement"]);
-  let remoteList: ContactMessage[] = [];
+  const remoteList: ContactMessage[] = [];
 
   if (typeof window !== "undefined") {
     try {
@@ -1039,9 +962,10 @@ export async function getPublicBugReports(limitCount = 30): Promise<ContactMessa
             });
           }
         });
+        return remoteList.slice(0, limitCount);
       }
     } catch {
-      // Fallback to local + seeded reports if Firestore read is unavailable
+      // Fallback to local reports only if Firestore read fails
     }
 
     try {
@@ -1059,18 +983,7 @@ export async function getPublicBugReports(limitCount = 30): Promise<ContactMessa
     } catch {}
   }
 
-  const seenKeys = new Set<string>();
-  const combined: ContactMessage[] = [];
-
-  for (const item of [...remoteList, ...SEEDED_PUBLIC_BUG_REPORTS]) {
-    if (!item.message) continue;
-    const dedupKey = `${item.refId || ""}:${item.message.trim().slice(0, 60)}`;
-    if (seenKeys.has(dedupKey)) continue;
-    seenKeys.add(dedupKey);
-    combined.push(item);
-  }
-
-  return combined.slice(0, limitCount);
+  return remoteList.slice(0, limitCount);
 }
 
 export async function updateContactMessageStatus(

@@ -796,6 +796,15 @@ export const useTypingStore = create<TypingState>((set, get) => ({
       if (resolvedChar === "\u200c" && targetText[typedText.length] === "-") {
         resolvedChar = "-";
       }
+      // If user typed 'অ' (Shift+F/H) as the first key of 'আ' and presses the same key again while Shift is still held, treat as 'া'
+      if (
+        resolvedChar === "\u0985" &&
+        typedText.length > 0 &&
+        typedText[typedText.length - 1] === "\u0985" &&
+        targetText[typedText.length - 1] === "\u0986"
+      ) {
+        resolvedChar = "\u09be";
+      }
       let nextTyped = normalizeBanglaNukta(typedText + resolvedChar);
       const isFixedBanglaLayout = activeLayout === "unibijoy" || activeLayout === "jatiya" || activeLayout === "unicode";
       const prevMatchedTarget =

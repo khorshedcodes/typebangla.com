@@ -90,7 +90,7 @@ export const unibijoyLessons: Lesson[] = [
   {
     id: "bn-unibijoy-006",
     title: "Home Row Left Combo: অ স া ্ ক",
-    subtitle: "বাম হাতের হোম রো কী (a, s, d, f, g) একসাথে",
+    subtitle: "হোম রো কম্বো: Shift+f (অ), n (স), f (া), g (্), j (ক) এবং g+f = আ",
     category: "bangla",
     level: "beginner",
     type: "combo",

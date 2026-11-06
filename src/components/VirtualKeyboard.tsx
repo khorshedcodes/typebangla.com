@@ -83,24 +83,16 @@ const getHighlightKeys = (rawChar: string, layout: KeyboardLayout): { codes: str
     null;
   if (!map) return { codes: [], needsShift: false };
 
-  // 0. Independent Vowel Sequences (e.g. "ই" / Rossho I = G + D, "ঈ" = G + Shift + D) in UniBijoy, Jatiya, Unicode
+  // 0. Independent Vowel Sequences (e.g. "আ" = G + F, "ই" = G + D, "ঈ" = G + Shift + D) in UniBijoy, Jatiya, Unicode
+  // Highlight ONLY the first keystroke (KeyG = ্) initially; once KeyG (or Shift+F for অ) is pressed,
+  // `pendingVowelTarget` advances `effectiveNextChar` to the second keystroke (the Kar sign).
   if (layout === "unibijoy" || layout === "jatiya" || layout === "unicode") {
     const aKey = layout === "jatiya" ? "KeyH" : "KeyF";
-    const vowelKeyMap: Record<string, { codes: string[]; needsShift: boolean }> = {
-      "\u0985": { codes: [aKey, "ShiftLeft", "ShiftRight"], needsShift: true },  // অ
-      "\u0986": { codes: ["KeyG", aKey], needsShift: false },                  // আ
-      "\u0987": { codes: ["KeyG", "KeyD"], needsShift: false },                  // ই (Rossho I / Hrossho I)
-      "\u0988": { codes: ["KeyG", "KeyD", "ShiftLeft", "ShiftRight"], needsShift: true }, // ঈ (Dirgho I)
-      "\u0989": { codes: ["KeyG", "KeyS"], needsShift: false },                  // উ
-      "\u098a": { codes: ["KeyG", "KeyS", "ShiftLeft", "ShiftRight"], needsShift: true }, // ঊ
-      "\u098b": { codes: ["KeyG", "KeyA"], needsShift: false },                  // ঋ
-      "\u098f": { codes: ["KeyG", "KeyC"], needsShift: false },                  // এ
-      "\u0990": { codes: ["KeyG", "KeyC", "ShiftLeft", "ShiftRight"], needsShift: true }, // ঐ
-      "\u0993": { codes: ["KeyG", "KeyX"], needsShift: false },                  // ও
-      "\u0994": { codes: ["KeyG", "KeyX", "ShiftLeft", "ShiftRight"], needsShift: true }, // ঔ
-    };
-    if (vowelKeyMap[char]) {
-      return vowelKeyMap[char];
+    if (char === "\u0985") {
+      return { codes: [aKey, "ShiftLeft", "ShiftRight"], needsShift: true }; // অ
+    }
+    if (VOWEL_TO_KAR_MAP[char]) {
+      return { codes: ["KeyG"], needsShift: false }; // Step 1 of আ, ই, ঈ, উ, ঊ, ঋ, এ, ঐ, ও, ঔ -> ্ (KeyG)
     }
   }
 
@@ -355,15 +347,22 @@ export default function VirtualKeyboard({ nextChar = "", onKeyClick, activeLayou
         onClick={() => {
           if (key.code.startsWith("Shift")) {
             setIsShiftToggled((prev) => !prev);
+            return;
+          }
+          let charToPass = "";
+          if (activeLayout !== "english" && activeLayout !== "avro") {
+            charToPass = isShiftActive ? (shiftLegend !== undefined ? shiftLegend : (normalLegend || "")) : (normalLegend || "");
+          } else {
+            charToPass = isShiftActive ? (key.enShift || key.enNormal || "") : (key.enNormal || "");
+          }
+          if (isShiftToggled) {
+            setIsShiftToggled(false);
           }
           if (onKeyClick) {
-            let charToPass = "";
-            if (activeLayout !== "english" && activeLayout !== "avro") {
-              charToPass = isShiftActive ? (shiftLegend !== undefined ? shiftLegend : (normalLegend || "")) : (normalLegend || "");
-            } else {
-              charToPass = isShiftActive ? (key.enShift || key.enNormal || "") : (key.enNormal || "");
-            }
             onKeyClick(key.code, charToPass, isShiftActive);
+          } else if (key.code === "Backspace" || key.code === "Space" || key.code === "Enter" || !isSystemKey) {
+            const keyArg = key.code === "Space" ? " " : key.code === "Backspace" ? "Backspace" : key.code === "Enter" ? "Enter" : (charToPass || key.enNormal || "");
+            useTypingStore.getState().handleKeystroke(key.code, keyArg, isShiftActive);
           }
         }}
         style={accuracyStyle}
